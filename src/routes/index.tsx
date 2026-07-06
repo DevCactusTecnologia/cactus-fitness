@@ -5,7 +5,7 @@ import {
   Plus, Bell, PanelLeftClose, PanelLeftOpen, Crown, Wallet, Lock, Activity,
   ChevronDown, ChevronRight, Pencil, HeartPulse, Dumbbell, Trophy, Gift,
   Lightbulb, Sparkles, Eye, ArrowRight, Menu as MenuIcon, Search,
-  UserPlus, FileText, Link2, ArrowUpRight, TrendingUp, AlertTriangle,
+  UserPlus, FileText, Link2, TrendingUp, AlertTriangle,
 } from "lucide-react";
 
 export const Route = createFileRoute("/")({
@@ -81,22 +81,6 @@ function Shortcut({ icon: Icon, title, sub, k, to }: { icon: React.ElementType; 
   );
   if (to) return <Link to={to} className={cls}>{inner}</Link>;
   return <button className={cls}>{inner}</button>;
-}
-
-function MiniStat({
-  icon: Icon, label, value, sub, hint,
-}: { icon: React.ElementType; label: string; value: string; sub: string; hint?: string }) {
-  return (
-    <div className="rounded-xl border border-border bg-background p-4">
-      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-        <Icon className="h-4 w-4 text-primary" /> {label}
-      </div>
-      <div className="mt-2 text-2xl font-semibold font-display">
-        {value} {sub && <span className="text-sm font-normal text-muted-foreground">{sub}</span>}
-      </div>
-      {hint && <div className="mt-1 text-xs text-primary">{hint}</div>}
-    </div>
-  );
 }
 
 function ListRow({
