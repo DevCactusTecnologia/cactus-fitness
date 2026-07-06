@@ -1,9 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Home, Calendar, GraduationCap, SlidersHorizontal, Plus, Bell, Users,
-  Dumbbell, ClipboardCheck, Trophy, Search, ChevronRight, Image as ImageIcon,
-  Video, Loader2,
+  Dumbbell, ClipboardCheck, Trophy, Search, ChevronLeft, Play,
+  SlidersHorizontal as FilterIcon, Loader2, AlertTriangle,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
@@ -88,12 +88,24 @@ function IconRail() {
 
 /* ---------- Page ---------- */
 
+const PAGE_SIZE = 20;
+const TABS = [
+  { id: "all", label: "Todos" },
+  { id: "app", label: "Do App" },
+  { id: "mine", label: "Meus" },
+] as const;
+type TabId = (typeof TABS)[number]["id"];
+
 function ExerciciosPage() {
   const [groups, setGroups] = useState<Group[]>([]);
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [loading, setLoading] = useState(true);
   const [query, setQuery] = useState("");
   const [activeGroup, setActiveGroup] = useState<number | "all">("all");
+  const [tab, setTab] = useState<TabId>("all");
+  const [visible, setVisible] = useState(PAGE_SIZE);
+  const [showFilters, setShowFilters] = useState(false);
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -122,74 +134,159 @@ function ExerciciosPage() {
     })();
   }, []);
 
-  const counts = useMemo(() => {
-    const m = new Map<number, number>();
-    exercises.forEach((x) => m.set(x.group_id, (m.get(x.group_id) ?? 0) + 1));
+  const groupById = useMemo(() => {
+    const m = new Map<number, Group>();
+    groups.forEach((g) => m.set(g.id, g));
     return m;
-  }, [exercises]);
+  }, [groups]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return exercises.filter((x) => {
+      if (tab === "mine") return false; // sem exercícios do usuário ainda
       if (activeGroup !== "all" && x.group_id !== activeGroup) return false;
       if (q && !x.name.toLowerCase().includes(q)) return false;
       return true;
     });
-  }, [exercises, query, activeGroup]);
+  }, [exercises, query, activeGroup, tab]);
 
-  const byGroup = useMemo(() => {
-    const m = new Map<number, Exercise[]>();
-    filtered.forEach((x) => {
-      const arr = m.get(x.group_id) ?? [];
-      arr.push(x);
-      m.set(x.group_id, arr);
-    });
-    return m;
-  }, [filtered]);
+  // Reset paginação ao mudar filtros
+  useEffect(() => {
+    setVisible(PAGE_SIZE);
+  }, [query, activeGroup, tab]);
+
+  // Infinite scroll
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting) {
+          setVisible((v) => Math.min(v + PAGE_SIZE, filtered.length));
+        }
+      },
+      { rootMargin: "400px 0px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [filtered.length]);
+
+  const shown = filtered.slice(0, visible);
+  const hasMore = visible < filtered.length;
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground pb-20 md:pb-0">
       <IconRail />
 
-      <main className="pb-24 md:ml-[72px] md:pb-0">
-        {/* Header translúcido */}
-        <div className="sticky top-0 z-30 border-b border-border/60 bg-background/70 backdrop-blur-xl">
-          <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6 md:px-8">
-            <div>
-              <h1 className="text-2xl font-bold tracking-tight font-display sm:text-3xl">Exercícios</h1>
-              <p className="text-xs text-muted-foreground sm:text-sm">
-                {loading ? "Carregando..." : `${exercises.length} exercícios em ${groups.length} grupos`}
-              </p>
-            </div>
-            <button className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.35)] hover:brightness-110">
-              <Plus className="h-4 w-4" /> Novo Exercício
+      <main className="md:ml-[72px]">
+        {/* Header sticky */}
+        <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-border/60 bg-background/80 px-4 py-4 backdrop-blur-xl md:px-6">
+          <div className="flex items-center gap-3 min-w-0">
+            <Link
+              to="/"
+              className="md:hidden grid h-8 w-8 place-items-center rounded-full text-muted-foreground active:scale-90 transition"
+              aria-label="Voltar"
+            >
+              <ChevronLeft className="h-5 w-5" />
+            </Link>
+            <h1 className="truncate text-xl font-bold font-display md:text-2xl">Exercícios</h1>
+          </div>
+          <div className="flex items-center gap-2">
+            <button
+              aria-label="Buscar"
+              className="grid h-9 w-9 place-items-center rounded-full text-muted-foreground hover:bg-white/5 hover:text-foreground transition"
+            >
+              <Search className="h-4 w-4" />
+            </button>
+            <button className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3.5 py-2 text-xs font-semibold text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.35)] hover:brightness-110 md:text-sm">
+              <Plus className="h-4 w-4" /> Novo
             </button>
           </div>
-        </div>
+        </header>
 
-        <div className="px-4 py-6 sm:px-6 md:px-8">
-          {/* Busca */}
-          <div className="mx-auto max-w-5xl">
-            <div className="flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2.5 text-sm">
-              <Search className="h-4 w-4 text-muted-foreground" />
-              <input
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                placeholder="Buscar exercício..."
-                className="w-full bg-transparent placeholder:text-muted-foreground focus:outline-none"
-              />
-              {query && (
-                <button onClick={() => setQuery("")} className="text-xs text-muted-foreground hover:text-foreground">
-                  limpar
-                </button>
-              )}
+        <div className="p-4 md:p-6 max-w-4xl mx-auto">
+          {/* Card tutorial vídeo */}
+          <button className="w-full bg-card border border-border rounded-xl p-3 flex items-center gap-3 text-left hover:border-primary/40 hover:bg-card/80 transition-all active:scale-[0.99] mb-4">
+            <div className="relative w-20 h-12 rounded-lg overflow-hidden bg-muted shrink-0 grid place-items-center">
+              <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-primary/5" />
+              <Play className="relative h-5 w-5 text-foreground drop-shadow" />
             </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[0.6875rem] uppercase tracking-wider text-primary font-semibold">
+                Tutorial em vídeo
+              </p>
+              <p className="text-sm font-semibold text-foreground line-clamp-1 mt-0.5">
+                Como subir exercícios na plataforma
+              </p>
+            </div>
+            <ChevronLeft className="h-4 w-4 rotate-180 text-muted-foreground shrink-0" />
+          </button>
 
-            {/* Chips de grupos */}
-            <div className="mt-4 flex flex-wrap gap-2">
+          {/* Aviso amarelo */}
+          <div className="flex items-center gap-2 rounded-lg bg-yellow-500/10 border border-yellow-500/20 px-3 py-2 mb-4 text-xs text-yellow-600 dark:text-yellow-400">
+            <AlertTriangle className="h-4 w-4 shrink-0" />
+            <span>Ainda estamos gravando os vídeos dos exercícios que estão faltando.</span>
+          </div>
+
+          {/* Busca */}
+          <div className="mb-3 flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2.5 text-sm">
+            <Search className="h-4 w-4 text-muted-foreground" />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Buscar exercício..."
+              className="w-full bg-transparent placeholder:text-muted-foreground focus:outline-none"
+            />
+            {query && (
+              <button
+                onClick={() => setQuery("")}
+                className="text-xs text-muted-foreground hover:text-foreground"
+              >
+                limpar
+              </button>
+            )}
+          </div>
+
+          {/* Tabs + Filtros */}
+          <div className="flex items-center justify-between gap-3 mb-4">
+            <div className="inline-flex items-center rounded-full bg-card border border-border p-1">
+              {TABS.map((t) => (
+                <button
+                  key={t.id}
+                  onClick={() => setTab(t.id)}
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition ${
+                    tab === t.id
+                      ? "bg-primary text-primary-foreground shadow-[0_0_16px_rgba(76,175,80,0.35)]"
+                      : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+            <button
+              onClick={() => setShowFilters((v) => !v)}
+              className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
+                showFilters || activeGroup !== "all"
+                  ? "border-primary/50 bg-primary/15 text-primary"
+                  : "border-border bg-card text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              <FilterIcon className="h-3.5 w-3.5" />
+              Filtros
+              {activeGroup !== "all" && (
+                <span className="ml-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-primary/25 px-1 text-[10px]">
+                  1
+                </span>
+              )}
+            </button>
+          </div>
+
+          {/* Chips (filtros) */}
+          {showFilters && (
+            <div className="mb-4 flex flex-wrap gap-2">
               <GroupChip
                 label="Todos"
-                count={exercises.length}
                 active={activeGroup === "all"}
                 onClick={() => setActiveGroup("all")}
               />
@@ -197,47 +294,47 @@ function ExerciciosPage() {
                 <GroupChip
                   key={g.id}
                   label={g.name}
-                  count={counts.get(g.id) ?? 0}
                   active={activeGroup === g.id}
                   onClick={() => setActiveGroup(g.id)}
                 />
               ))}
             </div>
+          )}
 
-            {/* Lista */}
-            {loading ? (
-              <div className="mt-10 flex items-center justify-center gap-2 text-sm text-muted-foreground">
-                <Loader2 className="h-4 w-4 animate-spin" /> Carregando exercícios...
+          {/* Lista */}
+          {loading ? (
+            <div className="mt-10 flex items-center justify-center gap-2 text-sm text-muted-foreground">
+              <Loader2 className="h-4 w-4 animate-spin" /> Carregando exercícios...
+            </div>
+          ) : (
+            <>
+              <div className="mb-3 text-xs text-muted-foreground">
+                Mostrando {shown.length} de {filtered.length}
               </div>
-            ) : (
-              <div className="mt-6 space-y-8">
-                {groups
-                  .filter((g) => activeGroup === "all" || g.id === activeGroup)
-                  .map((g) => {
-                    const items = byGroup.get(g.id) ?? [];
-                    if (items.length === 0) return null;
-                    return (
-                      <section key={g.id}>
-                        <div className="mb-3 flex items-baseline justify-between">
-                          <h2 className="text-lg font-bold font-display">{g.name}</h2>
-                          <span className="text-xs text-muted-foreground">{items.length} exercícios</span>
-                        </div>
-                        <div className="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
-                          {items.map((x) => (
-                            <ExerciseCard key={x.id} ex={x} />
-                          ))}
-                        </div>
-                      </section>
-                    );
-                  })}
+              <div className="space-y-3 pb-6">
+                {shown.map((x) => (
+                  <ExerciseRow
+                    key={x.id}
+                    ex={x}
+                    groupName={groupById.get(x.group_id)?.name ?? ""}
+                  />
+                ))}
                 {filtered.length === 0 && (
                   <div className="mt-10 rounded-xl border border-dashed border-border p-8 text-center text-sm text-muted-foreground">
                     Nenhum exercício encontrado.
                   </div>
                 )}
               </div>
-            )}
-          </div>
+              {hasMore && (
+                <div
+                  ref={sentinelRef}
+                  className="flex items-center justify-center gap-2 py-6 text-xs text-muted-foreground"
+                >
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" /> Carregando mais...
+                </div>
+              )}
+            </>
+          )}
         </div>
       </main>
 
@@ -247,37 +344,40 @@ function ExerciciosPage() {
 }
 
 function GroupChip({
-  label, count, active, onClick,
-}: { label: string; count: number; active?: boolean; onClick: () => void }) {
+  label, active, onClick,
+}: { label: string; active?: boolean; onClick: () => void }) {
   return (
     <button
       onClick={onClick}
-      className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+      className={`inline-flex items-center rounded-full border px-3 py-1.5 text-xs font-medium transition ${
         active
           ? "border-primary/50 bg-primary/15 text-primary"
-          : "border-border bg-card text-muted-foreground hover:border-border-strong hover:text-foreground"
+          : "border-border bg-card text-muted-foreground hover:text-foreground"
       }`}
     >
       {label}
-      <span className={active ? "opacity-90" : "opacity-60"}>({count})</span>
     </button>
   );
 }
 
-function ExerciseCard({ ex }: { ex: Exercise }) {
+function ExerciseRow({ ex, groupName }: { ex: Exercise; groupName: string }) {
   return (
-    <button className="group flex items-center gap-3 rounded-xl border border-border bg-card px-3 py-3 text-left transition hover:border-primary/40">
-      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
-        <Dumbbell className="h-5 w-5" strokeWidth={1.75} />
-      </div>
-      <div className="min-w-0 flex-1">
-        <div className="truncate text-sm font-medium">{ex.name}</div>
-        <div className="mt-0.5 flex items-center gap-3 text-[11px] text-muted-foreground">
-          <span className="inline-flex items-center gap-1"><ImageIcon className="h-3 w-3" /> foto</span>
-          <span className="inline-flex items-center gap-1"><Video className="h-3 w-3" /> vídeo</span>
+    <button className="w-full bg-card rounded-xl p-3 flex items-center gap-3 cursor-pointer hover:bg-card/70 border border-border/50 hover:border-primary/30 transition text-left">
+      <div className="relative w-12 h-12 rounded-lg bg-muted flex items-center justify-center shrink-0 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/25 to-primary/5" />
+        <div className="relative w-5 h-5 rounded-full bg-primary/95 flex items-center justify-center">
+          <Play className="h-2.5 w-2.5 text-primary-foreground ml-0.5" fill="currentColor" />
         </div>
       </div>
-      <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground transition group-hover:text-foreground" />
+      <div className="min-w-0 flex-1">
+        <h3 className="font-medium truncate text-sm">{ex.name}</h3>
+        <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
+          <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold text-muted-foreground bg-muted">
+            {groupName}
+          </span>
+        </div>
+      </div>
     </button>
   );
 }
+
