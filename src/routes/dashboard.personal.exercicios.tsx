@@ -97,12 +97,27 @@ function ExerciciosPage() {
 
   useEffect(() => {
     (async () => {
+      const pageSize = 1000;
+      const fetchAllExercises = async () => {
+        const all: Exercise[] = [];
+        for (let from = 0; ; from += pageSize) {
+          const { data, error } = await supabase
+            .from("exercises")
+            .select("id,name,group_id,is_active")
+            .order("name")
+            .range(from, from + pageSize - 1);
+          if (error || !data) break;
+          all.push(...(data as Exercise[]));
+          if (data.length < pageSize) break;
+        }
+        return all;
+      };
       const [g, e] = await Promise.all([
         supabase.from("exercise_groups").select("*").order("sort_order"),
-        supabase.from("exercises").select("id,name,group_id,is_active").order("name"),
+        fetchAllExercises(),
       ]);
       setGroups((g.data ?? []) as Group[]);
-      setExercises((e.data ?? []) as Exercise[]);
+      setExercises(e);
       setLoading(false);
     })();
   }, []);
