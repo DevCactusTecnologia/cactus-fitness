@@ -553,6 +553,7 @@ function AgendaPage() {
         onClose={() => setDeleting(null)}
         onConfirm={handleDelete}
       />
+      <MobileBottomNav />
     </div>
   );
 }
