@@ -8,6 +8,7 @@ import {
   UserPlus, FileText, Link2, TrendingUp, AlertTriangle, Clock, MapPin,
 } from "lucide-react";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
+import { UserAvatarMenu } from "@/components/UserAvatarMenu";
 import { supabase } from "@/integrations/supabase/client";
 
 
