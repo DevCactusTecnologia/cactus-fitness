@@ -19,7 +19,7 @@ function Sparkline({ up = true }: { up?: boolean }) {
     : "M 0 15 L 10 15 L 20 15 L 30 15 L 40 15 L 50 15 L 60 15 L 72 15";
   return (
     <svg viewBox="0 0 72 22" className="h-[22px] w-[72px] overflow-visible">
-      <path d={d} fill="none" stroke="var(--primary)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d={d} fill="none" stroke="hsl(var(--primary))" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -104,10 +104,10 @@ function ListRow({
 /* ---------- Sidebar ---------- */
 
 function SidebarIconBtn({
-  icon: Icon, active, badge, onClick, variant = "ghost",
+  icon: Icon, active, badge, onClick, to, variant = "ghost",
 }: {
   icon: React.ElementType; active?: boolean; badge?: string;
-  onClick?: () => void; variant?: "ghost" | "primary";
+  onClick?: () => void; to?: string; variant?: "ghost" | "primary";
 }) {
   const base = "relative grid h-11 w-11 place-items-center rounded-[10px] transition";
   const styles =
@@ -116,23 +116,25 @@ function SidebarIconBtn({
       : active
       ? "bg-primary/20 text-primary"
       : "text-sidebar-foreground/70 hover:bg-white/5 hover:text-sidebar-foreground";
-  return (
-    <button onClick={onClick} className={`${base} ${styles}`}>
+  const inner = (
+    <>
       {active && <span className="absolute -left-3.5 top-1/2 h-7 w-1 -translate-y-1/2 rounded-r-full bg-primary" />}
       <Icon className={variant === "primary" ? "h-4 w-4" : "h-5 w-5"} strokeWidth={1.75} />
-
       {badge && (
         <span className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-destructive px-1 text-[10px] font-semibold text-white">
           {badge}
         </span>
       )}
-    </button>
+    </>
   );
+  if (to) return <Link to={to} className={`${base} ${styles}`}>{inner}</Link>;
+  return <button onClick={onClick} className={`${base} ${styles}`}>{inner}</button>;
 }
 
-const NAV_ITEMS = [
+
+const NAV_ITEMS: { icon: React.ElementType; label: string; to: string; active?: boolean }[] = [
   { icon: Home, label: "Início", to: "/", active: true },
-  { icon: Calendar, label: "Agenda", to: "/" },
+  { icon: Calendar, label: "Agenda", to: "/dashboard/personal/agenda" },
   { icon: GraduationCap, label: "Tutoriais", to: "/" },
   { icon: SlidersHorizontal, label: "Configurações", to: "/" },
 ];
@@ -147,7 +149,7 @@ function IconRail() {
         </svg>
       </div>
       {NAV_ITEMS.map((n) => (
-        <SidebarIconBtn key={n.label} icon={n.icon} active={n.active} />
+        <SidebarIconBtn key={n.label} icon={n.icon} active={n.active} to={n.to} />
       ))}
 
       <div className="mt-auto flex flex-col items-center gap-2">
