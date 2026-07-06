@@ -132,9 +132,9 @@ function SidebarIconBtn({
 }
 
 
-const NAV_ITEMS = [
+const NAV_ITEMS: { icon: React.ElementType; label: string; to: string; active?: boolean }[] = [
   { icon: Home, label: "Início", to: "/", active: true },
-  { icon: Calendar, label: "Agenda", to: "/" },
+  { icon: Calendar, label: "Agenda", to: "/dashboard/personal/agenda" },
   { icon: GraduationCap, label: "Tutoriais", to: "/" },
   { icon: SlidersHorizontal, label: "Configurações", to: "/" },
 ];
@@ -149,7 +149,7 @@ function IconRail() {
         </svg>
       </div>
       {NAV_ITEMS.map((n) => (
-        <SidebarIconBtn key={n.label} icon={n.icon} active={n.active} />
+        <SidebarIconBtn key={n.label} icon={n.icon} active={n.active} to={n.to} />
       ))}
 
       <div className="mt-auto flex flex-col items-center gap-2">
