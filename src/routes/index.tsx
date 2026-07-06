@@ -510,11 +510,13 @@ function Dashboard() {
                 <GreetingCard />
                 <WalletCard />
               </div>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="grid grid-cols-2 gap-3">
                 <ActionButton icon={Lock} label="Adicionar Aluno" />
                 <ActionButton icon={Lock} label="Link de Cadastro" />
               </div>
+              <NextEventCard />
               <PulseRow />
+
               <div className="flex justify-end">
                 <button className="inline-flex items-center gap-1.5 rounded-full border border-primary/40 px-4 py-1.5 text-sm text-primary hover:bg-primary/10">
                   <Pencil className="h-3.5 w-3.5" /> Editar
