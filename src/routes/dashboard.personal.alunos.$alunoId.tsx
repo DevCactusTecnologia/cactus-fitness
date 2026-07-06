@@ -81,16 +81,16 @@ function AlunoDetailPage() {
           <Link to="/dashboard/personal/alunos" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
             <ArrowLeft className="h-4 w-4" /> voltar
           </Link>
-          <h1 className="text-2xl font-bold tracking-tight">Perfil do Aluno</h1>
+          <h1 className="text-2xl font-bold tracking-tight font-display">Perfil do Aluno</h1>
 
           {/* Header card */}
           <div className="rounded-xl border border-border bg-card p-5 md:p-6">
             <div className="flex items-center gap-4">
-              <div className="relative grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-full bg-fuchsia-600 text-lg font-bold text-white">
+              <div className="relative grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-full bg-gradient-to-br from-fuchsia-500 to-fuchsia-700 text-lg font-bold text-white font-display ring-2 ring-border shadow-md">
                 ML
               </div>
               <div className="min-w-0 flex-1">
-                <h2 className="truncate text-xl font-bold md:text-2xl">marcos Lisboa</h2>
+                <h2 className="truncate text-xl font-bold md:text-2xl font-display">marcos Lisboa</h2>
                 <p className="truncate text-sm text-muted-foreground">marcosalan.bcc@gmail.com</p>
                 <div className="mt-2 flex flex-wrap items-center gap-2">
                   <span className="inline-flex items-center rounded-full bg-primary/15 px-2.5 py-1 text-xs font-medium text-primary">

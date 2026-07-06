@@ -99,7 +99,7 @@ function AlunosPage() {
               <div className="grid h-11 w-11 place-items-center rounded-xl bg-primary/10 text-primary">
                 <Users className="h-5 w-5" />
               </div>
-              <h1 className="text-3xl font-semibold tracking-tight">Alunos</h1>
+              <h1 className="text-3xl font-bold tracking-tight font-display">Alunos</h1>
             </div>
             <div className="flex items-center gap-2">
               <button className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-2 text-sm hover:bg-accent">
@@ -172,7 +172,7 @@ function AlunosPage() {
               className="grid grid-cols-[1.5fr_1fr_1fr_auto] items-center gap-4 px-5 py-4 hover:bg-accent/50"
             >
               <div className="flex items-center gap-3">
-                <div className="grid h-10 w-10 place-items-center rounded-full bg-fuchsia-600 text-sm font-semibold text-white">ML</div>
+                <div className="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-fuchsia-500 to-fuchsia-700 text-sm font-bold text-white font-display ring-2 ring-border">ML</div>
                 <div className="min-w-0">
                   <div className="truncate font-medium">marcos_Lisboa</div>
                   <div className="truncate text-xs text-muted-foreground">marcosalan.bcc@gmail.com</div>
