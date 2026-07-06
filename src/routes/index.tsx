@@ -188,7 +188,7 @@ function Dashboard() {
               <span className="text-xs lowercase text-muted-foreground">use as teclas</span>
             </div>
             <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              <Shortcut icon={UserPlus} title="Novo aluno" sub="cadastrar ou convidar" k="N" to="/alunos" />
+              <Shortcut icon={UserPlus} title="Novo aluno" sub="cadastrar ou convidar" k="N" to="/dashboard/personal/alunos" />
               <Shortcut icon={FileText} title="Modelo de plano" sub="criar plano reutilizável" k="P" />
               <Shortcut icon={Link2} title="Link de cadastro" sub="página pública de alunos" k="L" />
               <Shortcut icon={HeartPulse} title="Avaliação física" sub="iniciar nova avaliação" k="A" />

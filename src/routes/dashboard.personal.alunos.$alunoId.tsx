@@ -5,7 +5,7 @@ import {
   Clock, Trophy, Pencil, Power, Trash2, Tag,
 } from "lucide-react";
 
-export const Route = createFileRoute("/alunos/$alunoId")({
+export const Route = createFileRoute("/dashboard/personal/alunos/$alunoId")({
   head: () => ({
     meta: [
       { title: "Perfil do Aluno · cactusfitness" },
@@ -65,7 +65,7 @@ function AlunoDetailPage() {
           <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor"><path d="M12 2c-3 4-3 8 0 12 3-4 3-8 0-12zm-7 10c4 3 8 3 12 0-4-3-8-3-12 0zm7 10c-3-4-3-8 0-12 3 4 3 8 0 12z"/></svg>
         </Link>
         <SidebarIcon icon={Home} to="/" />
-        <SidebarIcon icon={Users} to="/alunos" active />
+        <SidebarIcon icon={Users} to="/dashboard/personal/alunos" active />
         <SidebarIcon icon={Dumbbell} />
         <SidebarIcon icon={ClipboardCheck} />
         <SidebarIcon icon={Wallet} />
@@ -78,7 +78,7 @@ function AlunoDetailPage() {
 
       <main className="ml-16 px-8 py-8">
         <div className="mx-auto max-w-6xl">
-          <Link to="/alunos" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
+          <Link to="/dashboard/personal/alunos" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
             <ArrowLeft className="h-4 w-4" /> voltar
           </Link>
           <h1 className="mt-3 text-3xl font-semibold tracking-tight">Perfil do Aluno</h1>

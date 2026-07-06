@@ -5,7 +5,7 @@ import {
   ChevronRight, ChevronDown, Calendar, ArrowUpDown,
 } from "lucide-react";
 
-export const Route = createFileRoute("/alunos")({
+export const Route = createFileRoute("/dashboard/personal/alunos/")({
   head: () => ({
     meta: [
       { title: "Alunos · cactusfitness" },
@@ -167,7 +167,7 @@ function AlunosPage() {
               <div className="w-8" />
             </div>
             <Link
-              to="/alunos/$alunoId"
+              to="/dashboard/personal/alunos/$alunoId"
               params={{ alunoId: "aluno_rEq1kmNL0O" }}
               className="grid grid-cols-[1.5fr_1fr_1fr_auto] items-center gap-4 px-5 py-4 hover:bg-accent/50"
             >
