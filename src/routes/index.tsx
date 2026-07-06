@@ -96,6 +96,25 @@ function MiniStat({
   );
 }
 
+function ListRow({
+  icon: Icon, label, sub, value, valueClass,
+}: { icon: React.ElementType; label: string; sub: string; value: string; valueClass?: string }) {
+  return (
+    <li className="flex items-center gap-3">
+      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
+        <Icon className="h-4 w-4" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="text-sm font-medium">{label}</div>
+        <div className="truncate text-xs text-muted-foreground">{sub}</div>
+      </div>
+      {value && (
+        <div className={valueClass ?? "text-sm font-semibold text-primary"}>{value}</div>
+      )}
+    </li>
+  );
+}
+
 /* ---------- Sidebar ---------- */
 
 function SidebarIconBtn({
@@ -125,31 +144,37 @@ function SidebarIconBtn({
 
 const NAV_ITEMS = [
   { icon: Home, label: "Início", to: "/", active: true },
-  { icon: Users, label: "Alunos", to: "/dashboard/personal/alunos" },
   { icon: MessageCircle, label: "Mensagens", to: "/" },
   { icon: Calendar, label: "Agenda", to: "/" },
   { icon: GraduationCap, label: "Tutoriais", to: "/" },
   { icon: SlidersHorizontal, label: "Configurações", to: "/" },
 ];
 
+const SUBMENU_ITEMS = [
+  { icon: Home, label: "Início", to: "/", active: true },
+  { icon: Users, label: "Alunos", to: "/dashboard/personal/alunos" },
+  { icon: MessageCircle, label: "Mensagens", to: "/" },
+  { icon: Calendar, label: "Agenda", to: "/" },
+  { icon: GraduationCap, label: "Tutoriais", to: "/" },
+];
+
 function IconRail({ onToggleMenu, menuOpen }: { onToggleMenu: () => void; menuOpen: boolean }) {
   return (
-    <aside className="fixed inset-y-0 left-0 z-30 hidden w-16 flex-col items-center gap-2 border-r border-border bg-sidebar py-4 md:flex">
+    <aside className="fixed inset-y-0 left-0 z-40 hidden w-16 flex-col items-center gap-2 border-r border-border bg-sidebar py-4 md:flex">
       <div className="mb-2 grid h-10 w-10 place-items-center rounded-xl">
         <svg viewBox="0 0 32 32" className="h-7 w-7 text-primary" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <path d="M4 8 L10 24 L16 14 L22 24 L28 8" />
         </svg>
       </div>
-      {NAV_ITEMS.slice(0, 5).map((n) => (
+      {NAV_ITEMS.map((n) => (
         <SidebarIconBtn key={n.label} icon={n.icon} active={n.active} />
       ))}
-      <SidebarIconBtn icon={SlidersHorizontal} />
 
       <div className="mt-auto flex flex-col items-center gap-2">
         <SidebarIconBtn icon={Plus} variant="primary" />
         <SidebarIconBtn icon={Bell} badge="2" />
         <SidebarIconBtn
-          icon={menuOpen ? PanelLeftOpen : PanelLeftClose}
+          icon={menuOpen ? PanelLeftClose : PanelLeftOpen}
           onClick={onToggleMenu}
         />
         <div className="relative">
@@ -166,16 +191,23 @@ function IconRail({ onToggleMenu, menuOpen }: { onToggleMenu: () => void; menuOp
 /* ---------- Submenu (expandable panel) ---------- */
 
 function ExpandedMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
-  if (!open) return null;
+  // Persistent on lg+, overlay on md when toggled open
+  const overlayVisible = open;
   return (
     <>
-      <button
-        aria-label="Fechar menu"
-        onClick={onClose}
-        className="fixed inset-0 z-20 hidden bg-black/40 backdrop-blur-sm md:block"
-      />
-      <div className="fixed inset-y-0 left-16 z-30 hidden w-72 flex-col border-r border-border bg-sidebar p-4 md:flex">
-        <div className="mb-4 flex items-center gap-2 px-2">
+      {overlayVisible && (
+        <button
+          aria-label="Fechar menu"
+          onClick={onClose}
+          className="fixed inset-0 z-30 bg-black/40 backdrop-blur-sm md:block lg:hidden"
+        />
+      )}
+      <aside
+        className={`fixed inset-y-0 left-16 z-40 w-64 flex-col border-r border-border bg-sidebar p-4 lg:flex ${
+          overlayVisible ? "flex" : "hidden"
+        }`}
+      >
+        <div className="mb-4 flex items-center gap-2 px-2 pt-1">
           <svg viewBox="0 0 32 32" className="h-6 w-6 text-primary" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M4 8 L10 24 L16 14 L22 24 L28 8" />
           </svg>
@@ -184,9 +216,8 @@ function ExpandedMenu({ open, onClose }: { open: boolean; onClose: () => void })
           </span>
         </div>
 
-        {/* Plano grátis card */}
         <button className="mb-6 flex items-center gap-3 rounded-2xl border border-border bg-card px-3 py-3 text-left transition hover:border-primary/40">
-          <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-border text-[10px] font-semibold text-muted-foreground">
+          <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-border text-[10px] font-semibold uppercase text-muted-foreground">
             FREE
           </div>
           <div className="min-w-0 flex-1">
@@ -196,11 +227,11 @@ function ExpandedMenu({ open, onClose }: { open: boolean; onClose: () => void })
           <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground" />
         </button>
 
-        <div className="mb-2 px-2 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+        <div className="mb-2 px-2 text-[11px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">
           Navegação
         </div>
         <nav className="flex flex-col gap-1">
-          {NAV_ITEMS.slice(0, 5).map((n) => (
+          {SUBMENU_ITEMS.map((n) => (
             <Link
               key={n.label}
               to={n.to}
@@ -217,13 +248,13 @@ function ExpandedMenu({ open, onClose }: { open: boolean; onClose: () => void })
           ))}
         </nav>
 
-        <div className="mb-2 mt-6 px-2 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+        <div className="mb-2 mt-6 px-2 text-[11px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">
           Recentes
         </div>
         <div className="flex flex-col gap-1">
           {[
-            { icon: Home, label: "Início", when: "6min" },
-            { icon: Users, label: "Alunos", when: "43min" },
+            { icon: Home, label: "Início", when: "3min" },
+            { icon: Users, label: "Alunos", when: "39min" },
           ].map((r) => (
             <button
               key={r.label}
@@ -235,7 +266,7 @@ function ExpandedMenu({ open, onClose }: { open: boolean; onClose: () => void })
             </button>
           ))}
         </div>
-      </div>
+      </aside>
     </>
   );
 }
@@ -434,26 +465,27 @@ function Dashboard() {
       <ExpandedMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
       <MobileTopBar onOpenMenu={() => setMenuOpen(true)} />
 
-      <main className="pb-24 md:ml-16 md:pb-8">
+      <main className="pb-24 md:ml-16 md:pb-8 lg:ml-[320px]">
         {/* ==================== DESKTOP (lg+) ==================== */}
         <div className="hidden lg:block">
-          <div className="mx-auto max-w-7xl px-8 py-8">
+          <div className="mx-auto max-w-5xl px-8 py-6">
             {/* Header */}
-            <div className="flex flex-wrap items-end justify-between gap-4">
+            <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
                 <h1 className="text-3xl font-bold tracking-tight font-display">
-                  Boa tarde, <span className="text-primary">Marcos</span>
+                  Boa tarde, Marcos
                 </h1>
-                <p className="mt-1 text-sm text-muted-foreground">segunda-feira, 6 de julho</p>
+                <p className="mt-1 text-sm lowercase text-muted-foreground">segunda-feira, 6 de julho</p>
               </div>
               <div className="flex items-center gap-2">
-                <div className="flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 text-sm text-muted-foreground w-[320px]">
+                <div className="flex items-center gap-2 rounded-full border border-border bg-card/60 px-4 py-2 text-sm text-muted-foreground w-[320px]">
                   <Search className="h-4 w-4" />
-                  <span className="flex-1">Buscar aluno, plano, exercício…</span>
+                  <span className="flex-1 truncate">Buscar aluno, plano, exercício…</span>
                   <kbd className="rounded border border-border bg-background px-1.5 py-0.5 text-[11px]">⌘K</kbd>
                 </div>
-                <button className="inline-flex items-center gap-1.5 rounded-xl border border-primary/40 bg-primary/10 px-3 py-2 text-sm text-primary hover:bg-primary/15">
+                <button className="inline-flex items-center gap-1.5 rounded-full border border-primary/50 px-4 py-2 text-sm text-primary hover:bg-primary/10">
                   <Sparkles className="h-4 w-4" /> IA
+                  <span className="ml-1 h-1.5 w-1.5 rounded-full bg-primary" />
                 </button>
               </div>
             </div>
@@ -467,7 +499,7 @@ function Dashboard() {
             </div>
 
             {/* Hoje / Pulso */}
-            <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
+            <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
               <SectionCard
                 title="Hoje"
                 hint="nenhuma sessão agendada"
@@ -477,7 +509,7 @@ function Dashboard() {
                   </a>
                 }
               >
-                <div className="flex flex-col items-center justify-center gap-3 py-6 text-center">
+                <div className="flex flex-col items-center justify-center gap-3 py-8 text-center">
                   <div className="grid h-12 w-12 place-items-center rounded-full bg-primary/10 text-primary">
                     <Calendar className="h-6 w-6" />
                   </div>
@@ -493,7 +525,7 @@ function Dashboard() {
                   </a>
                 }
               >
-                <div className="flex flex-col items-center justify-center gap-3 py-6 text-center">
+                <div className="flex flex-col items-center justify-center gap-3 py-8 text-center">
                   <div className="grid h-12 w-12 place-items-center rounded-full bg-primary/10 text-primary">
                     <Activity className="h-6 w-6" />
                   </div>
@@ -502,33 +534,33 @@ function Dashboard() {
               </SectionCard>
             </div>
 
-            {/* Atalhos rápidos */}
-            <div className="mt-6 rounded-2xl border border-border bg-card p-5">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-medium">Atalhos rápidos</h3>
-                <span className="text-xs lowercase text-muted-foreground">use as teclas</span>
+            <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
+              {/* Atalhos rápidos */}
+              <div className="rounded-2xl border border-border bg-card p-5">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-semibold">Atalhos rápidos</h3>
+                  <span className="text-xs lowercase text-muted-foreground">use as teclas</span>
+                </div>
+                <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <Shortcut icon={UserPlus} title="Novo aluno" sub="cadastrar ou convidar" k="N" to="/dashboard/personal/alunos" />
+                  <Shortcut icon={FileText} title="Modelo de plano" sub="criar plano reutilizável" k="P" />
+                  <Shortcut icon={Link2} title="Link de cadastro" sub="página pública de alunos" k="L" />
+                  <Shortcut icon={HeartPulse} title="Avaliação física" sub="iniciar nova avaliação" k="A" />
+                </div>
               </div>
-              <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                <Shortcut icon={UserPlus} title="Novo aluno" sub="cadastrar ou convidar" k="N" to="/dashboard/personal/alunos" />
-                <Shortcut icon={FileText} title="Modelo de plano" sub="criar plano reutilizável" k="P" />
-                <Shortcut icon={Link2} title="Link de cadastro" sub="página pública de alunos" k="L" />
-                <Shortcut icon={HeartPulse} title="Avaliação física" sub="iniciar nova avaliação" k="A" />
-              </div>
-            </div>
 
-            {/* A acompanhar */}
-            <div className="mt-6 rounded-2xl border border-border bg-card p-5">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-medium">A acompanhar</h3>
-                <span className="text-xs lowercase text-muted-foreground">snapshot financeiro</span>
-              </div>
-              <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
-                <MiniStat icon={Wallet} label="Carteira" value="R$ 0,00" sub="disponível para saque" />
-                <MiniStat icon={AlertTriangle} label="Renovações vencendo" value="nenhuma" sub="nos próximos 7 dias" hint="ok" />
-                <MiniStat icon={TrendingUp} label="Próximo recebimento" value="—" sub="sem agendamentos" />
-              </div>
-              <div className="mt-4">
-                <a href="#" className="inline-flex items-center gap-1 text-sm text-primary hover:underline">
+              {/* A acompanhar */}
+              <div className="flex flex-col rounded-2xl border border-border bg-card p-5">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-semibold">A acompanhar</h3>
+                  <span className="text-xs lowercase text-muted-foreground">snapshot financeiro</span>
+                </div>
+                <ul className="mt-4 flex flex-col gap-3">
+                  <ListRow icon={Wallet} label="Carteira" sub="disponível para saque" value="R$ 0,00" />
+                  <ListRow icon={AlertTriangle} label="Renovações vencendo" sub="nenhuma nos próximos 7 dias" value="ok" valueClass="text-primary uppercase text-xs font-semibold" />
+                  <ListRow icon={TrendingUp} label="Próximo recebimento" sub="sem agendamentos" value="" />
+                </ul>
+                <a href="#" className="mt-4 inline-flex items-center gap-1 self-center text-sm text-primary hover:underline">
                   Ir para financeiro <ChevronRight className="h-4 w-4" />
                 </a>
               </div>
