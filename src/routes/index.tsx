@@ -452,7 +452,7 @@ function Dashboard() {
       <ExpandedMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
       <MobileTopBar onOpenMenu={() => setMenuOpen(true)} />
 
-      <main className="pb-24 md:ml-16 md:pb-8 lg:ml-0">
+      <main className="pb-24 md:ml-16 md:pb-8">
         {/* ==================== DESKTOP (lg+) ==================== */}
         <div className="hidden lg:block">
           <div className="mx-auto flex w-full max-w-[1180px] flex-col gap-4 px-4 pb-12 pt-4">
