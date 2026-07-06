@@ -1,8 +1,8 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
-  Home, Users, Dumbbell, ClipboardCheck, Wallet, Bell, Plus, PanelLeftClose,
-  Link2, Search, LayoutGrid, SlidersHorizontal, ArrowLeft,
-  ChevronRight, ChevronDown, Calendar, ArrowUpDown,
+  Home, Calendar, GraduationCap, SlidersHorizontal, Plus, Bell, Users,
+  Link2, Search, LayoutGrid, ChevronRight, ChevronDown, Play, Filter,
+  Activity, CalendarDays, ArrowUpDown,
 } from "lucide-react";
 
 export const Route = createFileRoute("/dashboard/personal/alunos/")({
@@ -15,49 +15,100 @@ export const Route = createFileRoute("/dashboard/personal/alunos/")({
   component: AlunosPage,
 });
 
-function SidebarIcon({
-  icon: Icon, active, badge, to,
-}: { icon: React.ElementType; active?: boolean; badge?: string; to?: string }) {
-  const cls = `relative grid h-10 w-10 place-items-center rounded-xl transition ${
-    active ? "bg-primary/15 text-primary" : "text-sidebar-foreground/70 hover:bg-white/5 hover:text-sidebar-foreground"
-  }`;
-  const content = (
+/* ---------- Sidebar (mesmo padrão do Início / Agenda) ---------- */
+
+const NAV = [
+  { icon: Home, label: "Início", to: "/" as const },
+  { icon: Calendar, label: "Agenda", to: "/dashboard/personal/agenda" as const },
+  { icon: GraduationCap, label: "Tutoriais", to: "/" as const },
+  { icon: SlidersHorizontal, label: "Configurações", to: "/" as const },
+];
+
+function SidebarIconBtn({
+  icon: Icon, active, badge, to, onClick, variant = "ghost",
+}: {
+  icon: React.ElementType; active?: boolean; badge?: string; to?: string;
+  onClick?: () => void; variant?: "ghost" | "primary";
+}) {
+  const base = "relative grid h-11 w-11 place-items-center rounded-[10px] transition";
+  const styles =
+    variant === "primary"
+      ? "h-8 w-8 bg-primary text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.35)] hover:brightness-110"
+      : active
+      ? "bg-primary/20 text-primary"
+      : "text-sidebar-foreground/70 hover:bg-white/5 hover:text-sidebar-foreground";
+  const inner = (
     <>
-      <Icon className="h-5 w-5" />
+      {active && <span className="absolute -left-3.5 top-1/2 h-7 w-1 -translate-y-1/2 rounded-r-full bg-primary" />}
+      <Icon className={variant === "primary" ? "h-4 w-4" : "h-5 w-5"} strokeWidth={1.75} />
       {badge && (
-        <span className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground">
+        <span className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-destructive px-1 text-[10px] font-semibold text-white">
           {badge}
         </span>
       )}
     </>
   );
-  if (to) return <Link to={to} className={cls}>{content}</Link>;
-  return <button className={cls}>{content}</button>;
+  if (to) return <Link to={to} className={`${base} ${styles}`}>{inner}</Link>;
+  return <button onClick={onClick} className={`${base} ${styles}`}>{inner}</button>;
 }
+
+function IconRail() {
+  return (
+    <aside className="fixed inset-y-0 left-0 z-40 hidden w-[72px] flex-col items-center gap-2 border-r border-border bg-sidebar py-4 md:flex">
+      <div className="mb-2 grid h-10 w-10 place-items-center rounded-xl">
+        <svg viewBox="0 0 32 32" className="h-7 w-7 text-primary" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M4 8 L10 24 L16 14 L22 24 L28 8" />
+        </svg>
+      </div>
+      {/* Início */}
+      <SidebarIconBtn icon={Home} to="/" />
+      {/* Alunos (active) — usamos o mesmo estilo do menu Agenda para manter consistência,
+          mas ativo. Alunos não tem rota separada no rail, então usamos Users com destaque */}
+      <SidebarIconBtn icon={Users} active />
+      <SidebarIconBtn icon={Calendar} to="/dashboard/personal/agenda" />
+      <SidebarIconBtn icon={GraduationCap} to="/" />
+      <SidebarIconBtn icon={SlidersHorizontal} to="/" />
+      <div className="mt-auto flex flex-col items-center gap-2">
+        <SidebarIconBtn icon={Plus} variant="primary" />
+        <SidebarIconBtn icon={Bell} badge="3" />
+        <div className="relative">
+          <div className="grid h-8 w-8 place-items-center rounded-lg bg-destructive text-xs font-bold text-white ring-1 ring-border hover:ring-border-strong font-display">
+            ML
+          </div>
+          <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-primary ring-2 ring-sidebar" />
+        </div>
+      </div>
+    </aside>
+  );
+}
+
+/* ---------- Info card ---------- */
 
 function InfoCard({
   title, desc, icon: Icon,
 }: { title: string; desc: string; icon: React.ElementType }) {
   return (
-    <button className="group flex items-center justify-between gap-4 rounded-2xl border border-border bg-card p-5 text-left transition hover:border-primary/40 hover:bg-accent">
-      <div className="flex items-start gap-4">
-        <div className="grid h-11 w-11 place-items-center rounded-xl bg-primary/10 text-primary">
-          <Icon className="h-5 w-5" />
+    <button className="group flex items-center justify-between gap-4 rounded-xl border border-border bg-card p-4 text-left transition hover:border-border-strong">
+      <div className="flex items-start gap-3">
+        <div className="grid h-10 w-10 place-items-center rounded-lg bg-primary/15 text-primary">
+          <Icon className="h-5 w-5" strokeWidth={1.75} />
         </div>
         <div>
-          <div className="font-medium">{title}</div>
-          <div className="mt-1 text-sm text-muted-foreground">{desc}</div>
+          <div className="text-sm font-semibold">{title}</div>
+          <div className="mt-0.5 text-xs text-muted-foreground">{desc}</div>
         </div>
       </div>
-      <ChevronRight className="h-5 w-5 text-muted-foreground transition group-hover:text-primary" />
+      <ChevronRight className="h-5 w-5 text-muted-foreground transition group-hover:text-foreground" />
     </button>
   );
 }
 
+/* ---------- Tab ---------- */
+
 function Tab({ label, count, active }: { label: string; count?: number; active?: boolean }) {
   return (
     <button
-      className={`rounded-full px-4 py-1.5 text-sm transition ${
+      className={`rounded-full px-3.5 py-1.5 text-sm transition ${
         active
           ? "bg-primary/15 text-primary"
           : "text-muted-foreground hover:bg-accent hover:text-foreground"
@@ -69,130 +120,127 @@ function Tab({ label, count, active }: { label: string; count?: number; active?:
   );
 }
 
+/* ---------- Page ---------- */
+
 function AlunosPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <aside className="fixed inset-y-0 left-0 z-20 flex w-16 flex-col items-center gap-2 border-r border-border bg-sidebar py-4">
-        <Link to="/" className="mb-2 grid h-10 w-10 place-items-center rounded-xl bg-primary text-primary-foreground">
-          <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor"><path d="M12 2c-3 4-3 8 0 12 3-4 3-8 0-12zm-7 10c4 3 8 3 12 0-4-3-8-3-12 0zm7 10c-3-4-3-8 0-12 3 4 3 8 0 12z"/></svg>
-        </Link>
-        <SidebarIcon icon={Home} to="/" />
-        <SidebarIcon icon={Users} active />
-        <SidebarIcon icon={Dumbbell} />
-        <SidebarIcon icon={ClipboardCheck} />
-        <SidebarIcon icon={Wallet} />
-        <div className="mt-auto flex flex-col items-center gap-2">
-          <SidebarIcon icon={Plus} />
-          <SidebarIcon icon={Bell} badge="1" />
-          <SidebarIcon icon={PanelLeftClose} />
-          <div className="grid h-10 w-10 place-items-center rounded-xl bg-destructive/90 text-sm font-semibold text-white">ML</div>
+      <IconRail />
+
+      <main className="px-6 py-6 md:ml-[72px] md:px-8 md:py-8">
+        {/* Header */}
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <h1 className="text-3xl font-bold tracking-tight font-display">Alunos</h1>
+          <div className="flex items-center gap-2">
+            <button className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-2 text-sm hover:bg-accent">
+              <Link2 className="h-4 w-4" /> Link de cadastro
+            </button>
+            <button className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.35)] hover:brightness-110">
+              <Plus className="h-4 w-4" /> Novo Aluno
+            </button>
+          </div>
         </div>
-      </aside>
 
-      <main className="ml-16 px-8 py-8">
-        <div className="mx-auto max-w-7xl">
-          {/* Back + title */}
-          <Link to="/" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
-            <ArrowLeft className="h-4 w-4" /> voltar
-          </Link>
-          <div className="mt-3 flex flex-wrap items-center justify-between gap-4">
+        {/* Tutorial banner */}
+        <button className="mt-6 flex w-full items-center justify-between gap-4 rounded-xl border border-border bg-card px-4 py-3 text-left hover:border-border-strong">
+          <div className="flex items-center gap-3">
+            <div className="grid h-9 w-9 place-items-center rounded-full bg-primary/15 text-primary">
+              <Play className="h-4 w-4 fill-current" />
+            </div>
+            <div>
+              <div className="text-[10px] font-semibold uppercase tracking-wider text-primary">Tutorial em vídeo</div>
+              <div className="text-sm font-semibold">Como cadastrar alunos no cactusfitness</div>
+            </div>
+          </div>
+          <ChevronRight className="h-5 w-5 text-muted-foreground" />
+        </button>
+
+        {/* Search + tools */}
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          <div className="flex min-w-[240px] flex-1 items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm">
+            <Search className="h-4 w-4 text-muted-foreground" />
+            <input
+              placeholder="buscar alunos..."
+              className="w-full bg-transparent placeholder:text-muted-foreground focus:outline-none"
+            />
+          </div>
+          <button className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3.5 py-2 text-sm hover:bg-accent">
+            <LayoutGrid className="h-4 w-4" /> Gerenciar Categorias
+          </button>
+        </div>
+
+        <div className="mt-3">
+          <button className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs text-muted-foreground hover:bg-accent">
+            <Filter className="h-3.5 w-3.5" /> Filtrar por categoria
+          </button>
+        </div>
+
+        {/* Info cards */}
+        <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
+          <InfoCard
+            icon={Activity}
+            title="Rotinas de treino"
+            desc="Veja quem treinou e quantas vezes em qualquer período."
+          />
+          <InfoCard
+            icon={CalendarDays}
+            title="Vencimento dos treinos"
+            desc="Veja quando o treino de cada aluno termina e quem precisa renovar."
+          />
+        </div>
+
+        {/* Tabs + sort */}
+        <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex flex-wrap items-center gap-1 rounded-full border border-border bg-card p-1">
+            <Tab label="Todos" count={1} active />
+            <Tab label="Ativos" count={1} />
+            <Tab label="Convidados" />
+            <Tab label="Desativados" />
+          </div>
+          <button className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-sm hover:bg-accent">
+            <ArrowUpDown className="h-4 w-4" /> Mais recentes
+            <ChevronDown className="h-4 w-4" />
+          </button>
+        </div>
+
+        <p className="mt-3 text-sm text-muted-foreground">1 aluno encontrado</p>
+
+        {/* Table */}
+        <div className="mt-2 overflow-hidden rounded-xl border border-border bg-card">
+          <div className="grid grid-cols-[1.6fr_1fr_1fr_auto] items-center gap-4 border-b border-border px-5 py-3 text-xs uppercase tracking-wider text-muted-foreground">
+            <div>Nome</div>
+            <div>Status</div>
+            <div>Último Acesso</div>
+            <div className="w-8" />
+          </div>
+          <Link
+            to="/dashboard/personal/alunos/$alunoId"
+            params={{ alunoId: "aluno_rEq1kmNL0O" }}
+            className="grid grid-cols-[1.6fr_1fr_1fr_auto] items-center gap-4 px-5 py-4 transition hover:bg-accent/50"
+          >
             <div className="flex items-center gap-3">
-              <div className="grid h-11 w-11 place-items-center rounded-xl bg-primary/10 text-primary">
-                <Users className="h-5 w-5" />
+              <div className="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-fuchsia-500 to-fuchsia-700 text-sm font-bold text-white font-display ring-2 ring-border">
+                ML
               </div>
-              <h1 className="text-3xl font-bold tracking-tight font-display">Alunos</h1>
-            </div>
-            <div className="flex items-center gap-2">
-              <button className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-2 text-sm hover:bg-accent">
-                <Link2 className="h-4 w-4" /> Link de cadastro
-              </button>
-              <button className="inline-flex items-center gap-1.5 rounded-xl bg-primary px-3 py-2 text-sm font-medium text-primary-foreground hover:opacity-90">
-                <Plus className="h-4 w-4" /> Novo Aluno
-              </button>
-            </div>
-          </div>
-
-          {/* Search + category tools */}
-          <div className="mt-6 flex flex-wrap items-center gap-2">
-            <div className="flex flex-1 min-w-[240px] items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 text-sm">
-              <Search className="h-4 w-4 text-muted-foreground" />
-              <input
-                placeholder="buscar alunos…"
-                className="w-full bg-transparent placeholder:text-muted-foreground focus:outline-none"
-              />
-            </div>
-            <button className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-2 text-sm hover:bg-accent">
-              <LayoutGrid className="h-4 w-4" /> Categorias
-            </button>
-            <button className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-2 text-sm hover:bg-accent">
-              <SlidersHorizontal className="h-4 w-4" /> Filtrar por categoria
-            </button>
-          </div>
-
-          {/* Info cards */}
-          <div className="mt-6 grid grid-cols-1 gap-4 md:grid-cols-2">
-            <InfoCard
-              icon={ArrowUpDown}
-              title="Rotinas de treino"
-              desc="Veja quem treinou e quantas vezes em qualquer período."
-            />
-            <InfoCard
-              icon={Calendar}
-              title="Vencimento dos treinos"
-              desc="Veja quando o treino de cada aluno termina e quem precisa renovar."
-            />
-          </div>
-
-          {/* Tabs + sort */}
-          <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
-            <div className="flex flex-wrap items-center gap-1 rounded-full border border-border bg-card p-1">
-              <Tab label="Todos" count={1} active />
-              <Tab label="Ativos" />
-              <Tab label="Convidados" count={1} />
-              <Tab label="Desativados" />
-            </div>
-            <button className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-3 py-2 text-sm hover:bg-accent">
-              <ArrowUpDown className="h-4 w-4" /> Mais recentes
-              <ChevronDown className="h-4 w-4" />
-            </button>
-          </div>
-
-          <p className="mt-4 text-sm text-muted-foreground">1 aluno encontrado</p>
-
-          {/* Table */}
-          <div className="mt-3 overflow-hidden rounded-2xl border border-border bg-card">
-            <div className="grid grid-cols-[1.5fr_1fr_1fr_auto] items-center gap-4 border-b border-border px-5 py-3 text-xs uppercase tracking-wider text-muted-foreground">
-              <div>Nome</div>
-              <div>Status</div>
-              <div>Último Acesso</div>
-              <div className="w-8" />
-            </div>
-            <Link
-              to="/dashboard/personal/alunos/$alunoId"
-              params={{ alunoId: "aluno_rEq1kmNL0O" }}
-              className="grid grid-cols-[1.5fr_1fr_1fr_auto] items-center gap-4 px-5 py-4 hover:bg-accent/50"
-            >
-              <div className="flex items-center gap-3">
-                <div className="grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-fuchsia-500 to-fuchsia-700 text-sm font-bold text-white font-display ring-2 ring-border">ML</div>
-                <div className="min-w-0">
-                  <div className="truncate font-medium">marcos_Lisboa</div>
-                  <div className="truncate text-xs text-muted-foreground">marcosalan.bcc@gmail.com</div>
-                </div>
+              <div className="min-w-0">
+                <div className="truncate font-medium">marcos Lisboa</div>
+                <div className="truncate text-xs text-muted-foreground">marcosalan.bcc@gmail.com</div>
               </div>
-              <div>
-                <span className="inline-flex items-center rounded-full bg-amber-500/15 px-2.5 py-0.5 text-xs text-amber-400">
-                  Convidado
-                </span>
-              </div>
-              <div className="text-sm">
-                <div>Nunca acessou</div>
-                <div className="text-xs text-muted-foreground">Convidado</div>
-              </div>
-              <span className="grid h-8 w-8 place-items-center rounded-lg text-muted-foreground">
-                <ChevronRight className="h-4 w-4" />
+            </div>
+            <div>
+              <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/15 px-2.5 py-0.5 text-xs font-medium text-primary">
+                <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                Ativo
               </span>
-            </Link>
-          </div>
+            </div>
+            <div className="text-sm">
+              <div>Hoje</div>
+              <div className="text-xs text-muted-foreground">Ativo</div>
+            </div>
+            <span className="grid h-8 w-8 place-items-center rounded-lg text-muted-foreground">
+              <ChevronRight className="h-4 w-4" />
+            </span>
+          </Link>
         </div>
       </main>
     </div>
