@@ -1,8 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
 import {
   Home, Users, MessageCircle, Calendar, GraduationCap, SlidersHorizontal,
-  Plus, Bell, PanelLeftClose, PanelLeftOpen, Crown, Wallet, Lock, Activity,
+  Plus, Bell, Crown, Wallet, Lock, Activity,
   ChevronDown, ChevronRight, Pencil, HeartPulse, Dumbbell, Trophy, Gift,
   Lightbulb, Sparkles, Eye, ArrowRight, Menu as MenuIcon, Search,
   UserPlus, FileText, Link2, TrendingUp, AlertTriangle,
