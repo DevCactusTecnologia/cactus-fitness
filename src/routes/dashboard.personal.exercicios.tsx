@@ -205,22 +205,6 @@ function ExerciciosPage() {
         </header>
 
         <div className="p-4 md:p-6 max-w-4xl mx-auto">
-          {/* Card tutorial vídeo */}
-          <button className="w-full bg-card border border-border rounded-xl p-3 flex items-center gap-3 text-left hover:border-primary/40 hover:bg-card/80 transition-all active:scale-[0.99] mb-4">
-            <div className="relative w-20 h-12 rounded-lg overflow-hidden bg-muted shrink-0 grid place-items-center">
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/30 to-primary/5" />
-              <Play className="relative h-5 w-5 text-foreground drop-shadow" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-[0.6875rem] uppercase tracking-wider text-primary font-semibold">
-                Tutorial em vídeo
-              </p>
-              <p className="text-sm font-semibold text-foreground line-clamp-1 mt-0.5">
-                Como subir exercícios na plataforma
-              </p>
-            </div>
-            <ChevronLeft className="h-4 w-4 rotate-180 text-muted-foreground shrink-0" />
-          </button>
 
           {/* Aviso amarelo */}
           <div className="flex items-center gap-2 rounded-lg bg-yellow-500/10 border border-yellow-500/20 px-3 py-2 mb-4 text-xs text-yellow-600 dark:text-yellow-400">
