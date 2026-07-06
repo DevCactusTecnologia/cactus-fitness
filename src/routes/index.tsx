@@ -167,7 +167,7 @@ function IconRail() {
 /* ---------- Mobile top / bottom bars ---------- */
 
 
-function MobileTopBar({ onOpenMenu }: { onOpenMenu: () => void }) {
+function MobileTopBar() {
   return (
     <header className="sticky top-0 z-20 flex items-center justify-between border-b border-border bg-background/80 px-4 py-3 backdrop-blur md:hidden">
       <div className="flex items-center gap-2">
