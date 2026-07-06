@@ -206,7 +206,7 @@ function ExpandedMenu({ open, onClose }: { open: boolean; onClose: () => void })
         />
       )}
       <aside
-        className={`fixed inset-y-0 left-16 z-40 w-64 flex-col border-r border-border bg-sidebar p-4 md:flex lg:hidden ${
+        className={`fixed inset-y-0 left-16 z-40 w-64 flex-col border-r border-border bg-sidebar p-4 lg:hidden ${
           overlayVisible ? "flex" : "hidden"
         }`}
       >
