@@ -463,7 +463,7 @@ function Dashboard() {
             </div>
 
             <div className="space-y-4">
-              <PlanBanner />
+              
               <div className="grid grid-cols-1 gap-4 md:grid-cols-[minmax(0,1fr)_320px]">
                 <GreetingCard />
                 <WalletCard />
