@@ -158,7 +158,7 @@ function IconRail() {
         </svg>
       </div>
       {NAV_ITEMS.map((n) => (
-        <SidebarIconBtn key={n.label} icon={n.icon} active={n.active} to={n.to} />
+        <SidebarIconBtn key={n.label} icon={n.icon} active={n.active} to={n.to} label={n.label} />
       ))}
 
       <div className="mt-auto flex flex-col items-center gap-2">
