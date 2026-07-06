@@ -181,7 +181,7 @@ function AlunosPage() {
         </div>
 
         {/* Info cards */}
-        <div className="mt-4 grid grid-cols-1 gap-3 md:grid-cols-2">
+        <div className="mt-4 flex flex-col gap-3">
           <InfoCard
             icon={Activity}
             title="Rotinas de treino"
