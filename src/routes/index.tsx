@@ -163,7 +163,7 @@ const SUBMENU_ITEMS = [
 
 function IconRail({ onToggleMenu, menuOpen }: { onToggleMenu: () => void; menuOpen: boolean }) {
   return (
-    <aside className="fixed inset-y-0 left-0 z-40 hidden w-16 flex-col items-center gap-2 border-r border-border bg-sidebar py-4 md:flex">
+    <aside className="fixed inset-y-0 left-0 z-40 hidden w-16 flex-col items-center gap-2 border-r border-border bg-sidebar py-4 md:flex lg:hidden">
       <div className="mb-2 grid h-10 w-10 place-items-center rounded-xl">
         <svg viewBox="0 0 32 32" className="h-7 w-7 text-primary" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <path d="M4 8 L10 24 L16 14 L22 24 L28 8" />
@@ -468,10 +468,10 @@ function Dashboard() {
       <ExpandedMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
       <MobileTopBar onOpenMenu={() => setMenuOpen(true)} />
 
-      <main className="pb-24 md:ml-16 md:pb-8">
+      <main className="pb-24 md:ml-16 md:pb-8 lg:ml-0">
         {/* ==================== DESKTOP (lg+) ==================== */}
         <div className="hidden lg:block">
-          <div className="mx-auto flex w-full max-w-[1180px] flex-col gap-4 px-6 pb-12 pt-6">
+          <div className="mx-auto flex w-full max-w-[1180px] flex-col gap-4 px-4 pb-12 pt-4">
             {/* Header */}
             <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between md:gap-6">
               <div>
@@ -494,7 +494,7 @@ function Dashboard() {
             </div>
 
             {/* KPIs */}
-            <div className="grid grid-cols-2 gap-3 xl:grid-cols-4">
+            <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
               <KpiCard label="Alunos ativos" value="1" sub="+1 este mês" trend="1" />
               <KpiCard label="Treinos ativos" value="0" sub="0 periodizados" />
               <KpiCard label="Receita do mês" value="R$ 0" sub="vs mês anterior" sparkUp={false} />
