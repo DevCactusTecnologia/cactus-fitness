@@ -12,6 +12,7 @@ type Item = {
 const ITEMS: Item[] = [
   { icon: Home, label: "Início", to: "/", match: (p) => p === "/" },
   { icon: Users, label: "Alunos", to: "/dashboard/personal/alunos", match: (p) => p.startsWith("/dashboard/personal/alunos") },
+  { icon: Dumbbell, label: "Exercícios", to: "/dashboard/personal/exercicios", match: (p) => p.startsWith("/dashboard/personal/exercicios") },
   { icon: Calendar, label: "Agenda", to: "/dashboard/personal/agenda", match: (p) => p.startsWith("/dashboard/personal/agenda") },
   { icon: Bell, label: "Notificações", badge: "2" },
   { icon: MenuIcon, label: "Menu" },

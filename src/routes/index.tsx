@@ -145,7 +145,7 @@ function SidebarIconBtn({
 const NAV_ITEMS: { icon: React.ElementType; label: string; to: string; active?: boolean }[] = [
   { icon: Home, label: "Início", to: "/", active: true },
   { icon: Users, label: "Alunos", to: "/dashboard/personal/alunos" },
-  { icon: Dumbbell, label: "Exercícios", to: "/" },
+  { icon: Dumbbell, label: "Exercícios", to: "/dashboard/personal/exercicios" },
   { icon: ClipboardCheck, label: "Avaliações", to: "/" },
   { icon: Trophy, label: "Desafios", to: "/" },
   { icon: Calendar, label: "Agenda", to: "/dashboard/personal/agenda" },
