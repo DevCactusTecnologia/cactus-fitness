@@ -7,6 +7,7 @@ import {
   Pencil, Trash2, Loader2, Users, Dumbbell, ClipboardCheck, Trophy,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { MobileBottomNav } from "@/components/MobileBottomNav";
 
 export const Route = createFileRoute("/dashboard/personal/agenda")({
   head: () => ({
