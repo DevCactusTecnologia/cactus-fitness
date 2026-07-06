@@ -40,7 +40,7 @@ type EventRow = {
 const NAV = [
   { icon: Home, label: "Início", to: "/" as const },
   { icon: Users, label: "Alunos", to: "/dashboard/personal/alunos" as const },
-  { icon: Dumbbell, label: "Exercícios", to: "/" as const },
+  { icon: Dumbbell, label: "Exercícios", to: "/dashboard/personal/exercicios" as const },
   { icon: ClipboardCheck, label: "Avaliações", to: "/" as const },
   { icon: Trophy, label: "Desafios", to: "/" as const },
   { icon: Calendar, label: "Agenda", to: "/dashboard/personal/agenda" as const, active: true },
