@@ -1,12 +1,15 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import {
   Home, Users, Calendar, GraduationCap, SlidersHorizontal,
   Plus, Bell, Crown, Wallet, Lock, Activity,
   ChevronDown, ChevronRight, Pencil, HeartPulse, Dumbbell, Trophy, Gift, ClipboardCheck,
   Lightbulb, Sparkles, Eye, ArrowRight, Menu as MenuIcon, Search,
-  UserPlus, FileText, Link2, TrendingUp, AlertTriangle,
+  UserPlus, FileText, Link2, TrendingUp, AlertTriangle, Clock, MapPin,
 } from "lucide-react";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
+import { supabase } from "@/integrations/supabase/client";
+
 
 
 export const Route = createFileRoute("/")({
@@ -231,7 +234,7 @@ function PlanBanner() {
 
 function GreetingCard() {
   return (
-    <div className="rounded-xl border border-border bg-card p-5">
+    <div className="rounded-2xl border border-border bg-[radial-gradient(120%_140%_at_100%_0%,rgba(76,175,80,0.14),transparent_55%),linear-gradient(160deg,var(--color-card)_0%,rgba(10,10,10,0.9)_100%)] p-5 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.6)]">
       <div className="flex items-center gap-4">
         <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-destructive text-sm font-semibold text-white">
           ML
@@ -262,7 +265,7 @@ function GreetingCard() {
 
 function WalletCard() {
   return (
-    <div className="flex h-full flex-col rounded-xl border border-border bg-card p-5">
+    <div className="flex h-full flex-col rounded-2xl border border-border bg-[radial-gradient(120%_140%_at_100%_0%,rgba(76,175,80,0.12),transparent_55%),linear-gradient(160deg,var(--color-card)_0%,rgba(10,10,10,0.9)_100%)] p-5">
       <div className="grid h-10 w-10 place-items-center rounded-full bg-primary/10 text-primary">
         <Wallet className="h-5 w-5" />
       </div>
@@ -282,14 +285,53 @@ function WalletCard() {
 
 function ActionButton({ icon: Icon, label }: { icon: React.ElementType; label: string }) {
   return (
-    <button className="flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-4 text-left transition hover:border-primary/40">
+    <button className="flex items-center gap-3 rounded-2xl border border-border bg-[radial-gradient(120%_140%_at_100%_0%,rgba(76,175,80,0.10),transparent_55%),linear-gradient(160deg,var(--color-card)_0%,rgba(10,10,10,0.9)_100%)] px-4 py-4 text-left transition hover:border-primary/40">
       <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-background/60 text-primary">
         <Icon className="h-5 w-5" strokeWidth={1.75} />
       </div>
-      <span className="text-base font-semibold">{label}</span>
+      <span className="text-sm font-semibold leading-tight sm:text-base">{label}</span>
     </button>
   );
 }
+
+function NextEventCard() {
+  const [event, setEvent] = useState<{ id: string; title: string; event_date: string; event_time: string; location: string | null } | null>(null);
+  useEffect(() => {
+    const today = new Date().toISOString().slice(0, 10);
+    supabase
+      .from("events")
+      .select("id, title, event_date, event_time, location")
+      .gte("event_date", today)
+      .order("event_date", { ascending: true })
+      .order("event_time", { ascending: true })
+      .limit(1)
+      .maybeSingle()
+      .then(({ data }) => setEvent(data as never));
+  }, []);
+  if (!event) return null;
+  const d = new Date(`${event.event_date}T${event.event_time}`);
+  const dateLabel = `${d.getDate()} de ${d.toLocaleDateString("pt-BR", { month: "long" })} às ${event.event_time.slice(0, 5)}`;
+  return (
+    <Link
+      to="/dashboard/personal/agenda"
+      className="relative flex items-start gap-3 overflow-hidden rounded-2xl border border-border bg-[radial-gradient(120%_140%_at_100%_0%,rgba(76,175,80,0.12),transparent_55%),linear-gradient(160deg,var(--color-card)_0%,rgba(10,10,10,0.9)_100%)] p-5"
+    >
+      <span className="absolute inset-y-3 left-0 w-1 rounded-r-full bg-amber-500" />
+      <div className="min-w-0 flex-1 pl-2">
+        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+          <Calendar className="h-3.5 w-3.5" /> Próximo evento
+        </div>
+        <div className="mt-1 truncate text-base font-bold font-display">{event.title}</div>
+        <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+          <span className="inline-flex items-center gap-1"><Clock className="h-3.5 w-3.5" /> {dateLabel}</span>
+          {event.location && <span className="inline-flex items-center gap-1"><MapPin className="h-3.5 w-3.5" /> {event.location}</span>}
+        </div>
+      </div>
+      <ChevronRight className="mt-1 h-4 w-4 shrink-0 text-muted-foreground" />
+    </Link>
+  );
+}
+
 
 function PulseRow() {
   return (
@@ -468,11 +510,13 @@ function Dashboard() {
                 <GreetingCard />
                 <WalletCard />
               </div>
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="grid grid-cols-2 gap-3">
                 <ActionButton icon={Lock} label="Adicionar Aluno" />
                 <ActionButton icon={Lock} label="Link de Cadastro" />
               </div>
+              <NextEventCard />
               <PulseRow />
+
               <div className="flex justify-end">
                 <button className="inline-flex items-center gap-1.5 rounded-full border border-primary/40 px-4 py-1.5 text-sm text-primary hover:bg-primary/10">
                   <Pencil className="h-3.5 w-3.5" /> Editar
