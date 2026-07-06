@@ -723,14 +723,15 @@ function NewExerciseWizard({
                 <select
                   value={data.objective}
                   onChange={(e) => setData({ ...data, objective: e.target.value })}
-                  className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2.5 text-sm focus:outline-none focus:border-primary transition"
+                  className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-primary transition [&>option]:bg-card [&>option]:text-foreground"
                 >
-                  <option value="">Selecione...</option>
+                  <option value="" className="bg-card text-foreground">Selecione...</option>
                   {OBJECTIVES.map((o) => (
-                    <option key={o} value={o}>{o}</option>
+                    <option key={o} value={o} className="bg-card text-foreground">{o}</option>
                   ))}
                 </select>
               </Field>
+
               <Field label="Equipamentos" hint="(opcional)">
                 <div className="max-h-[260px] overflow-y-auto pr-1">
                   <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
