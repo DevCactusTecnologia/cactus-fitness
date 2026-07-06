@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Home, Calendar, GraduationCap, SlidersHorizontal, Plus, Bell, Users,
   Link2, Search, LayoutGrid, ChevronRight, ChevronDown, Play, Filter,
-  Activity, CalendarDays, ArrowUpDown,
+  Activity, CalendarDays, ArrowUpDown, Dumbbell, ClipboardCheck, Trophy,
 } from "lucide-react";
 
 export const Route = createFileRoute("/dashboard/personal/alunos/")({
