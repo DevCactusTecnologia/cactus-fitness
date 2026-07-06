@@ -351,13 +351,11 @@ function ReferralBanner() {
 /* ---------- Dashboard ---------- */
 
 function Dashboard() {
-  const [menuOpen, setMenuOpen] = useState(false);
-
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <IconRail onToggleMenu={() => setMenuOpen((v) => !v)} menuOpen={menuOpen} />
-      <ExpandedMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
-      <MobileTopBar onOpenMenu={() => setMenuOpen(true)} />
+      <IconRail />
+      <MobileTopBar />
+
 
       <main className="pb-24 md:ml-16 md:pb-8">
         {/* ==================== DESKTOP (lg+) ==================== */}
