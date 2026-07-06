@@ -203,7 +203,7 @@ function ExpandedMenu({ open, onClose }: { open: boolean; onClose: () => void })
           </span>
         </div>
 
-        <button className="mb-6 flex items-center gap-3 rounded-2xl border border-border bg-card px-3 py-3 text-left transition hover:border-primary/40">
+        <button className="mb-6 flex items-center gap-3 rounded-xl border border-border bg-card px-3 py-3 text-left transition hover:border-primary/40">
           <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-border text-[10px] font-semibold uppercase text-muted-foreground">
             FREE
           </div>
@@ -321,7 +321,7 @@ function MobileBottomNav() {
 
 function PlanBanner() {
   return (
-    <div className="flex items-center gap-4 rounded-2xl border border-border bg-card p-4 md:p-5">
+    <div className="flex items-center gap-4 rounded-xl border border-border bg-card p-4 md:p-5">
       <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
         <Crown className="h-6 w-6" />
       </div>
@@ -338,7 +338,7 @@ function PlanBanner() {
 
 function GreetingCard() {
   return (
-    <div className="rounded-2xl border border-border bg-card p-5">
+    <div className="rounded-xl border border-border bg-card p-5">
       <div className="flex items-center gap-4">
         <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-destructive text-sm font-semibold text-white">
           ML
@@ -369,7 +369,7 @@ function GreetingCard() {
 
 function WalletCard() {
   return (
-    <div className="flex h-full flex-col rounded-2xl border border-border bg-card p-5">
+    <div className="flex h-full flex-col rounded-xl border border-border bg-card p-5">
       <div className="grid h-10 w-10 place-items-center rounded-full bg-primary/10 text-primary">
         <Wallet className="h-5 w-5" />
       </div>
@@ -389,7 +389,7 @@ function WalletCard() {
 
 function ActionButton({ icon: Icon, label }: { icon: React.ElementType; label: string }) {
   return (
-    <button className="flex items-center gap-3 rounded-2xl border border-border bg-card px-4 py-4 text-left transition hover:border-primary/40">
+    <button className="flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-4 text-left transition hover:border-primary/40">
       <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-background/60 text-primary">
         <Icon className="h-5 w-5" strokeWidth={1.75} />
       </div>
@@ -400,7 +400,7 @@ function ActionButton({ icon: Icon, label }: { icon: React.ElementType; label: s
 
 function PulseRow() {
   return (
-    <button className="flex w-full items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3.5 text-left transition hover:border-primary/40">
+    <button className="flex w-full items-center gap-3 rounded-xl border border-border bg-card px-4 py-3.5 text-left transition hover:border-primary/40">
       <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white/5 text-muted-foreground">
         <Activity className="h-5 w-5" strokeWidth={1.75} />
       </div>
@@ -426,7 +426,7 @@ function QuickTile({ icon: Icon, label }: { icon: React.ElementType; label: stri
 
 function ReferralBanner() {
   return (
-    <div className="flex items-center gap-4 rounded-2xl border border-primary/30 bg-[linear-gradient(135deg,rgba(76,175,80,0.12),rgba(76,175,80,0.04))] p-4 md:p-5">
+    <div className="flex items-center gap-4 rounded-xl border border-primary/30 bg-[linear-gradient(135deg,rgba(76,175,80,0.12),rgba(76,175,80,0.04))] p-4 md:p-5">
       <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-primary/15 text-primary">
         <Gift className="h-5 w-5" />
       </div>
@@ -587,7 +587,7 @@ function Dashboard() {
                   <Pencil className="h-3.5 w-3.5" /> Editar
                 </button>
               </div>
-              <div className="rounded-2xl border border-border bg-card p-4 md:p-6">
+              <div className="rounded-xl border border-border bg-card p-4 md:p-6">
                 <div className="grid grid-cols-4 gap-3 md:grid-cols-5">
                   <QuickTile icon={Users} label="Alunos" />
                   <QuickTile icon={HeartPulse} label="Avaliações" />
