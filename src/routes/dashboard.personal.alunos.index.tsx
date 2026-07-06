@@ -4,6 +4,7 @@ import {
   Link2, Search, LayoutGrid, ChevronRight, ChevronDown, Play, Filter,
   Activity, CalendarDays, ArrowUpDown, Dumbbell, ClipboardCheck, Trophy,
 } from "lucide-react";
+import { MobileBottomNav } from "@/components/MobileBottomNav";
 
 export const Route = createFileRoute("/dashboard/personal/alunos/")({
   head: () => ({
@@ -132,7 +133,7 @@ function AlunosPage() {
     <div className="min-h-screen bg-background text-foreground">
       <IconRail />
 
-      <main className="md:ml-[72px]">
+      <main className="pb-24 md:ml-[72px] md:pb-0">
         {/* Header translúcido */}
         <div className="sticky top-0 z-30 border-b border-border/60 bg-background/70 backdrop-blur-xl">
           <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6 md:px-8">
@@ -243,9 +244,8 @@ function AlunosPage() {
         </div>
         </div>
       </main>
-
-
-
+      <MobileBottomNav />
     </div>
+
   );
 }

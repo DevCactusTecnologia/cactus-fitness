@@ -7,6 +7,7 @@ import {
   Pencil, Trash2, Loader2, Users, Dumbbell, ClipboardCheck, Trophy,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { MobileBottomNav } from "@/components/MobileBottomNav";
 
 export const Route = createFileRoute("/dashboard/personal/agenda")({
   head: () => ({
@@ -457,7 +458,7 @@ function AgendaPage() {
     <div className="min-h-screen bg-background text-foreground">
       <IconRail />
 
-      <main className="px-6 py-6 md:ml-[72px] md:px-8 md:py-8">
+      <main className="px-6 pb-24 pt-6 md:ml-[72px] md:px-8 md:py-8 md:pb-8">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <h1 className="text-3xl font-bold tracking-tight font-display">Agenda</h1>
           <div className="flex items-center gap-2">
@@ -552,6 +553,7 @@ function AgendaPage() {
         onClose={() => setDeleting(null)}
         onConfirm={handleDelete}
       />
+      <MobileBottomNav />
     </div>
   );
 }
