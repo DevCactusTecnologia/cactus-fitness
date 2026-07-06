@@ -564,8 +564,34 @@ function NewExerciseWizard({
     group_id: groups[0]?.id ?? null,
     difficulty: "", objective: "", equipment: [],
     muscles_primary: [], muscles_secondary: [],
-    video_url: "",
+    video_url: "", image_path: "", video_path: "",
   });
+  const [mediaTab, setMediaTab] = useState<"url" | "photo" | "video">("url");
+  const [uploading, setUploading] = useState<null | "photo" | "video">(null);
+  const [imagePreview, setImagePreview] = useState<string>("");
+  const [videoPreview, setVideoPreview] = useState<string>("");
+
+  const uploadFile = async (file: File, kind: "photo" | "video") => {
+    setUploading(kind); setError(null);
+    try {
+      const ext = file.name.split(".").pop() || (kind === "photo" ? "jpg" : "mp4");
+      const path = `${personalId}/${Date.now()}-${crypto.randomUUID()}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("exercise-media").upload(path, file, { contentType: file.type });
+      if (upErr) throw upErr;
+      const { data: signed } = await supabase.storage.from("exercise-media").createSignedUrl(path, 60 * 60 * 24 * 365);
+      if (kind === "photo") {
+        setData((d) => ({ ...d, image_path: path }));
+        setImagePreview(signed?.signedUrl ?? "");
+      } else {
+        setData((d) => ({ ...d, video_path: path, video_url: "" }));
+        setVideoPreview(signed?.signedUrl ?? "");
+      }
+    } catch (e: any) {
+      setError(e.message ?? "Falha no upload");
+    } finally {
+      setUploading(null);
+    }
+  };
 
   const meta = STEP_META[step];
   const canNext = step === 1 ? data.name.trim().length > 0 : step === 3 ? data.group_id !== null : true;
@@ -583,10 +609,13 @@ function NewExerciseWizard({
       muscles_primary: data.muscles_primary,
       muscles_secondary: data.muscles_secondary,
       video_url: data.video_url.trim() || null,
+      image_path: data.image_path || null,
+      video_path: data.video_path || null,
       owner_id: personalId,
 
       is_active: true,
     };
+
     const { error: err } = await (supabase.from("exercises") as any).insert(payload);
     setSaving(false);
     if (err) { setError(err.message); return; }
