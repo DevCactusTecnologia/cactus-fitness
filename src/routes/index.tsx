@@ -51,7 +51,7 @@ function SectionCard({
   title, hint, children, headerAction, footer,
 }: { title: string; hint?: string; children: React.ReactNode; headerAction?: React.ReactNode; footer?: React.ReactNode }) {
   return (
-    <section className="flex flex-col rounded-xl border border-border bg-bg-elevated">
+    <section className="flex flex-col rounded-lg border border-border bg-bg-elevated">
       <div className="flex items-center justify-between border-b border-border px-4 py-3">
         <div>
           <h2 className="font-display text-base font-bold">{title}</h2>
