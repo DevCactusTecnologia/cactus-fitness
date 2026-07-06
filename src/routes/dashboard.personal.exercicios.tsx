@@ -133,8 +133,10 @@ type TabId = (typeof TABS)[number]["id"];
 
 function ExerciciosPage() {
   const [groups, setGroups] = useState<Group[]>([]);
+  const [equipments, setEquipments] = useState<Equipment[]>([]);
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [loading, setLoading] = useState(true);
+
   const [query, setQuery] = useState("");
   const [activeGroup, setActiveGroup] = useState<number | "all">("all");
   const [tab, setTab] = useState<TabId>("all");
