@@ -719,14 +719,46 @@ function NewExerciseWizard({
                   ))}
                 </div>
               </Field>
-              <Field label="Equipamento" hint="(opcional)">
-                <input
-                  value={data.equipment}
-                  onChange={(e) => setData({ ...data, equipment: e.target.value })}
-                  placeholder="Ex: Halteres, Barra, Corpo livre"
+              <Field label="Objetivo" hint="(opcional)">
+                <select
+                  value={data.objective}
+                  onChange={(e) => setData({ ...data, objective: e.target.value })}
                   className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2.5 text-sm focus:outline-none focus:border-primary transition"
-                />
+                >
+                  <option value="">Selecione...</option>
+                  {OBJECTIVES.map((o) => (
+                    <option key={o} value={o}>{o}</option>
+                  ))}
+                </select>
               </Field>
+              <Field label="Equipamentos" hint="(opcional)">
+                <div className="max-h-[260px] overflow-y-auto pr-1">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    {equipments.map((eq) => {
+                      const active = data.equipment.includes(eq.name);
+                      return (
+                        <button
+                          key={eq.id}
+                          type="button"
+                          onClick={() => setData({ ...data, equipment: toggle(data.equipment, eq.name) })}
+                          className={`flex items-center justify-between gap-2 px-3 py-2.5 rounded-lg border text-sm text-left transition-colors ${
+                            active
+                              ? "border-primary bg-primary/15 text-primary"
+                              : "border-border bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+                          }`}
+                        >
+                          <span className="truncate">{eq.name}</span>
+                          {active && <Check className="h-3.5 w-3.5 shrink-0" />}
+                        </button>
+                      );
+                    })}
+                    {equipments.length === 0 && (
+                      <p className="col-span-full text-xs text-muted-foreground">Nenhum equipamento cadastrado.</p>
+                    )}
+                  </div>
+                </div>
+              </Field>
+
             </div>
           )}
 
