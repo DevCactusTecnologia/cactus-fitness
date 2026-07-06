@@ -1,9 +1,9 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Home, Calendar, GraduationCap, SlidersHorizontal, Plus, Bell, Users,
-  Dumbbell, ClipboardCheck, Trophy, Search, ChevronRight, Image as ImageIcon,
-  Video, Loader2,
+  Dumbbell, ClipboardCheck, Trophy, Search, ChevronLeft, Play,
+  SlidersHorizontal as FilterIcon, Loader2, AlertTriangle,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
