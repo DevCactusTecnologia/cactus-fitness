@@ -4,7 +4,7 @@ import {
   Home, Users, MessageCircle, Calendar, GraduationCap, SlidersHorizontal,
   Plus, Bell, PanelLeftClose, PanelLeftOpen, Crown, Wallet, Lock, Activity,
   ChevronDown, ChevronRight, Pencil, HeartPulse, Dumbbell, Trophy, Gift,
-  Lightbulb, Sparkles, Eye, ArrowRight, Menu as MenuIcon, X,
+  Lightbulb, Sparkles, Eye, ArrowRight, Menu as MenuIcon,
 } from "lucide-react";
 
 export const Route = createFileRoute("/")({
