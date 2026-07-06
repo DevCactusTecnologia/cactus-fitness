@@ -125,31 +125,37 @@ function SidebarIconBtn({
 
 const NAV_ITEMS = [
   { icon: Home, label: "Início", to: "/", active: true },
-  { icon: Users, label: "Alunos", to: "/dashboard/personal/alunos" },
   { icon: MessageCircle, label: "Mensagens", to: "/" },
   { icon: Calendar, label: "Agenda", to: "/" },
   { icon: GraduationCap, label: "Tutoriais", to: "/" },
   { icon: SlidersHorizontal, label: "Configurações", to: "/" },
 ];
 
+const SUBMENU_ITEMS = [
+  { icon: Home, label: "Início", to: "/", active: true },
+  { icon: Users, label: "Alunos", to: "/dashboard/personal/alunos" },
+  { icon: MessageCircle, label: "Mensagens", to: "/" },
+  { icon: Calendar, label: "Agenda", to: "/" },
+  { icon: GraduationCap, label: "Tutoriais", to: "/" },
+];
+
 function IconRail({ onToggleMenu, menuOpen }: { onToggleMenu: () => void; menuOpen: boolean }) {
   return (
-    <aside className="fixed inset-y-0 left-0 z-30 hidden w-16 flex-col items-center gap-2 border-r border-border bg-sidebar py-4 md:flex">
+    <aside className="fixed inset-y-0 left-0 z-40 hidden w-16 flex-col items-center gap-2 border-r border-border bg-sidebar py-4 md:flex">
       <div className="mb-2 grid h-10 w-10 place-items-center rounded-xl">
         <svg viewBox="0 0 32 32" className="h-7 w-7 text-primary" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <path d="M4 8 L10 24 L16 14 L22 24 L28 8" />
         </svg>
       </div>
-      {NAV_ITEMS.slice(0, 5).map((n) => (
+      {NAV_ITEMS.map((n) => (
         <SidebarIconBtn key={n.label} icon={n.icon} active={n.active} />
       ))}
-      <SidebarIconBtn icon={SlidersHorizontal} />
 
       <div className="mt-auto flex flex-col items-center gap-2">
         <SidebarIconBtn icon={Plus} variant="primary" />
         <SidebarIconBtn icon={Bell} badge="2" />
         <SidebarIconBtn
-          icon={menuOpen ? PanelLeftOpen : PanelLeftClose}
+          icon={menuOpen ? PanelLeftClose : PanelLeftOpen}
           onClick={onToggleMenu}
         />
         <div className="relative">
