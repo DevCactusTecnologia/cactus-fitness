@@ -533,7 +533,7 @@ function Dashboard() {
               </section>
 
               {/* A acompanhar */}
-              <section className="rounded-xl border border-border bg-bg-elevated">
+              <section className="rounded-lg border border-border bg-bg-elevated">
                 <div className="border-b border-border px-4 py-3">
                   <h2 className="font-display text-base font-bold">A acompanhar</h2>
                   <p className="text-[0.6875rem] text-fg-muted">snapshot financeiro</p>
