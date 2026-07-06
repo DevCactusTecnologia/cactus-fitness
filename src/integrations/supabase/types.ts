@@ -62,6 +62,74 @@ export type Database = {
         }
         Relationships: []
       }
+      exercise_groups: {
+        Row: {
+          created_at: string
+          id: number
+          name: string
+          slug: string
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          id: number
+          name: string
+          slug: string
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          name?: string
+          slug?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      exercises: {
+        Row: {
+          created_at: string
+          group_id: number
+          id: number
+          image_path: string | null
+          is_active: boolean
+          name: string
+          updated_at: string
+          video_id: string | null
+          video_path: string | null
+        }
+        Insert: {
+          created_at?: string
+          group_id: number
+          id: number
+          image_path?: string | null
+          is_active?: boolean
+          name: string
+          updated_at?: string
+          video_id?: string | null
+          video_path?: string | null
+        }
+        Update: {
+          created_at?: string
+          group_id?: number
+          id?: number
+          image_path?: string | null
+          is_active?: boolean
+          name?: string
+          updated_at?: string
+          video_id?: string | null
+          video_path?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "exercises_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "exercise_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
