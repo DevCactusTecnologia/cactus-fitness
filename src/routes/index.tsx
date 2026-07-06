@@ -1,8 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
 import {
   Home, Users, MessageCircle, Calendar, GraduationCap, SlidersHorizontal,
-  Plus, Bell, PanelLeftClose, PanelLeftOpen, Crown, Wallet, Lock, Activity,
+  Plus, Bell, Crown, Wallet, Lock, Activity,
   ChevronDown, ChevronRight, Pencil, HeartPulse, Dumbbell, Trophy, Gift,
   Lightbulb, Sparkles, Eye, ArrowRight, Menu as MenuIcon, Search,
   UserPlus, FileText, Link2, TrendingUp, AlertTriangle,
@@ -137,15 +136,8 @@ const NAV_ITEMS = [
   { icon: SlidersHorizontal, label: "Configurações", to: "/" },
 ];
 
-const SUBMENU_ITEMS = [
-  { icon: Home, label: "Início", to: "/", active: true },
-  { icon: Users, label: "Alunos", to: "/dashboard/personal/alunos" },
-  { icon: MessageCircle, label: "Mensagens", to: "/" },
-  { icon: Calendar, label: "Agenda", to: "/" },
-  { icon: GraduationCap, label: "Tutoriais", to: "/" },
-];
 
-function IconRail({ onToggleMenu, menuOpen }: { onToggleMenu: () => void; menuOpen: boolean }) {
+function IconRail() {
   return (
     <aside className="fixed inset-y-0 left-0 z-40 hidden w-16 flex-col items-center gap-2 border-r border-border bg-sidebar py-4 md:flex">
       <div className="mb-2 grid h-10 w-10 place-items-center rounded-xl">
@@ -160,10 +152,6 @@ function IconRail({ onToggleMenu, menuOpen }: { onToggleMenu: () => void; menuOp
       <div className="mt-auto flex flex-col items-center gap-2">
         <SidebarIconBtn icon={Plus} variant="primary" />
         <SidebarIconBtn icon={Bell} badge="2" />
-        <SidebarIconBtn
-          icon={menuOpen ? PanelLeftClose : PanelLeftOpen}
-          onClick={onToggleMenu}
-        />
         <div className="relative">
           <div className="grid h-9 w-9 place-items-center rounded-full bg-destructive text-sm font-bold text-white ring-1 ring-border hover:ring-border-strong font-display">
             ML
@@ -175,92 +163,10 @@ function IconRail({ onToggleMenu, menuOpen }: { onToggleMenu: () => void; menuOp
   );
 }
 
-/* ---------- Submenu (expandable panel) ---------- */
-
-function ExpandedMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
-  // Persistent on lg+, overlay on md when toggled open
-  const overlayVisible = open;
-  return (
-    <>
-      {overlayVisible && (
-        <button
-          aria-label="Fechar menu"
-          onClick={onClose}
-          className="fixed inset-0 z-30 bg-black/40 backdrop-blur-sm md:block"
-        />
-      )}
-      <aside
-        className={`fixed inset-y-0 left-16 z-40 w-64 flex-col border-r border-border bg-sidebar p-4 ${
-          overlayVisible ? "flex" : "hidden"
-        }`}
-      >
-        <div className="mb-4 flex items-center gap-2 px-2 pt-1">
-          <svg viewBox="0 0 32 32" className="h-6 w-6 text-primary" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-            <path d="M4 8 L10 24 L16 14 L22 24 L28 8" />
-          </svg>
-          <span className="text-lg font-semibold tracking-tight font-display">
-            well<span className="italic font-normal">trainer</span>
-          </span>
-        </div>
-
-        <button className="mb-6 flex items-center gap-3 rounded-xl border border-border bg-card px-3 py-3 text-left transition hover:border-primary/40">
-          <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-border text-[10px] font-semibold uppercase text-muted-foreground">
-            FREE
-          </div>
-          <div className="min-w-0 flex-1">
-            <div className="text-sm font-semibold">Plano Grátis</div>
-            <div className="truncate text-xs text-muted-foreground">conheça os planos pagos</div>
-          </div>
-          <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground" />
-        </button>
-
-        <div className="mb-2 px-2 text-[11px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-          Navegação
-        </div>
-        <nav className="flex flex-col gap-1">
-          {SUBMENU_ITEMS.map((n) => (
-            <Link
-              key={n.label}
-              to={n.to}
-              onClick={onClose}
-              className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm transition ${
-                n.active
-                  ? "bg-primary/15 text-primary"
-                  : "text-sidebar-foreground/85 hover:bg-white/5 hover:text-sidebar-foreground"
-              }`}
-            >
-              <n.icon className="h-5 w-5" strokeWidth={1.75} />
-              <span className="font-medium">{n.label}</span>
-            </Link>
-          ))}
-        </nav>
-
-        <div className="mb-2 mt-6 px-2 text-[11px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">
-          Recentes
-        </div>
-        <div className="flex flex-col gap-1">
-          {[
-            { icon: Home, label: "Início", when: "3min" },
-            { icon: Users, label: "Alunos", when: "39min" },
-          ].map((r) => (
-            <button
-              key={r.label}
-              className="flex items-center gap-3 rounded-xl px-3 py-2 text-sm text-sidebar-foreground/75 hover:bg-white/5"
-            >
-              <r.icon className="h-4 w-4" strokeWidth={1.75} />
-              <span className="flex-1 text-left">{r.label}</span>
-              <span className="text-xs text-muted-foreground">{r.when}</span>
-            </button>
-          ))}
-        </div>
-      </aside>
-    </>
-  );
-}
-
 /* ---------- Mobile top / bottom bars ---------- */
 
-function MobileTopBar({ onOpenMenu }: { onOpenMenu: () => void }) {
+
+function MobileTopBar() {
   return (
     <header className="sticky top-0 z-20 flex items-center justify-between border-b border-border bg-background/80 px-4 py-3 backdrop-blur md:hidden">
       <div className="flex items-center gap-2">
@@ -444,13 +350,11 @@ function ReferralBanner() {
 /* ---------- Dashboard ---------- */
 
 function Dashboard() {
-  const [menuOpen, setMenuOpen] = useState(false);
-
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <IconRail onToggleMenu={() => setMenuOpen((v) => !v)} menuOpen={menuOpen} />
-      <ExpandedMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
-      <MobileTopBar onOpenMenu={() => setMenuOpen(true)} />
+      <IconRail />
+      <MobileTopBar />
+
 
       <main className="pb-24 md:ml-16 md:pb-8">
         {/* ==================== DESKTOP (lg+) ==================== */}
