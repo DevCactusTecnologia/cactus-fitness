@@ -1,9 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
 import {
   Home, Users, Dumbbell, ClipboardCheck, Wallet, Bell, Plus, PanelLeftClose,
   ArrowLeft, LogIn, Mail, Phone, ShieldAlert, Calendar, User,
-  Clock, Trophy, Pencil, Power, Trash2, Tag, ChevronRight,
+  Clock, Trophy, Pencil, Power, Trash2, Tag, Copy, FileText, Sparkles,
 } from "lucide-react";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 
 export const Route = createFileRoute("/dashboard/personal/alunos/$alunoId")({
   head: () => ({
@@ -57,7 +64,25 @@ const TABS = [
   "Progresso", "Cargas", "Financeiro",
 ];
 
+function PermissionRow({
+  title, description, defaultChecked,
+}: { title: string; description: string; defaultChecked?: boolean }) {
+  return (
+    <div className="flex items-start justify-between gap-4 rounded-xl border border-border bg-background/40 p-4">
+      <div className="min-w-0">
+        <p className="text-sm font-medium">{title}</p>
+        <p className="mt-0.5 text-xs text-muted-foreground">{description}</p>
+      </div>
+      <Switch defaultChecked={defaultChecked} />
+    </div>
+  );
+}
+
 function AlunoDetailPage() {
+  const [activeTab, setActiveTab] = useState(0);
+  const [novoPlanoOpen, setNovoPlanoOpen] = useState(false);
+  const [configOpen, setConfigOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <aside className="fixed inset-y-0 left-0 z-20 flex w-16 flex-col items-center gap-2 border-r border-border bg-sidebar py-4">
@@ -128,8 +153,9 @@ function AlunoDetailPage() {
                 {TABS.map((t, i) => (
                   <button
                     key={t}
+                    onClick={() => setActiveTab(i)}
                     className={`whitespace-nowrap px-4 py-3 text-sm font-medium transition-colors ${
-                      i === 0
+                      i === activeTab
                         ? "border-b-2 border-primary text-primary"
                         : "text-muted-foreground hover:text-foreground"
                     }`}
@@ -141,69 +167,227 @@ function AlunoDetailPage() {
             </div>
 
             <div className="p-5 md:p-6">
-              <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-                {/* Contato */}
-                <div className="space-y-3">
-                  <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Contato</h3>
-                  <Row icon={Mail} label="Email" value="marcosalan.bcc@gmail.com" />
-                  <Row icon={Phone} label="Telefone" value="(83) 99634-0118" />
-                  <Row icon={ShieldAlert} label="Telefone de Emergência" value="Não informado" />
+              {activeTab === 0 && <InformacoesTab />}
+              {activeTab === 1 && <TreinosTab onNovoPlano={() => setNovoPlanoOpen(true)} />}
+              {activeTab > 1 && (
+                <div className="py-12 text-center text-sm text-muted-foreground">
+                  Em breve.
                 </div>
-                {/* Dados Pessoais */}
-                <div className="space-y-3">
-                  <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Dados Pessoais</h3>
-                  <Row icon={Calendar} label="Data de Nascimento" value="02/09/1988" />
-                  <Row
-                    icon={User}
-                    label="Gênero"
-                    valueNode={
-                      <span className="inline-flex items-center rounded-full bg-accent px-2 py-0.5 text-xs">Feminino</span>
-                    }
-                  />
-                  <Row icon={Clock} label="Último Acesso" value="Hoje" />
-                </div>
-              </div>
-
-              {/* Ranking */}
-              <div className="mt-6 space-y-3 border-t border-border pt-4">
-                <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Ranking</h3>
-                <div className="rounded-xl border border-border bg-background/40 p-4">
-                  <div className="flex items-center gap-3">
-                    <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-accent text-primary">
-                      <Trophy className="h-5 w-5" />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium">Ranking</p>
-                      <p className="text-xs text-muted-foreground">
-                        marcos ainda não está no ranking. Treinos concluídos colocam o aluno na disputa.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Actions */}
-              <div className="mt-6 space-y-4 border-t border-border pt-4">
-                <div className="flex flex-wrap items-center gap-2">
-                  <button className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3.5 py-2 text-sm font-semibold hover:bg-accent">
-                    <Pencil className="h-4 w-4" /> Editar dados
-                  </button>
-                  <button className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3.5 py-2 text-sm font-semibold hover:bg-accent">
-                    <Power className="h-4 w-4" /> Desativar aluno
-                  </button>
-                  <button className="inline-flex items-center gap-1.5 rounded-full border border-destructive/40 bg-destructive/10 px-3.5 py-2 text-sm font-semibold text-destructive hover:bg-destructive/15">
-                    <Trash2 className="h-4 w-4" /> Excluir aluno
-                  </button>
-                </div>
-                <div className="flex items-center justify-between text-xs text-muted-foreground">
-                  <span>Cadastrado em 06/07/2026</span>
-                  <span>Atualizado em 06/07/2026</span>
-                </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
       </main>
+
+      {/* Modal: Novo plano */}
+      <Dialog open={novoPlanoOpen} onOpenChange={setNovoPlanoOpen}>
+        <DialogContent className="max-w-lg gap-0 p-0">
+          <DialogHeader className="border-b border-border p-5">
+            <DialogTitle className="font-display text-lg">Novo plano · marcos Lisboa</DialogTitle>
+            <DialogDescription className="sr-only">Escolha como criar o novo plano</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-5 p-5">
+            <div>
+              <p className="text-sm font-semibold">De onde começar?</p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Use um modelo pronto pra acelerar — ou comece do zero pra montar tudo manualmente.
+              </p>
+            </div>
+
+            <button
+              onClick={() => {
+                setNovoPlanoOpen(false);
+                setConfigOpen(true);
+              }}
+              className="group flex w-full items-start gap-3 rounded-xl border border-border bg-background/40 p-4 text-left transition hover:border-primary/60 hover:bg-primary/5"
+            >
+              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-primary/15 text-primary">
+                <Sparkles className="h-5 w-5" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold">Começar do zero</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  Plano simples em branco, 4 semanas, 3x por semana — você ajusta tudo no builder.
+                </p>
+              </div>
+            </button>
+
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Modelos prontos</p>
+                <span className="rounded-full bg-accent px-1.5 py-0.5 text-[10px] font-semibold">0</span>
+              </div>
+              <div className="rounded-xl border border-dashed border-border p-4 text-center text-xs text-muted-foreground">
+                Você ainda não criou nenhum modelo. Comece do zero.
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modal: Configurações do plano */}
+      <Dialog open={configOpen} onOpenChange={setConfigOpen}>
+        <DialogContent className="max-w-xl gap-0 p-0">
+          <DialogHeader className="border-b border-border p-5">
+            <DialogTitle className="font-display text-lg">Novo plano · marcos Lisboa</DialogTitle>
+            <DialogDescription className="sr-only">Configurações do plano</DialogDescription>
+          </DialogHeader>
+          <div className="max-h-[70vh] space-y-6 overflow-y-auto p-5">
+            <div>
+              <p className="text-sm font-semibold">Configurações do plano</p>
+            </div>
+
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+              <div className="md:col-span-3">
+                <Label className="text-xs">Nome do plano</Label>
+                <Input className="mt-1.5" defaultValue="Plano de marcos" />
+              </div>
+              <div>
+                <Label className="text-xs">Início</Label>
+                <Input className="mt-1.5" type="date" />
+              </div>
+              <div>
+                <Label className="text-xs">Duração (semanas)</Label>
+                <Input className="mt-1.5" type="number" defaultValue={4} min={1} />
+              </div>
+            </div>
+
+            <div className="space-y-3">
+              <div>
+                <p className="text-sm font-semibold">Permissões na execução</p>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  Defina como o aluno vai interagir com o treino durante a execução.
+                </p>
+              </div>
+              <div className="space-y-2">
+                <PermissionRow
+                  title="Solicitar RPE por exercício"
+                  description="O aluno deverá informar o nível de esforço percebido (1 a 10) após cada exercício."
+                />
+                <PermissionRow
+                  title="Permitir adicionar séries"
+                  description="O aluno poderá adicionar séries extras além do prescrito durante o treino."
+                  defaultChecked
+                />
+                <PermissionRow
+                  title="Rastrear tempo das séries"
+                  description="O aluno usa um botão Iniciar e o cronômetro registra o tempo até concluir cada série."
+                />
+                <PermissionRow
+                  title="Permitir baixar o treino em PDF"
+                  description="O aluno pode exportar o treino em PDF. Desligue para manter o PDF só com você."
+                  defaultChecked
+                />
+              </div>
+            </div>
+          </div>
+          <DialogFooter className="border-t border-border p-4">
+            <button
+              onClick={() => setConfigOpen(false)}
+              className="inline-flex items-center justify-center rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
+            >
+              Continuar para o builder
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
+function InformacoesTab() {
+  return (
+    <>
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+        {/* Contato */}
+        <div className="space-y-3">
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Contato</h3>
+          <Row icon={Mail} label="Email" value="marcosalan.bcc@gmail.com" />
+          <Row icon={Phone} label="Telefone" value="(83) 99634-0118" />
+          <Row icon={ShieldAlert} label="Telefone de Emergência" value="Não informado" />
+        </div>
+        {/* Dados Pessoais */}
+        <div className="space-y-3">
+          <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Dados Pessoais</h3>
+          <Row icon={Calendar} label="Data de Nascimento" value="02/09/1988" />
+          <Row
+            icon={User}
+            label="Gênero"
+            valueNode={
+              <span className="inline-flex items-center rounded-full bg-accent px-2 py-0.5 text-xs">Feminino</span>
+            }
+          />
+          <Row icon={Clock} label="Último Acesso" value="Hoje" />
+        </div>
+      </div>
+
+      {/* Ranking */}
+      <div className="mt-6 space-y-3 border-t border-border pt-4">
+        <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Ranking</h3>
+        <div className="rounded-xl border border-border bg-background/40 p-4">
+          <div className="flex items-center gap-3">
+            <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-accent text-primary">
+              <Trophy className="h-5 w-5" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-medium">Ranking</p>
+              <p className="text-xs text-muted-foreground">
+                marcos ainda não está no ranking. Treinos concluídos colocam o aluno na disputa.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Actions */}
+      <div className="mt-6 space-y-4 border-t border-border pt-4">
+        <div className="flex flex-wrap items-center gap-2">
+          <button className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3.5 py-2 text-sm font-semibold hover:bg-accent">
+            <Pencil className="h-4 w-4" /> Editar dados
+          </button>
+          <button className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3.5 py-2 text-sm font-semibold hover:bg-accent">
+            <Power className="h-4 w-4" /> Desativar aluno
+          </button>
+          <button className="inline-flex items-center gap-1.5 rounded-full border border-destructive/40 bg-destructive/10 px-3.5 py-2 text-sm font-semibold text-destructive hover:bg-destructive/15">
+            <Trash2 className="h-4 w-4" /> Excluir aluno
+          </button>
+        </div>
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <span>Cadastrado em 06/07/2026</span>
+          <span>Atualizado em 06/07/2026</span>
+        </div>
+      </div>
+    </>
+  );
+}
+
+function TreinosTab({ onNovoPlano }: { onNovoPlano: () => void }) {
+  return (
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h3 className="font-display text-base font-semibold">Planos de Treino</h3>
+        <div className="flex items-center gap-2">
+          <button className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3.5 py-2 text-sm font-semibold hover:bg-accent">
+            <Copy className="h-4 w-4" /> Copiar existente
+          </button>
+          <button
+            onClick={onNovoPlano}
+            className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3.5 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90"
+          >
+            <Plus className="h-4 w-4" /> Novo Plano
+          </button>
+        </div>
+      </div>
+
+      <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border bg-background/40 px-6 py-12 text-center">
+        <div className="grid h-12 w-12 place-items-center rounded-2xl bg-accent text-primary">
+          <FileText className="h-6 w-6" />
+        </div>
+        <p className="text-sm font-medium">Nenhum plano de treino para este aluno.</p>
+        <p className="max-w-sm text-xs text-muted-foreground">
+          Crie um plano personalizado ou use um modelo pronto.
+        </p>
+      </div>
     </div>
   );
 }
