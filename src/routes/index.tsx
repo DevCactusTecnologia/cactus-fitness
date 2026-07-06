@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
-  Home, Users, MessageCircle, Calendar, GraduationCap, SlidersHorizontal,
+  Home, Users, Calendar, GraduationCap, SlidersHorizontal,
   Plus, Bell, Crown, Wallet, Lock, Activity,
   ChevronDown, ChevronRight, Pencil, HeartPulse, Dumbbell, Trophy, Gift,
   Lightbulb, Sparkles, Eye, ArrowRight, Menu as MenuIcon, Search,
