@@ -10,12 +10,18 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DashboardPersonalAgendaRouteImport } from './routes/dashboard.personal.agenda'
 import { Route as DashboardPersonalAlunosIndexRouteImport } from './routes/dashboard.personal.alunos.index'
 import { Route as DashboardPersonalAlunosAlunoIdRouteImport } from './routes/dashboard.personal.alunos.$alunoId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardPersonalAgendaRoute = DashboardPersonalAgendaRouteImport.update({
+  id: '/dashboard/personal/agenda',
+  path: '/dashboard/personal/agenda',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardPersonalAlunosIndexRoute =
@@ -33,17 +39,20 @@ const DashboardPersonalAlunosAlunoIdRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/dashboard/personal/agenda': typeof DashboardPersonalAgendaRoute
   '/dashboard/personal/alunos/$alunoId': typeof DashboardPersonalAlunosAlunoIdRoute
   '/dashboard/personal/alunos/': typeof DashboardPersonalAlunosIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/dashboard/personal/agenda': typeof DashboardPersonalAgendaRoute
   '/dashboard/personal/alunos/$alunoId': typeof DashboardPersonalAlunosAlunoIdRoute
   '/dashboard/personal/alunos': typeof DashboardPersonalAlunosIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/dashboard/personal/agenda': typeof DashboardPersonalAgendaRoute
   '/dashboard/personal/alunos/$alunoId': typeof DashboardPersonalAlunosAlunoIdRoute
   '/dashboard/personal/alunos/': typeof DashboardPersonalAlunosIndexRoute
 }
@@ -51,19 +60,26 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/dashboard/personal/agenda'
     | '/dashboard/personal/alunos/$alunoId'
     | '/dashboard/personal/alunos/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/dashboard/personal/alunos/$alunoId' | '/dashboard/personal/alunos'
+  to:
+    | '/'
+    | '/dashboard/personal/agenda'
+    | '/dashboard/personal/alunos/$alunoId'
+    | '/dashboard/personal/alunos'
   id:
     | '__root__'
     | '/'
+    | '/dashboard/personal/agenda'
     | '/dashboard/personal/alunos/$alunoId'
     | '/dashboard/personal/alunos/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  DashboardPersonalAgendaRoute: typeof DashboardPersonalAgendaRoute
   DashboardPersonalAlunosAlunoIdRoute: typeof DashboardPersonalAlunosAlunoIdRoute
   DashboardPersonalAlunosIndexRoute: typeof DashboardPersonalAlunosIndexRoute
 }
@@ -75,6 +91,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/personal/agenda': {
+      id: '/dashboard/personal/agenda'
+      path: '/dashboard/personal/agenda'
+      fullPath: '/dashboard/personal/agenda'
+      preLoaderRoute: typeof DashboardPersonalAgendaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard/personal/alunos/': {
@@ -96,9 +119,20 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  DashboardPersonalAgendaRoute: DashboardPersonalAgendaRoute,
   DashboardPersonalAlunosAlunoIdRoute: DashboardPersonalAlunosAlunoIdRoute,
   DashboardPersonalAlunosIndexRoute: DashboardPersonalAlunosIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
