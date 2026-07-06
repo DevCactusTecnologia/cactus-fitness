@@ -236,7 +236,9 @@ function AlunosPage() {
             </span>
           </Link>
         </div>
+        </div>
       </main>
+
     </div>
   );
 }
