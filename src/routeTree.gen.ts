@@ -9,64 +9,67 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as AlunosRouteImport } from './routes/alunos'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as AlunosAlunoIdRouteImport } from './routes/alunos.$alunoId'
+import { Route as DashboardPersonalAlunosIndexRouteImport } from './routes/dashboard.personal.alunos.index'
+import { Route as DashboardPersonalAlunosAlunoIdRouteImport } from './routes/dashboard.personal.alunos.$alunoId'
 
-const AlunosRoute = AlunosRouteImport.update({
-  id: '/alunos',
-  path: '/alunos',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AlunosAlunoIdRoute = AlunosAlunoIdRouteImport.update({
-  id: '/$alunoId',
-  path: '/$alunoId',
-  getParentRoute: () => AlunosRoute,
-} as any)
+const DashboardPersonalAlunosIndexRoute =
+  DashboardPersonalAlunosIndexRouteImport.update({
+    id: '/dashboard/personal/alunos/',
+    path: '/dashboard/personal/alunos/',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const DashboardPersonalAlunosAlunoIdRoute =
+  DashboardPersonalAlunosAlunoIdRouteImport.update({
+    id: '/dashboard/personal/alunos/$alunoId',
+    path: '/dashboard/personal/alunos/$alunoId',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/alunos': typeof AlunosRouteWithChildren
-  '/alunos/$alunoId': typeof AlunosAlunoIdRoute
+  '/dashboard/personal/alunos/$alunoId': typeof DashboardPersonalAlunosAlunoIdRoute
+  '/dashboard/personal/alunos/': typeof DashboardPersonalAlunosIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/alunos': typeof AlunosRouteWithChildren
-  '/alunos/$alunoId': typeof AlunosAlunoIdRoute
+  '/dashboard/personal/alunos/$alunoId': typeof DashboardPersonalAlunosAlunoIdRoute
+  '/dashboard/personal/alunos': typeof DashboardPersonalAlunosIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/alunos': typeof AlunosRouteWithChildren
-  '/alunos/$alunoId': typeof AlunosAlunoIdRoute
+  '/dashboard/personal/alunos/$alunoId': typeof DashboardPersonalAlunosAlunoIdRoute
+  '/dashboard/personal/alunos/': typeof DashboardPersonalAlunosIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/alunos' | '/alunos/$alunoId'
+  fullPaths:
+    | '/'
+    | '/dashboard/personal/alunos/$alunoId'
+    | '/dashboard/personal/alunos/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/alunos' | '/alunos/$alunoId'
-  id: '__root__' | '/' | '/alunos' | '/alunos/$alunoId'
+  to: '/' | '/dashboard/personal/alunos/$alunoId' | '/dashboard/personal/alunos'
+  id:
+    | '__root__'
+    | '/'
+    | '/dashboard/personal/alunos/$alunoId'
+    | '/dashboard/personal/alunos/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AlunosRoute: typeof AlunosRouteWithChildren
+  DashboardPersonalAlunosAlunoIdRoute: typeof DashboardPersonalAlunosAlunoIdRoute
+  DashboardPersonalAlunosIndexRoute: typeof DashboardPersonalAlunosIndexRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/alunos': {
-      id: '/alunos'
-      path: '/alunos'
-      fullPath: '/alunos'
-      preLoaderRoute: typeof AlunosRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -74,30 +77,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/alunos/$alunoId': {
-      id: '/alunos/$alunoId'
-      path: '/$alunoId'
-      fullPath: '/alunos/$alunoId'
-      preLoaderRoute: typeof AlunosAlunoIdRouteImport
-      parentRoute: typeof AlunosRoute
+    '/dashboard/personal/alunos/': {
+      id: '/dashboard/personal/alunos/'
+      path: '/dashboard/personal/alunos'
+      fullPath: '/dashboard/personal/alunos/'
+      preLoaderRoute: typeof DashboardPersonalAlunosIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/personal/alunos/$alunoId': {
+      id: '/dashboard/personal/alunos/$alunoId'
+      path: '/dashboard/personal/alunos/$alunoId'
+      fullPath: '/dashboard/personal/alunos/$alunoId'
+      preLoaderRoute: typeof DashboardPersonalAlunosAlunoIdRouteImport
+      parentRoute: typeof rootRouteImport
     }
   }
 }
 
-interface AlunosRouteChildren {
-  AlunosAlunoIdRoute: typeof AlunosAlunoIdRoute
-}
-
-const AlunosRouteChildren: AlunosRouteChildren = {
-  AlunosAlunoIdRoute: AlunosAlunoIdRoute,
-}
-
-const AlunosRouteWithChildren =
-  AlunosRoute._addFileChildren(AlunosRouteChildren)
-
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AlunosRoute: AlunosRouteWithChildren,
+  DashboardPersonalAlunosAlunoIdRoute: DashboardPersonalAlunosAlunoIdRoute,
+  DashboardPersonalAlunosIndexRoute: DashboardPersonalAlunosIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

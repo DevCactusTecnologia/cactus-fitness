@@ -5,7 +5,7 @@ import {
   ChevronRight, ChevronDown, Calendar, ArrowUpDown,
 } from "lucide-react";
 
-export const Route = createFileRoute("/alunos")({
+export const Route = createFileRoute("/dashboard/personal/alunos/")({
   head: () => ({
     meta: [
       { title: "Alunos · cactusfitness" },

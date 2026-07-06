@@ -5,7 +5,7 @@ import {
   Clock, Trophy, Pencil, Power, Trash2, Tag,
 } from "lucide-react";
 
-export const Route = createFileRoute("/alunos/$alunoId")({
+export const Route = createFileRoute("/dashboard/personal/alunos/$alunoId")({
   head: () => ({
     meta: [
       { title: "Perfil do Aluno · cactusfitness" },
