@@ -514,11 +514,13 @@ type WizardData = {
   instructions: string;
   group_id: number | null;
   difficulty: string;
-  equipment: string;
+  objective: string;
+  equipment: string[];
   muscles_primary: string[];
   muscles_secondary: string[];
   video_url: string;
 };
+
 
 const STEPS = [
   { id: 1, label: "Nome" },
