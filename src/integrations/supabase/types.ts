@@ -14,7 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      events: {
+        Row: {
+          color: number
+          created_at: string
+          description: string | null
+          event_date: string
+          event_time: string
+          id: string
+          is_public: boolean
+          location: string | null
+          multi_day: boolean
+          recurring: boolean
+          student: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          color?: number
+          created_at?: string
+          description?: string | null
+          event_date: string
+          event_time: string
+          id?: string
+          is_public?: boolean
+          location?: string | null
+          multi_day?: boolean
+          recurring?: boolean
+          student?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          color?: number
+          created_at?: string
+          description?: string | null
+          event_date?: string
+          event_time?: string
+          id?: string
+          is_public?: boolean
+          location?: string | null
+          multi_day?: boolean
+          recurring?: boolean
+          student?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
