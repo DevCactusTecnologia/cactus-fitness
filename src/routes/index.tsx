@@ -446,26 +446,27 @@ function Dashboard() {
       <ExpandedMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
       <MobileTopBar onOpenMenu={() => setMenuOpen(true)} />
 
-      <main className="pb-24 md:ml-16 md:pb-8">
+      <main className="pb-24 md:ml-16 md:pb-8 lg:ml-[320px]">
         {/* ==================== DESKTOP (lg+) ==================== */}
         <div className="hidden lg:block">
-          <div className="mx-auto max-w-7xl px-8 py-8">
+          <div className="mx-auto max-w-5xl px-8 py-6">
             {/* Header */}
-            <div className="flex flex-wrap items-end justify-between gap-4">
+            <div className="flex flex-wrap items-start justify-between gap-4">
               <div>
                 <h1 className="text-3xl font-bold tracking-tight font-display">
-                  Boa tarde, <span className="text-primary">Marcos</span>
+                  Boa tarde, Marcos
                 </h1>
-                <p className="mt-1 text-sm text-muted-foreground">segunda-feira, 6 de julho</p>
+                <p className="mt-1 text-sm lowercase text-muted-foreground">segunda-feira, 6 de julho</p>
               </div>
               <div className="flex items-center gap-2">
-                <div className="flex items-center gap-2 rounded-xl border border-border bg-card px-3 py-2 text-sm text-muted-foreground w-[320px]">
+                <div className="flex items-center gap-2 rounded-full border border-border bg-card/60 px-4 py-2 text-sm text-muted-foreground w-[320px]">
                   <Search className="h-4 w-4" />
-                  <span className="flex-1">Buscar aluno, plano, exercício…</span>
+                  <span className="flex-1 truncate">Buscar aluno, plano, exercício…</span>
                   <kbd className="rounded border border-border bg-background px-1.5 py-0.5 text-[11px]">⌘K</kbd>
                 </div>
-                <button className="inline-flex items-center gap-1.5 rounded-xl border border-primary/40 bg-primary/10 px-3 py-2 text-sm text-primary hover:bg-primary/15">
+                <button className="inline-flex items-center gap-1.5 rounded-full border border-primary/50 px-4 py-2 text-sm text-primary hover:bg-primary/10">
                   <Sparkles className="h-4 w-4" /> IA
+                  <span className="ml-1 h-1.5 w-1.5 rounded-full bg-primary" />
                 </button>
               </div>
             </div>
@@ -479,7 +480,7 @@ function Dashboard() {
             </div>
 
             {/* Hoje / Pulso */}
-            <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
+            <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
               <SectionCard
                 title="Hoje"
                 hint="nenhuma sessão agendada"
@@ -489,7 +490,7 @@ function Dashboard() {
                   </a>
                 }
               >
-                <div className="flex flex-col items-center justify-center gap-3 py-6 text-center">
+                <div className="flex flex-col items-center justify-center gap-3 py-8 text-center">
                   <div className="grid h-12 w-12 place-items-center rounded-full bg-primary/10 text-primary">
                     <Calendar className="h-6 w-6" />
                   </div>
@@ -505,7 +506,7 @@ function Dashboard() {
                   </a>
                 }
               >
-                <div className="flex flex-col items-center justify-center gap-3 py-6 text-center">
+                <div className="flex flex-col items-center justify-center gap-3 py-8 text-center">
                   <div className="grid h-12 w-12 place-items-center rounded-full bg-primary/10 text-primary">
                     <Activity className="h-6 w-6" />
                   </div>
@@ -514,30 +515,39 @@ function Dashboard() {
               </SectionCard>
             </div>
 
-            {/* Atalhos rápidos */}
-            <div className="mt-6 rounded-2xl border border-border bg-card p-5">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-medium">Atalhos rápidos</h3>
-                <span className="text-xs lowercase text-muted-foreground">use as teclas</span>
+            <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-2">
+              {/* Atalhos rápidos */}
+              <div className="rounded-2xl border border-border bg-card p-5">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-semibold">Atalhos rápidos</h3>
+                  <span className="text-xs lowercase text-muted-foreground">use as teclas</span>
+                </div>
+                <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+                  <Shortcut icon={UserPlus} title="Novo aluno" sub="cadastrar ou convidar" k="N" to="/dashboard/personal/alunos" />
+                  <Shortcut icon={FileText} title="Modelo de plano" sub="criar plano reutilizável" k="P" />
+                  <Shortcut icon={Link2} title="Link de cadastro" sub="página pública de alunos" k="L" />
+                  <Shortcut icon={HeartPulse} title="Avaliação física" sub="iniciar nova avaliação" k="A" />
+                </div>
               </div>
-              <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                <Shortcut icon={UserPlus} title="Novo aluno" sub="cadastrar ou convidar" k="N" to="/dashboard/personal/alunos" />
-                <Shortcut icon={FileText} title="Modelo de plano" sub="criar plano reutilizável" k="P" />
-                <Shortcut icon={Link2} title="Link de cadastro" sub="página pública de alunos" k="L" />
-                <Shortcut icon={HeartPulse} title="Avaliação física" sub="iniciar nova avaliação" k="A" />
+
+              {/* A acompanhar */}
+              <div className="flex flex-col rounded-2xl border border-border bg-card p-5">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-sm font-semibold">A acompanhar</h3>
+                  <span className="text-xs lowercase text-muted-foreground">snapshot financeiro</span>
+                </div>
+                <ul className="mt-4 flex flex-col gap-3">
+                  <ListRow icon={Wallet} label="Carteira" sub="disponível para saque" value="R$ 0,00" />
+                  <ListRow icon={AlertTriangle} label="Renovações vencendo" sub="nenhuma nos próximos 7 dias" value="ok" valueClass="text-primary uppercase text-xs font-semibold" />
+                  <ListRow icon={TrendingUp} label="Próximo recebimento" sub="sem agendamentos" value="" />
+                </ul>
+                <a href="#" className="mt-4 inline-flex items-center gap-1 self-center text-sm text-primary hover:underline">
+                  Ir para financeiro <ChevronRight className="h-4 w-4" />
+                </a>
               </div>
             </div>
-
-            {/* A acompanhar */}
-            <div className="mt-6 rounded-2xl border border-border bg-card p-5">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-medium">A acompanhar</h3>
-                <span className="text-xs lowercase text-muted-foreground">snapshot financeiro</span>
-              </div>
-              <div className="mt-4 grid grid-cols-1 gap-4 md:grid-cols-3">
-                <MiniStat icon={Wallet} label="Carteira" value="R$ 0,00" sub="disponível para saque" />
-                <MiniStat icon={AlertTriangle} label="Renovações vencendo" value="nenhuma" sub="nos próximos 7 dias" hint="ok" />
-                <MiniStat icon={TrendingUp} label="Próximo recebimento" value="—" sub="sem agendamentos" />
+          </div>
+        </div>
               </div>
               <div className="mt-4">
                 <a href="#" className="inline-flex items-center gap-1 text-sm text-primary hover:underline">
