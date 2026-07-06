@@ -104,12 +104,12 @@ function ListRow({
 /* ---------- Sidebar ---------- */
 
 function SidebarIconBtn({
-  icon: Icon, active, badge, onClick, to, variant = "ghost",
+  icon: Icon, active, badge, onClick, to, variant = "ghost", label,
 }: {
   icon: React.ElementType; active?: boolean; badge?: string;
-  onClick?: () => void; to?: string; variant?: "ghost" | "primary";
+  onClick?: () => void; to?: string; variant?: "ghost" | "primary"; label?: string;
 }) {
-  const base = "relative grid h-11 w-11 place-items-center rounded-[10px] transition";
+  const base = "group relative grid h-11 w-11 place-items-center rounded-[10px] transition";
   const styles =
     variant === "primary"
       ? "h-8 w-8 bg-primary text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.35)] hover:brightness-110"
@@ -125,15 +125,24 @@ function SidebarIconBtn({
           {badge}
         </span>
       )}
+      {label && (
+        <span className="pointer-events-none absolute left-full ml-3 z-50 whitespace-nowrap rounded-md bg-popover px-2 py-1 text-xs font-medium text-popover-foreground shadow-md ring-1 ring-border opacity-0 group-hover:opacity-100 transition">
+          {label}
+        </span>
+      )}
     </>
   );
-  if (to) return <Link to={to} className={`${base} ${styles}`}>{inner}</Link>;
-  return <button onClick={onClick} className={`${base} ${styles}`}>{inner}</button>;
+  if (to) return <Link to={to} title={label} className={`${base} ${styles}`}>{inner}</Link>;
+  return <button onClick={onClick} title={label} className={`${base} ${styles}`}>{inner}</button>;
 }
 
 
 const NAV_ITEMS: { icon: React.ElementType; label: string; to: string; active?: boolean }[] = [
   { icon: Home, label: "Início", to: "/", active: true },
+  { icon: Users, label: "Alunos", to: "/dashboard/personal/alunos" },
+  { icon: Dumbbell, label: "Exercícios", to: "/" },
+  { icon: ClipboardCheck, label: "Avaliações", to: "/" },
+  { icon: Trophy, label: "Desafios", to: "/" },
   { icon: Calendar, label: "Agenda", to: "/dashboard/personal/agenda" },
   { icon: GraduationCap, label: "Tutoriais", to: "/" },
   { icon: SlidersHorizontal, label: "Configurações", to: "/" },
