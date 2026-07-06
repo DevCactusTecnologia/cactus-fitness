@@ -84,6 +84,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:site", content: "@Lovable" },
+      { name: "twitter:title", content: "Dashboard · cactusfitness" },
+      { name: "twitter:description", content: "Gerencie seus alunos, treinos e avaliações físicas em um só lugar." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/482592fb-45ab-4fa2-ae5a-a7b07f38b618/id-preview-db6ffcdd--95353739-ec95-436b-8d23-3f281a32ccc0.lovable.app-1783375006107.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/482592fb-45ab-4fa2-ae5a-a7b07f38b618/id-preview-db6ffcdd--95353739-ec95-436b-8d23-3f281a32ccc0.lovable.app-1783375006107.png" },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
