@@ -234,7 +234,7 @@ function PlanBanner() {
 
 function GreetingCard() {
   return (
-    <div className="rounded-xl border border-border bg-card p-5">
+    <div className="rounded-2xl border border-border bg-[radial-gradient(120%_140%_at_100%_0%,rgba(76,175,80,0.14),transparent_55%),linear-gradient(160deg,hsl(var(--card))_0%,rgba(10,10,10,0.9)_100%)] p-5 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.6)]">
       <div className="flex items-center gap-4">
         <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-destructive text-sm font-semibold text-white">
           ML
