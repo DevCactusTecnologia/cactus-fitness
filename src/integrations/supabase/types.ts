@@ -14,6 +14,30 @@ export type Database = {
   }
   public: {
     Tables: {
+      equipments: {
+        Row: {
+          created_at: string
+          id: number
+          name: string
+          slug: string
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          name: string
+          slug: string
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          name?: string
+          slug?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
       events: {
         Row: {
           color: number
@@ -100,6 +124,7 @@ export type Database = {
           muscles_primary: string[]
           muscles_secondary: string[]
           name: string
+          objective: string | null
           owner_id: string | null
           updated_at: string
           video_id: string | null
@@ -119,6 +144,7 @@ export type Database = {
           muscles_primary?: string[]
           muscles_secondary?: string[]
           name: string
+          objective?: string | null
           owner_id?: string | null
           updated_at?: string
           video_id?: string | null
@@ -138,6 +164,7 @@ export type Database = {
           muscles_primary?: string[]
           muscles_secondary?: string[]
           name?: string
+          objective?: string | null
           owner_id?: string | null
           updated_at?: string
           video_id?: string | null
