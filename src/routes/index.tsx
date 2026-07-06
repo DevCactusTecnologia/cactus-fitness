@@ -132,7 +132,6 @@ function SidebarIconBtn({
 
 const NAV_ITEMS = [
   { icon: Home, label: "Início", to: "/", active: true },
-  { icon: MessageCircle, label: "Mensagens", to: "/" },
   { icon: Calendar, label: "Agenda", to: "/" },
   { icon: GraduationCap, label: "Tutoriais", to: "/" },
   { icon: SlidersHorizontal, label: "Configurações", to: "/" },
