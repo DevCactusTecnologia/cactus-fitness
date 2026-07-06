@@ -548,15 +548,6 @@ function Dashboard() {
             </div>
           </div>
         </div>
-              </div>
-              <div className="mt-4">
-                <a href="#" className="inline-flex items-center gap-1 text-sm text-primary hover:underline">
-                  Ir para financeiro <ChevronRight className="h-4 w-4" />
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
 
         {/* ==================== TABLET / MOBILE (<lg) ==================== */}
         <div className="lg:hidden">
