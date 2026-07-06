@@ -29,7 +29,7 @@ function KpiCard({
   label, value, sub, trend, sparkUp = true,
 }: { label: string; value: string; sub: string; trend?: string; sparkUp?: boolean }) {
   return (
-    <div className="rounded-xl border border-border bg-bg-elevated p-4 transition-colors hover:border-border-strong">
+    <div className="rounded-lg border border-border bg-bg-elevated p-4 transition-colors hover:border-border-strong">
       <div className="flex items-center justify-between">
         <span className="text-[0.6875rem] font-semibold text-fg-secondary">{label}</span>
         {trend && (
