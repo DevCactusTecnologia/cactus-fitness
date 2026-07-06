@@ -506,7 +506,7 @@ function Dashboard() {
 
             <div className="space-y-4">
               
-              <div className="grid grid-cols-1 gap-4 md:grid-cols-[minmax(0,1fr)_320px]">
+              <div className="grid grid-cols-1 gap-4 sm:grid-cols-[1.3fr_1fr]">
                 <GreetingCard />
                 <WalletCard />
               </div>
