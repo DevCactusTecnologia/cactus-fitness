@@ -20,6 +20,7 @@ export const Route = createFileRoute("/dashboard/personal/exercicios")({
 });
 
 type Group = { id: number; name: string; slug: string; sort_order: number };
+type Equipment = { id: number; name: string; slug: string; sort_order: number };
 type Exercise = {
   id: number;
   name: string;
@@ -32,8 +33,20 @@ type Exercise = {
   muscles_secondary?: string[] | null;
   equipment?: string | null;
   difficulty?: string | null;
+  objective?: string | null;
   video_url?: string | null;
 };
+
+const OBJECTIVES = [
+  "Capacidade Aeróbia",
+  "Coordenativos",
+  "Estabilidade",
+  "Flexibilidade",
+  "Força",
+  "Potência",
+  "Reabilitação",
+];
+
 
 /* ---------- identidade local (sem auth) ---------- */
 function getPersonalId(): string {
