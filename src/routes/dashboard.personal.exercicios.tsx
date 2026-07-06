@@ -839,22 +839,87 @@ function NewExerciseWizard({
 
           {step === 5 && (
             <div className="space-y-4">
-              <h3 className="text-base font-bold">Vídeo</h3>
-              <Field label="URL do vídeo" hint="(opcional — YouTube, Vimeo, etc.)">
-                <input
-                  value={data.video_url}
-                  onChange={(e) => setData({ ...data, video_url: e.target.value })}
-                  placeholder="https://..."
-                  className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2.5 text-sm focus:outline-none focus:border-primary transition"
-                />
-              </Field>
-              {data.video_url && (
-                <div className="aspect-video w-full rounded-xl overflow-hidden bg-black">
-                  <iframe src={data.video_url} className="w-full h-full" title="preview" />
-                </div>
+              <h3 className="text-base font-bold">Mídia</h3>
+              <p className="text-xs text-muted-foreground">Adicione uma URL do YouTube ou faça upload de foto/vídeo (opcional).</p>
+
+              <div className="inline-flex rounded-lg border border-border bg-muted/30 p-1 text-xs font-semibold">
+                {([
+                  { id: "url", label: "URL YouTube" },
+                  { id: "photo", label: "Upload Foto" },
+                  { id: "video", label: "Upload Vídeo" },
+                ] as const).map((t) => (
+                  <button
+                    key={t.id}
+                    type="button"
+                    onClick={() => setMediaTab(t.id)}
+                    className={`px-3 py-1.5 rounded-md transition ${
+                      mediaTab === t.id ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {t.label}
+                  </button>
+                ))}
+              </div>
+
+              {mediaTab === "url" && (
+                <>
+                  <Field label="URL do vídeo" hint="(YouTube, Vimeo, etc.)">
+                    <input
+                      value={data.video_url}
+                      onChange={(e) => setData({ ...data, video_url: e.target.value, video_path: "" })}
+                      placeholder="https://youtube.com/watch?v=..."
+                      className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2.5 text-sm focus:outline-none focus:border-primary transition"
+                    />
+                  </Field>
+                  {data.video_url && (
+                    <div className="aspect-video w-full rounded-xl overflow-hidden bg-black">
+                      <iframe src={toEmbedUrl(data.video_url)} className="w-full h-full" title="preview" allowFullScreen />
+                    </div>
+                  )}
+                </>
+              )}
+
+              {mediaTab === "photo" && (
+                <Field label="Foto do exercício" hint="(JPG, PNG · máx. 20MB)">
+                  <label className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border bg-muted/20 px-4 py-8 cursor-pointer hover:bg-muted/40 transition">
+                    <Info className="h-6 w-6 text-muted-foreground" />
+                    <span className="text-sm font-medium">{uploading === "photo" ? "Enviando..." : "Clique para escolher uma imagem"}</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      disabled={uploading === "photo"}
+                      onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadFile(f, "photo"); }}
+                    />
+                  </label>
+                  {imagePreview && (
+                    <img src={imagePreview} alt="preview" className="mt-3 w-full max-h-72 object-contain rounded-xl bg-black" />
+                  )}
+                </Field>
+              )}
+
+              {mediaTab === "video" && (
+                <Field label="Vídeo do exercício" hint="(MP4, MOV · máx. 20MB)">
+                  <label className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border bg-muted/20 px-4 py-8 cursor-pointer hover:bg-muted/40 transition">
+                    <Video className="h-6 w-6 text-muted-foreground" />
+                    <span className="text-sm font-medium">{uploading === "video" ? "Enviando..." : "Clique para escolher um vídeo"}</span>
+                    <input
+                      type="file"
+                      accept="video/*"
+                      className="hidden"
+                      disabled={uploading === "video"}
+                      onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadFile(f, "video"); }}
+                    />
+                  </label>
+                  {videoPreview && (
+                    <video src={videoPreview} controls className="mt-3 w-full max-h-72 rounded-xl bg-black" />
+                  )}
+                </Field>
               )}
             </div>
           )}
+
+
 
           {step === 6 && (
             <div className="space-y-4">
