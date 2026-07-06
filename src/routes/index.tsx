@@ -147,7 +147,7 @@ const SUBMENU_ITEMS = [
 
 function IconRail({ onToggleMenu, menuOpen }: { onToggleMenu: () => void; menuOpen: boolean }) {
   return (
-    <aside className="fixed inset-y-0 left-0 z-40 hidden w-16 flex-col items-center gap-2 border-r border-border bg-sidebar py-4 md:flex lg:hidden">
+    <aside className="fixed inset-y-0 left-0 z-40 hidden w-16 flex-col items-center gap-2 border-r border-border bg-sidebar py-4 md:flex">
       <div className="mb-2 grid h-10 w-10 place-items-center rounded-xl">
         <svg viewBox="0 0 32 32" className="h-7 w-7 text-primary" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <path d="M4 8 L10 24 L16 14 L22 24 L28 8" />
