@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DashboardPersonalExerciciosRouteImport } from './routes/dashboard.personal.exercicios'
 import { Route as DashboardPersonalAgendaRouteImport } from './routes/dashboard.personal.agenda'
 import { Route as DashboardPersonalAlunosIndexRouteImport } from './routes/dashboard.personal.alunos.index'
 import { Route as DashboardPersonalAlunosAlunoIdRouteImport } from './routes/dashboard.personal.alunos.$alunoId'
@@ -19,6 +20,12 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardPersonalExerciciosRoute =
+  DashboardPersonalExerciciosRouteImport.update({
+    id: '/dashboard/personal/exercicios',
+    path: '/dashboard/personal/exercicios',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const DashboardPersonalAgendaRoute = DashboardPersonalAgendaRouteImport.update({
   id: '/dashboard/personal/agenda',
   path: '/dashboard/personal/agenda',
@@ -40,12 +47,14 @@ const DashboardPersonalAlunosAlunoIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard/personal/agenda': typeof DashboardPersonalAgendaRoute
+  '/dashboard/personal/exercicios': typeof DashboardPersonalExerciciosRoute
   '/dashboard/personal/alunos/$alunoId': typeof DashboardPersonalAlunosAlunoIdRoute
   '/dashboard/personal/alunos/': typeof DashboardPersonalAlunosIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard/personal/agenda': typeof DashboardPersonalAgendaRoute
+  '/dashboard/personal/exercicios': typeof DashboardPersonalExerciciosRoute
   '/dashboard/personal/alunos/$alunoId': typeof DashboardPersonalAlunosAlunoIdRoute
   '/dashboard/personal/alunos': typeof DashboardPersonalAlunosIndexRoute
 }
@@ -53,6 +62,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/dashboard/personal/agenda': typeof DashboardPersonalAgendaRoute
+  '/dashboard/personal/exercicios': typeof DashboardPersonalExerciciosRoute
   '/dashboard/personal/alunos/$alunoId': typeof DashboardPersonalAlunosAlunoIdRoute
   '/dashboard/personal/alunos/': typeof DashboardPersonalAlunosIndexRoute
 }
@@ -61,18 +71,21 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/dashboard/personal/agenda'
+    | '/dashboard/personal/exercicios'
     | '/dashboard/personal/alunos/$alunoId'
     | '/dashboard/personal/alunos/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/dashboard/personal/agenda'
+    | '/dashboard/personal/exercicios'
     | '/dashboard/personal/alunos/$alunoId'
     | '/dashboard/personal/alunos'
   id:
     | '__root__'
     | '/'
     | '/dashboard/personal/agenda'
+    | '/dashboard/personal/exercicios'
     | '/dashboard/personal/alunos/$alunoId'
     | '/dashboard/personal/alunos/'
   fileRoutesById: FileRoutesById
@@ -80,6 +93,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardPersonalAgendaRoute: typeof DashboardPersonalAgendaRoute
+  DashboardPersonalExerciciosRoute: typeof DashboardPersonalExerciciosRoute
   DashboardPersonalAlunosAlunoIdRoute: typeof DashboardPersonalAlunosAlunoIdRoute
   DashboardPersonalAlunosIndexRoute: typeof DashboardPersonalAlunosIndexRoute
 }
@@ -91,6 +105,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/personal/exercicios': {
+      id: '/dashboard/personal/exercicios'
+      path: '/dashboard/personal/exercicios'
+      fullPath: '/dashboard/personal/exercicios'
+      preLoaderRoute: typeof DashboardPersonalExerciciosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard/personal/agenda': {
@@ -120,6 +141,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardPersonalAgendaRoute: DashboardPersonalAgendaRoute,
+  DashboardPersonalExerciciosRoute: DashboardPersonalExerciciosRoute,
   DashboardPersonalAlunosAlunoIdRoute: DashboardPersonalAlunosAlunoIdRoute,
   DashboardPersonalAlunosIndexRoute: DashboardPersonalAlunosIndexRoute,
 }
