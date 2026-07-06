@@ -16,11 +16,11 @@ export const Route = createFileRoute("/")({
 
 function Sparkline({ up = true }: { up?: boolean }) {
   const d = up
-    ? "M2 22 L14 18 L26 20 L38 12 L50 14 L62 6"
-    : "M2 10 L14 12 L26 8 L38 14 L50 11 L62 18";
+    ? "M 0 21 L 12 21 L 24 21 L 36 21 L 48 21 L 60 21 L 72 1"
+    : "M 0 21 L 12 21 L 24 21 L 36 21 L 48 21 L 60 21 L 72 21";
   return (
-    <svg viewBox="0 0 64 28" className="h-7 w-24 overflow-visible">
-      <path d={d} fill="none" stroke="var(--primary)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+    <svg viewBox="0 0 72 22" className="h-[22px] w-[72px] overflow-visible">
+      <path d={d} fill="none" stroke="var(--primary)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
@@ -29,51 +29,54 @@ function KpiCard({
   label, value, sub, trend, sparkUp = true,
 }: { label: string; value: string; sub: string; trend?: string; sparkUp?: boolean }) {
   return (
-    <div className="rounded-2xl border border-border bg-card p-5 transition hover:border-primary/40">
-      <div className="flex items-center justify-between text-xs text-muted-foreground">
-        <span>{label}</span>
+    <div className="rounded-xl border border-border bg-bg-elevated p-4 transition-colors hover:border-border-strong">
+      <div className="flex items-center justify-between">
+        <span className="text-[0.6875rem] font-semibold text-fg-secondary">{label}</span>
         {trend && (
-          <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] text-primary">
-            <ArrowUpRight className="h-3 w-3" /> {trend}
+          <span className="rounded-full bg-primary/15 px-1.5 py-0.5 font-display text-[0.625rem] font-bold leading-none text-primary">
+            {trend}
           </span>
         )}
       </div>
-      <div className="mt-3 flex items-end justify-between gap-3">
-        <div className="text-4xl font-bold tracking-tight font-display">{value}</div>
+      <div className="mt-2 flex items-end justify-between gap-3">
+        <div className="font-display text-[1.625rem] font-extrabold leading-none tracking-tight">{value}</div>
         <Sparkline up={sparkUp} />
       </div>
-      <div className="mt-2 text-xs text-muted-foreground">{sub}</div>
+      <div className="mt-1.5 truncate text-[0.6875rem] text-fg-muted">{sub}</div>
     </div>
   );
 }
 
 function SectionCard({
-  title, hint, children, footer,
-}: { title: string; hint?: string; children: React.ReactNode; footer?: React.ReactNode }) {
+  title, hint, children, headerAction, footer,
+}: { title: string; hint?: string; children: React.ReactNode; headerAction?: React.ReactNode; footer?: React.ReactNode }) {
   return (
-    <div className="flex flex-col rounded-2xl border border-border bg-card">
-      <div className="flex items-center justify-between px-5 pt-5">
-        <h3 className="text-sm font-medium">{title}</h3>
-        {hint && <span className="text-xs lowercase text-muted-foreground">{hint}</span>}
+    <section className="flex flex-col rounded-xl border border-border bg-bg-elevated">
+      <div className="flex items-center justify-between border-b border-border px-4 py-3">
+        <div>
+          <h2 className="font-display text-base font-bold">{title}</h2>
+          {hint && <p className="text-[0.6875rem] text-fg-muted">{hint}</p>}
+        </div>
+        {headerAction}
       </div>
-      <div className="flex-1 px-5 py-4">{children}</div>
-      {footer && <div className="border-t border-border px-5 py-3 text-sm">{footer}</div>}
-    </div>
+      <div className="flex-1">{children}</div>
+      {footer}
+    </section>
   );
 }
 
 function Shortcut({ icon: Icon, title, sub, k, to }: { icon: React.ElementType; title: string; sub: string; k: string; to?: string }) {
-  const cls = "group flex items-center gap-3 rounded-xl border border-border bg-card p-3 text-left transition hover:border-primary/40 hover:bg-accent";
+  const cls = "group flex items-center gap-3 rounded-md border border-border bg-surface-2 p-3 text-left transition-colors hover:border-border-strong hover:bg-surface-3";
   const inner = (
     <>
-      <div className="grid h-10 w-10 place-items-center rounded-lg bg-primary/10 text-primary">
-        <Icon className="h-5 w-5" />
+      <div className="grid h-9 w-9 shrink-0 place-items-center rounded-md bg-primary/10 text-primary">
+        <Icon className="h-4 w-4" />
       </div>
       <div className="min-w-0 flex-1">
-        <div className="text-sm font-medium">{title}</div>
-        <div className="truncate text-xs lowercase text-muted-foreground">{sub}</div>
+        <div className="text-[0.75rem] font-semibold">{title}</div>
+        <div className="truncate text-[0.625rem] lowercase text-fg-muted">{sub}</div>
       </div>
-      <kbd className="rounded-md border border-border bg-background px-2 py-1 text-[11px] text-muted-foreground">{k}</kbd>
+      <kbd className="rounded border border-border bg-surface-3 px-1.5 py-0.5 font-mono text-[0.625rem] text-fg-secondary">{k}</kbd>
     </>
   );
   if (to) return <Link to={to} className={cls}>{inner}</Link>;
@@ -100,16 +103,16 @@ function ListRow({
   icon: Icon, label, sub, value, valueClass,
 }: { icon: React.ElementType; label: string; sub: string; value: string; valueClass?: string }) {
   return (
-    <li className="flex items-center gap-3">
-      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
+    <li className="grid grid-cols-[28px_minmax(0,1fr)_auto] items-center gap-3 px-4 py-3">
+      <div className="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-surface-3 text-fg-secondary">
         <Icon className="h-4 w-4" />
       </div>
       <div className="min-w-0 flex-1">
-        <div className="text-sm font-medium">{label}</div>
-        <div className="truncate text-xs text-muted-foreground">{sub}</div>
+        <div className="text-[0.75rem] font-semibold">{label}</div>
+        <div className="mt-0.5 truncate text-[0.6875rem] text-fg-muted">{sub}</div>
       </div>
       {value && (
-        <div className={valueClass ?? "text-sm font-semibold text-primary"}>{value}</div>
+        <div className={valueClass ?? "font-display text-sm font-extrabold tracking-tight"}>{value}</div>
       )}
     </li>
   );
