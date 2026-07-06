@@ -96,6 +96,25 @@ function MiniStat({
   );
 }
 
+function ListRow({
+  icon: Icon, label, sub, value, valueClass,
+}: { icon: React.ElementType; label: string; sub: string; value: string; valueClass?: string }) {
+  return (
+    <li className="flex items-center gap-3">
+      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
+        <Icon className="h-4 w-4" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="text-sm font-medium">{label}</div>
+        <div className="truncate text-xs text-muted-foreground">{sub}</div>
+      </div>
+      {value && (
+        <div className={valueClass ?? "text-sm font-semibold text-primary"}>{value}</div>
+      )}
+    </li>
+  );
+}
+
 /* ---------- Sidebar ---------- */
 
 function SidebarIconBtn({
