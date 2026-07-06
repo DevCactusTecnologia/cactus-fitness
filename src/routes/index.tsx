@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Home, Users, Calendar, GraduationCap, SlidersHorizontal,
   Plus, Bell, Crown, Wallet, Lock, Activity,
-  ChevronDown, ChevronRight, Pencil, HeartPulse, Dumbbell, Trophy, Gift,
+  ChevronDown, ChevronRight, Pencil, HeartPulse, Dumbbell, Trophy, Gift, ClipboardCheck,
   Lightbulb, Sparkles, Eye, ArrowRight, Menu as MenuIcon, Search,
   UserPlus, FileText, Link2, TrendingUp, AlertTriangle,
 } from "lucide-react";
