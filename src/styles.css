@@ -69,4 +69,18 @@
   * { border-color: var(--color-border); }
   html, body { background-color: var(--color-background); color: var(--color-foreground); }
   body { font-family: var(--font-sans); -webkit-font-smoothing: antialiased; }
+
+  /* Subtle dark scrollbar */
+  * { scrollbar-width: thin; scrollbar-color: oklch(0.35 0.007 260) transparent; }
+  *::-webkit-scrollbar { width: 8px; height: 8px; }
+  *::-webkit-scrollbar-track { background: transparent; }
+  *::-webkit-scrollbar-thumb {
+    background-color: oklch(0.32 0.007 260);
+    border-radius: 9999px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+  *::-webkit-scrollbar-thumb:hover { background-color: oklch(0.42 0.008 260); background-clip: content-box; }
+  *::-webkit-scrollbar-corner { background: transparent; }
 }
+
