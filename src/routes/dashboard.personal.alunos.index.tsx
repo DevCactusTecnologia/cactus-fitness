@@ -244,9 +244,8 @@ function AlunosPage() {
         </div>
         </div>
       </main>
-
-
-
+      <MobileBottomNav />
     </div>
+
   );
 }
