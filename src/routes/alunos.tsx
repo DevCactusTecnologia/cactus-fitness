@@ -166,7 +166,11 @@ function AlunosPage() {
               <div>Último Acesso</div>
               <div className="w-8" />
             </div>
-            <div className="grid grid-cols-[1.5fr_1fr_1fr_auto] items-center gap-4 px-5 py-4 hover:bg-accent/50">
+            <Link
+              to="/alunos/$alunoId"
+              params={{ alunoId: "aluno_rEq1kmNL0O" }}
+              className="grid grid-cols-[1.5fr_1fr_1fr_auto] items-center gap-4 px-5 py-4 hover:bg-accent/50"
+            >
               <div className="flex items-center gap-3">
                 <div className="grid h-10 w-10 place-items-center rounded-full bg-fuchsia-600 text-sm font-semibold text-white">ML</div>
                 <div className="min-w-0">
@@ -183,10 +187,10 @@ function AlunosPage() {
                 <div>Nunca acessou</div>
                 <div className="text-xs text-muted-foreground">Convidado</div>
               </div>
-              <button className="grid h-8 w-8 place-items-center rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground">
+              <span className="grid h-8 w-8 place-items-center rounded-lg text-muted-foreground">
                 <ChevronRight className="h-4 w-4" />
-              </button>
-            </div>
+              </span>
+            </Link>
           </div>
         </div>
       </main>
