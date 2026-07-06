@@ -339,6 +339,7 @@ function ExerciciosPage() {
       {showWizard && (
         <NewExerciseWizard
           groups={groups}
+          equipments={equipments}
           personalId={personalId}
           onClose={() => setShowWizard(false)}
           onCreated={async () => { setShowWizard(false); setTab("mine"); await loadData(); }}
