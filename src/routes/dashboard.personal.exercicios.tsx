@@ -519,7 +519,10 @@ type WizardData = {
   muscles_primary: string[];
   muscles_secondary: string[];
   video_url: string;
+  image_path: string;
+  video_path: string;
 };
+
 
 
 const STEPS = [
