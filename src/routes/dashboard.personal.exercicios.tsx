@@ -164,14 +164,17 @@ function ExerciciosPage() {
   };
 
   const loadData = async () => {
-    const [g, e] = await Promise.all([
+    const [g, eq, e] = await Promise.all([
       supabase.from("exercise_groups").select("*").order("sort_order"),
+      supabase.from("equipments" as never).select("*").order("sort_order") as unknown as Promise<{ data: Equipment[] | null }>,
       fetchAll(),
     ]);
     setGroups((g.data ?? []) as Group[]);
+    setEquipments((eq.data ?? []) as Equipment[]);
     setExercises(e);
     setLoading(false);
   };
+
 
   useEffect(() => { loadData(); /* eslint-disable-next-line */ }, []);
 
