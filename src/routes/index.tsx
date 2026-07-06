@@ -112,14 +112,15 @@ function SidebarIconBtn({
   const base = "relative grid h-11 w-11 place-items-center rounded-[10px] transition";
   const styles =
     variant === "primary"
-      ? "h-9 w-9 bg-primary text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.35)] hover:brightness-110"
+      ? "h-8 w-8 bg-primary text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.35)] hover:brightness-110"
       : active
       ? "bg-primary/20 text-primary"
       : "text-sidebar-foreground/70 hover:bg-white/5 hover:text-sidebar-foreground";
   return (
     <button onClick={onClick} className={`${base} ${styles}`}>
       {active && <span className="absolute -left-3.5 top-1/2 h-7 w-1 -translate-y-1/2 rounded-r-full bg-primary" />}
-      <Icon className="h-5 w-5" strokeWidth={1.75} />
+      <Icon className={variant === "primary" ? "h-4 w-4" : "h-5 w-5"} strokeWidth={1.75} />
+
       {badge && (
         <span className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-destructive px-1 text-[10px] font-semibold text-white">
           {badge}
