@@ -830,7 +830,9 @@ function NewExerciseWizard({
               <ReviewRow label="Descrição" value={data.description || "—"} />
               <ReviewRow label="Grupo" value={groups.find((g) => g.id === data.group_id)?.name ?? "—"} />
               <ReviewRow label="Dificuldade" value={data.difficulty || "—"} />
-              <ReviewRow label="Equipamento" value={data.equipment || "—"} />
+              <ReviewRow label="Objetivo" value={data.objective || "—"} />
+              <ReviewRow label="Equipamentos" value={data.equipment.join(", ") || "—"} />
+
               <ReviewRow label="Músculos primários" value={data.muscles_primary.join(", ") || "—"} />
               <ReviewRow label="Músculos secundários" value={data.muscles_secondary.join(", ") || "—"} />
               <ReviewRow label="Vídeo" value={data.video_url || "—"} />
