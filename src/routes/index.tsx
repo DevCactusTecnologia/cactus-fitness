@@ -172,16 +172,23 @@ function IconRail({ onToggleMenu, menuOpen }: { onToggleMenu: () => void; menuOp
 /* ---------- Submenu (expandable panel) ---------- */
 
 function ExpandedMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
-  if (!open) return null;
+  // Persistent on lg+, overlay on md when toggled open
+  const overlayVisible = open;
   return (
     <>
-      <button
-        aria-label="Fechar menu"
-        onClick={onClose}
-        className="fixed inset-0 z-20 hidden bg-black/40 backdrop-blur-sm md:block"
-      />
-      <div className="fixed inset-y-0 left-16 z-30 hidden w-72 flex-col border-r border-border bg-sidebar p-4 md:flex">
-        <div className="mb-4 flex items-center gap-2 px-2">
+      {overlayVisible && (
+        <button
+          aria-label="Fechar menu"
+          onClick={onClose}
+          className="fixed inset-0 z-30 bg-black/40 backdrop-blur-sm md:block lg:hidden"
+        />
+      )}
+      <aside
+        className={`fixed inset-y-0 left-16 z-40 w-64 flex-col border-r border-border bg-sidebar p-4 lg:flex ${
+          overlayVisible ? "flex" : "hidden"
+        }`}
+      >
+        <div className="mb-4 flex items-center gap-2 px-2 pt-1">
           <svg viewBox="0 0 32 32" className="h-6 w-6 text-primary" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
             <path d="M4 8 L10 24 L16 14 L22 24 L28 8" />
           </svg>
@@ -190,9 +197,8 @@ function ExpandedMenu({ open, onClose }: { open: boolean; onClose: () => void })
           </span>
         </div>
 
-        {/* Plano grátis card */}
         <button className="mb-6 flex items-center gap-3 rounded-2xl border border-border bg-card px-3 py-3 text-left transition hover:border-primary/40">
-          <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-border text-[10px] font-semibold text-muted-foreground">
+          <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-border text-[10px] font-semibold uppercase text-muted-foreground">
             FREE
           </div>
           <div className="min-w-0 flex-1">
@@ -202,11 +208,11 @@ function ExpandedMenu({ open, onClose }: { open: boolean; onClose: () => void })
           <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground" />
         </button>
 
-        <div className="mb-2 px-2 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+        <div className="mb-2 px-2 text-[11px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">
           Navegação
         </div>
         <nav className="flex flex-col gap-1">
-          {NAV_ITEMS.slice(0, 5).map((n) => (
+          {SUBMENU_ITEMS.map((n) => (
             <Link
               key={n.label}
               to={n.to}
@@ -223,13 +229,13 @@ function ExpandedMenu({ open, onClose }: { open: boolean; onClose: () => void })
           ))}
         </nav>
 
-        <div className="mb-2 mt-6 px-2 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+        <div className="mb-2 mt-6 px-2 text-[11px] font-semibold uppercase tracking-[0.15em] text-muted-foreground">
           Recentes
         </div>
         <div className="flex flex-col gap-1">
           {[
-            { icon: Home, label: "Início", when: "6min" },
-            { icon: Users, label: "Alunos", when: "43min" },
+            { icon: Home, label: "Início", when: "3min" },
+            { icon: Users, label: "Alunos", when: "39min" },
           ].map((r) => (
             <button
               key={r.label}
@@ -241,7 +247,7 @@ function ExpandedMenu({ open, onClose }: { open: boolean; onClose: () => void })
             </button>
           ))}
         </div>
-      </div>
+      </aside>
     </>
   );
 }
