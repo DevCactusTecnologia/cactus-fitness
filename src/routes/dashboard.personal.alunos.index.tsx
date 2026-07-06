@@ -4,6 +4,7 @@ import {
   Link2, Search, LayoutGrid, ChevronRight, ChevronDown, Play, Filter,
   Activity, CalendarDays, ArrowUpDown, Dumbbell, ClipboardCheck, Trophy,
 } from "lucide-react";
+import { MobileBottomNav } from "@/components/MobileBottomNav";
 
 export const Route = createFileRoute("/dashboard/personal/alunos/")({
   head: () => ({
