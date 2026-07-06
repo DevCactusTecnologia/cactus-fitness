@@ -38,18 +38,22 @@ type EventRow = {
 
 const NAV = [
   { icon: Home, label: "Início", to: "/" as const },
+  { icon: Users, label: "Alunos", to: "/dashboard/personal/alunos" as const },
+  { icon: Dumbbell, label: "Exercícios", to: "/" as const },
+  { icon: ClipboardCheck, label: "Avaliações", to: "/" as const },
+  { icon: Trophy, label: "Desafios", to: "/" as const },
   { icon: Calendar, label: "Agenda", to: "/dashboard/personal/agenda" as const, active: true },
   { icon: GraduationCap, label: "Tutoriais", to: "/" as const },
   { icon: SlidersHorizontal, label: "Configurações", to: "/" as const },
 ];
 
 function SidebarIconBtn({
-  icon: Icon, active, badge, to, onClick, variant = "ghost",
+  icon: Icon, active, badge, to, onClick, variant = "ghost", label,
 }: {
   icon: React.ElementType; active?: boolean; badge?: string; to?: string;
-  onClick?: () => void; variant?: "ghost" | "primary";
+  onClick?: () => void; variant?: "ghost" | "primary"; label?: string;
 }) {
-  const base = "relative grid h-11 w-11 place-items-center rounded-[10px] transition";
+  const base = "group relative grid h-11 w-11 place-items-center rounded-[10px] transition";
   const styles =
     variant === "primary"
       ? "h-8 w-8 bg-primary text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.35)] hover:brightness-110"
@@ -65,10 +69,15 @@ function SidebarIconBtn({
           {badge}
         </span>
       )}
+      {label && (
+        <span className="pointer-events-none absolute left-full ml-3 z-50 whitespace-nowrap rounded-md bg-popover px-2 py-1 text-xs font-medium text-popover-foreground shadow-md ring-1 ring-border opacity-0 group-hover:opacity-100 transition">
+          {label}
+        </span>
+      )}
     </>
   );
-  if (to) return <Link to={to} className={`${base} ${styles}`}>{inner}</Link>;
-  return <button onClick={onClick} className={`${base} ${styles}`}>{inner}</button>;
+  if (to) return <Link to={to} title={label} className={`${base} ${styles}`}>{inner}</Link>;
+  return <button onClick={onClick} title={label} className={`${base} ${styles}`}>{inner}</button>;
 }
 
 function IconRail() {
@@ -80,7 +89,7 @@ function IconRail() {
         </svg>
       </div>
       {NAV.map((n) => (
-        <SidebarIconBtn key={n.label} icon={n.icon} active={n.active} to={n.to} />
+        <SidebarIconBtn key={n.label} icon={n.icon} active={n.active} to={n.to} label={n.label} />
       ))}
       <div className="mt-auto flex flex-col items-center gap-2">
         <SidebarIconBtn icon={Plus} variant="primary" />
