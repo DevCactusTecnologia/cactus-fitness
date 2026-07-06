@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Home, Users, Dumbbell, ClipboardCheck, Wallet, Bell, Search, Sparkles,
   Plus, Calendar, Activity, UserPlus, FileText, Link2, HeartPulse,
