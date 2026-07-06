@@ -186,11 +186,11 @@ function ExpandedMenu({ open, onClose }: { open: boolean; onClose: () => void })
         <button
           aria-label="Fechar menu"
           onClick={onClose}
-          className="fixed inset-0 z-30 bg-black/40 backdrop-blur-sm md:block lg:hidden"
+          className="fixed inset-0 z-30 bg-black/40 backdrop-blur-sm md:block"
         />
       )}
       <aside
-        className={`fixed inset-y-0 left-16 z-40 w-64 flex-col border-r border-border bg-sidebar p-4 lg:hidden ${
+        className={`fixed inset-y-0 left-16 z-40 w-64 flex-col border-r border-border bg-sidebar p-4 ${
           overlayVisible ? "flex" : "hidden"
         }`}
       >
