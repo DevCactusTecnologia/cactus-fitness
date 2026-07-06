@@ -206,7 +206,8 @@ function MobileTopBar() {
   );
 }
 
-import { MobileBottomNav } from "@/components/MobileBottomNav";
+
+
 
 
 /* ---------- Content blocks ---------- */
