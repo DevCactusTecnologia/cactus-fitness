@@ -29,7 +29,7 @@ function KpiCard({
   label, value, sub, trend, sparkUp = true,
 }: { label: string; value: string; sub: string; trend?: string; sparkUp?: boolean }) {
   return (
-    <div className="rounded-xl border border-border bg-bg-elevated p-4 transition-colors hover:border-border-strong">
+    <div className="rounded-lg border border-border bg-bg-elevated p-4 transition-colors hover:border-border-strong">
       <div className="flex items-center justify-between">
         <span className="text-[0.6875rem] font-semibold text-fg-secondary">{label}</span>
         {trend && (
@@ -51,7 +51,7 @@ function SectionCard({
   title, hint, children, headerAction, footer,
 }: { title: string; hint?: string; children: React.ReactNode; headerAction?: React.ReactNode; footer?: React.ReactNode }) {
   return (
-    <section className="flex flex-col rounded-xl border border-border bg-bg-elevated">
+    <section className="flex flex-col rounded-lg border border-border bg-bg-elevated">
       <div className="flex items-center justify-between border-b border-border px-4 py-3">
         <div>
           <h2 className="font-display text-base font-bold">{title}</h2>
@@ -147,7 +147,7 @@ const SUBMENU_ITEMS = [
 
 function IconRail({ onToggleMenu, menuOpen }: { onToggleMenu: () => void; menuOpen: boolean }) {
   return (
-    <aside className="fixed inset-y-0 left-0 z-40 hidden w-16 flex-col items-center gap-2 border-r border-border bg-sidebar py-4 md:flex lg:hidden">
+    <aside className="fixed inset-y-0 left-0 z-40 hidden w-16 flex-col items-center gap-2 border-r border-border bg-sidebar py-4 md:flex">
       <div className="mb-2 grid h-10 w-10 place-items-center rounded-xl">
         <svg viewBox="0 0 32 32" className="h-7 w-7 text-primary" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <path d="M4 8 L10 24 L16 14 L22 24 L28 8" />
@@ -186,11 +186,11 @@ function ExpandedMenu({ open, onClose }: { open: boolean; onClose: () => void })
         <button
           aria-label="Fechar menu"
           onClick={onClose}
-          className="fixed inset-0 z-30 bg-black/40 backdrop-blur-sm md:block lg:hidden"
+          className="fixed inset-0 z-30 bg-black/40 backdrop-blur-sm md:block"
         />
       )}
       <aside
-        className={`fixed inset-y-0 left-16 z-40 w-64 flex-col border-r border-border bg-sidebar p-4 lg:hidden ${
+        className={`fixed inset-y-0 left-16 z-40 w-64 flex-col border-r border-border bg-sidebar p-4 ${
           overlayVisible ? "flex" : "hidden"
         }`}
       >
@@ -203,7 +203,7 @@ function ExpandedMenu({ open, onClose }: { open: boolean; onClose: () => void })
           </span>
         </div>
 
-        <button className="mb-6 flex items-center gap-3 rounded-2xl border border-border bg-card px-3 py-3 text-left transition hover:border-primary/40">
+        <button className="mb-6 flex items-center gap-3 rounded-xl border border-border bg-card px-3 py-3 text-left transition hover:border-primary/40">
           <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-border text-[10px] font-semibold uppercase text-muted-foreground">
             FREE
           </div>
@@ -321,7 +321,7 @@ function MobileBottomNav() {
 
 function PlanBanner() {
   return (
-    <div className="flex items-center gap-4 rounded-2xl border border-border bg-card p-4 md:p-5">
+    <div className="flex items-center gap-4 rounded-xl border border-border bg-card p-4 md:p-5">
       <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
         <Crown className="h-6 w-6" />
       </div>
@@ -338,7 +338,7 @@ function PlanBanner() {
 
 function GreetingCard() {
   return (
-    <div className="rounded-2xl border border-border bg-card p-5">
+    <div className="rounded-xl border border-border bg-card p-5">
       <div className="flex items-center gap-4">
         <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-destructive text-sm font-semibold text-white">
           ML
@@ -369,7 +369,7 @@ function GreetingCard() {
 
 function WalletCard() {
   return (
-    <div className="flex h-full flex-col rounded-2xl border border-border bg-card p-5">
+    <div className="flex h-full flex-col rounded-xl border border-border bg-card p-5">
       <div className="grid h-10 w-10 place-items-center rounded-full bg-primary/10 text-primary">
         <Wallet className="h-5 w-5" />
       </div>
@@ -389,7 +389,7 @@ function WalletCard() {
 
 function ActionButton({ icon: Icon, label }: { icon: React.ElementType; label: string }) {
   return (
-    <button className="flex items-center gap-3 rounded-2xl border border-border bg-card px-4 py-4 text-left transition hover:border-primary/40">
+    <button className="flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-4 text-left transition hover:border-primary/40">
       <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-background/60 text-primary">
         <Icon className="h-5 w-5" strokeWidth={1.75} />
       </div>
@@ -400,7 +400,7 @@ function ActionButton({ icon: Icon, label }: { icon: React.ElementType; label: s
 
 function PulseRow() {
   return (
-    <button className="flex w-full items-center gap-3 rounded-2xl border border-border bg-card px-4 py-3.5 text-left transition hover:border-primary/40">
+    <button className="flex w-full items-center gap-3 rounded-xl border border-border bg-card px-4 py-3.5 text-left transition hover:border-primary/40">
       <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white/5 text-muted-foreground">
         <Activity className="h-5 w-5" strokeWidth={1.75} />
       </div>
@@ -426,7 +426,7 @@ function QuickTile({ icon: Icon, label }: { icon: React.ElementType; label: stri
 
 function ReferralBanner() {
   return (
-    <div className="flex items-center gap-4 rounded-2xl border border-primary/30 bg-[linear-gradient(135deg,rgba(76,175,80,0.12),rgba(76,175,80,0.04))] p-4 md:p-5">
+    <div className="flex items-center gap-4 rounded-xl border border-primary/30 bg-[linear-gradient(135deg,rgba(76,175,80,0.12),rgba(76,175,80,0.04))] p-4 md:p-5">
       <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-primary/15 text-primary">
         <Gift className="h-5 w-5" />
       </div>
@@ -452,7 +452,7 @@ function Dashboard() {
       <ExpandedMenu open={menuOpen} onClose={() => setMenuOpen(false)} />
       <MobileTopBar onOpenMenu={() => setMenuOpen(true)} />
 
-      <main className="pb-24 md:ml-16 md:pb-8 lg:ml-0">
+      <main className="pb-24 md:ml-16 md:pb-8">
         {/* ==================== DESKTOP (lg+) ==================== */}
         <div className="hidden lg:block">
           <div className="mx-auto flex w-full max-w-[1180px] flex-col gap-4 px-4 pb-12 pt-4">
@@ -519,7 +519,7 @@ function Dashboard() {
 
             <div className="grid grid-cols-1 gap-3 lg:grid-cols-[1.55fr_1fr]">
               {/* Atalhos rápidos */}
-              <section className="rounded-xl border border-border bg-bg-elevated">
+              <section className="rounded-lg border border-border bg-bg-elevated">
                 <div className="flex items-center justify-between border-b border-border px-4 py-3">
                   <h2 className="font-display text-base font-bold">Atalhos rápidos</h2>
                   <span className="font-mono text-[0.625rem] text-fg-muted">use as teclas</span>
@@ -533,7 +533,7 @@ function Dashboard() {
               </section>
 
               {/* A acompanhar */}
-              <section className="rounded-xl border border-border bg-bg-elevated">
+              <section className="rounded-lg border border-border bg-bg-elevated">
                 <div className="border-b border-border px-4 py-3">
                   <h2 className="font-display text-base font-bold">A acompanhar</h2>
                   <p className="text-[0.6875rem] text-fg-muted">snapshot financeiro</p>
@@ -587,7 +587,7 @@ function Dashboard() {
                   <Pencil className="h-3.5 w-3.5" /> Editar
                 </button>
               </div>
-              <div className="rounded-2xl border border-border bg-card p-4 md:p-6">
+              <div className="rounded-xl border border-border bg-card p-4 md:p-6">
                 <div className="grid grid-cols-4 gap-3 md:grid-cols-5">
                   <QuickTile icon={Users} label="Alunos" />
                   <QuickTile icon={HeartPulse} label="Avaliações" />
