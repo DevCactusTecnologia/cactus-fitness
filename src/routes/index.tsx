@@ -6,6 +6,8 @@ import {
   Lightbulb, Sparkles, Eye, ArrowRight, Menu as MenuIcon, Search,
   UserPlus, FileText, Link2, TrendingUp, AlertTriangle,
 } from "lucide-react";
+import { MobileBottomNav } from "@/components/MobileBottomNav";
+
 
 export const Route = createFileRoute("/")({
   component: Dashboard,
