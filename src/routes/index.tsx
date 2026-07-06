@@ -145,7 +145,7 @@ const SUBMENU_ITEMS = [
   { icon: GraduationCap, label: "Tutoriais", to: "/" },
 ];
 
-function IconRail({ onToggleMenu, menuOpen }: { onToggleMenu: () => void; menuOpen: boolean }) {
+function IconRail() {
   return (
     <aside className="fixed inset-y-0 left-0 z-40 hidden w-16 flex-col items-center gap-2 border-r border-border bg-sidebar py-4 md:flex">
       <div className="mb-2 grid h-10 w-10 place-items-center rounded-xl">
