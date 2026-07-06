@@ -204,37 +204,8 @@ function MobileTopBar() {
   );
 }
 
-function MobileBottomNav() {
-  const items = [
-    { icon: Home, label: "Início", active: true },
-    { icon: Users, label: "Alunos" },
-    { icon: Dumbbell, label: "Treinos" },
-    { icon: Bell, label: "Notificações", badge: "2" },
-    { icon: MenuIcon, label: "Menu" },
-  ];
-  return (
-    <nav className="fixed inset-x-0 bottom-0 z-20 flex items-stretch justify-around border-t border-border bg-background/95 px-2 py-2 backdrop-blur md:hidden">
-      {items.map((i) => (
-        <button
-          key={i.label}
-          className={`relative flex flex-1 flex-col items-center gap-0.5 py-1 text-[11px] ${
-            i.active ? "text-primary" : "text-muted-foreground"
-          }`}
-        >
-          <span className="relative">
-            <i.icon className="h-5 w-5" strokeWidth={1.75} />
-            {i.badge && (
-              <span className="absolute -right-2 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-destructive px-1 text-[10px] font-semibold text-white">
-                {i.badge}
-              </span>
-            )}
-          </span>
-          <span>{i.label}</span>
-        </button>
-      ))}
-    </nav>
-  );
-}
+import { MobileBottomNav } from "@/components/MobileBottomNav";
+
 
 /* ---------- Content blocks ---------- */
 
