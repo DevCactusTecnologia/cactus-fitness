@@ -47,6 +47,24 @@ const OBJECTIVES = [
   "Reabilitação",
 ];
 
+function toEmbedUrl(url: string): string {
+  try {
+    const u = new URL(url);
+    if (u.hostname.includes("youtube.com")) {
+      const id = u.searchParams.get("v");
+      if (id) return `https://www.youtube.com/embed/${id}`;
+    }
+    if (u.hostname === "youtu.be") {
+      return `https://www.youtube.com/embed/${u.pathname.slice(1)}`;
+    }
+    if (u.hostname.includes("vimeo.com")) {
+      const id = u.pathname.split("/").filter(Boolean).pop();
+      if (id) return `https://player.vimeo.com/video/${id}`;
+    }
+  } catch {}
+  return url;
+}
+
 
 /* ---------- identidade local (sem auth) ---------- */
 function getPersonalId(): string {
@@ -519,7 +537,10 @@ type WizardData = {
   muscles_primary: string[];
   muscles_secondary: string[];
   video_url: string;
+  image_path: string;
+  video_path: string;
 };
+
 
 
 const STEPS = [
@@ -561,8 +582,34 @@ function NewExerciseWizard({
     group_id: groups[0]?.id ?? null,
     difficulty: "", objective: "", equipment: [],
     muscles_primary: [], muscles_secondary: [],
-    video_url: "",
+    video_url: "", image_path: "", video_path: "",
   });
+  const [mediaTab, setMediaTab] = useState<"url" | "photo" | "video">("url");
+  const [uploading, setUploading] = useState<null | "photo" | "video">(null);
+  const [imagePreview, setImagePreview] = useState<string>("");
+  const [videoPreview, setVideoPreview] = useState<string>("");
+
+  const uploadFile = async (file: File, kind: "photo" | "video") => {
+    setUploading(kind); setError(null);
+    try {
+      const ext = file.name.split(".").pop() || (kind === "photo" ? "jpg" : "mp4");
+      const path = `${personalId}/${Date.now()}-${crypto.randomUUID()}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("exercise-media").upload(path, file, { contentType: file.type });
+      if (upErr) throw upErr;
+      const { data: signed } = await supabase.storage.from("exercise-media").createSignedUrl(path, 60 * 60 * 24 * 365);
+      if (kind === "photo") {
+        setData((d) => ({ ...d, image_path: path }));
+        setImagePreview(signed?.signedUrl ?? "");
+      } else {
+        setData((d) => ({ ...d, video_path: path, video_url: "" }));
+        setVideoPreview(signed?.signedUrl ?? "");
+      }
+    } catch (e: any) {
+      setError(e.message ?? "Falha no upload");
+    } finally {
+      setUploading(null);
+    }
+  };
 
   const meta = STEP_META[step];
   const canNext = step === 1 ? data.name.trim().length > 0 : step === 3 ? data.group_id !== null : true;
@@ -580,10 +627,13 @@ function NewExerciseWizard({
       muscles_primary: data.muscles_primary,
       muscles_secondary: data.muscles_secondary,
       video_url: data.video_url.trim() || null,
+      image_path: data.image_path || null,
+      video_path: data.video_path || null,
       owner_id: personalId,
 
       is_active: true,
     };
+
     const { error: err } = await (supabase.from("exercises") as any).insert(payload);
     setSaving(false);
     if (err) { setError(err.message); return; }
@@ -807,22 +857,87 @@ function NewExerciseWizard({
 
           {step === 5 && (
             <div className="space-y-4">
-              <h3 className="text-base font-bold">Vídeo</h3>
-              <Field label="URL do vídeo" hint="(opcional — YouTube, Vimeo, etc.)">
-                <input
-                  value={data.video_url}
-                  onChange={(e) => setData({ ...data, video_url: e.target.value })}
-                  placeholder="https://..."
-                  className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2.5 text-sm focus:outline-none focus:border-primary transition"
-                />
-              </Field>
-              {data.video_url && (
-                <div className="aspect-video w-full rounded-xl overflow-hidden bg-black">
-                  <iframe src={data.video_url} className="w-full h-full" title="preview" />
-                </div>
+              <h3 className="text-base font-bold">Mídia</h3>
+              <p className="text-xs text-muted-foreground">Adicione uma URL do YouTube ou faça upload de foto/vídeo (opcional).</p>
+
+              <div className="inline-flex rounded-lg border border-border bg-muted/30 p-1 text-xs font-semibold">
+                {([
+                  { id: "url", label: "URL YouTube" },
+                  { id: "photo", label: "Upload Foto" },
+                  { id: "video", label: "Upload Vídeo" },
+                ] as const).map((t) => (
+                  <button
+                    key={t.id}
+                    type="button"
+                    onClick={() => setMediaTab(t.id)}
+                    className={`px-3 py-1.5 rounded-md transition ${
+                      mediaTab === t.id ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {t.label}
+                  </button>
+                ))}
+              </div>
+
+              {mediaTab === "url" && (
+                <>
+                  <Field label="URL do vídeo" hint="(YouTube, Vimeo, etc.)">
+                    <input
+                      value={data.video_url}
+                      onChange={(e) => setData({ ...data, video_url: e.target.value, video_path: "" })}
+                      placeholder="https://youtube.com/watch?v=..."
+                      className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2.5 text-sm focus:outline-none focus:border-primary transition"
+                    />
+                  </Field>
+                  {data.video_url && (
+                    <div className="aspect-video w-full rounded-xl overflow-hidden bg-black">
+                      <iframe src={toEmbedUrl(data.video_url)} className="w-full h-full" title="preview" allowFullScreen />
+                    </div>
+                  )}
+                </>
+              )}
+
+              {mediaTab === "photo" && (
+                <Field label="Foto do exercício" hint="(JPG, PNG · máx. 20MB)">
+                  <label className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border bg-muted/20 px-4 py-8 cursor-pointer hover:bg-muted/40 transition">
+                    <Info className="h-6 w-6 text-muted-foreground" />
+                    <span className="text-sm font-medium">{uploading === "photo" ? "Enviando..." : "Clique para escolher uma imagem"}</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      disabled={uploading === "photo"}
+                      onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadFile(f, "photo"); }}
+                    />
+                  </label>
+                  {imagePreview && (
+                    <img src={imagePreview} alt="preview" className="mt-3 w-full max-h-72 object-contain rounded-xl bg-black" />
+                  )}
+                </Field>
+              )}
+
+              {mediaTab === "video" && (
+                <Field label="Vídeo do exercício" hint="(MP4, MOV · máx. 20MB)">
+                  <label className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border bg-muted/20 px-4 py-8 cursor-pointer hover:bg-muted/40 transition">
+                    <Video className="h-6 w-6 text-muted-foreground" />
+                    <span className="text-sm font-medium">{uploading === "video" ? "Enviando..." : "Clique para escolher um vídeo"}</span>
+                    <input
+                      type="file"
+                      accept="video/*"
+                      className="hidden"
+                      disabled={uploading === "video"}
+                      onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadFile(f, "video"); }}
+                    />
+                  </label>
+                  {videoPreview && (
+                    <video src={videoPreview} controls className="mt-3 w-full max-h-72 rounded-xl bg-black" />
+                  )}
+                </Field>
               )}
             </div>
           )}
+
+
 
           {step === 6 && (
             <div className="space-y-4">
