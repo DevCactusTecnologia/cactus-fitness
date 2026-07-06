@@ -241,7 +241,9 @@ function AlunosPage() {
           </Link>
         </div>
         </div>
+        </div>
       </main>
+
 
 
     </div>
