@@ -4,7 +4,7 @@ import {
   Home, Calendar, GraduationCap, SlidersHorizontal, Plus, Bell, Share2,
   ChevronLeft, ChevronRight, Play, X, PartyPopper, CircleDollarSign,
   Activity, Wallet, Cake, ShoppingBag, CreditCard, ChevronDown,
-  Pencil, Trash2, Loader2,
+  Pencil, Trash2, Loader2, Users, Dumbbell, ClipboardCheck, Trophy,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
