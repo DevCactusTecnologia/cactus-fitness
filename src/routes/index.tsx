@@ -265,7 +265,7 @@ function GreetingCard() {
 
 function WalletCard() {
   return (
-    <div className="flex h-full items-center gap-4 rounded-2xl border border-border bg-[radial-gradient(120%_140%_at_100%_0%,rgba(76,175,80,0.12),transparent_55%),linear-gradient(160deg,hsl(var(--card))_0%,rgba(10,10,10,0.9)_100%)] p-5 md:flex-col md:items-stretch">
+    <div className="flex h-full flex-col rounded-2xl border border-border bg-[radial-gradient(120%_140%_at_100%_0%,rgba(76,175,80,0.12),transparent_55%),linear-gradient(160deg,hsl(var(--card))_0%,rgba(10,10,10,0.9)_100%)] p-5">
       <div className="grid h-10 w-10 place-items-center rounded-full bg-primary/10 text-primary">
         <Wallet className="h-5 w-5" />
       </div>
