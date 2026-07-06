@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
-  Home, Users, MessageCircle, Calendar, GraduationCap, SlidersHorizontal,
+  Home, Users, Calendar, GraduationCap, SlidersHorizontal,
   Plus, Bell, Crown, Wallet, Lock, Activity,
   ChevronDown, ChevronRight, Pencil, HeartPulse, Dumbbell, Trophy, Gift,
   Lightbulb, Sparkles, Eye, ArrowRight, Menu as MenuIcon, Search,
@@ -132,7 +132,6 @@ function SidebarIconBtn({
 
 const NAV_ITEMS = [
   { icon: Home, label: "Início", to: "/", active: true },
-  { icon: MessageCircle, label: "Mensagens", to: "/" },
   { icon: Calendar, label: "Agenda", to: "/" },
   { icon: GraduationCap, label: "Tutoriais", to: "/" },
   { icon: SlidersHorizontal, label: "Configurações", to: "/" },
