@@ -109,15 +109,16 @@ function SidebarIconBtn({
   icon: React.ElementType; active?: boolean; badge?: string;
   onClick?: () => void; variant?: "ghost" | "primary";
 }) {
-  const base = "relative grid h-10 w-10 place-items-center rounded-xl transition";
+  const base = "relative grid h-11 w-11 place-items-center rounded-[10px] transition";
   const styles =
     variant === "primary"
-      ? "bg-primary text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.35)] hover:brightness-110"
+      ? "h-9 w-9 bg-primary text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.35)] hover:brightness-110"
       : active
-      ? "bg-primary/15 text-primary"
+      ? "bg-primary/20 text-primary"
       : "text-sidebar-foreground/70 hover:bg-white/5 hover:text-sidebar-foreground";
   return (
     <button onClick={onClick} className={`${base} ${styles}`}>
+      {active && <span className="absolute -left-3.5 top-1/2 h-7 w-1 -translate-y-1/2 rounded-r-full bg-primary" />}
       <Icon className="h-5 w-5" strokeWidth={1.75} />
       {badge && (
         <span className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-destructive px-1 text-[10px] font-semibold text-white">
@@ -139,7 +140,7 @@ const NAV_ITEMS = [
 
 function IconRail() {
   return (
-    <aside className="fixed inset-y-0 left-0 z-40 hidden w-16 flex-col items-center gap-2 border-r border-border bg-sidebar py-4 md:flex">
+    <aside className="fixed inset-y-0 left-0 z-40 hidden w-[72px] flex-col items-center gap-2 border-r border-border bg-sidebar py-4 md:flex">
       <div className="mb-2 grid h-10 w-10 place-items-center rounded-xl">
         <svg viewBox="0 0 32 32" className="h-7 w-7 text-primary" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
           <path d="M4 8 L10 24 L16 14 L22 24 L28 8" />
@@ -356,7 +357,7 @@ function Dashboard() {
       <MobileTopBar />
 
 
-      <main className="pb-24 md:ml-16 md:pb-8">
+      <main className="pb-24 md:ml-[72px] md:pb-8">
         {/* ==================== DESKTOP (lg+) ==================== */}
         <div className="hidden lg:block">
           <div className="mx-auto flex w-full max-w-[1180px] flex-col gap-4 px-4 pb-12 pt-4">
