@@ -234,7 +234,7 @@ function PlanBanner() {
 
 function GreetingCard() {
   return (
-    <div className="rounded-2xl border border-border bg-[radial-gradient(120%_140%_at_100%_0%,rgba(76,175,80,0.14),transparent_55%),linear-gradient(160deg,var(--color-card)_0%,rgba(10,10,10,0.9)_100%)] p-5 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.6)]">
+    <div className="rounded-xl border border-border bg-[radial-gradient(120%_140%_at_100%_0%,rgba(76,175,80,0.14),transparent_55%),linear-gradient(160deg,var(--color-card)_0%,rgba(10,10,10,0.9)_100%)] p-5 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.6)]">
       <div className="flex items-center gap-4">
         <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-destructive text-sm font-semibold text-white">
           ML
@@ -265,7 +265,7 @@ function GreetingCard() {
 
 function WalletCard() {
   return (
-    <div className="flex h-full flex-col rounded-2xl border border-border bg-[radial-gradient(120%_140%_at_100%_0%,rgba(76,175,80,0.12),transparent_55%),linear-gradient(160deg,var(--color-card)_0%,rgba(10,10,10,0.9)_100%)] p-5">
+    <div className="flex h-full flex-col rounded-xl border border-border bg-[radial-gradient(120%_140%_at_100%_0%,rgba(76,175,80,0.12),transparent_55%),linear-gradient(160deg,var(--color-card)_0%,rgba(10,10,10,0.9)_100%)] p-5">
       <div className="grid h-10 w-10 place-items-center rounded-full bg-primary/10 text-primary">
         <Wallet className="h-5 w-5" />
       </div>
@@ -285,7 +285,7 @@ function WalletCard() {
 
 function ActionButton({ icon: Icon, label }: { icon: React.ElementType; label: string }) {
   return (
-    <button className="flex items-center gap-3 rounded-2xl border border-border bg-[radial-gradient(120%_140%_at_100%_0%,rgba(76,175,80,0.10),transparent_55%),linear-gradient(160deg,var(--color-card)_0%,rgba(10,10,10,0.9)_100%)] px-4 py-4 text-left transition hover:border-primary/40">
+    <button className="flex items-center gap-3 rounded-xl border border-border bg-[radial-gradient(120%_140%_at_100%_0%,rgba(76,175,80,0.10),transparent_55%),linear-gradient(160deg,var(--color-card)_0%,rgba(10,10,10,0.9)_100%)] px-4 py-4 text-left transition hover:border-primary/40">
       <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-background/60 text-primary">
         <Icon className="h-5 w-5" strokeWidth={1.75} />
       </div>
@@ -314,7 +314,7 @@ function NextEventCard() {
   return (
     <Link
       to="/dashboard/personal/agenda"
-      className="relative flex items-start gap-3 overflow-hidden rounded-2xl border border-border bg-[radial-gradient(120%_140%_at_100%_0%,rgba(76,175,80,0.12),transparent_55%),linear-gradient(160deg,var(--color-card)_0%,rgba(10,10,10,0.9)_100%)] p-5"
+      className="relative flex items-start gap-3 overflow-hidden rounded-xl border border-border bg-[radial-gradient(120%_140%_at_100%_0%,rgba(76,175,80,0.12),transparent_55%),linear-gradient(160deg,var(--color-card)_0%,rgba(10,10,10,0.9)_100%)] p-5"
     >
       <span className="absolute inset-y-3 left-0 w-1 rounded-r-full bg-amber-500" />
       <div className="min-w-0 flex-1 pl-2">
