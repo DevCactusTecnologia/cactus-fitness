@@ -132,21 +132,25 @@ function AlunosPage() {
     <div className="min-h-screen bg-background text-foreground">
       <IconRail />
 
-      <main className="px-6 py-6 md:ml-[72px] md:px-8 md:py-8">
-        {/* Header */}
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <h1 className="text-3xl font-bold tracking-tight font-display">Alunos</h1>
-          <div className="flex items-center gap-2">
-            <button className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-2 text-sm hover:bg-accent">
-              <Link2 className="h-4 w-4" /> Link de cadastro
-            </button>
-            <button className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.35)] hover:brightness-110">
-              <Plus className="h-4 w-4" /> Novo Aluno
-            </button>
+      <main className="md:ml-[72px]">
+        {/* Header translúcido */}
+        <div className="sticky top-0 z-30 border-b border-border/60 bg-background/70 backdrop-blur-xl">
+          <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6 md:px-8">
+            <h1 className="text-2xl font-bold tracking-tight font-display sm:text-3xl">Alunos</h1>
+            <div className="flex flex-wrap items-center gap-2">
+              <button className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card/60 px-3 py-2 text-sm hover:bg-accent">
+                <Link2 className="h-4 w-4" /> <span className="hidden sm:inline">Link de cadastro</span><span className="sm:hidden">Link</span>
+              </button>
+              <button className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.35)] hover:brightness-110">
+                <Plus className="h-4 w-4" /> Novo Aluno
+              </button>
+            </div>
           </div>
         </div>
 
-        <div className="mx-auto mt-6 max-w-3xl">
+        <div className="px-4 py-6 sm:px-6 md:px-8">
+        <div className="mx-auto max-w-3xl">
+
 
 
         {/* Search + tools */}
