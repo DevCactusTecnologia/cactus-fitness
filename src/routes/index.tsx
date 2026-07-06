@@ -519,7 +519,7 @@ function Dashboard() {
 
             <div className="grid grid-cols-1 gap-3 lg:grid-cols-[1.55fr_1fr]">
               {/* Atalhos rápidos */}
-              <section className="rounded-xl border border-border bg-bg-elevated">
+              <section className="rounded-lg border border-border bg-bg-elevated">
                 <div className="flex items-center justify-between border-b border-border px-4 py-3">
                   <h2 className="font-display text-base font-bold">Atalhos rápidos</h2>
                   <span className="font-mono text-[0.625rem] text-fg-muted">use as teclas</span>
