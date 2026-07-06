@@ -160,10 +160,6 @@ function IconRail({ onToggleMenu, menuOpen }: { onToggleMenu: () => void; menuOp
       <div className="mt-auto flex flex-col items-center gap-2">
         <SidebarIconBtn icon={Plus} variant="primary" />
         <SidebarIconBtn icon={Bell} badge="2" />
-        <SidebarIconBtn
-          icon={menuOpen ? PanelLeftClose : PanelLeftOpen}
-          onClick={onToggleMenu}
-        />
         <div className="relative">
           <div className="grid h-9 w-9 place-items-center rounded-full bg-destructive text-sm font-bold text-white ring-1 ring-border hover:ring-border-strong font-display">
             ML
