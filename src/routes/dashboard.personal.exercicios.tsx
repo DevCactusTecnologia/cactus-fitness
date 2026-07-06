@@ -549,9 +549,9 @@ const MUSCLE_OPTIONS = [
 ];
 
 function NewExerciseWizard({
-  groups, personalId, onClose, onCreated,
+  groups, equipments, personalId, onClose, onCreated,
 }: {
-  groups: Group[]; personalId: string; onClose: () => void; onCreated: () => void;
+  groups: Group[]; equipments: Equipment[]; personalId: string; onClose: () => void; onCreated: () => void;
 }) {
   const [step, setStep] = useState(1);
   const [saving, setSaving] = useState(false);
@@ -559,7 +559,7 @@ function NewExerciseWizard({
   const [data, setData] = useState<WizardData>({
     name: "", description: "", instructions: "",
     group_id: groups[0]?.id ?? null,
-    difficulty: "", equipment: "",
+    difficulty: "", objective: "", equipment: [],
     muscles_primary: [], muscles_secondary: [],
     video_url: "",
   });
@@ -575,11 +575,13 @@ function NewExerciseWizard({
       instructions: data.instructions.trim() || null,
       group_id: data.group_id!,
       difficulty: data.difficulty || null,
-      equipment: data.equipment.trim() || null,
+      objective: data.objective || null,
+      equipment: data.equipment.length ? data.equipment.join(", ") : null,
       muscles_primary: data.muscles_primary,
       muscles_secondary: data.muscles_secondary,
       video_url: data.video_url.trim() || null,
       owner_id: personalId,
+
       is_active: true,
     };
     const { error: err } = await (supabase.from("exercises") as any).insert(payload);
