@@ -20,6 +20,7 @@ export const Route = createFileRoute("/dashboard/personal/exercicios")({
 });
 
 type Group = { id: number; name: string; slug: string; sort_order: number };
+type Equipment = { id: number; name: string; slug: string; sort_order: number };
 type Exercise = {
   id: number;
   name: string;
@@ -32,8 +33,20 @@ type Exercise = {
   muscles_secondary?: string[] | null;
   equipment?: string | null;
   difficulty?: string | null;
+  objective?: string | null;
   video_url?: string | null;
 };
+
+const OBJECTIVES = [
+  "Capacidade Aeróbia",
+  "Coordenativos",
+  "Estabilidade",
+  "Flexibilidade",
+  "Força",
+  "Potência",
+  "Reabilitação",
+];
+
 
 /* ---------- identidade local (sem auth) ---------- */
 function getPersonalId(): string {
@@ -120,8 +133,10 @@ type TabId = (typeof TABS)[number]["id"];
 
 function ExerciciosPage() {
   const [groups, setGroups] = useState<Group[]>([]);
+  const [equipments, setEquipments] = useState<Equipment[]>([]);
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [loading, setLoading] = useState(true);
+
   const [query, setQuery] = useState("");
   const [activeGroup, setActiveGroup] = useState<number | "all">("all");
   const [tab, setTab] = useState<TabId>("all");
@@ -149,14 +164,17 @@ function ExerciciosPage() {
   };
 
   const loadData = async () => {
-    const [g, e] = await Promise.all([
+    const [g, eq, e] = await Promise.all([
       supabase.from("exercise_groups").select("*").order("sort_order"),
+      supabase.from("equipments" as never).select("*").order("sort_order") as unknown as Promise<{ data: Equipment[] | null }>,
       fetchAll(),
     ]);
     setGroups((g.data ?? []) as Group[]);
+    setEquipments((eq.data ?? []) as Equipment[]);
     setExercises(e);
     setLoading(false);
   };
+
 
   useEffect(() => { loadData(); /* eslint-disable-next-line */ }, []);
 
@@ -321,6 +339,7 @@ function ExerciciosPage() {
       {showWizard && (
         <NewExerciseWizard
           groups={groups}
+          equipments={equipments}
           personalId={personalId}
           onClose={() => setShowWizard(false)}
           onCreated={async () => { setShowWizard(false); setTab("mine"); await loadData(); }}
@@ -495,11 +514,13 @@ type WizardData = {
   instructions: string;
   group_id: number | null;
   difficulty: string;
-  equipment: string;
+  objective: string;
+  equipment: string[];
   muscles_primary: string[];
   muscles_secondary: string[];
   video_url: string;
 };
+
 
 const STEPS = [
   { id: 1, label: "Nome" },
@@ -528,9 +549,9 @@ const MUSCLE_OPTIONS = [
 ];
 
 function NewExerciseWizard({
-  groups, personalId, onClose, onCreated,
+  groups, equipments, personalId, onClose, onCreated,
 }: {
-  groups: Group[]; personalId: string; onClose: () => void; onCreated: () => void;
+  groups: Group[]; equipments: Equipment[]; personalId: string; onClose: () => void; onCreated: () => void;
 }) {
   const [step, setStep] = useState(1);
   const [saving, setSaving] = useState(false);
@@ -538,7 +559,7 @@ function NewExerciseWizard({
   const [data, setData] = useState<WizardData>({
     name: "", description: "", instructions: "",
     group_id: groups[0]?.id ?? null,
-    difficulty: "", equipment: "",
+    difficulty: "", objective: "", equipment: [],
     muscles_primary: [], muscles_secondary: [],
     video_url: "",
   });
@@ -554,11 +575,13 @@ function NewExerciseWizard({
       instructions: data.instructions.trim() || null,
       group_id: data.group_id!,
       difficulty: data.difficulty || null,
-      equipment: data.equipment.trim() || null,
+      objective: data.objective || null,
+      equipment: data.equipment.length ? data.equipment.join(", ") : null,
       muscles_primary: data.muscles_primary,
       muscles_secondary: data.muscles_secondary,
       video_url: data.video_url.trim() || null,
       owner_id: personalId,
+
       is_active: true,
     };
     const { error: err } = await (supabase.from("exercises") as any).insert(payload);
@@ -696,14 +719,46 @@ function NewExerciseWizard({
                   ))}
                 </div>
               </Field>
-              <Field label="Equipamento" hint="(opcional)">
-                <input
-                  value={data.equipment}
-                  onChange={(e) => setData({ ...data, equipment: e.target.value })}
-                  placeholder="Ex: Halteres, Barra, Corpo livre"
+              <Field label="Objetivo" hint="(opcional)">
+                <select
+                  value={data.objective}
+                  onChange={(e) => setData({ ...data, objective: e.target.value })}
                   className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2.5 text-sm focus:outline-none focus:border-primary transition"
-                />
+                >
+                  <option value="">Selecione...</option>
+                  {OBJECTIVES.map((o) => (
+                    <option key={o} value={o}>{o}</option>
+                  ))}
+                </select>
               </Field>
+              <Field label="Equipamentos" hint="(opcional)">
+                <div className="max-h-[260px] overflow-y-auto pr-1">
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                    {equipments.map((eq) => {
+                      const active = data.equipment.includes(eq.name);
+                      return (
+                        <button
+                          key={eq.id}
+                          type="button"
+                          onClick={() => setData({ ...data, equipment: toggle(data.equipment, eq.name) })}
+                          className={`flex items-center justify-between gap-2 px-3 py-2.5 rounded-lg border text-sm text-left transition-colors ${
+                            active
+                              ? "border-primary bg-primary/15 text-primary"
+                              : "border-border bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+                          }`}
+                        >
+                          <span className="truncate">{eq.name}</span>
+                          {active && <Check className="h-3.5 w-3.5 shrink-0" />}
+                        </button>
+                      );
+                    })}
+                    {equipments.length === 0 && (
+                      <p className="col-span-full text-xs text-muted-foreground">Nenhum equipamento cadastrado.</p>
+                    )}
+                  </div>
+                </div>
+              </Field>
+
             </div>
           )}
 
@@ -775,7 +830,9 @@ function NewExerciseWizard({
               <ReviewRow label="Descrição" value={data.description || "—"} />
               <ReviewRow label="Grupo" value={groups.find((g) => g.id === data.group_id)?.name ?? "—"} />
               <ReviewRow label="Dificuldade" value={data.difficulty || "—"} />
-              <ReviewRow label="Equipamento" value={data.equipment || "—"} />
+              <ReviewRow label="Objetivo" value={data.objective || "—"} />
+              <ReviewRow label="Equipamentos" value={data.equipment.join(", ") || "—"} />
+
               <ReviewRow label="Músculos primários" value={data.muscles_primary.join(", ") || "—"} />
               <ReviewRow label="Músculos secundários" value={data.muscles_secondary.join(", ") || "—"} />
               <ReviewRow label="Vídeo" value={data.video_url || "—"} />
