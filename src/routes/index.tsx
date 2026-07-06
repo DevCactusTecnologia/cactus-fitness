@@ -19,7 +19,7 @@ function Sparkline({ up = true }: { up?: boolean }) {
     : "M 0 15 L 10 15 L 20 15 L 30 15 L 40 15 L 50 15 L 60 15 L 72 15";
   return (
     <svg viewBox="0 0 72 22" className="h-[22px] w-[72px] overflow-visible">
-      <path d={d} fill="none" stroke="var(--primary)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d={d} fill="none" stroke="hsl(var(--primary))" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
