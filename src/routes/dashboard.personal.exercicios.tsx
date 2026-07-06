@@ -616,11 +616,17 @@ function NewExerciseWizard({
 
   const submit = async () => {
     setSaving(true); setError(null);
+
+    // Validação obrigatória — impede perda silenciosa
+    const name = data.name.trim();
+    if (!name) { setSaving(false); setStep(1); setError("Informe o nome do exercício."); return; }
+    if (data.group_id == null) { setSaving(false); setStep(3); setError("Selecione o grupo muscular."); return; }
+
     const payload = {
-      name: data.name.trim(),
+      name,
       description: data.description.trim() || null,
       instructions: data.instructions.trim() || null,
-      group_id: data.group_id!,
+      group_id: data.group_id,
       difficulty: data.difficulty || null,
       objective: data.objective || null,
       equipment: data.equipment.length ? data.equipment.join(", ") : null,
@@ -630,14 +636,41 @@ function NewExerciseWizard({
       image_path: data.image_path || null,
       video_path: data.video_path || null,
       owner_id: personalId,
-
       is_active: true,
     };
 
-    const { error: err } = await (supabase.from("exercises") as any).insert(payload);
+    const { data: inserted, error: err } = await (supabase.from("exercises") as any)
+      .insert(payload)
+      .select("*")
+      .single();
+
+    if (err) {
+      setSaving(false);
+      setError(`Erro ao salvar: ${err.message}`);
+      return;
+    }
+
+    // Verifica se todos os campos foram persistidos (evita perda silenciosa)
+    const missing: string[] = [];
+    for (const [k, v] of Object.entries(payload)) {
+      if (v === null || (Array.isArray(v) && v.length === 0)) continue;
+      const stored = inserted?.[k];
+      const eq =
+        Array.isArray(v)
+          ? Array.isArray(stored) && stored.length === v.length && v.every((x, i) => x === stored[i])
+          : stored === v;
+      if (!eq) missing.push(k);
+    }
+
     setSaving(false);
-    if (err) { setError(err.message); return; }
+
+    if (missing.length > 0) {
+      setError(`Alguns campos não foram salvos: ${missing.join(", ")}. Verifique o schema da tabela.`);
+      return;
+    }
+
     onCreated();
+
   };
 
   const toggle = (arr: string[], m: string) =>
