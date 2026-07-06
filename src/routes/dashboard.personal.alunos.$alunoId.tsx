@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
-  Home, Users, Dumbbell, ClipboardCheck, Wallet, Bell, Plus,
+  Home, Users, Dumbbell, ClipboardCheck, Wallet, Bell, Plus, PanelLeftClose,
   ArrowLeft, LogIn, Mail, Phone, ShieldAlert, Calendar, User,
   Clock, Trophy, Pencil, Power, Trash2, Tag, ChevronRight,
 } from "lucide-react";
