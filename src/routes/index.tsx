@@ -153,7 +153,7 @@ function IconRail() {
         <SidebarIconBtn icon={Plus} variant="primary" />
         <SidebarIconBtn icon={Bell} badge="2" />
         <div className="relative">
-          <div className="grid h-9 w-9 place-items-center rounded-full bg-destructive text-sm font-bold text-white ring-1 ring-border hover:ring-border-strong font-display">
+          <div className="grid h-9 w-9 place-items-center rounded-lg bg-destructive text-sm font-bold text-white ring-1 ring-border hover:ring-border-strong font-display">
             ML
           </div>
           <span className="absolute -bottom-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-primary ring-2 ring-sidebar" />
