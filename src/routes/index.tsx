@@ -137,13 +137,6 @@ const NAV_ITEMS = [
   { icon: SlidersHorizontal, label: "Configurações", to: "/" },
 ];
 
-const SUBMENU_ITEMS = [
-  { icon: Home, label: "Início", to: "/", active: true },
-  { icon: Users, label: "Alunos", to: "/dashboard/personal/alunos" },
-  { icon: MessageCircle, label: "Mensagens", to: "/" },
-  { icon: Calendar, label: "Agenda", to: "/" },
-  { icon: GraduationCap, label: "Tutoriais", to: "/" },
-];
 
 function IconRail() {
   return (
