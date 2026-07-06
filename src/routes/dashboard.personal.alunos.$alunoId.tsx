@@ -86,7 +86,7 @@ function AlunoDetailPage() {
           {/* Header card */}
           <div className="rounded-xl border border-border bg-card p-5 md:p-6">
             <div className="flex items-center gap-4">
-              <div className="relative grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-full bg-fuchsia-600 text-lg font-bold text-white">
+              <div className="relative grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-full bg-gradient-to-br from-fuchsia-500 to-fuchsia-700 text-lg font-bold text-white font-display ring-2 ring-border shadow-md">
                 ML
               </div>
               <div className="min-w-0 flex-1">
