@@ -3,7 +3,7 @@ import { useState } from "react";
 import {
   Home, Users, Dumbbell, ClipboardCheck, Wallet, Bell, Plus, PanelLeftClose,
   ArrowLeft, LogIn, Mail, Phone, ShieldAlert, Calendar, User,
-  Clock, Trophy, Pencil, Power, Trash2, Tag, Copy, FileText, Sparkles, X,
+  Clock, Trophy, Pencil, Power, Trash2, Tag, Copy, FileText, Sparkles,
 } from "lucide-react";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
