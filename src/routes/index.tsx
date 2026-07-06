@@ -118,7 +118,7 @@ function Dashboard() {
           {/* Header */}
           <div className="flex flex-wrap items-end justify-between gap-4">
             <div>
-              <h1 className="text-3xl font-semibold tracking-tight">
+              <h1 className="text-3xl font-bold tracking-tight font-display">
                 Boa tarde, <span className="text-primary">Marcos</span>
               </h1>
               <p className="mt-1 text-sm lowercase text-muted-foreground">segunda-feira, 6 de julho</p>
