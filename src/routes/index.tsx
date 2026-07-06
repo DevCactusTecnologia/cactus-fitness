@@ -12,6 +12,90 @@ export const Route = createFileRoute("/")({
   component: Dashboard,
 });
 
+/* ---------- Desktop KPI helpers ---------- */
+
+function Sparkline({ up = true }: { up?: boolean }) {
+  const d = up
+    ? "M2 22 L14 18 L26 20 L38 12 L50 14 L62 6"
+    : "M2 10 L14 12 L26 8 L38 14 L50 11 L62 18";
+  return (
+    <svg viewBox="0 0 64 28" className="h-7 w-24 overflow-visible">
+      <path d={d} fill="none" stroke="var(--primary)" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function KpiCard({
+  label, value, sub, trend, sparkUp = true,
+}: { label: string; value: string; sub: string; trend?: string; sparkUp?: boolean }) {
+  return (
+    <div className="rounded-2xl border border-border bg-card p-5 transition hover:border-primary/40">
+      <div className="flex items-center justify-between text-xs text-muted-foreground">
+        <span>{label}</span>
+        {trend && (
+          <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[11px] text-primary">
+            <ArrowUpRight className="h-3 w-3" /> {trend}
+          </span>
+        )}
+      </div>
+      <div className="mt-3 flex items-end justify-between gap-3">
+        <div className="text-4xl font-bold tracking-tight font-display">{value}</div>
+        <Sparkline up={sparkUp} />
+      </div>
+      <div className="mt-2 text-xs text-muted-foreground">{sub}</div>
+    </div>
+  );
+}
+
+function SectionCard({
+  title, hint, children, footer,
+}: { title: string; hint?: string; children: React.ReactNode; footer?: React.ReactNode }) {
+  return (
+    <div className="flex flex-col rounded-2xl border border-border bg-card">
+      <div className="flex items-center justify-between px-5 pt-5">
+        <h3 className="text-sm font-medium">{title}</h3>
+        {hint && <span className="text-xs lowercase text-muted-foreground">{hint}</span>}
+      </div>
+      <div className="flex-1 px-5 py-4">{children}</div>
+      {footer && <div className="border-t border-border px-5 py-3 text-sm">{footer}</div>}
+    </div>
+  );
+}
+
+function Shortcut({ icon: Icon, title, sub, k, to }: { icon: React.ElementType; title: string; sub: string; k: string; to?: string }) {
+  const cls = "group flex items-center gap-3 rounded-xl border border-border bg-card p-3 text-left transition hover:border-primary/40 hover:bg-accent";
+  const inner = (
+    <>
+      <div className="grid h-10 w-10 place-items-center rounded-lg bg-primary/10 text-primary">
+        <Icon className="h-5 w-5" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="text-sm font-medium">{title}</div>
+        <div className="truncate text-xs lowercase text-muted-foreground">{sub}</div>
+      </div>
+      <kbd className="rounded-md border border-border bg-background px-2 py-1 text-[11px] text-muted-foreground">{k}</kbd>
+    </>
+  );
+  if (to) return <Link to={to} className={cls}>{inner}</Link>;
+  return <button className={cls}>{inner}</button>;
+}
+
+function MiniStat({
+  icon: Icon, label, value, sub, hint,
+}: { icon: React.ElementType; label: string; value: string; sub: string; hint?: string }) {
+  return (
+    <div className="rounded-xl border border-border bg-background p-4">
+      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+        <Icon className="h-4 w-4 text-primary" /> {label}
+      </div>
+      <div className="mt-2 text-2xl font-semibold font-display">
+        {value} {sub && <span className="text-sm font-normal text-muted-foreground">{sub}</span>}
+      </div>
+      {hint && <div className="mt-1 text-xs text-primary">{hint}</div>}
+    </div>
+  );
+}
+
 /* ---------- Sidebar ---------- */
 
 function SidebarIconBtn({
