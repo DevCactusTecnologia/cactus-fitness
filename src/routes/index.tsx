@@ -74,9 +74,10 @@ function SidebarIcon({ icon: Icon, active, badge }: { icon: React.ElementType; a
   );
 }
 
-function Shortcut({ icon: Icon, title, sub, k }: { icon: React.ElementType; title: string; sub: string; k: string }) {
-  return (
-    <button className="group flex items-center gap-3 rounded-xl border border-border bg-card p-3 text-left transition hover:border-primary/40 hover:bg-accent">
+function Shortcut({ icon: Icon, title, sub, k, to }: { icon: React.ElementType; title: string; sub: string; k: string; to?: string }) {
+  const cls = "group flex items-center gap-3 rounded-xl border border-border bg-card p-3 text-left transition hover:border-primary/40 hover:bg-accent";
+  const inner = (
+    <>
       <div className="grid h-10 w-10 place-items-center rounded-lg bg-primary/10 text-primary">
         <Icon className="h-5 w-5" />
       </div>
@@ -85,8 +86,10 @@ function Shortcut({ icon: Icon, title, sub, k }: { icon: React.ElementType; titl
         <div className="truncate text-xs lowercase text-muted-foreground">{sub}</div>
       </div>
       <kbd className="rounded-md border border-border bg-background px-2 py-1 text-[11px] text-muted-foreground">{k}</kbd>
-    </button>
+    </>
   );
+  if (to) return <Link to={to} className={cls}>{inner}</Link>;
+  return <button className={cls}>{inner}</button>;
 }
 
 function Dashboard() {
