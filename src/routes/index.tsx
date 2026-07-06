@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
-  Home, Users, Dumbbell, ClipboardCheck, Wallet, Bell, Search, Sparkles,
+  Home, Users, Dumbbell, ClipboardCheck, Wallet, Bell, Search, Sparkles, PanelLeftClose,
   Plus, Calendar, Activity, UserPlus, FileText, Link2, HeartPulse,
   ArrowUpRight, TrendingUp, AlertTriangle, ChevronRight,
 } from "lucide-react";
@@ -108,6 +108,7 @@ function Dashboard() {
         <div className="mt-auto flex flex-col items-center gap-2">
           <SidebarIcon icon={Plus} />
           <SidebarIcon icon={Bell} badge="1" />
+          <SidebarIcon icon={PanelLeftClose} />
           <div className="grid h-10 w-10 place-items-center rounded-xl bg-destructive/90 text-sm font-semibold text-white">ML</div>
         </div>
       </aside>
