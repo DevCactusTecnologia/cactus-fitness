@@ -1,14 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  Home, Calendar, Plus, Bell, Users,
-  Dumbbell, ClipboardCheck, Trophy, Search, ChevronLeft, Play,
+  Plus,
+  Search, ChevronLeft, Play,
   SlidersHorizontal as FilterIcon, Loader2, AlertTriangle, X, Check,
-  ArrowLeft, ArrowRight, Video, Info, Target, ListChecks, ClipboardList,
+  ArrowLeft, ArrowRight, Video, Info, Target, ListChecks,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
-import { UserAvatarMenu } from "@/components/UserAvatarMenu";
 
 export const Route = createFileRoute("/_authenticated/dashboard/personal/exercicios")({
   head: () => ({
