@@ -207,8 +207,8 @@ function TreinosPage() {
           {/* Stats */}
           <div className="mt-4 grid grid-cols-3 gap-3 md:gap-4">
             <StatCard icon={FileText} value={total} label="Total de modelos" tone="green" />
-            <StatCard icon={Layers} value={planos} label="Modelos de Plano" tone="purple" />
-            <StatCard icon={Dumbbell} value={templates} label="Templates de Treino" tone="blue" />
+            <StatCard icon={Layers} value={0} label="Modelos de Plano" tone="purple" />
+            <StatCard icon={Dumbbell} value={total} label="Templates de Treino" tone="blue" />
           </div>
 
           {/* Search + Filters */}
@@ -225,11 +225,7 @@ function TreinosPage() {
               <FilterSelect
                 value={filter}
                 onChange={setFilter}
-                options={[
-                  { value: "todos", label: "Todos os tipos" },
-                  { value: "plano", label: "Modelos de Plano" },
-                  { value: "template", label: "Templates de Treino" },
-                ]}
+                options={[{ value: "todos", label: "Todos os tipos" }]}
               />
               <button className="inline-flex items-center justify-between gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm hover:bg-muted">
                 Mais recentes
@@ -238,13 +234,15 @@ function TreinosPage() {
             </div>
           </div>
 
-
-
           {/* List */}
           <div className="mt-4 space-y-2">
-            {visible.length === 0 ? (
+            {isLoading ? (
+              <div className="grid place-items-center rounded-xl border border-dashed border-border p-10">
+                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+              </div>
+            ) : visible.length === 0 ? (
               <div className="rounded-xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
-                Nenhum modelo encontrado.
+                Nenhum modelo criado ainda. Clique em "Modelo de Treino" para começar.
               </div>
             ) : (
               visible.map((m) => <ModeloRow key={m.id} modelo={m} />)
@@ -252,6 +250,7 @@ function TreinosPage() {
           </div>
         </div>
       </main>
+
 
       <MobileBottomNav />
     </div>
