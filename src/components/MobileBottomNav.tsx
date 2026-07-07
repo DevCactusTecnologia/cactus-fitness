@@ -51,12 +51,12 @@ export function MobileBottomNav() {
   const signOut = useSignOut();
 
   const linkClass = (active: boolean) =>
-    `relative flex flex-1 flex-col items-center gap-0.5 py-1 text-[11px] ${
+    `relative flex min-w-0 flex-1 flex-col items-center gap-0.5 py-1 text-[10px] sm:text-[11px] ${
       active ? "text-primary" : "text-muted-foreground"
     }`;
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 flex items-stretch justify-around border-t border-border bg-background/95 px-2 py-2 backdrop-blur md:hidden">
+    <nav className="fixed inset-x-0 bottom-0 z-40 flex w-full max-w-full items-stretch justify-around overflow-hidden border-t border-border bg-background/95 px-1.5 py-2 backdrop-blur md:hidden">
       {ITEMS.map((i) => {
         const active = i.match ? i.match(pathname) : false;
         return (
@@ -69,7 +69,7 @@ export function MobileBottomNav() {
                 </span>
               )}
             </span>
-            <span>{i.label}</span>
+            <span className="max-w-full truncate px-0.5">{i.label}</span>
           </Link>
         );
       })}
@@ -78,7 +78,7 @@ export function MobileBottomNav() {
         <SheetTrigger asChild>
           <button type="button" className={linkClass(false)}>
             <MenuIcon className="h-5 w-5" strokeWidth={1.75} />
-            <span>Menu</span>
+            <span className="max-w-full truncate px-0.5">Menu</span>
           </button>
         </SheetTrigger>
         <SheetContent side="bottom" className="rounded-t-2xl">

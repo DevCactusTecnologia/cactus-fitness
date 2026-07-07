@@ -254,11 +254,11 @@ function GreetingCard() {
 
 function ActionButton({ icon: Icon, label }: { icon: React.ElementType; label: string }) {
   return (
-    <button className="flex min-w-0 items-center gap-3 rounded-lg border border-border bg-card px-4 py-4 text-left transition hover:border-primary/40">
+    <button className="flex w-full min-w-0 items-center gap-2.5 overflow-hidden rounded-lg border border-border bg-card px-3 py-4 text-left transition hover:border-primary/40 sm:gap-3 sm:px-4">
       <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-background/60 text-primary">
         <Icon className="h-5 w-5" strokeWidth={1.75} />
       </div>
-      <span className="min-w-0 flex-1 text-sm font-semibold leading-tight sm:text-base">{label}</span>
+      <span className="min-w-0 flex-1 break-words text-[0.8125rem] font-semibold leading-tight sm:text-base">{label}</span>
     </button>
   );
 }
@@ -314,7 +314,7 @@ function MobilePulseCard() {
   return (
     <button
       type="button"
-      className="flex w-full items-center gap-3 rounded-lg border border-primary/40 bg-[#0d0f0d] px-4 py-3 text-left"
+      className="flex w-full min-w-0 items-center gap-3 overflow-hidden rounded-lg border border-primary/40 bg-[#0d0f0d] px-4 py-3 text-left"
     >
       <div className="relative shrink-0">
         <div className="grid h-11 w-11 place-items-center rounded-full bg-primary/15 text-primary">
@@ -336,18 +336,18 @@ function MobilePulseCard() {
 
 function QuickTile({ icon: Icon, label }: { icon: React.ElementType; label: string }) {
   return (
-    <button className="flex flex-col items-center gap-2 py-2 text-center">
+    <button className="flex min-w-0 flex-col items-center gap-2 py-2 text-center">
       <div className="grid h-11 w-11 place-items-center rounded-full bg-primary/10 text-primary">
         <Icon className="h-5 w-5" strokeWidth={1.75} />
       </div>
-      <span className="text-xs font-medium text-foreground/85">{label}</span>
+      <span className="max-w-full break-words text-xs font-medium leading-tight text-foreground/85">{label}</span>
     </button>
   );
 }
 
 function ReferralBanner() {
   return (
-    <div className="flex items-center gap-4 rounded-lg border border-primary/30 bg-[linear-gradient(135deg,rgba(76,175,80,0.12),rgba(76,175,80,0.04))] p-4 md:p-5">
+    <div className="flex min-w-0 items-center gap-3 overflow-hidden rounded-lg border border-primary/30 bg-[linear-gradient(135deg,rgba(76,175,80,0.12),rgba(76,175,80,0.04))] p-4 md:gap-4 md:p-5">
       <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-primary/15 text-primary">
         <Gift className="h-5 w-5" />
       </div>
@@ -442,7 +442,7 @@ function Dashboard() {
 
         {/* ==================== TABLET / MOBILE (<lg) ==================== */}
         <div className="lg:hidden">
-          <div className="mx-auto max-w-6xl px-4 py-4 md:px-8 md:py-8">
+          <div className="mx-auto w-full max-w-6xl overflow-hidden px-3 py-4 sm:px-4 md:px-8 md:py-8">
             <div className="mb-6 hidden items-start justify-between gap-4 md:flex">
               <div>
                 <h1 className="text-3xl font-bold tracking-tight font-display">Início</h1>
@@ -466,7 +466,7 @@ function Dashboard() {
                 <GreetingCard />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-3">
                 <ActionButton icon={Lock} label="Adicionar Aluno" />
                 <ActionButton icon={Lock} label="Link de Cadastro" />
               </div>
@@ -479,7 +479,7 @@ function Dashboard() {
                 </button>
               </div>
               <div className="rounded-lg border border-border bg-card p-4 md:p-6">
-                <div className="grid grid-cols-4 gap-3 md:grid-cols-5">
+                <div className="grid min-w-0 grid-cols-4 gap-2 sm:gap-3 md:grid-cols-5">
                   <QuickTile icon={Users} label="Alunos" />
                   <QuickTile icon={HeartPulse} label="Avaliações" />
                   <QuickTile icon={Dumbbell} label="Treinos" />
