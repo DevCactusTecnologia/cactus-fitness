@@ -107,22 +107,27 @@ function IconRail() {
 }
 
 /* ---------- Page ---------- */
-type Kind = "plano" | "template";
-type Modelo = { id: string; name: string; kind: Kind; sessions: number; tag: string };
-
-const SEED: Modelo[] = [
-  { id: "1", name: "teste", kind: "plano", sessions: 1, tag: "Simples" },
-];
+type Modelo = { id: string; name: string; description: string | null; created_at: string };
 
 function TreinosPage() {
-  const [items] = useState<Modelo[]>(SEED);
-  const [filter, setFilter] = useState<"todos" | "plano" | "template">("todos");
+  const [filter, setFilter] = useState<"todos">("todos");
+
+  const { data: items = [], isLoading } = useQuery({
+    queryKey: ["workout_templates"],
+    queryFn: async (): Promise<Modelo[]> => {
+      const { data, error } = await supabase
+        .from("workout_templates")
+        .select("id, name, description, created_at")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data ?? []) as Modelo[];
+    },
+  });
 
   const total = items.length;
-  const planos = items.filter((m) => m.kind === "plano").length;
-  const templates = items.filter((m) => m.kind === "template").length;
 
-  const visible = items.filter((m) => filter === "todos" || m.kind === filter);
+  const visible = items;
+
 
   return (
     <div className="min-h-screen bg-background text-foreground">
