@@ -346,9 +346,10 @@ function PerfilPage() {
                       value={welcome}
                       maxLength={200}
                       onChange={(e) => setWelcome(e.target.value)}
-                      className="h-20 resize-none text-sm"
+                      className="min-h-24 resize-none rounded-lg border-input/60 bg-background/60 px-4 py-3 text-base font-light tracking-tight placeholder:text-muted-foreground/70 focus-visible:border-primary"
                       placeholder="Ex: Bem-vindo ao seu espaço de treino! Qualquer dúvida, me chame."
                     />
+
                     <div className="mt-1 flex items-center justify-between">
                       <span />
                       <p className="text-[0.625rem] text-muted-foreground">{welcome.length}/200</p>
