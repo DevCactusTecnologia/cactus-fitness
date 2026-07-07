@@ -7,6 +7,8 @@ import {
   ArrowLeft, Search, Loader2,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import logoUrl from "@/assets/cactus-logo.png";
+
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { IconRail } from "@/components/IconRail";
 import {
@@ -98,13 +100,26 @@ function TreinosPage() {
               <ArrowLeft className="h-5 w-5" />
             </button>
             <div className="flex items-center gap-2">
-              <svg viewBox="0 0 32 32" className="h-6 w-6 text-primary" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M4 8 L10 24 L16 14 L22 24 L28 8" />
-              </svg>
-              <span className="text-lg font-bold tracking-tight">
-                well<span className="italic font-light">trainer</span>
+              <span
+                aria-label="CactusFitness"
+                role="img"
+                className="block h-6 w-6 bg-primary"
+                style={{
+                  WebkitMaskImage: `url(${logoUrl})`,
+                  maskImage: `url(${logoUrl})`,
+                  WebkitMaskRepeat: "no-repeat",
+                  maskRepeat: "no-repeat",
+                  WebkitMaskPosition: "center",
+                  maskPosition: "center",
+                  WebkitMaskSize: "contain",
+                  maskSize: "contain",
+                }}
+              />
+              <span className="text-base font-semibold tracking-tight font-display">
+                Cactus<span className="italic font-normal">Fitness</span>
               </span>
             </div>
+
             <button className="grid h-9 w-9 place-items-center rounded-lg text-muted-foreground hover:bg-muted" aria-label="Nova pasta">
               <FolderPlus className="h-5 w-5" />
             </button>
@@ -138,7 +153,7 @@ function TreinosPage() {
           </div>
 
           {/* Info banner */}
-          <div className="mt-4 rounded-2xl border border-border bg-card/60 p-4 text-sm text-muted-foreground md:p-5">
+          <div className="mt-4 rounded-2xl border border-border bg-card/60 p-3 text-xs leading-relaxed text-muted-foreground md:p-5 md:text-sm">
             <div className="flex gap-3 md:block">
               <Info className="mt-0.5 h-4 w-4 shrink-0 text-primary md:hidden" />
               <div className="space-y-1 md:space-y-0">
