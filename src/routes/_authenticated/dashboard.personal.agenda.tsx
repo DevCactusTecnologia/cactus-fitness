@@ -188,7 +188,7 @@ type FormState = {
 
 const emptyForm: FormState = {
   title: "", description: "", location: "",
-  event_date: "2026-07-06", event_time: "08:00", color: 0, student: "",
+  event_date: new Date().toISOString().slice(0, 10), event_time: "08:00", color: 0, student: "",
   is_public: false, multi_day: false, recurring: false,
 };
 
