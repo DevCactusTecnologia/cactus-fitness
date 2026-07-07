@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import {
   Home, Users, Calendar, GraduationCap, SlidersHorizontal,
   Plus, Bell, Crown, Wallet, Lock, Activity,
-  ChevronDown, ChevronRight, Pencil, HeartPulse, Dumbbell, Trophy, Gift, ClipboardCheck,
+  ChevronDown, ChevronRight, Pencil, HeartPulse, Dumbbell, Trophy, Gift, ClipboardCheck, ClipboardList,
   Lightbulb, Sparkles, Eye, ArrowRight, Menu as MenuIcon, Search,
   UserPlus, FileText, Link2, TrendingUp, AlertTriangle, Clock, MapPin,
 } from "lucide-react";
