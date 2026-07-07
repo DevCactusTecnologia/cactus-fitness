@@ -649,14 +649,25 @@ function BlockCard({
           <span className="shrink-0 text-xs text-muted-foreground">
             {block.exercises.length} {block.exercises.length === 1 ? "ex" : "exs"}
           </span>
-          <button
-            onClick={() => dispatch({ type: "REMOVE_BLOCK", sessionId, blockId: block.id })}
-            className="grid h-7 w-7 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-destructive"
-            aria-label="Remover bloco"
-            title="Remover bloco"
-          >
-            <MoreHorizontal className="h-4 w-4" />
-          </button>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                className="grid h-7 w-7 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+                aria-label="Ações do bloco"
+              >
+                <MoreHorizontal className="h-4 w-4" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-40">
+              <DropdownMenuItem
+                onClick={() => dispatch({ type: "REMOVE_BLOCK", sessionId, blockId: block.id })}
+                className="text-destructive focus:text-destructive"
+              >
+                <Trash2 className="mr-2 h-4 w-4" /> Remover bloco
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+
         </div>
         {block.description && !hasExercises && (
           <p className="mt-1 pl-6 text-xs text-muted-foreground">{block.description}</p>
