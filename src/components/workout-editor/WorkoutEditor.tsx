@@ -3,7 +3,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowLeft, ChevronDown, ChevronUp, GripVertical, Loader2,
-  Plus, Search, Settings2, Trash2, X, Dumbbell, Layers,
+  Plus, Search, Settings2, Trash2, X, Dumbbell, Layers, Pencil,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
