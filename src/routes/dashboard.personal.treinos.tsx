@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import {
-  Home, Calendar, GraduationCap, SlidersHorizontal, Bell, Users,
+  Home, Calendar, Bell, Users,
   Dumbbell, ClipboardCheck, Trophy, ClipboardList, FolderPlus, Plus,
   Info, ChevronDown, LayoutGrid, Layers, FileText, MoreHorizontal,
   ArrowLeft, Search,

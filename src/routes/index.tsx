@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import {
-  Home, Users, Calendar, GraduationCap, SlidersHorizontal,
+  Home, Users, Calendar,
   Plus, Bell, Crown, Wallet, Lock, Activity,
   ChevronDown, ChevronRight, Pencil, HeartPulse, Dumbbell, Trophy, Gift, ClipboardCheck, ClipboardList,
   Lightbulb, Sparkles, Eye, ArrowRight, Menu as MenuIcon, Search,
