@@ -890,6 +890,7 @@ function ExercisePicker({
   onCommit: (list: { id: number | null; name: string }[]) => void;
 }) {
   const [q, setQ] = useState("");
+  const [difficultyFilter, setDifficultyFilter] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [customPicks, setCustomPicks] = useState<{ id: null; name: string }[]>([]);
   const { data: catalog = [], isLoading } = useQuery({
@@ -920,9 +921,18 @@ function ExercisePicker({
 
   const filtered = useMemo(() => {
     const s = q.trim().toLowerCase();
-    if (!s) return catalog;
-    return catalog.filter(e => e.name.toLowerCase().includes(s) || (e.group ?? "").toLowerCase().includes(s));
-  }, [q, catalog]);
+    return catalog.filter((e) => {
+      if (s && !(e.name.toLowerCase().includes(s) || (e.group ?? "").toLowerCase().includes(s))) return false;
+      if (difficultyFilter) {
+        const k = (e.difficulty ?? "").toLowerCase();
+        if (difficultyFilter === "inici" && !k.startsWith("inici")) return false;
+        if (difficultyFilter === "inter" && !k.startsWith("inter")) return false;
+        if (difficultyFilter === "avan"  && !k.startsWith("avan"))  return false;
+      }
+      return true;
+    });
+  }, [q, catalog, difficultyFilter]);
+
 
   const target = resolveTarget(state, activeTarget);
   const targetLabel = target
