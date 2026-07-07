@@ -527,7 +527,7 @@ function SessionCard({
   const inputRef = useRef<HTMLInputElement | null>(null);
   const displayName = session.label;
   const letter = (displayName.replace(/^Treino\s+/i, "").trim()[0] ?? displayName.trim()[0] ?? "?").toUpperCase();
-  const hasBlocks = session.blocks.some(b => b.exercises.length > 0);
+  void index; void total;
   void index; void total;
 
   function startEdit() {
