@@ -3,7 +3,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ChevronDown, ChevronUp, Copy, GripVertical, Loader2, MoreHorizontal, CheckSquare,
-  Play, Plus, Save, Search, Settings, Trash2, X, Dumbbell, Pencil, Check, Filter, ChevronLeft, ChevronRight, Clock, BarChart3,
+  Play, Plus, Save, Search, Settings, Trash2, X, Dumbbell, Pencil, Check, Filter, ChevronLeft, ChevronRight, Clock, BarChart3, Hash,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -1201,7 +1201,7 @@ function AlvoPickerButton({
         <DialogContent className="max-w-sm p-5">
           <div className="flex flex-col items-center gap-2 pt-1">
             <div className="grid size-10 place-items-center rounded-xl border border-primary/20 bg-primary/10">
-              <Dumbbell className="size-5 text-primary" />
+              <Hash className="size-5 text-primary" strokeWidth={2.5} />
             </div>
             <DialogTitle className="text-center text-base font-bold">Série {index + 1}</DialogTitle>
             <DialogDescription className="sr-only">Configurar alvo da série</DialogDescription>
