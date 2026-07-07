@@ -1,16 +1,17 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
-import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { createFileRoute, notFound, useNavigate } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Plus,
-  ArrowLeft, LogIn, Mail, Phone, ShieldAlert, Calendar, User,
-  Clock, Trophy, Pencil, Trash2, Tag, Copy, FileText, Sparkles, Loader2, Lock,
+  LogIn, Mail, Phone, ShieldAlert, Calendar, User,
+  Clock, Trophy, Pencil, Trash2, Tag, Copy, FileText, Sparkles, Loader2, Lock, AlertTriangle,
 } from "lucide-react";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { initialsFromName } from "@/lib/auth";
@@ -54,10 +55,6 @@ function useAluno(alunoId: string) {
   });
 }
 
-
-
-
-
 function Row({
   icon: Icon, label, value, valueNode,
 }: { icon: React.ElementType; label: string; value?: string; valueNode?: React.ReactNode }) {
@@ -100,12 +97,24 @@ function formatDate(iso: string | null): string | undefined {
   return d.toLocaleDateString("pt-BR");
 }
 
+function formatPhone(value: string) {
+  const digits = value.replace(/\D/g, "").slice(0, 11);
+  if (digits.length === 0) return "";
+  if (digits.length <= 2) return `(${digits}`;
+  if (digits.length <= 6) return `(${digits.slice(0, 2)}) ${digits.slice(2)}`;
+  if (digits.length <= 10) return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
+  return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
+}
+
 function AlunoDetailPage() {
   const { alunoId } = Route.useParams();
   const { data: aluno, isLoading } = useAluno(alunoId);
   const [activeTab, setActiveTab] = useState(0);
   const [novoPlanoOpen, setNovoPlanoOpen] = useState(false);
   const [configOpen, setConfigOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
+  const [toggleOpen, setToggleOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   if (isLoading || !aluno) {
     return (
@@ -123,8 +132,6 @@ function AlunoDetailPage() {
       <IconRail />
 
       <main className="pb-24 md:ml-[72px] md:pb-10">
-
-        {/* Sticky title bar */}
         <div className="sticky top-0 z-30 border-b border-border/60 bg-background/90 backdrop-blur-xl">
           <div className="px-4 py-4 sm:px-6 md:px-8">
             <h1 className="text-xl font-bold tracking-tight font-display sm:text-2xl">Perfil do Aluno</h1>
@@ -192,7 +199,14 @@ function AlunoDetailPage() {
             </div>
 
             <div className="p-5 md:p-6">
-              {activeTab === 0 && <InformacoesTab aluno={aluno} />}
+              {activeTab === 0 && (
+                <InformacoesTab
+                  aluno={aluno}
+                  onEdit={() => setEditOpen(true)}
+                  onToggle={() => setToggleOpen(true)}
+                  onDelete={() => setDeleteOpen(true)}
+                />
+              )}
               {activeTab === 1 && <TreinosTab firstName={aluno.full_name.split(" ")[0]} onNovoPlano={() => setNovoPlanoOpen(true)} />}
               {activeTab > 1 && (
                 <div className="py-12 text-center text-sm text-muted-foreground">
@@ -204,6 +218,10 @@ function AlunoDetailPage() {
         </div>
       </main>
       <MobileBottomNav />
+
+      <EditAlunoDialog aluno={aluno} open={editOpen} onOpenChange={setEditOpen} />
+      <ToggleActiveDialog aluno={aluno} open={toggleOpen} onOpenChange={setToggleOpen} />
+      <DeleteAlunoDialog aluno={aluno} open={deleteOpen} onOpenChange={setDeleteOpen} />
 
       <Dialog open={novoPlanoOpen} onOpenChange={setNovoPlanoOpen}>
         <DialogContent className="max-w-lg gap-0 p-0">
@@ -299,7 +317,9 @@ function AlunoDetailPage() {
   );
 }
 
-function InformacoesTab({ aluno }: { aluno: Aluno }) {
+function InformacoesTab({
+  aluno, onEdit, onToggle, onDelete,
+}: { aluno: Aluno; onEdit: () => void; onToggle: () => void; onDelete: () => void }) {
   const genderLabel = aluno.gender ? aluno.gender.charAt(0).toUpperCase() + aluno.gender.slice(1) : null;
   return (
     <>
@@ -343,13 +363,22 @@ function InformacoesTab({ aluno }: { aluno: Aluno }) {
 
       <div className="mt-6 space-y-4 border-t border-border pt-4">
         <div className="flex flex-wrap items-center gap-2">
-          <button className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3.5 py-2 text-sm font-semibold hover:bg-accent">
+          <button
+            onClick={onEdit}
+            className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3.5 py-2 text-sm font-semibold hover:bg-accent"
+          >
             <Pencil className="h-4 w-4" /> Editar dados
           </button>
-          <button className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-semibold text-[oklch(0.72_0.18_45)] transition hover:bg-[oklch(0.72_0.18_45)]/10">
+          <button
+            onClick={onToggle}
+            className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-semibold text-[oklch(0.72_0.18_45)] transition hover:bg-[oklch(0.72_0.18_45)]/10"
+          >
             <Lock className="h-4 w-4" /> {aluno.is_active ? "Desativar aluno" : "Ativar aluno"}
           </button>
-          <button className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-semibold text-[oklch(0.68_0.22_25)] transition hover:bg-[oklch(0.68_0.22_25)]/10">
+          <button
+            onClick={onDelete}
+            className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-semibold text-[oklch(0.68_0.22_25)] transition hover:bg-[oklch(0.68_0.22_25)]/10"
+          >
             <Trash2 className="h-4 w-4" /> Excluir aluno
           </button>
         </div>
@@ -362,7 +391,239 @@ function InformacoesTab({ aluno }: { aluno: Aluno }) {
   );
 }
 
+function EditAlunoDialog({
+  aluno, open, onOpenChange,
+}: { aluno: Aluno; open: boolean; onOpenChange: (o: boolean) => void }) {
+  const queryClient = useQueryClient();
+  const [form, setForm] = useState({
+    full_name: aluno.full_name,
+    email: aluno.email ?? "",
+    phone: aluno.phone ?? "",
+    birth_date: aluno.birth_date ?? "",
+    gender: aluno.gender ?? "",
+    objective: aluno.objective ?? "",
+    notes: aluno.notes ?? "",
+  });
+  const [error, setError] = useState<string | null>(null);
 
+  useEffect(() => {
+    if (open) {
+      setForm({
+        full_name: aluno.full_name,
+        email: aluno.email ?? "",
+        phone: aluno.phone ?? "",
+        birth_date: aluno.birth_date ?? "",
+        gender: aluno.gender ?? "",
+        objective: aluno.objective ?? "",
+        notes: aluno.notes ?? "",
+      });
+      setError(null);
+    }
+  }, [open, aluno]);
+
+  const mutation = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase.from("alunos").update({
+        full_name: form.full_name.trim(),
+        email: form.email.trim() || null,
+        phone: form.phone.trim() || null,
+        birth_date: form.birth_date || null,
+        gender: form.gender.trim() || null,
+        objective: form.objective.trim() || null,
+        notes: form.notes.trim() || null,
+      }).eq("id", aluno.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["aluno", aluno.id] });
+      queryClient.invalidateQueries({ queryKey: ["alunos"] });
+      onOpenChange(false);
+    },
+    onError: (e: Error) => setError(e.message),
+  });
+
+  const submit = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    if (!form.full_name.trim()) { setError("Informe o nome completo."); return; }
+    mutation.mutate();
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader>
+          <DialogTitle>Editar dados</DialogTitle>
+          <DialogDescription>Atualize as informações de {aluno.full_name}.</DialogDescription>
+        </DialogHeader>
+        <form onSubmit={submit} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="e_full_name">Nome completo *</Label>
+            <Input id="e_full_name" value={form.full_name} onChange={(e) => setForm((f) => ({ ...f, full_name: e.target.value }))} autoFocus />
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="space-y-2">
+              <Label htmlFor="e_email">E-mail</Label>
+              <Input id="e_email" type="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="e_phone">Telefone</Label>
+              <Input id="e_phone" inputMode="tel" value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: formatPhone(e.target.value) }))} maxLength={15} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="e_birth">Data de nascimento</Label>
+              <Input id="e_birth" type="date" value={form.birth_date} onChange={(e) => setForm((f) => ({ ...f, birth_date: e.target.value }))} />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="e_gender">Gênero</Label>
+              <Input id="e_gender" value={form.gender} onChange={(e) => setForm((f) => ({ ...f, gender: e.target.value }))} placeholder="masculino / feminino" />
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="e_objective">Objetivo</Label>
+            <Input id="e_objective" value={form.objective} onChange={(e) => setForm((f) => ({ ...f, objective: e.target.value }))} />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="e_notes">Observações</Label>
+            <Textarea id="e_notes" value={form.notes} onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} rows={3} />
+          </div>
+          {error && <p className="text-sm text-destructive">{error}</p>}
+          <DialogFooter>
+            <button type="button" onClick={() => onOpenChange(false)} className="rounded-md border border-border px-4 py-2 text-sm hover:bg-accent">
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              disabled={mutation.isPending}
+              className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:brightness-110 disabled:opacity-60"
+            >
+              {mutation.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+              Salvar alterações
+            </button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function ToggleActiveDialog({
+  aluno, open, onOpenChange,
+}: { aluno: Aluno; open: boolean; onOpenChange: (o: boolean) => void }) {
+  const queryClient = useQueryClient();
+  const isActive = aluno.is_active;
+  const firstName = aluno.full_name.split(" ")[0];
+
+  const mutation = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase.from("alunos").update({ is_active: !isActive }).eq("id", aluno.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["aluno", aluno.id] });
+      queryClient.invalidateQueries({ queryKey: ["alunos"] });
+      onOpenChange(false);
+    },
+  });
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <div className="flex items-center gap-3">
+            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[oklch(0.72_0.18_45)]/15 text-[oklch(0.72_0.18_45)]">
+              <Lock className="h-5 w-5" />
+            </div>
+            <DialogTitle className="font-display text-lg">
+              {isActive ? "Desativar aluno" : "Ativar aluno"}
+            </DialogTitle>
+          </div>
+          <DialogDescription className="pt-3 text-left text-sm text-foreground">
+            Tem certeza que deseja {isActive ? "desativar" : "ativar"} o aluno <span className="font-semibold">{aluno.full_name}</span>?
+          </DialogDescription>
+        </DialogHeader>
+        <p className="text-sm text-muted-foreground">
+          {isActive
+            ? `Ele perderá o acesso ao aplicativo imediatamente. Se já estiver logado, verá uma tela informando que o acesso foi desativado pelo personal. Você pode reativá-lo a qualquer momento.`
+            : `${firstName} voltará a ter acesso ao aplicativo imediatamente.`}
+        </p>
+        <DialogFooter>
+          <button
+            type="button"
+            onClick={() => onOpenChange(false)}
+            className="rounded-full border border-border bg-background px-4 py-2 text-sm font-semibold hover:bg-accent"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            onClick={() => mutation.mutate()}
+            disabled={mutation.isPending}
+            className="inline-flex items-center gap-2 rounded-full bg-[oklch(0.72_0.18_45)] px-4 py-2 text-sm font-semibold text-white hover:brightness-110 disabled:opacity-60"
+          >
+            {mutation.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+            {isActive ? "Desativar aluno" : "Ativar aluno"}
+          </button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function DeleteAlunoDialog({
+  aluno, open, onOpenChange,
+}: { aluno: Aluno; open: boolean; onOpenChange: (o: boolean) => void }) {
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+
+  const mutation = useMutation({
+    mutationFn: async () => {
+      const { error } = await supabase.from("alunos").delete().eq("id", aluno.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["alunos"] });
+      onOpenChange(false);
+      navigate({ to: "/dashboard/personal/alunos" });
+    },
+  });
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <div className="flex items-center gap-3">
+            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-[oklch(0.68_0.22_25)]/15 text-[oklch(0.68_0.22_25)]">
+              <AlertTriangle className="h-5 w-5" />
+            </div>
+            <DialogTitle className="font-display text-lg">Excluir aluno</DialogTitle>
+          </div>
+          <DialogDescription className="pt-3 text-left text-sm text-foreground">
+            Tem certeza que deseja excluir o aluno <span className="font-semibold">{aluno.full_name}</span>? Esta ação não pode ser desfeita.
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <button
+            type="button"
+            onClick={() => onOpenChange(false)}
+            className="rounded-full border border-border bg-background px-4 py-2 text-sm font-semibold hover:bg-accent"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            onClick={() => mutation.mutate()}
+            disabled={mutation.isPending}
+            className="inline-flex items-center gap-2 rounded-full bg-[oklch(0.68_0.22_25)] px-4 py-2 text-sm font-semibold text-white hover:brightness-110 disabled:opacity-60"
+          >
+            {mutation.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+            Excluir aluno
+          </button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
 
 function TreinosTab({ firstName, onNovoPlano }: { firstName: string; onNovoPlano: () => void }) {
   return (
