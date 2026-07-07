@@ -193,9 +193,9 @@ function GreetingCard() {
   const initials = initialsFromName(profile?.full_name, profile?.email);
   const greeting = greetingFor(new Date().getHours());
   return (
-    <div className="rounded-xl border border-border bg-card p-5 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.6)]">
+    <div className="rounded-lg border border-border bg-card p-5 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.6)]">
       <div className="flex items-center gap-4">
-        <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-primary/20 text-sm font-semibold text-primary font-display">
+        <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full text-sm font-semibold font-display" style={{ backgroundColor: "rgb(244, 63, 94)", color: "#fff" }}>
           {initials}
         </div>
         <div className="min-w-0">
