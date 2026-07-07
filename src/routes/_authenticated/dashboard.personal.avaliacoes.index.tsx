@@ -122,7 +122,8 @@ function AvaliacoesPage() {
                     className="flex items-center gap-3 rounded-2xl border border-border/60 bg-card/60 px-3 py-3 transition hover:bg-card sm:px-4"
                   >
                     <div
-                      className={`grid h-10 w-10 shrink-0 place-items-center rounded-full text-xs font-bold text-white ${colorFor(a.id)}`}
+                      className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-xs font-bold font-display ring-2 ring-primary"
+                      style={{ backgroundColor: colorForId(a.id).bg, color: colorForId(a.id).fg }}
                     >
                       {initials}
                     </div>
