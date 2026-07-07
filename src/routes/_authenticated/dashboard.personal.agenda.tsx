@@ -1,14 +1,14 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import {
-  Home, Calendar, Plus, Bell, Share2,
+  Share2,
   ChevronLeft, ChevronRight, Play, X, PartyPopper, CircleDollarSign,
   Activity, Wallet, Cake, ShoppingBag, CreditCard, ChevronDown,
-  Pencil, Trash2, Loader2, Users, Dumbbell, ClipboardCheck, Trophy,
+  Pencil, Trash2, Loader2,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
-import { UserAvatarMenu } from "@/components/UserAvatarMenu";
+import { IconRail } from "@/components/IconRail";
 
 export const Route = createFileRoute("/_authenticated/dashboard/personal/agenda")({
   head: () => ({
