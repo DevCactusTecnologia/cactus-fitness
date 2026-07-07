@@ -69,6 +69,7 @@ type Action =
   | { type: "ADD_SESSION" }
   | { type: "REMOVE_SESSION"; sessionId: string }
   | { type: "MOVE_SESSION"; sessionId: string; dir: -1 | 1 }
+  | { type: "DUPLICATE_SESSION"; sessionId: string }
   | { type: "RENAME_SESSION"; sessionId: string; label: string }
   | { type: "ADD_BLOCK"; sessionId: string }
   | { type: "REMOVE_BLOCK"; sessionId: string; blockId: string }
