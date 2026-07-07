@@ -373,11 +373,14 @@ export function WorkoutEditor({ kind }: { kind: EditorKind }) {
                     Selecionar exercícios
                   </button>
                 </SheetTrigger>
-                <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
-                  <SheetHeader>
-                    <SheetTitle>Selecionar exercícios</SheetTitle>
+                <SheetContent side="right" className="flex w-full flex-col gap-0 p-0 sm:max-w-[440px]">
+                  <SheetHeader className="shrink-0 border-b border-border px-5 py-3 text-left">
+                    <SheetTitle className="flex items-center gap-2 text-lg font-semibold">
+                      <Dumbbell className="h-5 w-5 text-primary" />
+                      Biblioteca de exercícios
+                    </SheetTitle>
                   </SheetHeader>
-                  <div className="mt-4">
+                  <div className="flex min-h-0 flex-1 flex-col">
                     <ExercisePicker
                       state={state}
                       activeTarget={activeTarget}
@@ -387,10 +390,12 @@ export function WorkoutEditor({ kind }: { kind: EditorKind }) {
                         list.forEach((ex) => {
                           dispatch({ type: "ADD_EXERCISE", sessionId: target.sessionId, blockId: target.blockId, exercise: ex });
                         });
+                        setPickerOpen(false);
                       }}
                     />
                   </div>
                 </SheetContent>
+
               </Sheet>
               <button className="grid h-9 w-9 place-items-center rounded-full border border-border text-muted-foreground hover:bg-muted" aria-label="Mais">
                 <MoreHorizontal className="h-4 w-4" />
