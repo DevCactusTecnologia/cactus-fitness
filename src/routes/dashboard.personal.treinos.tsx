@@ -159,9 +159,9 @@ function TreinosPage() {
 
           {/* Stats */}
           <div className="mt-4 grid grid-cols-3 gap-3 md:gap-4">
-            <StatCard icon={FileText} value={total} label="Total de modelos" />
-            <StatCard icon={Layers} value={planos} label="Modelos de Plano" />
-            <StatCard icon={Dumbbell} value={templates} label="Templates de Treino" />
+            <StatCard icon={FileText} value={total} label="Total de modelos" tone="green" />
+            <StatCard icon={Layers} value={planos} label="Modelos de Plano" tone="purple" />
+            <StatCard icon={Dumbbell} value={templates} label="Templates de Treino" tone="blue" />
           </div>
 
           {/* Search + Filters */}
@@ -211,10 +211,19 @@ function TreinosPage() {
   );
 }
 
-function StatCard({ icon: Icon, value, label }: { icon: React.ElementType; value: number; label: string }) {
+type Tone = "green" | "purple" | "blue";
+const TONE: Record<Tone, string> = {
+  green: "bg-primary/15 text-primary",
+  purple: "bg-[oklch(0.55_0.22_300)]/15 text-[oklch(0.75_0.18_300)]",
+  blue: "bg-[oklch(0.6_0.18_240)]/15 text-[oklch(0.75_0.15_240)]",
+};
+
+function StatCard({
+  icon: Icon, value, label, tone = "green",
+}: { icon: React.ElementType; value: number; label: string; tone?: Tone }) {
   return (
     <div className="flex flex-col items-start gap-2 rounded-2xl border border-border bg-card p-4 sm:flex-row sm:items-center sm:gap-3">
-      <div className="grid h-9 w-9 place-items-center rounded-lg bg-primary/15 text-primary">
+      <div className={`grid h-9 w-9 place-items-center rounded-lg ${TONE[tone]}`}>
         <Icon className="h-5 w-5" />
       </div>
       <div>
