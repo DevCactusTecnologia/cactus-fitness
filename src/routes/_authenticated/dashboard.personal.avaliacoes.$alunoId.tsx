@@ -161,6 +161,8 @@ function NovaAvaliacaoDialog({
             onClick={() => onOpenChange(false)}
             className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground hover:brightness-110"
           >
+            {mode === "aluno" ? "Enviar ao aluno" : "Criar"}
+          </button>
             Criar
           </button>
         </div>
