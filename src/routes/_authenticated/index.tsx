@@ -2,11 +2,11 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
-  Home, Users, Calendar,
+  LayoutDashboard, Users, CalendarDays,
   Bell, Crown, Lock, Activity,
-  ChevronDown, ChevronRight, Pencil, HeartPulse, Dumbbell, Trophy, Gift, ClipboardCheck, ClipboardList,
+  ChevronDown, ChevronRight, Pencil, HeartPulse, Dumbbell, Trophy, Gift, ClipboardCheck, Flame,
   Lightbulb, Sparkles, ArrowRight, Search,
-  UserPlus, FileText, Link2, TrendingUp, AlertTriangle, Clock, MapPin,
+  UserPlus, FileText, Link2, TrendingUp, AlertTriangle, Clock, MapPin, Home, Users as UsersIcon,
 } from "lucide-react";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { UserAvatarMenu } from "@/components/UserAvatarMenu";
@@ -146,14 +146,15 @@ function SidebarIconBtn({
 
 
 const NAV_ITEMS: { icon: React.ElementType; label: string; to: string; active?: boolean }[] = [
-  { icon: Home, label: "Início", to: "/", active: true },
-  { icon: Users, label: "Alunos", to: "/dashboard/personal/alunos" },
-  { icon: ClipboardList, label: "Treinos", to: "/dashboard/personal/treinos" },
-  { icon: Dumbbell, label: "Exercícios", to: "/dashboard/personal/exercicios" },
-  { icon: ClipboardCheck, label: "Avaliações", to: "/" },
+  { icon: LayoutDashboard, label: "Início", to: "/", active: true },
+  { icon: UsersIcon, label: "Alunos", to: "/dashboard/personal/alunos" },
+  { icon: Dumbbell, label: "Treinos", to: "/dashboard/personal/treinos" },
+  { icon: Flame, label: "Exercícios", to: "/dashboard/personal/exercicios" },
+  { icon: HeartPulse, label: "Avaliações", to: "/" },
   { icon: Trophy, label: "Desafios", to: "/" },
-  { icon: Calendar, label: "Agenda", to: "/dashboard/personal/agenda" },
+  { icon: CalendarDays, label: "Agenda", to: "/dashboard/personal/agenda" },
 ];
+
 
 
 function IconRail() {
@@ -189,7 +190,7 @@ function MobileTopBar() {
           <path d="M4 8 L10 24 L16 14 L22 24 L28 8" />
         </svg>
         <span className="text-base font-semibold tracking-tight font-display">
-          well<span className="italic font-normal">trainer</span>
+          Cactus<span className="italic font-normal">Fitness</span>
         </span>
       </div>
       <div className="flex items-center gap-2">
@@ -325,7 +326,7 @@ function NextEventCard() {
       <span className="absolute inset-y-3 left-0 w-1 rounded-r-full bg-amber-500" />
       <div className="min-w-0 flex-1 pl-2">
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <Calendar className="h-3.5 w-3.5" /> Próximo evento
+          <CalendarDays className="h-3.5 w-3.5" /> Próximo evento
         </div>
         <div className="mt-1 truncate text-base font-bold font-display">{event.title}</div>
         <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
@@ -429,7 +430,7 @@ function Dashboard() {
               <KpiCard label="Avaliações" value={String(stats?.avaliacoes ?? 0)} sub="em dia" />
             </div>
 
-            <div className="grid grid-cols-1 gap-3">
+            <div className="grid grid-cols-1 gap-3 lg:grid-cols-[1.4fr_1fr]">
               {/* Atalhos rápidos */}
               <section className="rounded-lg border border-border bg-bg-elevated">
                 <div className="flex items-center justify-between border-b border-border px-4 py-3">
@@ -443,7 +444,19 @@ function Dashboard() {
                   <Shortcut icon={HeartPulse} title="Avaliação física" sub="iniciar nova avaliação" k="A" />
                 </div>
               </section>
+
+              {/* Pulso dos alunos */}
+              <section className="rounded-lg border border-border bg-bg-elevated">
+                <div className="flex items-center justify-between border-b border-border px-4 py-3">
+                  <h2 className="font-display text-base font-bold">Pulso</h2>
+                  <Activity className="h-4 w-4 text-primary" />
+                </div>
+                <div className="p-3">
+                  <PulseRow />
+                </div>
+              </section>
             </div>
+
 
           </div>
         </div>

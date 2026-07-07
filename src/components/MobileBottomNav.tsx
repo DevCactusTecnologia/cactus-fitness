@@ -1,11 +1,11 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
-  Home,
+  LayoutDashboard,
   Users,
   Menu as MenuIcon,
   Dumbbell,
   Bell,
-  User,
+  UserCircle2,
   Settings,
   LogOut,
   ChevronRight,
@@ -28,7 +28,7 @@ type Item = {
 };
 
 const ITEMS: Item[] = [
-  { icon: Home, label: "Início", to: "/", match: (p) => p === "/" },
+  { icon: LayoutDashboard, label: "Início", to: "/", match: (p) => p === "/" },
   { icon: Users, label: "Alunos", to: "/dashboard/personal/alunos", match: (p) => p.startsWith("/dashboard/personal/alunos") },
   { icon: Dumbbell, label: "Treinos", to: "/dashboard/personal/treinos", match: (p) => p.startsWith("/dashboard/personal/treinos") },
   { icon: Bell, label: "Notificações", to: "/" },
@@ -42,7 +42,7 @@ type MenuLink = {
 };
 
 const MENU_LINKS: MenuLink[] = [
-  { icon: User, label: "Perfil", description: "Gerencie suas informações pessoais", to: "/" },
+  { icon: UserCircle2, label: "Perfil", description: "Gerencie suas informações pessoais", to: "/" },
   { icon: Settings, label: "Configurações", description: "Assinatura, integrações e notificações", to: "/" },
 ];
 
