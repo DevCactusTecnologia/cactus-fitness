@@ -371,10 +371,11 @@ function ReferralBanner() {
         <Gift className="h-5 w-5" />
       </div>
       <div className="min-w-0 flex-1">
-        <div className="text-sm font-semibold">Indique e ganhe 15% recorrente</div>
-        <div className="text-xs text-muted-foreground">
+        <div className="text-xs font-semibold">Indique e ganhe 15% recorrente</div>
+        <div className="text-[11px] text-muted-foreground">
           Receba 15% de cada mensalidade paga, todo mês, enquanto o indicado mantiver a assinatura.
         </div>
+
       </div>
       <ChevronRight className="h-5 w-5 shrink-0 text-primary" />
     </div>
