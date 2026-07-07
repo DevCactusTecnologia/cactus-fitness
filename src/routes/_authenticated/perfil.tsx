@@ -154,7 +154,14 @@ function PerfilPage() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
     applyPrimaryColor(primaryColor);
     setSavedColor(primaryColor);
-    toast.success("Customizações salvas");
+    toast("Customizações salvas", {
+      description: "Suas preferências foram atualizadas.",
+      duration: 2200,
+      position: "top-center",
+      className:
+        "!bg-background/80 !backdrop-blur-md !border !border-border/60 !text-foreground !shadow-lg !rounded-full !py-2 !px-4",
+    });
+
   }
 
   const tabs = [
