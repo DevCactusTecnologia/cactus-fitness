@@ -1,11 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
   Home, Calendar, Bell, Users,
   Dumbbell, ClipboardCheck, Trophy, ClipboardList, FolderPlus, Plus,
-  Info, ChevronDown, LayoutGrid, Layers, FileText, MoreHorizontal,
-  ArrowLeft, Search,
+  Info, ChevronDown, Layers, FileText, MoreHorizontal,
+  ArrowLeft, Search, Loader2,
 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { UserAvatarMenu } from "@/components/UserAvatarMenu";
 import {
