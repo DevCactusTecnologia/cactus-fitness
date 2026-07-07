@@ -329,14 +329,14 @@ function InformacoesTab({ aluno }: { aluno: Aluno }) {
       </div>
 
       <div className="mt-6 space-y-4 border-t border-border pt-4">
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-4">
           <button className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3.5 py-2 text-sm font-semibold hover:bg-accent">
             <Pencil className="h-4 w-4" /> Editar dados
           </button>
-          <button className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3.5 py-2 text-sm font-semibold hover:bg-accent">
-            <Power className="h-4 w-4" /> {aluno.is_active ? "Desativar aluno" : "Ativar aluno"}
+          <button className="inline-flex items-center gap-1.5 px-2 py-2 text-sm font-semibold text-destructive hover:opacity-80">
+            <Lock className="h-4 w-4" /> {aluno.is_active ? "Desativar aluno" : "Ativar aluno"}
           </button>
-          <button className="inline-flex items-center gap-1.5 rounded-full border border-destructive/40 bg-destructive/10 px-3.5 py-2 text-sm font-semibold text-destructive hover:bg-destructive/15">
+          <button className="inline-flex items-center gap-1.5 px-2 py-2 text-sm font-semibold text-destructive hover:opacity-80">
             <Trash2 className="h-4 w-4" /> Excluir aluno
           </button>
         </div>
@@ -348,6 +348,8 @@ function InformacoesTab({ aluno }: { aluno: Aluno }) {
     </>
   );
 }
+
+function _unused() { return <MobileBottomNav />; }
 
 function TreinosTab({ firstName, onNovoPlano }: { firstName: string; onNovoPlano: () => void }) {
   return (
