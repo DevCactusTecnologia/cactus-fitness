@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { IconRail } from "@/components/IconRail";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { initialsFromName } from "@/lib/auth";
+import { colorForId } from "@/lib/avatar-color";
 
 export const Route = createFileRoute("/_authenticated/dashboard/personal/avaliacoes/")({
   head: () => ({
