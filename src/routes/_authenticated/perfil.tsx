@@ -114,9 +114,12 @@ function PerfilPage() {
   const [brandTitle, setBrandTitle] = useState(initial.brandTitle);
   const [showBrandTitle, setShowBrandTitle] = useState(initial.showBrandTitle);
   const [primaryColor, setPrimaryColor] = useState(initial.primaryColor);
+  const [savedColor, setSavedColor] = useState(initial.primaryColor);
   const [welcome, setWelcome] = useState(initial.welcome);
   const [sections, setSections] = useState<Record<string, boolean>>(initial.sections);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
+
+  const colorPending = primaryColor.toLowerCase() !== savedColor.toLowerCase();
 
   useEffect(() => {
     applyPrimaryColor(primaryColor);
@@ -132,10 +135,25 @@ function PerfilPage() {
     setLogoPreview(URL.createObjectURL(f));
   }
 
+  function saveColor() {
+    const current = loadCustomization();
+    const payload: Customization = { ...current, primaryColor };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+    applyPrimaryColor(primaryColor);
+    setSavedColor(primaryColor);
+    toast.success("Cor salva");
+  }
+
+  function cancelColor() {
+    setPrimaryColor(savedColor);
+    applyPrimaryColor(savedColor);
+  }
+
   function onSave() {
     const payload: Customization = { brandTitle, showBrandTitle, primaryColor, welcome, sections };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
     applyPrimaryColor(primaryColor);
+    setSavedColor(primaryColor);
     toast.success("Customizações salvas");
   }
 
