@@ -1079,9 +1079,6 @@ function ExercisePicker({
           </div>
         )}
       </div>
-      <div className="shrink-0 border-t border-border">
-        <CustomExerciseInput onAdd={(name) => setCustomPicks((prev) => [...prev, { id: null, name }])} />
-      </div>
       {totalSelected > 0 && (
         <div className="flex shrink-0 items-center gap-2 border-t border-border bg-card px-3 py-3">
           <button
