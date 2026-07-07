@@ -210,8 +210,8 @@ function TreinosPage() {
 
 function StatCard({ icon: Icon, value, label }: { icon: React.ElementType; value: number; label: string }) {
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-border bg-card p-4">
-      <div className="grid h-10 w-10 place-items-center rounded-lg bg-primary/15 text-primary">
+    <div className="flex flex-col items-start gap-2 rounded-2xl border border-border bg-card p-4 sm:flex-row sm:items-center sm:gap-3">
+      <div className="grid h-9 w-9 place-items-center rounded-lg bg-primary/15 text-primary">
         <Icon className="h-5 w-5" />
       </div>
       <div>
