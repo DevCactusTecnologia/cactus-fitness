@@ -2,6 +2,8 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Loader2, Lock, Eye, EyeOff, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import logoUrl from "@/assets/cactus-logo.png";
+
 import { z } from "zod";
 
 export const Route = createFileRoute("/reset-password")({
@@ -64,12 +66,11 @@ function ResetPasswordPage() {
       <div className="mx-auto grid min-h-screen max-w-md place-items-center px-6">
         <div className="w-full space-y-6">
           <div className="flex items-center gap-2">
-            <svg viewBox="0 0 32 32" className="h-7 w-7 text-primary" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M4 8 L10 24 L16 14 L22 24 L28 8" />
-            </svg>
-            <span className="text-xl font-bold tracking-tight">
+            <img src={logoUrl} alt="cactusfitness" width={32} height={32} className="h-8 w-8 object-contain" />
+            <span className="text-xl font-bold font-display tracking-tight">
               cactus<span className="italic font-light text-muted-foreground">fitness</span>
             </span>
+
           </div>
 
           <div>
