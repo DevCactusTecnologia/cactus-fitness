@@ -1002,28 +1002,17 @@ function ExerciseDetailSheet({
                       onSelect={setType}
                       onRemoveSet={removeThisSet}
                     />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const v = window.prompt("Reps / alvo", item.reps || "12");
-                        if (v != null) onChange({ reps: v });
-                      }}
-                      className="flex h-10 items-center justify-center rounded-full border border-border bg-muted px-4 text-sm font-semibold transition-colors hover:border-foreground/30"
-                    >
-                      {item.reps ? `${item.reps} reps` : "— reps"}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const v = window.prompt("Descanso (segundos)", String(item.rest_seconds ?? 60));
-                        if (v != null) onChange({ rest_seconds: v === "" ? null : Number(v) });
-                      }}
-                      aria-label="Descanso após esta série"
-                      className="flex h-10 min-w-[64px] items-center justify-center gap-1 rounded-full border border-border bg-muted px-3 text-xs font-semibold tabular-nums transition-colors hover:border-foreground/30"
-                    >
-                      <Clock className="h-3.5 w-3.5" />
-                      {item.rest_seconds ?? 60}s
-                    </button>
+                    <AlvoPickerButton
+                      index={i}
+                      value={item.reps}
+                      onSave={(v) => onChange({ reps: v })}
+                    />
+                    <DescansoPickerButton
+                      index={i}
+                      seconds={item.rest_seconds ?? 60}
+                      onSave={(s) => onChange({ rest_seconds: s })}
+                    />
+
                     <button
                       type="button"
                       onClick={removeThisSet}
@@ -1135,6 +1124,305 @@ function SetTypePickerButton({
                 <X className="h-4 w-4" />
               </div>
               <span>Remover Série</span>
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
+
+function AlvoPickerButton({
+  index, value, onSave,
+}: {
+  index: number;
+  value: string;
+  onSave: (v: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  // detect mode from value
+  const detectMode = (v: string): "rep" | "faixa" | "tempo" => {
+    if (/s$/i.test(v.trim())) return "tempo";
+    if (v.includes("-")) return "faixa";
+    return "rep";
+  };
+  const [mode, setMode] = useState<"rep" | "faixa" | "tempo">(detectMode(value || "12"));
+  const [rep, setRep] = useState<string>(() => (mode === "rep" ? (value || "12") : "12"));
+  const [faixaMin, setFaixaMin] = useState<string>(() => {
+    if (mode === "faixa") {
+      const [a] = value.split("-");
+      return a?.trim() || "8";
+    }
+    return "8";
+  });
+  const [faixaMax, setFaixaMax] = useState<string>(() => {
+    if (mode === "faixa") {
+      const [, b] = value.split("-");
+      return b?.trim() || "12";
+    }
+    return "12";
+  });
+  const [tempo, setTempo] = useState<string>(() => {
+    if (mode === "tempo") return value.replace(/s$/i, "").trim() || "30";
+    return "30";
+  });
+
+  const openDialog = () => {
+    const m = detectMode(value || "12");
+    setMode(m);
+    if (m === "rep") setRep(value || "12");
+    else if (m === "faixa") {
+      const [a, b] = (value || "8-12").split("-");
+      setFaixaMin(a?.trim() || "8");
+      setFaixaMax(b?.trim() || "12");
+    } else setTempo((value || "30s").replace(/s$/i, "").trim() || "30");
+    setOpen(true);
+  };
+
+  const confirm = () => {
+    if (mode === "rep") onSave(rep.trim() || "0");
+    else if (mode === "faixa") onSave(`${faixaMin.trim() || "0"}-${faixaMax.trim() || "0"}`);
+    else onSave(`${tempo.trim() || "0"}s`);
+    setOpen(false);
+  };
+
+  const label = value ? (detectMode(value) === "tempo" ? value : `${value} reps`) : "— reps";
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={openDialog}
+        className="flex h-10 items-center justify-center rounded-full border border-border bg-muted px-4 text-sm font-semibold transition-colors hover:border-foreground/30"
+      >
+        {label}
+      </button>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-sm p-5">
+          <div className="flex flex-col items-center gap-2 pt-1">
+            <div className="grid size-10 place-items-center rounded-xl border border-primary/20 bg-primary/10">
+              <Dumbbell className="size-5 text-primary" />
+            </div>
+            <DialogTitle className="text-center text-base font-bold">Série {index + 1}</DialogTitle>
+            <DialogDescription className="sr-only">Configurar alvo da série</DialogDescription>
+          </div>
+          <div className="mt-5 flex gap-1 rounded-full bg-muted p-1">
+            {(["rep", "faixa", "tempo"] as const).map((m) => (
+              <button
+                key={m}
+                type="button"
+                onClick={() => setMode(m)}
+                className={`h-9 flex-1 rounded-full text-sm font-semibold capitalize transition-all ${
+                  mode === m
+                    ? "bg-primary text-primary-foreground shadow-sm"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {m === "rep" ? "Rep" : m === "faixa" ? "Faixa" : "Tempo"}
+              </button>
+            ))}
+          </div>
+          <div className="mb-1 mt-4">
+            {mode === "rep" && (
+              <div className="flex items-baseline justify-center gap-3 py-4">
+                <Input
+                  type="number"
+                  inputMode="numeric"
+                  value={rep}
+                  onChange={(e) => setRep(e.target.value)}
+                  className="w-32 rounded-xl border border-border bg-muted px-4 py-3 text-center text-4xl font-bold tabular-nums"
+                />
+                <span className="text-base font-medium text-muted-foreground">reps</span>
+              </div>
+            )}
+            {mode === "faixa" && (
+              <div className="flex items-baseline justify-center gap-2 py-4">
+                <Input
+                  type="number"
+                  value={faixaMin}
+                  onChange={(e) => setFaixaMin(e.target.value)}
+                  className="w-24 rounded-xl border border-border bg-muted px-3 py-3 text-center text-3xl font-bold tabular-nums"
+                />
+                <span className="text-2xl font-bold text-muted-foreground">-</span>
+                <Input
+                  type="number"
+                  value={faixaMax}
+                  onChange={(e) => setFaixaMax(e.target.value)}
+                  className="w-24 rounded-xl border border-border bg-muted px-3 py-3 text-center text-3xl font-bold tabular-nums"
+                />
+                <span className="ml-1 text-base font-medium text-muted-foreground">reps</span>
+              </div>
+            )}
+            {mode === "tempo" && (
+              <div className="flex items-baseline justify-center gap-3 py-4">
+                <Input
+                  type="number"
+                  value={tempo}
+                  onChange={(e) => setTempo(e.target.value)}
+                  className="w-32 rounded-xl border border-border bg-muted px-4 py-3 text-center text-4xl font-bold tabular-nums"
+                />
+                <span className="text-base font-medium text-muted-foreground">seg</span>
+              </div>
+            )}
+          </div>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              className="h-11 flex-1 rounded-full border border-border bg-muted text-sm font-semibold text-foreground hover:bg-muted/70"
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              onClick={confirm}
+              className="h-11 flex-[1.6] rounded-full bg-primary text-sm font-semibold text-primary-foreground hover:brightness-110"
+            >
+              Confirmar
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
+
+function WheelPicker({
+  value, onChange, max, label,
+}: {
+  value: number;
+  onChange: (v: number) => void;
+  max: number; // exclusive
+  label: string;
+}) {
+  const ITEM = 48;
+  const ref = useRef<HTMLDivElement | null>(null);
+  const suppressRef = useRef(false);
+  // scroll to value on open/change externally
+  const scrollToValue = (v: number) => {
+    const el = ref.current;
+    if (!el) return;
+    suppressRef.current = true;
+    el.scrollTop = v * ITEM;
+    window.setTimeout(() => { suppressRef.current = false; }, 50);
+  };
+  // sync on mount / when value changes from outside
+  useMemo(() => { requestAnimationFrame(() => scrollToValue(value)); return null; }, []);
+  const onScroll = () => {
+    if (suppressRef.current) return;
+    const el = ref.current;
+    if (!el) return;
+    const idx = Math.round(el.scrollTop / ITEM);
+    if (idx !== value && idx >= 0 && idx < max) onChange(idx);
+  };
+  return (
+    <div className="flex select-none flex-col items-center gap-1.5">
+      <div className="relative w-[96px]" style={{ height: 144 }}>
+        <div
+          aria-hidden
+          className="pointer-events-none absolute left-0 right-0 top-1/2 -translate-y-1/2 rounded-lg bg-primary/10"
+          style={{ height: ITEM }}
+        />
+        <div
+          ref={ref}
+          onScroll={onScroll}
+          className="h-full cursor-ns-resize touch-pan-y overflow-y-scroll [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          style={{ scrollSnapType: "y mandatory", paddingTop: ITEM, paddingBottom: ITEM }}
+        >
+          {Array.from({ length: max }, (_, i) => {
+            const isActive = i === value;
+            return (
+              <button
+                key={i}
+                type="button"
+                tabIndex={-1}
+                onClick={() => { scrollToValue(i); onChange(i); }}
+                className={`block w-full text-center font-mono tabular-nums leading-none focus:outline-none ${
+                  isActive ? "text-foreground" : "text-muted-foreground/60"
+                }`}
+                style={{
+                  height: ITEM,
+                  scrollSnapAlign: "center",
+                  fontSize: isActive ? 32 : 20,
+                  fontWeight: isActive ? 700 : 500,
+                  transition: "font-size 150ms, color 150ms",
+                }}
+              >
+                {i.toString().padStart(2, "0")}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+      <span className="text-[0.625rem] font-semibold uppercase tracking-wider text-foreground/60">{label}</span>
+    </div>
+  );
+}
+
+function DescansoPickerButton({
+  index, seconds, onSave,
+}: {
+  index: number;
+  seconds: number;
+  onSave: (s: number) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [mm, setMm] = useState(Math.floor(seconds / 60));
+  const [ss, setSs] = useState(seconds % 60);
+
+  const openDialog = () => {
+    setMm(Math.floor((seconds || 0) / 60));
+    setSs((seconds || 0) % 60);
+    setOpen(true);
+  };
+  const confirm = () => {
+    onSave(mm * 60 + ss);
+    setOpen(false);
+  };
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={openDialog}
+        aria-label="Descanso após esta série"
+        className="flex h-10 min-w-[64px] items-center justify-center gap-1 rounded-full border border-border bg-muted px-3 text-xs font-semibold tabular-nums transition-colors hover:border-foreground/30"
+      >
+        <Clock className="h-3.5 w-3.5" />
+        {seconds}s
+      </button>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-sm p-5">
+          <div className="flex flex-col items-center gap-2 pt-1">
+            <div className="grid size-10 place-items-center rounded-xl border border-primary/20 bg-primary/10">
+              <Clock className="size-5 text-primary" />
+            </div>
+            <DialogTitle className="text-center text-base font-bold">Descanso após série {index + 1}</DialogTitle>
+            <DialogDescription className="sr-only">Escolha o tempo de descanso</DialogDescription>
+          </div>
+          <div className="mb-5 mt-4">
+            <div className="flex items-center justify-center gap-2 py-2">
+              <WheelPicker key={`mm-${open}`} value={mm} onChange={setMm} max={60} label="min" />
+              <WheelPicker key={`ss-${open}`} value={ss} onChange={setSs} max={60} label="seg" />
+            </div>
+            <p className="mt-1 text-center text-[0.625rem] text-muted-foreground">
+              Arraste pra escolher · toque no número pra selecionar
+            </p>
+          </div>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              onClick={() => setOpen(false)}
+              className="h-11 flex-1 rounded-full border border-border bg-muted text-sm font-semibold text-foreground hover:bg-muted/70"
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              onClick={confirm}
+              className="h-11 flex-[1.6] rounded-full bg-primary text-sm font-semibold text-primary-foreground hover:brightness-110"
+            >
+              Confirmar
             </button>
           </div>
         </DialogContent>
