@@ -599,12 +599,7 @@ function SessionCard({
         >
           <Plus className="h-3.5 w-3.5" /> Adicionar exercício
         </button>
-        <button
-          onClick={() => dispatch({ type: "ADD_BLOCK", sessionId: session.id })}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-dashed border-border/70 py-2 text-xs font-medium text-muted-foreground hover:bg-muted"
-        >
-          <Plus className="h-3.5 w-3.5" /> Adicionar bloco
-        </button>
+        <AddBlockButton sessionId={session.id} dispatch={dispatch} size="sm" />
       </div>
     </div>
   );
