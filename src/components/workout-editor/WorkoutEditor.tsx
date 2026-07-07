@@ -1065,6 +1065,84 @@ function ExerciseDetailSheet({
   );
 }
 
+function SetTypePickerButton({
+  index, currentType, onSelect, onRemoveSet,
+}: {
+  index: number;
+  currentType: SetType;
+  onSelect: (t: SetType) => void;
+  onRemoveSet: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const meta = setTypeMeta(currentType);
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="flex h-10 min-w-0 items-center gap-2 rounded-full border border-border bg-muted pl-1.5 pr-2 transition-colors hover:border-foreground/30"
+      >
+        <span
+          className="grid h-7 w-7 shrink-0 place-items-center rounded-lg text-[10px] font-bold"
+          style={{ color: meta.fg, backgroundColor: meta.bg }}
+        >
+          {currentType === "normal" ? index + 1 : meta.badge}
+        </span>
+        <span className="flex-1 truncate text-left text-sm font-semibold">{meta.label}</span>
+        <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
+      </button>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-md p-5">
+          <DialogHeader className="space-y-0 text-left">
+            <DialogTitle className="text-base font-bold">Tipo de Série</DialogTitle>
+            <DialogDescription className="text-xs">Série {index + 1}</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-1">
+            {SET_TYPE_OPTIONS.map((opt) => {
+              const active = opt.key === currentType;
+              return (
+                <button
+                  key={opt.key}
+                  type="button"
+                  onClick={() => { onSelect(opt.key); setOpen(false); }}
+                  className={`flex w-full items-center gap-3 rounded-xl p-3 text-left transition-colors ${
+                    active
+                      ? "border-2 border-primary bg-primary/10"
+                      : "border border-border hover:bg-muted"
+                  }`}
+                >
+                  <div
+                    className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-[10px] font-bold"
+                    style={{ color: opt.fg, backgroundColor: opt.bg }}
+                  >
+                    {opt.key === "normal" ? index + 1 : opt.badge}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-sm font-semibold text-foreground">{opt.label}</div>
+                    <div className="mt-0.5 line-clamp-2 text-[11px] text-muted-foreground">{opt.description}</div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+          <div className="mt-2 border-t border-border pt-3">
+            <button
+              type="button"
+              onClick={() => { onRemoveSet(); setOpen(false); }}
+              className="flex w-full items-center gap-3 rounded-xl border border-destructive/30 bg-destructive/5 p-3 text-sm font-semibold text-destructive transition-colors hover:bg-destructive/10"
+            >
+              <div className="grid h-9 w-9 place-items-center rounded-lg bg-destructive/15">
+                <X className="h-4 w-4" />
+              </div>
+              <span>Remover Série</span>
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+}
+
 function ReorderButtons({ onUp, onDown, canUp, canDown, small = false }: {
   onUp: () => void; onDown: () => void; canUp: boolean; canDown: boolean; small?: boolean;
 }) {
