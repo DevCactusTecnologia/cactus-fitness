@@ -579,30 +579,38 @@ function SessionCard({
 
 
       <div className="mt-4 space-y-2">
-        <button
-          onClick={() => onPickTargetBlock(session.blocks[0].id)}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-border/70 bg-background/30 py-3 text-sm font-medium text-muted-foreground hover:bg-muted"
-        >
-          <Plus className="h-4 w-4" /> Adicionar exercício
-        </button>
+        {(() => {
+          const visibleBlocks = session.blocks.filter((b) => b.color || b.exercises.length > 0);
+          return (
+            <>
+              {visibleBlocks.length === 0 && (
+                <button
+                  onClick={() => onPickTargetBlock(session.blocks[0].id)}
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-border/70 bg-background/30 py-3 text-sm font-medium text-muted-foreground hover:bg-muted"
+                >
+                  <Plus className="h-4 w-4" /> Adicionar exercício
+                </button>
+              )}
 
-        {session.blocks
-          .filter((b) => b.color || b.exercises.length > 0)
-          .map((b, bi, arr) => (
-            <BlockCard
-              key={b.id}
-              sessionId={session.id}
-              index={bi}
-              total={arr.length}
-              block={b}
-              dispatch={dispatch}
-              onPickTarget={() => onPickTargetBlock(b.id)}
-              isActive={activeBlockId === b.id}
-            />
-          ))}
+              {visibleBlocks.map((b, bi, arr) => (
+                <BlockCard
+                  key={b.id}
+                  sessionId={session.id}
+                  index={bi}
+                  total={arr.length}
+                  block={b}
+                  dispatch={dispatch}
+                  onPickTarget={() => onPickTargetBlock(b.id)}
+                  isActive={activeBlockId === b.id}
+                />
+              ))}
 
-        <AddBlockButton sessionId={session.id} dispatch={dispatch} size="lg" />
+              <AddBlockButton sessionId={session.id} dispatch={dispatch} size="lg" />
+            </>
+          );
+        })()}
       </div>
+
 
 
     </div>
