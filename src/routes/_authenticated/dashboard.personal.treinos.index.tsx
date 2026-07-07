@@ -153,7 +153,7 @@ function TreinosPage() {
           </div>
 
           {/* Info banner */}
-          <div className="mt-4 rounded-2xl border border-border bg-card/60 p-4 text-sm text-muted-foreground md:p-5">
+          <div className="mt-4 rounded-2xl border border-border bg-card/60 p-3 text-xs leading-relaxed text-muted-foreground md:p-5 md:text-sm">
             <div className="flex gap-3 md:block">
               <Info className="mt-0.5 h-4 w-4 shrink-0 text-primary md:hidden" />
               <div className="space-y-1 md:space-y-0">
