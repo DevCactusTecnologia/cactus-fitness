@@ -4,6 +4,7 @@ import {
   Home, Calendar, GraduationCap, SlidersHorizontal, Bell, Users,
   Dumbbell, ClipboardCheck, Trophy, ClipboardList, FolderPlus, Plus,
   Info, ChevronDown, LayoutGrid, Layers, FileText, MoreHorizontal,
+  ArrowLeft, Search,
 } from "lucide-react";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { UserAvatarMenu } from "@/components/UserAvatarMenu";
@@ -97,8 +98,34 @@ function TreinosPage() {
 
       <main className="pb-24 md:pl-[72px] md:pb-8">
         <div className="mx-auto max-w-5xl px-4 py-6 md:px-8">
-          {/* Header */}
-          <div className="flex flex-wrap items-center justify-between gap-3">
+          {/* Mobile header */}
+          <div className="mb-4 flex items-center justify-between gap-2 md:hidden">
+            <button
+              onClick={() => window.history.back()}
+              className="grid h-9 w-9 place-items-center rounded-lg text-muted-foreground hover:bg-muted"
+              aria-label="Voltar"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </button>
+            <div className="flex items-center gap-2">
+              <svg viewBox="0 0 32 32" className="h-6 w-6 text-primary" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 8 L10 24 L16 14 L22 24 L28 8" />
+              </svg>
+              <span className="text-lg font-bold tracking-tight">
+                well<span className="italic font-light">trainer</span>
+              </span>
+            </div>
+            <button className="grid h-9 w-9 place-items-center rounded-lg text-muted-foreground hover:bg-muted" aria-label="Nova pasta">
+              <FolderPlus className="h-5 w-5" />
+            </button>
+            <button className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.25)] hover:brightness-110">
+              <Plus className="h-4 w-4" />
+              Modelo de Treino
+            </button>
+          </div>
+
+          {/* Desktop header */}
+          <div className="hidden flex-wrap items-center justify-between gap-3 md:flex">
             <h1 className="text-2xl font-bold tracking-tight md:text-3xl">Modelos Prontos</h1>
             <div className="flex items-center gap-2">
               <button className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium hover:bg-muted">
@@ -129,14 +156,24 @@ function TreinosPage() {
           </div>
 
           {/* Stats */}
-          <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <StatCard icon={LayoutGrid} value={total} label="Total de modelos" />
+          <div className="mt-4 grid grid-cols-3 gap-3">
+            <StatCard icon={FileText} value={total} label="Total de modelos" />
             <StatCard icon={Layers} value={planos} label="Modelos de Plano" />
-            <StatCard icon={FileText} value={templates} label="Templates de Treino" />
+            <StatCard icon={Dumbbell} value={templates} label="Templates de Treino" />
+          </div>
+
+          {/* Search */}
+          <div className="relative mt-4">
+            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <input
+              type="search"
+              placeholder="Buscar modelos..."
+              className="h-11 w-full rounded-full border border-border bg-card pl-11 pr-4 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+            />
           </div>
 
           {/* Filters */}
-          <div className="mt-6 flex flex-wrap items-center gap-2">
+          <div className="mt-3 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
             <FilterSelect
               value={filter}
               onChange={setFilter}
@@ -146,11 +183,12 @@ function TreinosPage() {
                 { value: "template", label: "Templates de Treino" },
               ]}
             />
-            <button className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm hover:bg-muted">
+            <button className="inline-flex items-center justify-between gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm hover:bg-muted sm:justify-start">
               Mais recentes
               <ChevronDown className="h-4 w-4" />
             </button>
           </div>
+
 
           {/* List */}
           <div className="mt-4 space-y-2">
@@ -172,8 +210,8 @@ function TreinosPage() {
 
 function StatCard({ icon: Icon, value, label }: { icon: React.ElementType; value: number; label: string }) {
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-border bg-card p-4">
-      <div className="grid h-10 w-10 place-items-center rounded-lg bg-primary/15 text-primary">
+    <div className="flex flex-col items-start gap-2 rounded-2xl border border-border bg-card p-4 sm:flex-row sm:items-center sm:gap-3">
+      <div className="grid h-9 w-9 place-items-center rounded-lg bg-primary/15 text-primary">
         <Icon className="h-5 w-5" />
       </div>
       <div>
@@ -195,7 +233,7 @@ function FilterSelect<T extends string>({
       <select
         value={value}
         onChange={(e) => onChange(e.target.value as T)}
-        className="appearance-none rounded-lg border border-border bg-card px-3 py-2 pr-8 text-sm hover:bg-muted focus:outline-none focus:ring-2 focus:ring-primary"
+        className="w-full appearance-none rounded-full border border-border bg-card px-4 py-2 pr-8 text-sm hover:bg-muted focus:outline-none focus:ring-2 focus:ring-primary"
       >
         {options.map((o) => (
           <option key={o.value} value={o.value} className="bg-card text-foreground">
