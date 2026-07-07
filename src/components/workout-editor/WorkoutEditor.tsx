@@ -875,11 +875,12 @@ function resolveTarget(state: State, active: { sessionId: string; blockId: strin
 
 function difficultyStyle(d: string | null | undefined) {
   const k = (d ?? "").toLowerCase();
-  if (k.startsWith("inici")) return { dot: "#22c55e", text: "text-[#22c55e]", label: "Iniciante" };
-  if (k.startsWith("inter")) return { dot: "#eab308", text: "text-[#eab308]", label: "Intermediário" };
-  if (k.startsWith("avan"))  return { dot: "#ef4444", text: "text-[#ef4444]", label: "Avançado" };
-  return { dot: "hsl(var(--muted-foreground))", text: "text-muted-foreground", label: d ?? "—" };
+  if (k.startsWith("inici")) return { dot: "bg-emerald-400", text: "text-emerald-400", label: "Iniciante" };
+  if (k.startsWith("inter")) return { dot: "bg-amber-400",   text: "text-amber-400",   label: "Intermediário" };
+  if (k.startsWith("avan"))  return { dot: "bg-rose-400",    text: "text-rose-400",    label: "Avançado" };
+  return { dot: "bg-muted-foreground", text: "text-muted-foreground", label: d ?? "—" };
 }
+
 
 function ExercisePicker({
   state, activeTarget, onCommit,
