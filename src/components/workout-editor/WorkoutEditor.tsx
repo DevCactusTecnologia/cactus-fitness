@@ -542,9 +542,15 @@ function SessionCard({
     requestAnimationFrame(() => { inputRef.current?.focus(); inputRef.current?.select(); });
   }
 
+  const totalSets = session.blocks.reduce(
+    (sum, b) => sum + b.exercises.reduce((s, e) => s + (e.sets ?? 0), 0),
+    0,
+  );
+  const groupsCount = session.blocks.filter((b) => b.color || b.exercises.length > 0).length || 1;
+
   return (
-    <div className="w-[360px] rounded-xl border border-border/60 bg-card/60 p-4">
-      <div className="flex items-center gap-2">
+    <div className="w-[360px] overflow-hidden rounded-xl border border-border/60 bg-card/60">
+      <div className="flex items-center gap-2 border-b border-border/60 px-4 py-3">
         <GripVertical className="h-4 w-4 shrink-0 text-muted-foreground/60" />
         <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[oklch(0.92_0.19_115)]/15 text-xs font-bold text-[oklch(0.92_0.19_115)]">
           {letter}
@@ -585,8 +591,21 @@ function SessionCard({
         </button>
       </div>
 
+      <button
+        type="button"
+        className="group flex w-full items-center justify-between gap-2 border-b border-border/60 bg-background/30 px-3 py-2 text-xs transition-colors hover:bg-muted/40"
+        aria-label="Ver volume detalhado por grupamento muscular"
+      >
+        <span className="inline-flex items-center gap-1.5 text-muted-foreground">
+          <BarChart3 className="h-3.5 w-3.5 text-primary/70" />
+          <span className="font-medium text-foreground">{totalSets} {totalSets === 1 ? "série" : "séries"}</span>
+          <span>·</span>
+          <span>{groupsCount} {groupsCount === 1 ? "grupo" : "grupos"}</span>
+        </span>
+        <span className="text-[10px] text-muted-foreground/60 transition-colors group-hover:text-muted-foreground">Ver detalhes</span>
+      </button>
 
-      <div className="mt-4 space-y-2">
+      <div className="space-y-2 p-3">
         {(() => {
           const visibleBlocks = session.blocks.filter((b) => b.color || b.exercises.length > 0);
           return (
@@ -618,6 +637,7 @@ function SessionCard({
           );
         })()}
       </div>
+
 
 
 
