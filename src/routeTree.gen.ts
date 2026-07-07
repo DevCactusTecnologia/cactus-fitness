@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
@@ -18,6 +19,11 @@ import { Route as AuthenticatedDashboardPersonalAgendaRouteImport } from './rout
 import { Route as AuthenticatedDashboardPersonalAlunosIndexRouteImport } from './routes/_authenticated/dashboard.personal.alunos.index'
 import { Route as AuthenticatedDashboardPersonalAlunosAlunoIdRouteImport } from './routes/_authenticated/dashboard.personal.alunos.$alunoId'
 
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
@@ -66,6 +72,7 @@ const AuthenticatedDashboardPersonalAlunosAlunoIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/login': typeof LoginRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/dashboard/personal/agenda': typeof AuthenticatedDashboardPersonalAgendaRoute
   '/dashboard/personal/exercicios': typeof AuthenticatedDashboardPersonalExerciciosRoute
   '/dashboard/personal/treinos': typeof AuthenticatedDashboardPersonalTreinosRoute
@@ -74,6 +81,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/': typeof AuthenticatedIndexRoute
   '/dashboard/personal/agenda': typeof AuthenticatedDashboardPersonalAgendaRoute
   '/dashboard/personal/exercicios': typeof AuthenticatedDashboardPersonalExerciciosRoute
@@ -85,6 +93,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/login': typeof LoginRoute
+  '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/dashboard/personal/agenda': typeof AuthenticatedDashboardPersonalAgendaRoute
   '/_authenticated/dashboard/personal/exercicios': typeof AuthenticatedDashboardPersonalExerciciosRoute
@@ -97,6 +106,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/login'
+    | '/reset-password'
     | '/dashboard/personal/agenda'
     | '/dashboard/personal/exercicios'
     | '/dashboard/personal/treinos'
@@ -105,6 +115,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
+    | '/reset-password'
     | '/'
     | '/dashboard/personal/agenda'
     | '/dashboard/personal/exercicios'
@@ -115,6 +126,7 @@ export interface FileRouteTypes {
     | '__root__'
     | '/_authenticated'
     | '/login'
+    | '/reset-password'
     | '/_authenticated/'
     | '/_authenticated/dashboard/personal/agenda'
     | '/_authenticated/dashboard/personal/exercicios'
@@ -126,10 +138,18 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   LoginRoute: typeof LoginRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/login': {
       id: '/login'
       path: '/login'
@@ -218,6 +238,7 @@ const AuthenticatedRouteRouteWithChildren =
 const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   LoginRoute: LoginRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
