@@ -141,6 +141,8 @@ function reducer(state: State, action: Action): State {
         blocks: src.blocks.map(b => ({
           id: uid(),
           label: b.label,
+          description: b.description,
+          color: b.color,
           exercises: b.exercises.map(e => ({ ...e, id: uid() })),
         })),
       };
