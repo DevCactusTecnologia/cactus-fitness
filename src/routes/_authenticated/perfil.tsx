@@ -309,25 +309,23 @@ function PerfilPage() {
 
                     {colorPending && (
                       <div className="flex items-center gap-2 pt-1">
-                        <Button
+                        <button
                           type="button"
-                          variant="outline"
-                          size="sm"
                           onClick={cancelColor}
-                          className="rounded-full"
+                          className="inline-flex h-9 items-center justify-center whitespace-nowrap rounded-full border border-border bg-transparent px-5 text-sm font-semibold text-foreground transition-all duration-150 ease-out hover:bg-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 active:scale-[0.97]"
                         >
                           Cancelar
-                        </Button>
-                        <Button
+                        </button>
+                        <button
                           type="button"
-                          size="sm"
                           onClick={saveColor}
-                          className="rounded-full font-semibold"
+                          className="relative inline-flex h-9 items-center justify-center gap-2 whitespace-nowrap rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground shadow-[0_0_20px_hsl(var(--primary)/0.35)] transition-all duration-150 ease-out hover:-translate-y-0.5 hover:shadow-[0_0_40px_hsl(var(--primary)/0.55)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 active:translate-y-0 active:scale-[0.97]"
                         >
                           Salvar cor
-                        </Button>
+                        </button>
                       </div>
                     )}
+
                   </div>
                 </section>
 
