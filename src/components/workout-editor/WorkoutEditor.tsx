@@ -591,19 +591,22 @@ function SessionCard({
         </button>
       </div>
 
-      <button
-        type="button"
-        className="group flex w-full items-center justify-between gap-2 border-b border-border/60 bg-background/30 px-3 py-2 text-xs transition-colors hover:bg-muted/40"
-        aria-label="Ver volume detalhado por grupamento muscular"
-      >
-        <span className="inline-flex items-center gap-1.5 text-muted-foreground">
-          <BarChart3 className="h-3.5 w-3.5 text-primary/70" />
-          <span className="font-medium text-foreground">{totalSets} {totalSets === 1 ? "série" : "séries"}</span>
-          <span>·</span>
-          <span>{groupsCount} {groupsCount === 1 ? "grupo" : "grupos"}</span>
-        </span>
-        <span className="text-[10px] text-muted-foreground/60 transition-colors group-hover:text-muted-foreground">Ver detalhes</span>
-      </button>
+      {totalSets > 0 && (
+        <button
+          type="button"
+          className="group flex w-full items-center justify-between gap-2 border-b border-border/60 bg-background/30 px-3 py-2 text-xs transition-colors hover:bg-muted/40"
+          aria-label="Ver volume detalhado por grupamento muscular"
+        >
+          <span className="inline-flex items-center gap-1.5 text-muted-foreground">
+            <BarChart3 className="h-3.5 w-3.5 text-primary/70" />
+            <span className="font-medium text-foreground">{totalSets} {totalSets === 1 ? "série" : "séries"}</span>
+            <span>·</span>
+            <span>{groupsCount} {groupsCount === 1 ? "grupo" : "grupos"}</span>
+          </span>
+          <span className="text-[10px] text-muted-foreground/60 transition-colors group-hover:text-muted-foreground">Ver detalhes</span>
+        </button>
+      )}
+
 
       <div className="space-y-2 p-3">
         {(() => {
