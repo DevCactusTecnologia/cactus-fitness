@@ -614,14 +614,20 @@ function BlockCard({
   onPickTarget: () => void;
   isActive: boolean;
 }) {
+  const color = block.color ?? "hsl(var(--muted-foreground))";
   return (
-    <div className={`rounded-lg border ${isActive ? "border-primary/60 ring-1 ring-primary/40" : "border-border"} bg-background/40 p-3`}>
+    <div
+      className={`rounded-lg border ${isActive ? "ring-1 ring-primary/40" : ""} bg-background/40 p-3`}
+      style={{ borderColor: isActive ? undefined : `${color}55` }}
+    >
       <div className="flex items-center gap-2">
         <GripVertical className="h-4 w-4 shrink-0 text-muted-foreground/60" />
+        <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: color }} />
         <Input
           value={block.label}
           onChange={(e) => dispatch({ type: "RENAME_BLOCK", sessionId, blockId: block.id, label: e.target.value })}
-          className="h-8 flex-1 border-0 bg-transparent px-1 text-sm font-semibold focus-visible:ring-1"
+          className="h-8 flex-1 border-0 bg-transparent px-1 text-sm font-semibold uppercase tracking-wide focus-visible:ring-1"
+          style={{ color }}
         />
         <ReorderButtons
           onUp={() => dispatch({ type: "MOVE_BLOCK", sessionId, blockId: block.id, dir: -1 })}
