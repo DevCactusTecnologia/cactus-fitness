@@ -42,7 +42,7 @@ type MenuLink = {
 };
 
 const MENU_LINKS: MenuLink[] = [
-  { icon: User, label: "Perfil", description: "Gerencie suas informações pessoais", to: "/" },
+  { icon: UserCircle2, label: "Perfil", description: "Gerencie suas informações pessoais", to: "/" },
   { icon: Settings, label: "Configurações", description: "Assinatura, integrações e notificações", to: "/" },
 ];
 
