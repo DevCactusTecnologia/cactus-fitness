@@ -199,7 +199,7 @@ function PerfilPage() {
             </div>
 
             {tab === "customizar" && (
-              <div className="space-y-4">
+              <div className="flex flex-col space-y-4">
                 {/* Logo / Marca */}
                 <section className="rounded-xl border border-border bg-card text-foreground">
                   <div className="flex flex-col space-y-1.5 p-4">
