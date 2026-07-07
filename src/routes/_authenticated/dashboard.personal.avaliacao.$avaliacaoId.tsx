@@ -1,4 +1,4 @@
-import { createFileRoute, notFound } from "@tanstack/react-router";
+import { createFileRoute, notFound, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -84,7 +84,7 @@ function AvaliacaoPage() {
     <div className="min-h-screen w-full overflow-x-hidden bg-background text-foreground">
       <IconRail />
       <main className="pb-24 md:ml-[72px] md:pb-0">
-        <header className="sticky top-0 z-30 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border bg-background/70 p-4 backdrop-blur-xl md:p-6">
+        <header className="sticky top-0 z-40 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border/60 bg-background/60 p-4 backdrop-blur-2xl supports-[backdrop-filter]:bg-background/40 md:p-6">
           <div className="flex min-w-0 items-center gap-3">
             <div className="min-w-0">
               <h1 className="truncate font-display text-xl font-bold sm:text-2xl">Avaliação Física</h1>
@@ -98,6 +98,14 @@ function AvaliacaoPage() {
             <button className="inline-flex h-9 items-center gap-1.5 rounded-full border border-border bg-card/60 px-3 text-sm font-semibold hover:bg-accent">
               <Share2 className="h-4 w-4" /> Compartilhar
             </button>
+            <Link
+              to="/dashboard/personal/avaliacoes/$alunoId"
+              params={{ alunoId: data.aluno_id }}
+              aria-label="Fechar"
+              className="grid h-9 w-9 place-items-center rounded-full border border-border bg-card/60 text-muted-foreground hover:bg-accent hover:text-foreground"
+            >
+              <X className="h-4 w-4" />
+            </Link>
           </div>
         </header>
 
@@ -425,7 +433,7 @@ function ComposicaoCorporalCard({ avaliacao }: { avaliacao: Avaliacao }) {
     peso: avaliacao.composicao_corporal.peso ?? "",
     altura: avaliacao.composicao_corporal.altura ?? "",
     meta_gordura: avaliacao.composicao_corporal.meta_gordura ?? "",
-    protocolo: avaliacao.composicao_corporal.protocolo ?? "pollock_7",
+    protocolo: avaliacao.composicao_corporal.protocolo ?? "",
     ...avaliacao.composicao_corporal,
   }));
   const set = (k: string, v: string) => setForm((f) => ({ ...f, [k]: v }));
@@ -444,6 +452,7 @@ function ComposicaoCorporalCard({ avaliacao }: { avaliacao: Avaliacao }) {
           value={form.protocolo}
           onChange={(v) => set("protocolo", v)}
           options={PROTOCOLO_OPTIONS}
+          placeholder="Selecione o protocolo"
         />
       </div>
       {protocoloFields.length > 0 && (
