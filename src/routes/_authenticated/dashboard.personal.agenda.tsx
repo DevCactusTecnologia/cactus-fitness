@@ -230,6 +230,9 @@ function NovoEventoModal({
   async function handleSubmit() {
     if (!form.title.trim()) { setError("Informe o título do evento."); return; }
     setSaving(true); setError(null);
+    const { data: userData } = await supabase.auth.getUser();
+    const userId = userData.user?.id;
+    if (!userId) { setSaving(false); setError("Sessão expirada."); return; }
     const payload = {
       title: form.title.trim(),
       description: form.description || null,
@@ -244,7 +247,7 @@ function NovoEventoModal({
     };
     const { error: err } = editing
       ? await supabase.from("events").update(payload).eq("id", editing.id)
-      : await supabase.from("events").insert(payload);
+      : await supabase.from("events").insert({ ...payload, personal_id: userId });
     setSaving(false);
     if (err) { setError(err.message); return; }
     onSaved(); onClose();
