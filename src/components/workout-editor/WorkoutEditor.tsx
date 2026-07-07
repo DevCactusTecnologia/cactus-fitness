@@ -1044,13 +1044,8 @@ function ExercisePicker({
                   }`}
                 >
                   <span className="relative grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-md bg-muted">
-                    {e.image_path ? (
-                      <img src={e.image_path} alt="" className="h-full w-full object-cover" loading="lazy" />
-                    ) : (
-                      <Dumbbell className="h-5 w-5 text-muted-foreground" />
-                    )}
-                    <span className="pointer-events-none absolute left-1/2 top-1/2 grid h-5 w-5 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border-2 border-card bg-primary shadow-sm">
-                      <Play className="ml-px h-2.5 w-2.5 fill-primary-foreground text-primary-foreground" />
+                    <span className="grid h-6 w-6 place-items-center rounded-full bg-primary shadow-sm">
+                      <Play className="ml-px h-3 w-3 fill-primary-foreground text-primary-foreground" />
                     </span>
                   </span>
                   <div className="min-w-0 flex-1 space-y-1">
