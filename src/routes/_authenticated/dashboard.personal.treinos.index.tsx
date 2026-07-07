@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import logoUrl from "@/assets/cactus-logo.png";
 
 import { MobileBottomNav } from "@/components/MobileBottomNav";
+import { IconRail } from "@/components/IconRail";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -85,7 +86,8 @@ function TreinosPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <main className="pb-24 md:pb-8">
+      <IconRail />
+      <main className="pb-24 md:ml-[72px] md:pb-8">
         <div className="flex min-h-[84px] items-center border-b border-border bg-background/80 px-4 backdrop-blur md:px-5">
           {/* Mobile header */}
           <div className="flex items-center justify-between gap-2 md:hidden">

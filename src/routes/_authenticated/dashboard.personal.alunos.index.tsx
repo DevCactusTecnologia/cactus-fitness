@@ -174,7 +174,7 @@ function AlunosPage() {
       <main className="pb-24 md:ml-[72px] md:pb-0">
         <div className="sticky top-0 z-30 border-b border-border/60 bg-background/70 backdrop-blur-xl">
           <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6 md:px-8">
-            <h1 className="text-2xl font-bold tracking-tight font-display sm:text-3xl">Alunos</h1>
+            <h1 className="text-xl font-bold tracking-tight font-display sm:text-2xl">Alunos</h1>
             <div className="flex flex-wrap items-center gap-2">
               <button className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card/60 px-3 py-2 text-sm hover:bg-accent">
                 <Link2 className="h-4 w-4" /> <span className="hidden sm:inline">Link de cadastro</span><span className="sm:hidden">Link</span>
@@ -191,7 +191,7 @@ function AlunosPage() {
         </div>
 
         <div className="px-4 py-6 sm:px-6 md:px-8">
-          <div className="mx-auto max-w-3xl">
+          <div className="mx-auto max-w-6xl">
             <div className="mt-4 flex flex-wrap items-center gap-2">
               <div className="flex min-w-0 flex-1 basis-full items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm sm:basis-auto sm:min-w-[240px]">
                 <Search className="h-4 w-4 text-muted-foreground" />
