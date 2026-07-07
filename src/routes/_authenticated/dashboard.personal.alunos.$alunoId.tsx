@@ -128,12 +128,13 @@ function AlunoDetailPage() {
   }
 
   const initials = initialsFromName(aluno.full_name, aluno.email);
+  const avColor = colorForId(aluno.id);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
       <IconRail />
 
-      <main className="pb-24 md:ml-[72px] md:pb-0 p-4 md:p-6">
+      <main className="pb-24 md:ml-[72px] md:pb-10 p-4 md:p-6">
 
         <div className="mx-auto max-w-4xl space-y-4">
           <Link to="/dashboard/personal/alunos" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
@@ -143,7 +144,10 @@ function AlunoDetailPage() {
 
           <div className="rounded-xl border border-border bg-card p-5 md:p-6">
             <div className="flex items-center gap-4">
-              <div className="grid h-16 w-16 shrink-0 place-items-center rounded-full bg-primary/20 text-lg font-bold text-primary font-display ring-2 ring-border shadow-md">
+              <div
+                className="grid h-16 w-16 shrink-0 place-items-center rounded-full text-lg font-bold font-display ring-2 shadow-md"
+                style={{ backgroundColor: avColor.bg, color: avColor.fg, boxShadow: `0 0 0 2px ${avColor.fg} inset` }}
+              >
                 {initials}
               </div>
               <div className="min-w-0 flex-1">
@@ -160,6 +164,7 @@ function AlunoDetailPage() {
               </div>
             </div>
           </div>
+
 
           <button className="flex w-full items-center justify-between rounded-xl border border-border bg-card p-4 transition hover:bg-accent active:scale-[0.99]">
             <div className="flex min-w-0 items-center gap-3">
