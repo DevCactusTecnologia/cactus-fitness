@@ -1081,10 +1081,10 @@ function SetTypePickerButton({
         <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
       </button>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-md p-5">
+        <DialogContent className="max-w-md gap-0 rounded-2xl border border-border bg-surface-1 p-5 shadow-2xl">
           <DialogHeader className="space-y-0 text-left">
-            <DialogTitle className="text-base font-bold">Tipo de Série</DialogTitle>
-            <DialogDescription className="text-xs">Série {index + 1}</DialogDescription>
+            <DialogTitle className="pb-1 pr-8 font-display text-base font-bold">Tipo de Série</DialogTitle>
+            <DialogDescription className="mb-4 text-xs text-fg-muted">Série {index + 1}</DialogDescription>
           </DialogHeader>
           <div className="space-y-1">
             {SET_TYPE_OPTIONS.map((opt) => {
@@ -1094,31 +1094,33 @@ function SetTypePickerButton({
                   key={opt.key}
                   type="button"
                   onClick={() => { onSelect(opt.key); setOpen(false); }}
-                  className={`flex w-full items-center gap-3 rounded-xl p-3 text-left transition-colors ${
+                  className={`flex w-full items-center gap-3 rounded-xl p-3 text-left transition-all active:scale-[0.98] ${
                     active
                       ? "border-2 border-primary bg-primary/10"
-                      : "border border-border hover:bg-muted"
+                      : "border border-border hover:border-border-strong hover:bg-surface-hover"
                   }`}
                 >
                   <div
-                    className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-[10px] font-bold"
+                    className={`grid h-9 w-9 shrink-0 place-items-center rounded-lg font-display font-bold ${
+                      opt.key === "normal" ? "text-base" : "text-[0.5625rem]"
+                    }`}
                     style={{ color: opt.fg, backgroundColor: opt.bg }}
                   >
                     {opt.key === "normal" ? index + 1 : opt.badge}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="text-sm font-semibold text-foreground">{opt.label}</div>
-                    <div className="mt-0.5 line-clamp-2 text-[11px] text-muted-foreground">{opt.description}</div>
+                    <div className="font-body text-sm font-semibold text-foreground">{opt.label}</div>
+                    <div className="mt-0.5 line-clamp-2 text-[0.6875rem] text-fg-muted">{opt.description}</div>
                   </div>
                 </button>
               );
             })}
           </div>
-          <div className="mt-2 border-t border-border pt-3">
+          <div className="mt-4 border-t border-border pt-4">
             <button
               type="button"
               onClick={() => { onRemoveSet(); setOpen(false); }}
-              className="flex w-full items-center gap-3 rounded-xl border border-destructive/30 bg-destructive/5 p-3 text-sm font-semibold text-destructive transition-colors hover:bg-destructive/10"
+              className="flex w-full items-center gap-3 rounded-xl border border-destructive/30 bg-destructive/5 p-3 text-sm font-semibold text-destructive transition-all hover:bg-destructive/10 active:scale-[0.98]"
             >
               <div className="grid h-9 w-9 place-items-center rounded-lg bg-destructive/15">
                 <X className="h-4 w-4" />
@@ -1128,6 +1130,7 @@ function SetTypePickerButton({
           </div>
         </DialogContent>
       </Dialog>
+
     </>
   );
 }
