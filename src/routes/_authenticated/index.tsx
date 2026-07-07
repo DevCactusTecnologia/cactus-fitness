@@ -147,7 +147,7 @@ function MobileTopBar() {
 
 function PlanBanner() {
   return (
-    <div className="flex items-center gap-4 rounded-xl border border-border bg-card p-4 md:p-5">
+    <div className="flex items-center gap-4 rounded-lg border border-border bg-card p-4 md:p-5">
       <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
         <Crown className="h-6 w-6" />
       </div>
@@ -284,7 +284,7 @@ function MobilePulseCard() {
   return (
     <button
       type="button"
-      className="flex w-full items-center gap-3 rounded-xl border border-primary/40 bg-[#0d0f0d] px-4 py-3 text-left"
+      className="flex w-full items-center gap-3 rounded-lg border border-primary/40 bg-[#0d0f0d] px-4 py-3 text-left"
     >
       <div className="relative shrink-0">
         <div className="grid h-11 w-11 place-items-center rounded-full bg-primary/15 text-primary">
@@ -317,7 +317,7 @@ function QuickTile({ icon: Icon, label }: { icon: React.ElementType; label: stri
 
 function ReferralBanner() {
   return (
-    <div className="flex items-center gap-4 rounded-xl border border-primary/30 bg-[linear-gradient(135deg,rgba(76,175,80,0.12),rgba(76,175,80,0.04))] p-4 md:p-5">
+    <div className="flex items-center gap-4 rounded-lg border border-primary/30 bg-[linear-gradient(135deg,rgba(76,175,80,0.12),rgba(76,175,80,0.04))] p-4 md:p-5">
       <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-primary/15 text-primary">
         <Gift className="h-5 w-5" />
       </div>
