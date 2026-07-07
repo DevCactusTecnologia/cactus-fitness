@@ -97,13 +97,10 @@ function AvaliacoesPage() {
             Avaliações Físicas
           </h1>
 
-          <div className="mt-5">
-            <TutorialCard />
-          </div>
-
           <p className="mt-5 text-sm text-muted-foreground">
             Selecione um aluno para ver ou criar avaliações físicas.
           </p>
+
 
           <div className="mt-4 flex items-center gap-2 rounded-full border border-border bg-card px-4 py-2.5 text-sm">
             <Search className="h-4 w-4 text-muted-foreground" />
