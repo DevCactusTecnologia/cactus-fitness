@@ -153,7 +153,7 @@ function reducer(state: State, action: Action): State {
       return {
         ...state,
         sessions: state.sessions.map(s => s.id === action.sessionId
-          ? { ...s, blocks: [...s.blocks, emptyBlock(s.blocks.length)] }
+          ? { ...s, blocks: [...s.blocks, action.preset ? blockFromPreset(action.preset) : emptyBlock(s.blocks.length)] }
           : s),
       };
     case "REMOVE_BLOCK":
