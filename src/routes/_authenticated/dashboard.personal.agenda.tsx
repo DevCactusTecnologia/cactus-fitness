@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import {
-  Share2,
+  Share2, Plus,
   ChevronLeft, ChevronRight, Play, X, PartyPopper, CircleDollarSign,
   Activity, Wallet, Cake, ShoppingBag, CreditCard, ChevronDown,
   Pencil, Trash2, Loader2,
