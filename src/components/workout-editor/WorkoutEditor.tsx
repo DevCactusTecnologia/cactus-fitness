@@ -534,10 +534,10 @@ function SessionCard({
   }
 
   return (
-    <div className="w-[300px] rounded-xl border border-border/60 bg-card/60 p-3">
+    <div className="w-[360px] rounded-xl border border-border/60 bg-card/60 p-4">
       <div className="flex items-center gap-2">
-        <GripVertical className="h-3.5 w-3.5 shrink-0 text-muted-foreground/60" />
-        <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[oklch(0.92_0.19_115)]/15 text-[10px] font-bold text-[oklch(0.92_0.19_115)]">
+        <GripVertical className="h-4 w-4 shrink-0 text-muted-foreground/60" />
+        <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[oklch(0.92_0.19_115)]/15 text-xs font-bold text-[oklch(0.92_0.19_115)]">
           {letter}
         </span>
         {editing ? (
@@ -547,34 +547,35 @@ function SessionCard({
             onChange={(e) => dispatch({ type: "RENAME_SESSION", sessionId: session.id, label: e.target.value })}
             onBlur={() => { if (!session.label.trim()) dispatch({ type: "RENAME_SESSION", sessionId: session.id, label: "Treino" }); setEditing(false); }}
             onKeyDown={(e) => { if (e.key === "Enter" || e.key === "Escape") (e.target as HTMLInputElement).blur(); }}
-            className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-foreground outline-none"
+            className="min-w-0 flex-1 bg-transparent text-base font-semibold text-foreground outline-none"
           />
         ) : (
-          <span className="min-w-0 flex-1 truncate text-sm font-semibold text-foreground">{displayName || "Sem nome"}</span>
+          <span className="min-w-0 flex-1 truncate text-base font-semibold text-foreground">{displayName || "Sem nome"}</span>
         )}
         <button
           onClick={startEdit}
-          className="grid h-6 w-6 place-items-center rounded text-muted-foreground/70 hover:bg-muted hover:text-foreground"
+          className="grid h-7 w-7 place-items-center rounded text-muted-foreground/70 hover:bg-muted hover:text-foreground"
           aria-label="Editar nome"
         >
-          <Pencil className="h-3.5 w-3.5" />
+          <Pencil className="h-4 w-4" />
         </button>
         <button
           onClick={() => dispatch({ type: "DUPLICATE_SESSION", sessionId: session.id })}
-          className="grid h-6 w-6 place-items-center rounded text-muted-foreground/70 hover:bg-muted hover:text-foreground"
+          className="grid h-7 w-7 place-items-center rounded text-muted-foreground/70 hover:bg-muted hover:text-foreground"
           aria-label="Duplicar sessão"
           title="Duplicar sessão"
         >
-          <Copy className="h-3.5 w-3.5" />
+          <Copy className="h-4 w-4" />
         </button>
         <button
           onClick={() => dispatch({ type: "REMOVE_SESSION", sessionId: session.id })}
-          className="grid h-6 w-6 place-items-center rounded text-muted-foreground/70 hover:bg-muted hover:text-destructive"
+          className="grid h-7 w-7 place-items-center rounded text-muted-foreground/70 hover:bg-muted hover:text-destructive"
           aria-label="Remover sessão"
         >
-          <Trash2 className="h-3.5 w-3.5" />
+          <Trash2 className="h-4 w-4" />
         </button>
       </div>
+
 
       {hasBlocks && (
         <div className="mt-3 space-y-2">
@@ -593,15 +594,16 @@ function SessionCard({
         </div>
       )}
 
-      <div className="mt-3 space-y-2">
+      <div className="mt-4 space-y-2">
         <button
           onClick={() => onPickTargetBlock(session.blocks[0].id)}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-dashed border-border/70 py-2 text-xs font-medium text-muted-foreground hover:bg-muted"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-dashed border-border/70 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted"
         >
-          <Plus className="h-3.5 w-3.5" /> Adicionar exercício
+          <Plus className="h-4 w-4" /> Adicionar exercício
         </button>
-        <AddBlockButton sessionId={session.id} dispatch={dispatch} size="sm" />
+        <AddBlockButton sessionId={session.id} dispatch={dispatch} size="lg" />
       </div>
+
     </div>
   );
 }
