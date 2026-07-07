@@ -342,12 +342,12 @@ function Dashboard() {
   const today = new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" });
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-background text-foreground">
       <IconRail />
       <MobileTopBar />
 
 
-      <main className="pb-24 md:ml-[72px] md:pb-8">
+      <main className="w-full max-w-full overflow-x-hidden pb-24 md:ml-[72px] md:w-[calc(100%-72px)] md:pb-8">
         {/* ==================== DESKTOP (lg+) ==================== */}
         <div className="hidden lg:block">
           <div className="mx-auto flex w-full max-w-[1180px] flex-col gap-4 px-4 pb-12 pt-4">
