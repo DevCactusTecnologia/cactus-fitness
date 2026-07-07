@@ -3,7 +3,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ChevronDown, ChevronUp, Copy, GripVertical, Loader2, MoreHorizontal, CheckSquare,
-  Play, Plus, Save, Search, Settings, Trash2, X, Dumbbell, Pencil, Check, Filter, ChevronLeft, ChevronRight, Clock,
+  Play, Plus, Save, Search, Settings, Trash2, X, Dumbbell, Pencil, Check, Filter, ChevronLeft, ChevronRight, Clock, BarChart3,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -542,9 +542,15 @@ function SessionCard({
     requestAnimationFrame(() => { inputRef.current?.focus(); inputRef.current?.select(); });
   }
 
+  const totalSets = session.blocks.reduce(
+    (sum, b) => sum + b.exercises.reduce((s, e) => s + (e.sets ?? 0), 0),
+    0,
+  );
+  const groupsCount = session.blocks.filter((b) => b.color || b.exercises.length > 0).length || 1;
+
   return (
-    <div className="w-[360px] rounded-xl border border-border/60 bg-card/60 p-4">
-      <div className="flex items-center gap-2">
+    <div className="w-[360px] overflow-hidden rounded-xl border border-border/60 bg-card/60">
+      <div className="flex items-center gap-2 border-b border-border/60 px-4 py-3">
         <GripVertical className="h-4 w-4 shrink-0 text-muted-foreground/60" />
         <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[oklch(0.92_0.19_115)]/15 text-xs font-bold text-[oklch(0.92_0.19_115)]">
           {letter}
@@ -585,8 +591,21 @@ function SessionCard({
         </button>
       </div>
 
+      <button
+        type="button"
+        className="group flex w-full items-center justify-between gap-2 border-b border-border/60 bg-background/30 px-3 py-2 text-xs transition-colors hover:bg-muted/40"
+        aria-label="Ver volume detalhado por grupamento muscular"
+      >
+        <span className="inline-flex items-center gap-1.5 text-muted-foreground">
+          <BarChart3 className="h-3.5 w-3.5 text-primary/70" />
+          <span className="font-medium text-foreground">{totalSets} {totalSets === 1 ? "série" : "séries"}</span>
+          <span>·</span>
+          <span>{groupsCount} {groupsCount === 1 ? "grupo" : "grupos"}</span>
+        </span>
+        <span className="text-[10px] text-muted-foreground/60 transition-colors group-hover:text-muted-foreground">Ver detalhes</span>
+      </button>
 
-      <div className="mt-4 space-y-2">
+      <div className="space-y-2 p-3">
         {(() => {
           const visibleBlocks = session.blocks.filter((b) => b.color || b.exercises.length > 0);
           return (
@@ -621,6 +640,7 @@ function SessionCard({
 
 
 
+
     </div>
   );
 }
@@ -635,48 +655,37 @@ function BlockCard({
 }) {
   const color = block.color ?? "hsl(var(--muted-foreground))";
   const hasExercises = block.exercises.length > 0;
-  const totalSets = block.exercises.reduce((sum, e) => sum + (e.sets ?? 0), 0);
   return (
     <div
       className={`overflow-hidden rounded-lg border ${isActive ? "ring-1 ring-primary/40" : ""} bg-background/40`}
       style={{ borderColor: isActive ? undefined : `${color}55` }}
     >
-      <div className="flex items-center gap-2 px-3 pt-3 pb-2">
-        <span className="inline-flex items-end gap-[2px] shrink-0" aria-hidden>
-          <span className="h-2 w-[3px] rounded-sm bg-primary/70" />
-          <span className="h-3 w-[3px] rounded-sm bg-primary/85" />
-          <span className="h-4 w-[3px] rounded-sm bg-primary" />
-        </span>
-        <span className="min-w-0 flex-1 truncate text-xs text-muted-foreground">
-          <span className="font-semibold text-foreground">{totalSets} {totalSets === 1 ? "série" : "séries"}</span>
-          <span className="mx-1.5 text-muted-foreground/60">·</span>
-          <span>1 grupo</span>
-        </span>
-        <span className="shrink-0 text-[10px] text-muted-foreground/70">Ver detalhes</span>
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button
-              className="grid h-7 w-7 shrink-0 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
-              aria-label="Ações do bloco"
-            >
-              <MoreHorizontal className="h-4 w-4" />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-40">
-            <DropdownMenuItem
-              onClick={() => dispatch({ type: "REMOVE_BLOCK", sessionId, blockId: block.id })}
-              className="text-destructive focus:text-destructive"
-            >
-              <Trash2 className="mr-2 h-4 w-4" /> Remover bloco
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
       {block.description && !hasExercises && (
-        <p className="px-3 pb-2 text-xs text-muted-foreground">{block.description}</p>
+        <div className="flex items-start justify-between gap-2 px-3 pt-3">
+          <p className="text-xs text-muted-foreground">{block.description}</p>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                className="grid h-7 w-7 shrink-0 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+                aria-label="Ações do bloco"
+              >
+                <MoreHorizontal className="h-4 w-4" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-40">
+              <DropdownMenuItem
+                onClick={() => dispatch({ type: "REMOVE_BLOCK", sessionId, blockId: block.id })}
+                className="text-destructive focus:text-destructive"
+              >
+                <Trash2 className="mr-2 h-4 w-4" /> Remover bloco
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
       )}
 
-      <div className="space-y-2 border-t border-border/50 p-3">
+      <div className="space-y-2 p-3">
+
 
         {block.exercises.map((e, ei) => (
           <ExerciseRow
