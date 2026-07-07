@@ -452,6 +452,7 @@ function ComposicaoCorporalCard({ avaliacao }: { avaliacao: Avaliacao }) {
           value={form.protocolo}
           onChange={(v) => set("protocolo", v)}
           options={PROTOCOLO_OPTIONS}
+          placeholder="Selecione o protocolo"
         />
       </div>
       {protocoloFields.length > 0 && (
