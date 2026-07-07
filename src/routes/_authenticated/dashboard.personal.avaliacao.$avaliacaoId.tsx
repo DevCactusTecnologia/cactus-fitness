@@ -1,8 +1,8 @@
-import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-  ArrowLeft, ChevronDown, Loader2, Save, Plus, Trash2, Upload,
+  ChevronDown, Loader2, Save, Plus, Trash2, Upload,
   Activity, Ruler, Bone, HeartPulse, Zap, StretchHorizontal, Dumbbell,
   Weight, Camera, PersonStanding, FileText, Share2,
 } from "lucide-react";
@@ -76,16 +76,8 @@ function AvaliacaoPage() {
     <div className="min-h-screen w-full overflow-x-hidden bg-background text-foreground">
       <IconRail />
       <main className="pb-24 md:ml-[72px] md:pb-0">
-        <header className="sticky top-0 z-30 flex items-center justify-between gap-3 border-b border-border bg-background/70 p-4 backdrop-blur-xl md:p-6">
+        <header className="sticky top-0 z-30 grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 border-b border-border bg-background/70 p-4 backdrop-blur-xl md:p-6">
           <div className="flex min-w-0 items-center gap-3">
-            <Link
-              to="/dashboard/personal/avaliacoes/$alunoId"
-              params={{ alunoId: data.aluno_id }}
-              className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-border bg-card/60 hover:bg-accent"
-              aria-label="Voltar"
-            >
-              <ArrowLeft className="h-4 w-4" />
-            </Link>
             <div className="min-w-0">
               <h1 className="truncate font-display text-xl font-bold sm:text-2xl">Avaliação Física</h1>
               <p className="truncate text-xs text-muted-foreground">{data.aluno.full_name} · {formatDate(data.assessment_date)}</p>
@@ -122,26 +114,24 @@ function AvaliacaoPage() {
 /* ------------ Reusable Collapsible section ------------ */
 
 function Section({
-  icon: Icon, title, subtitle, children,
-}: { icon: React.ElementType; title: string; subtitle?: string; children: React.ReactNode }) {
+  icon: Icon, title, subtitle, colorClass, children,
+}: { icon: React.ElementType; title: string; subtitle?: string; colorClass: string; children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="overflow-hidden rounded-xl border border-border bg-card">
+    <div className="overflow-hidden rounded-[22px] border border-border bg-card">
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex w-full items-center gap-3 p-4 text-left hover:bg-accent/40 md:p-5"
+        className="flex w-full items-center gap-3 bg-surface-2 p-4 text-left hover:bg-surface-hover/60 md:p-5"
       >
-        <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-primary/15 text-primary">
-          <Icon className="h-5 w-5" />
-        </div>
+        <Icon className={`h-5 w-5 shrink-0 ${colorClass}`} />
         <div className="min-w-0 flex-1">
           <p className="font-display text-base font-semibold">{title}</p>
           {subtitle && <p className="mt-0.5 text-xs text-muted-foreground">{subtitle}</p>}
         </div>
         <ChevronDown className={`h-5 w-5 shrink-0 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
-      {open && <div className="border-t border-border p-4 md:p-6">{children}</div>}
+      {open && <div className="border-t border-border bg-surface-1 p-4 md:p-6">{children}</div>}
     </div>
   );
 }
@@ -162,7 +152,7 @@ function NumField({ label, value, onChange }: { label: string; value: string; on
   return (
     <div className="space-y-1.5">
       <Label className="text-xs text-muted-foreground">{label}</Label>
-      <Input type="number" inputMode="decimal" value={value} onChange={(e) => onChange(e.target.value)} step="any" />
+      <Input className="h-9 border-border-subtle bg-background text-foreground shadow-none focus-visible:ring-primary/35" type="number" inputMode="decimal" value={value} onChange={(e) => onChange(e.target.value)} step="any" />
     </div>
   );
 }
@@ -170,7 +160,7 @@ function TextField({ label, value, onChange, placeholder }: { label: string; val
   return (
     <div className="space-y-1.5">
       <Label className="text-xs text-muted-foreground">{label}</Label>
-      <Input value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} />
+      <Input className="h-9 border-border-subtle bg-background text-foreground shadow-none placeholder:text-muted-foreground focus-visible:ring-primary/35" value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} />
     </div>
   );
 }
@@ -181,7 +171,7 @@ function SelectField({ label, value, onChange, options, placeholder = "Selecione
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm text-foreground shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/40"
+        className="flex h-9 w-full rounded-md border border-border-subtle bg-background px-3 py-1 text-sm text-foreground shadow-none focus:outline-none focus:ring-2 focus:ring-primary/35"
       >
         <option value="">{placeholder}</option>
         {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
@@ -193,14 +183,14 @@ function AreaField({ label, value, onChange }: { label: string; value: string; o
   return (
     <div className="space-y-1.5 md:col-span-full">
       <Label className="text-xs text-muted-foreground">{label}</Label>
-      <Textarea value={value} onChange={(e) => onChange(e.target.value)} rows={3} />
+      <Textarea className="border-border-subtle bg-background text-foreground shadow-none placeholder:text-muted-foreground focus-visible:ring-primary/35" value={value} onChange={(e) => onChange(e.target.value)} rows={3} />
     </div>
   );
 }
 
 function SaveButton({ label, onClick, pending }: { label: string; onClick: () => void; pending: boolean }) {
   return (
-    <div className="mt-5 flex justify-end">
+    <div className="mt-5 flex justify-start">
       <button
         type="button"
         onClick={onClick}
@@ -288,7 +278,7 @@ function ComposicaoCorporalCard({ avaliacao }: { avaliacao: Avaliacao }) {
   const save = useSaveSection(avaliacao.id, "composicao_corporal");
   const protocoloFields = PROTOCOLO_FIELDS[form.protocolo] ?? [];
   return (
-    <Section icon={Activity} title="Composição Corporal">
+    <Section icon={Activity} title="Composição Corporal" colorClass="text-assessment-lime">
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <NumField label="Peso (kg)" value={form.peso} onChange={(v) => set("peso", v)} />
         <NumField label="Altura (cm)" value={form.altura} onChange={(v) => set("altura", v)} />
@@ -335,7 +325,7 @@ function PerimetrosCard({ avaliacao }: { avaliacao: Avaliacao }) {
     </div>
   );
   return (
-    <Section icon={Ruler} title="Perímetros">
+    <Section icon={Ruler} title="Perímetros" colorClass="text-assessment-cyan">
       <SubHeading>Membros Superiores (cm)</SubHeading>
       {renderGroup(PERIMETROS_SUP)}
       <SubHeading>Membros Inferiores (cm)</SubHeading>
@@ -355,7 +345,7 @@ function PesoOsseoCard({ avaliacao }: { avaliacao: Avaliacao }) {
   });
   const save = useSaveSection(avaliacao.id, "peso_osseo");
   return (
-    <Section icon={Bone} title="Peso Ósseo" subtitle="Informe os diâmetros ósseos para calcular o peso ósseo estimado (fórmula de Martin).">
+    <Section icon={Bone} title="Peso Ósseo" subtitle="Informe os diâmetros ósseos para calcular o peso ósseo estimado (fórmula de Martin)." colorClass="text-assessment-violet">
       <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <NumField label="Punho (cm)" value={form.punho} onChange={(v) => set("punho", v)} />
         <NumField label="Úmero (cm)" value={form.umero} onChange={(v) => set("umero", v)} />
@@ -382,7 +372,7 @@ function Vo2MaxCard({ avaliacao }: { avaliacao: Avaliacao }) {
   });
   const save = useSaveSection(avaliacao.id, "vo2max");
   return (
-    <Section icon={HeartPulse} title="VO2máx">
+    <Section icon={HeartPulse} title="VO2máx" colorClass="text-assessment-rose">
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <SelectField label="Protocolo do Teste" value={form.protocolo} onChange={(v) => set("protocolo", v)} options={[
           { value: "cooper", label: "Cooper 12min" },
@@ -429,7 +419,7 @@ function NeuromotoraCard({ avaliacao }: { avaliacao: Avaliacao }) {
   });
   const save = useSaveSection(avaliacao.id, "neuromotora");
   return (
-    <Section icon={Zap} title="Avaliação Neuromotora">
+    <Section icon={Zap} title="Avaliação Neuromotora" colorClass="text-assessment-amber">
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <NumField label="Flexibilidade - Banco Wells (cm)" value={form.wells} onChange={(v) => set("wells", v)} />
         <NumField label="Abdominal 1min (reps)" value={form.abdominal} onChange={(v) => set("abdominal", v)} />
@@ -457,7 +447,7 @@ function BancoWellsCard({ avaliacao }: { avaliacao: Avaliacao }) {
   });
   const save = useSaveSection(avaliacao.id, "banco_wells");
   return (
-    <Section icon={StretchHorizontal} title="Banco de Wells (Sit-and-Reach)">
+    <Section icon={StretchHorizontal} title="Banco de Wells (Sit-and-Reach)" colorClass="text-assessment-sky">
       <p className="mb-4 rounded-lg border border-border bg-background/40 p-3 text-xs text-muted-foreground">
         <span className="font-semibold text-foreground">Instruções:</span> O avaliado senta com as pernas estendidas, pés apoiados na caixa. Braços estendidos à frente, uma mão sobre a outra. Flexionar o tronco lentamente empurrando o cursor o mais longe possível. Manter a posição por 2 segundos. Registrar o melhor de 3 tentativas.
       </p>
@@ -506,7 +496,7 @@ function DinamometriaCard({ avaliacao }: { avaliacao: Avaliacao }) {
     </div>
   );
   return (
-    <Section icon={Dumbbell} title="Dinamometria">
+    <Section icon={Dumbbell} title="Dinamometria" colorClass="text-assessment-orange">
       <SubHeading>Membros Superiores (kgf)</SubHeading>
       {group(DINA_SUP)}
       <SubHeading>Tronco (kgf)</SubHeading>
@@ -527,7 +517,7 @@ function TesteRMCard({ avaliacao }: { avaliacao: Avaliacao }) {
   const upd = (i: number, k: "nome" | "carga" | "reps", v: string) => setExs((a) => a.map((e, idx) => idx === i ? { ...e, [k]: v } : e));
   const remove = (i: number) => setExs((a) => a.filter((_, idx) => idx !== i));
   return (
-    <Section icon={Weight} title="Teste de RM (Epley)" subtitle="Fórmula de Epley: 1RM = carga × (1 + 0,033 × reps). Adicione os exercícios multiarticulares desejados.">
+    <Section icon={Weight} title="Teste de RM (Epley)" subtitle="Fórmula de Epley: 1RM = carga × (1 + 0,033 × reps). Adicione os exercícios multiarticulares desejados." colorClass="text-assessment-emerald">
       <div className="space-y-3">
         {exs.length === 0 && (
           <p className="rounded-lg border border-dashed border-border bg-background/40 p-4 text-center text-xs text-muted-foreground">
@@ -566,7 +556,7 @@ function FotosCard({ avaliacao }: { avaliacao: Avaliacao }) {
   );
   const save = useSaveSection(avaliacao.id, "fotos");
   return (
-    <Section icon={Camera} title="Fotos">
+    <Section icon={Camera} title="Fotos" colorClass="text-assessment-fuchsia">
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
         {FOTOS_TIPOS.map((t) => {
           const k = keyOf(t);
@@ -626,7 +616,7 @@ function PosturalCard({ avaliacao }: { avaliacao: Avaliacao }) {
     </div>
   );
   return (
-    <Section icon={PersonStanding} title="Avaliação Postural">
+    <Section icon={PersonStanding} title="Avaliação Postural" colorClass="text-assessment-blue">
       <SubHeading>Vista Anterior</SubHeading>
       {group(POST_ANT, kAnt)}
       <div className="mt-4"><AreaField label="Observações - Vista Anterior" value={form.obs_ant} onChange={(v) => set("obs_ant", v)} /></div>
@@ -644,5 +634,3 @@ function PosturalCard({ avaliacao }: { avaliacao: Avaliacao }) {
   );
 }
 
-// re-export useNavigate to satisfy tree-shaking on strict setups (no-op)
-export { useNavigate };
