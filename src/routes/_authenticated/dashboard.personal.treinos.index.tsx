@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Dumbbell, FolderPlus, Plus,
-  Info, ChevronDown, Layers, FileText, MoreHorizontal,
+  ChevronDown, Layers, FileText, MoreHorizontal,
   ArrowLeft, Search, Loader2,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -89,9 +89,9 @@ function TreinosPage() {
       <IconRail />
 
       <main className="pb-24 md:pl-[72px] md:pb-8">
-        <div className="mx-auto max-w-7xl px-4 py-6 md:px-8">
+        <div className="border-b border-border bg-background/80 px-4 py-5 backdrop-blur md:px-8">
           {/* Mobile header */}
-          <div className="mb-4 flex items-center justify-between gap-2 md:hidden">
+          <div className="flex items-center justify-between gap-2 md:hidden">
             <button
               onClick={() => window.history.back()}
               className="grid h-9 w-9 place-items-center rounded-lg text-muted-foreground hover:bg-muted"
@@ -132,7 +132,7 @@ function TreinosPage() {
 
           {/* Desktop header */}
           <div className="hidden flex-wrap items-center justify-between gap-3 md:flex">
-            <h1 className="text-2xl font-bold tracking-tight md:text-3xl">Modelos Prontos</h1>
+            <h1 className="font-display text-2xl font-bold tracking-tight md:text-3xl">Modelos Prontos</h1>
             <div className="flex items-center gap-4">
               <button className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground">
                 <FolderPlus className="h-4 w-4" />
@@ -148,28 +148,11 @@ function TreinosPage() {
               />
             </div>
           </div>
+        </div>
 
-          {/* Info banner */}
-          <div className="mt-4 rounded-2xl border border-border bg-card/60 p-2.5 text-[11px] leading-snug text-muted-foreground md:p-5 md:text-sm md:leading-relaxed">
-            <div className="flex gap-2 md:block md:gap-3">
-              <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary md:hidden" />
-              <div className="space-y-0.5 md:space-y-0">
-
-                <p className="md:inline">
-                  <span className="font-semibold text-foreground">Modelos prontos</span> são gabaritos reutilizáveis.{" "}
-                </p>
-                <p className="md:inline">
-                  Um <span className="font-semibold text-foreground">Modelo de Plano</span> agrupa vários treinos em uma rotina semanal (ex: A/B/C em seg/qua/sex).{" "}
-                </p>
-                <p className="md:inline">
-                  Um <span className="font-semibold text-foreground">Template de Treino</span> é um treino único e independente (ex: Peito/Tríceps).
-                </p>
-              </div>
-            </div>
-          </div>
-
+        <div className="mx-auto max-w-7xl px-4 py-5 md:px-8">
           {/* Stats */}
-          <div className="mt-4 grid grid-cols-3 gap-3 md:gap-4">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 md:gap-4">
             <StatCard icon={FileText} value={total} label="Total de modelos" tone="green" />
             <StatCard icon={Layers} value={0} label="Modelos de Plano" tone="purple" />
             <StatCard icon={Dumbbell} value={total} label="Templates de Treino" tone="blue" />
@@ -199,7 +182,7 @@ function TreinosPage() {
           </div>
 
           {/* List */}
-          <div className="mt-4 space-y-2">
+          <div className="mt-11 space-y-2 md:mt-12">
             {isLoading ? (
               <div className="grid place-items-center rounded-xl border border-dashed border-border p-10">
                 <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
