@@ -21,6 +21,32 @@ import { MobileBottomNav } from "@/components/MobileBottomNav";
 
 export type EditorKind = "plan" | "template";
 
+type SetType =
+  | "normal"
+  | "aquecimento"
+  | "ativacao"
+  | "drop"
+  | "falha";
+
+const SET_TYPE_OPTIONS: {
+  key: SetType;
+  label: string;
+  badge: string;
+  description: string;
+  fg: string;
+  bg: string;
+}[] = [
+  { key: "normal", label: "Normal", badge: "1", description: "Série padrão de trabalho com carga efetiva.", fg: "hsl(var(--foreground))", bg: "hsl(var(--muted))" },
+  { key: "aquecimento", label: "Aquecimento", badge: "Aquec.", description: "Série leve para preparar os músculos. Use carga baixa e foque no movimento.", fg: "hsl(38 92% 50%)", bg: "hsl(38 92% 50% / 0.15)" },
+  { key: "ativacao", label: "Ativação", badge: "Ativ.", description: "Série intermediária para ativar o músculo antes das séries efetivas.", fg: "hsl(199 89% 55%)", bg: "hsl(199 89% 55% / 0.15)" },
+  { key: "drop", label: "Drop Set", badge: "Drop", description: "Ao completar as reps, reduza a carga sem descanso e continue.", fg: "rgb(168, 85, 247)", bg: "rgba(168, 85, 247, 0.15)" },
+  { key: "falha", label: "Até a Falha", badge: "Falha", description: "Faça o máximo de reps que conseguir com boa forma. Pare quando não conseguir mais.", fg: "hsl(var(--destructive))", bg: "hsl(var(--destructive) / 0.15)" },
+];
+
+function setTypeMeta(k: SetType | undefined) {
+  return SET_TYPE_OPTIONS.find((o) => o.key === (k ?? "normal")) ?? SET_TYPE_OPTIONS[0];
+}
+
 type ExerciseItem = {
   id: string; // client id
   exercise_id: number | null;
@@ -30,6 +56,7 @@ type ExerciseItem = {
   rest_seconds: number | null;
   load: string;
   notes: string;
+  set_types?: SetType[];
 };
 
 type Block = {
