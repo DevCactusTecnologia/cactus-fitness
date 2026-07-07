@@ -191,6 +191,7 @@ function AlunoDetailPage() {
           </div>
         </div>
       </main>
+      <MobileBottomNav />
 
       <Dialog open={novoPlanoOpen} onOpenChange={setNovoPlanoOpen}>
         <DialogContent className="max-w-lg gap-0 p-0">
