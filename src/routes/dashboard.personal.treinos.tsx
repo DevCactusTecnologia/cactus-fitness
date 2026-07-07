@@ -97,7 +97,7 @@ function TreinosPage() {
       <IconRail />
 
       <main className="pb-24 md:pl-[72px] md:pb-8">
-        <div className="mx-auto max-w-5xl px-4 py-6 md:px-8">
+        <div className="mx-auto max-w-7xl px-4 py-6 md:px-8">
           {/* Mobile header */}
           <div className="mb-4 flex items-center justify-between gap-2 md:hidden">
             <button
