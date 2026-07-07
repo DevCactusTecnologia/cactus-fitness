@@ -1,13 +1,14 @@
-import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useState } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { ClipboardList, Plus, ArrowLeft, User as UserIcon, Send, Loader2 } from "lucide-react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { ClipboardList, Plus, ArrowLeft, User as UserIcon, Send, Loader2, Calendar as CalendarIcon, Trash2, ChevronRight } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { IconRail } from "@/components/IconRail";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/dashboard/personal/avaliacoes/$alunoId")({
   head: () => ({
@@ -20,10 +21,53 @@ export const Route = createFileRoute("/_authenticated/dashboard/personal/avaliac
 });
 
 type Aluno = { id: string; full_name: string; email: string | null };
+type Avaliacao = {
+  id: string;
+  assessment_date: string;
+  composicao_corporal: any;
+  perimetros: any;
+  vo2max: any;
+  neuromotora: any;
+  dinamometria: any;
+  teste_rm: any;
+  banco_wells: any;
+  postural: any;
+  fotos: any;
+};
+
+const SECTIONS: { key: keyof Avaliacao; label: string }[] = [
+  { key: "composicao_corporal", label: "Composição" },
+  { key: "perimetros", label: "Perimetros" },
+  { key: "vo2max", label: "VO2" },
+  { key: "neuromotora", label: "Neuro" },
+  { key: "dinamometria", label: "Força" },
+  { key: "teste_rm", label: "RM" },
+  { key: "banco_wells", label: "Wells" },
+  { key: "postural", label: "Postural" },
+];
+
+function hasData(v: any) {
+  if (!v) return false;
+  if (Array.isArray(v)) return v.length > 0;
+  if (typeof v === "object") return Object.keys(v).length > 0;
+  return Boolean(v);
+}
+
+function fotoCount(v: any) {
+  if (!v || typeof v !== "object") return 0;
+  return Object.values(v).filter((x) => typeof x === "string" && x).length;
+}
+
+function formatDate(d: string) {
+  const [y, m, day] = d.split("-").map(Number);
+  const months = ["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
+  return `${String(day).padStart(2, "0")} de ${months[m - 1]} de ${y}`;
+}
 
 function AvaliacoesAlunoPage() {
   const { alunoId } = Route.useParams();
   const [open, setOpen] = useState(false);
+  const qc = useQueryClient();
 
   const { data: aluno, isLoading } = useQuery({
     queryKey: ["aluno", alunoId, "avaliacoes-header"],
@@ -37,6 +81,31 @@ function AvaliacoesAlunoPage() {
       if (!data) throw notFound();
       return data as Aluno;
     },
+  });
+
+  const { data: avaliacoes = [] } = useQuery({
+    queryKey: ["avaliacoes", alunoId],
+    queryFn: async (): Promise<Avaliacao[]> => {
+      const { data, error } = await supabase
+        .from("avaliacoes")
+        .select("id, assessment_date, composicao_corporal, perimetros, vo2max, neuromotora, dinamometria, teste_rm, banco_wells, postural, fotos")
+        .eq("aluno_id", alunoId)
+        .order("assessment_date", { ascending: false });
+      if (error) throw error;
+      return (data ?? []) as Avaliacao[];
+    },
+  });
+
+  const deleteAvaliacao = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("avaliacoes").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["avaliacoes", alunoId] });
+      toast.success("Avaliação excluída");
+    },
+    onError: (e: any) => toast.error(e.message ?? "Erro ao excluir"),
   });
 
   if (isLoading || !aluno) {
@@ -75,21 +144,79 @@ function AvaliacoesAlunoPage() {
           </div>
         </div>
 
-        <div className="mx-auto max-w-4xl space-y-4 p-4 md:p-6">
-          <div className="rounded-xl border border-border bg-card p-8 text-center">
-            <ClipboardList className="mx-auto mb-4 h-12 w-12 text-muted-foreground" strokeWidth={1.75} />
-            <h3 className="mb-2 text-lg font-semibold">Nenhuma avaliação física</h3>
-            <p className="mb-4 text-sm text-muted-foreground">
-              Crie a primeira avaliação física para acompanhar a evolução do aluno.
-            </p>
-            <button
-              type="button"
-              onClick={() => setOpen(true)}
-              className="inline-flex h-10 items-center justify-center gap-2 rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground transition hover:brightness-110 active:scale-[0.97]"
-            >
-              <Plus className="h-4 w-4" /> Criar Avaliação
-            </button>
-          </div>
+        <div className="mx-auto max-w-4xl space-y-3 p-4 md:p-6">
+          {avaliacoes.length === 0 ? (
+            <div className="rounded-xl border border-border bg-card p-8 text-center">
+              <ClipboardList className="mx-auto mb-4 h-12 w-12 text-muted-foreground" strokeWidth={1.75} />
+              <h3 className="mb-2 text-lg font-semibold">Nenhuma avaliação física</h3>
+              <p className="mb-4 text-sm text-muted-foreground">
+                Crie a primeira avaliação física para acompanhar a evolução do aluno.
+              </p>
+              <button
+                type="button"
+                onClick={() => setOpen(true)}
+                className="inline-flex h-10 items-center justify-center gap-2 rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground transition hover:brightness-110 active:scale-[0.97]"
+              >
+                <Plus className="h-4 w-4" /> Criar Avaliação
+              </button>
+            </div>
+          ) : (
+            avaliacoes.map((av) => {
+              const fotos = fotoCount(av.fotos);
+              return (
+                <div
+                  key={av.id}
+                  className="group flex items-center gap-3 rounded-2xl border border-border/60 bg-card/40 px-5 py-4 transition hover:border-border hover:bg-card/60"
+                >
+                  <Link
+                    to="/dashboard/personal/avaliacao/$avaliacaoId"
+                    params={{ avaliacaoId: av.id }}
+                    className="min-w-0 flex-1"
+                  >
+                    <div className="flex items-center gap-2 text-base font-semibold">
+                      <CalendarIcon className="h-4 w-4 text-primary" strokeWidth={2} />
+                      {formatDate(av.assessment_date)}
+                    </div>
+                    <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs">
+                      {SECTIONS.map((s) => {
+                        const filled = hasData(av[s.key]);
+                        return (
+                          <span
+                            key={s.key}
+                            className={`inline-flex items-center gap-1.5 ${filled ? "text-primary" : "text-muted-foreground/60"}`}
+                          >
+                            <span className={`h-2 w-2 rounded-full border ${filled ? "border-primary bg-primary" : "border-muted-foreground/40"}`} />
+                            {s.label}
+                          </span>
+                        );
+                      })}
+                      {fotos > 0 && (
+                        <span className="text-primary">{fotos} foto{fotos > 1 ? "s" : ""}</span>
+                      )}
+                    </div>
+                  </Link>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (confirm("Excluir esta avaliação?")) deleteAvaliacao.mutate(av.id);
+                    }}
+                    className="grid h-9 w-9 place-items-center rounded-lg border border-border/60 text-destructive hover:bg-destructive/10"
+                    aria-label="Excluir"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                  <Link
+                    to="/dashboard/personal/avaliacao/$avaliacaoId"
+                    params={{ avaliacaoId: av.id }}
+                    className="grid h-9 w-9 place-items-center rounded-lg text-muted-foreground hover:text-foreground"
+                    aria-label="Abrir"
+                  >
+                    <ChevronRight className="h-4 w-4" />
+                  </Link>
+                </div>
+              );
+            })
+          )}
         </div>
       </main>
       <MobileBottomNav />
@@ -105,7 +232,8 @@ function NovaAvaliacaoDialog({
   const today = new Date().toISOString().slice(0, 10);
   const [mode, setMode] = useState<"personal" | "aluno">("personal");
   const [date, setDate] = useState(today);
-  const navigate = useNavigate();
+  
+  const qc = useQueryClient();
 
   const createAvaliacao = useMutation({
     mutationFn: async () => {
@@ -125,10 +253,12 @@ function NovaAvaliacaoDialog({
       if (error) throw error;
       return data.id as string;
     },
-    onSuccess: (id) => {
+    onSuccess: () => {
       onOpenChange(false);
-      navigate({ to: "/dashboard/personal/avaliacao/$avaliacaoId", params: { avaliacaoId: id } });
+      qc.invalidateQueries({ queryKey: ["avaliacoes", alunoId] });
+      toast.success("Avaliação criada");
     },
+    onError: (e: any) => toast.error(e.message ?? "Erro ao criar"),
   });
 
   return (

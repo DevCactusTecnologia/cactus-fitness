@@ -183,9 +183,9 @@ function SelectField({ label, value, onChange, options, placeholder = "Selecione
         <SelectTrigger className="h-9 border-border-subtle bg-background text-foreground shadow-none focus:ring-primary/35">
           <SelectValue placeholder={placeholder} />
         </SelectTrigger>
-        <SelectContent className="rounded-xl border-border bg-popover/95 backdrop-blur-xl">
+        <SelectContent className="rounded-t-[4px] rounded-b-[10px] border-border bg-popover/95 backdrop-blur-xl">
           {options.map((o) => (
-            <SelectItem key={o.value} value={o.value} className="rounded-lg text-sm">
+            <SelectItem key={o.value} value={o.value} className="rounded-md text-sm">
               {o.label}
             </SelectItem>
           ))}
