@@ -68,6 +68,7 @@ function IconRail() {
       </div>
       <SidebarIconBtn icon={Home} to="/" label="Início" />
       <SidebarIconBtn icon={Users} active label="Alunos" />
+      <SidebarIconBtn icon={ClipboardList} to="/dashboard/personal/treinos" label="Treinos" />
       <SidebarIconBtn icon={Dumbbell} to="/dashboard/personal/exercicios" label="Exercícios" />
       <SidebarIconBtn icon={ClipboardCheck} to="/" label="Avaliações" />
       <SidebarIconBtn icon={Trophy} to="/" label="Desafios" />
