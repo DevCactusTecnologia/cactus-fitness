@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { IconRail } from "@/components/IconRail";
 import { initialsFromName } from "@/lib/auth";
+import { colorForId } from "@/lib/avatar-color";
 import {
   Dialog,
   DialogContent,
@@ -266,7 +267,10 @@ function AlunosPage() {
                     className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-4 py-3 transition hover:bg-accent/50 sm:grid-cols-[1.6fr_1fr_1fr_auto] sm:px-5 sm:py-4"
                   >
                     <div className="flex min-w-0 items-center gap-3">
-                      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary/20 text-sm font-bold text-primary font-display ring-2 ring-border">
+                      <div
+                        className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-sm font-bold font-display ring-2 ring-primary"
+                        style={{ backgroundColor: colorForId(a.id).bg, color: colorForId(a.id).fg }}
+                      >
                         {initialsFromName(a.full_name, a.email)}
                       </div>
                       <div className="min-w-0">

@@ -16,6 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { initialsFromName } from "@/lib/auth";
 import { IconRail } from "@/components/IconRail";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
+import { colorForId } from "@/lib/avatar-color";
 
 export const Route = createFileRoute("/_authenticated/dashboard/personal/alunos/$alunoId")({
   head: () => ({
@@ -53,21 +54,8 @@ function useAluno(alunoId: string) {
   });
 }
 
-const AVATAR_COLORS = [
-  { bg: "oklch(0.35 0.15 25)", fg: "oklch(0.85 0.15 25)" },   // vermelho
-  { bg: "oklch(0.35 0.15 55)", fg: "oklch(0.85 0.15 55)" },   // laranja
-  { bg: "oklch(0.35 0.15 90)", fg: "oklch(0.85 0.15 90)" },   // amarelo
-  { bg: "oklch(0.35 0.15 145)", fg: "oklch(0.85 0.15 145)" }, // verde
-  { bg: "oklch(0.35 0.15 200)", fg: "oklch(0.85 0.15 200)" }, // ciano
-  { bg: "oklch(0.35 0.15 245)", fg: "oklch(0.85 0.15 245)" }, // azul
-  { bg: "oklch(0.35 0.15 295)", fg: "oklch(0.85 0.15 295)" }, // roxo
-  { bg: "oklch(0.35 0.15 340)", fg: "oklch(0.85 0.15 340)" }, // rosa
-];
-function colorForId(id: string) {
-  let h = 0;
-  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
-  return AVATAR_COLORS[h % AVATAR_COLORS.length];
-}
+
+
 
 
 function Row({
@@ -134,22 +122,28 @@ function AlunoDetailPage() {
     <div className="min-h-screen bg-background text-foreground">
       <IconRail />
 
-      <main className="pb-24 md:ml-[72px] md:pb-10 p-4 md:p-6">
+      <main className="pb-24 md:ml-[72px] md:pb-10">
 
-        <div className="mx-auto max-w-4xl space-y-4">
-          <Link to="/dashboard/personal/alunos" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
-            <ArrowLeft className="h-4 w-4" /> voltar
-          </Link>
-          <h1 className="text-2xl font-bold tracking-tight font-display">Perfil do Aluno</h1>
+        {/* Sticky title bar */}
+        <div className="sticky top-0 z-30 border-b border-border/60 bg-background/70 backdrop-blur-xl">
+          <div className="px-4 py-4 sm:px-6 md:px-8">
+            <Link to="/dashboard/personal/alunos" className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground">
+              <ArrowLeft className="h-3.5 w-3.5" /> voltar
+            </Link>
+            <h1 className="mt-1 text-xl font-bold tracking-tight font-display sm:text-2xl">Perfil do Aluno</h1>
+          </div>
+        </div>
 
+        <div className="mx-auto max-w-4xl space-y-4 p-4 md:p-6">
           <div className="rounded-xl border border-border bg-card p-5 md:p-6">
             <div className="flex items-center gap-4">
               <div
-                className="grid h-16 w-16 shrink-0 place-items-center rounded-full text-lg font-bold font-display ring-2 shadow-md"
-                style={{ backgroundColor: avColor.bg, color: avColor.fg, boxShadow: `0 0 0 2px ${avColor.fg} inset` }}
+                className="grid h-16 w-16 shrink-0 place-items-center rounded-full text-lg font-bold font-display ring-2 ring-primary shadow-md"
+                style={{ backgroundColor: avColor.bg, color: avColor.fg }}
               >
                 {initials}
               </div>
+
               <div className="min-w-0 flex-1">
                 <h2 className="truncate text-xl font-bold md:text-2xl font-display">{aluno.full_name}</h2>
                 <p className="truncate text-sm text-muted-foreground">{aluno.email ?? "Sem e-mail cadastrado"}</p>
