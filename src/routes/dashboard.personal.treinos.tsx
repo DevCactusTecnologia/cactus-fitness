@@ -159,9 +159,9 @@ function TreinosPage() {
 
           {/* Stats */}
           <div className="mt-4 grid grid-cols-3 gap-3 md:gap-4">
-            <StatCard icon={FileText} value={total} label="Total de modelos" />
-            <StatCard icon={Layers} value={planos} label="Modelos de Plano" />
-            <StatCard icon={Dumbbell} value={templates} label="Templates de Treino" />
+            <StatCard icon={FileText} value={total} label="Total de modelos" tone="green" />
+            <StatCard icon={Layers} value={planos} label="Modelos de Plano" tone="purple" />
+            <StatCard icon={Dumbbell} value={templates} label="Templates de Treino" tone="blue" />
           </div>
 
           {/* Search + Filters */}
