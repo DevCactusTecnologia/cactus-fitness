@@ -234,13 +234,13 @@ function StatCard({
   icon: Icon, value, label, tone = "green",
 }: { icon: React.ElementType; value: number; label: string; tone?: Tone }) {
   return (
-    <div className="flex flex-col items-start gap-2 rounded-2xl border border-border bg-card p-4 sm:flex-row sm:items-center sm:gap-3">
-      <div className={`grid h-9 w-9 place-items-center rounded-lg ${TONE[tone]}`}>
-        <Icon className="h-5 w-5" />
+    <div className="flex flex-col items-center justify-center gap-1.5 rounded-2xl border border-border bg-card p-2.5 text-center sm:flex-row sm:gap-3 sm:p-4 sm:text-left">
+      <div className={`grid h-7 w-7 place-items-center rounded-lg sm:h-9 sm:w-9 ${TONE[tone]}`}>
+        <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
       </div>
-      <div>
-        <div className="text-2xl font-bold leading-none">{value}</div>
-        <div className="mt-1 text-xs text-muted-foreground">{label}</div>
+      <div className="flex flex-col items-center sm:items-start">
+        <div className="text-lg font-bold leading-none sm:text-2xl">{value}</div>
+        <div className="mt-1 text-[10px] leading-tight text-muted-foreground sm:text-xs">{label}</div>
       </div>
     </div>
   );
