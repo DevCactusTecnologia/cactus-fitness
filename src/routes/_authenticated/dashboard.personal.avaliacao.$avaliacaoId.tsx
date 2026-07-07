@@ -153,7 +153,16 @@ function NumField({ label, value, onChange }: { label: string; value: string; on
   return (
     <div className="space-y-1.5">
       <Label className="text-xs text-muted-foreground">{label}</Label>
-      <Input className="h-9 border-border-subtle bg-background text-foreground shadow-none focus-visible:ring-primary/35" type="number" inputMode="decimal" value={value} onChange={(e) => onChange(e.target.value)} step="any" />
+      <Input
+        className="h-9 border-border-subtle bg-background text-foreground shadow-none focus-visible:ring-primary/35 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+        type="text"
+        inputMode="decimal"
+        value={value}
+        onChange={(e) => {
+          const v = e.target.value.replace(/[^0-9.,-]/g, "");
+          onChange(v);
+        }}
+      />
     </div>
   );
 }
@@ -169,14 +178,18 @@ function SelectField({ label, value, onChange, options, placeholder = "Selecione
   return (
     <div className="space-y-1.5">
       <Label className="text-xs text-muted-foreground">{label}</Label>
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="flex h-9 w-full rounded-md border border-border-subtle bg-background px-3 py-1 text-sm text-foreground shadow-none focus:outline-none focus:ring-2 focus:ring-primary/35"
-      >
-        <option value="">{placeholder}</option>
-        {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-      </select>
+      <Select value={value || undefined} onValueChange={onChange}>
+        <SelectTrigger className="h-9 border-border-subtle bg-background text-foreground shadow-none focus:ring-primary/35">
+          <SelectValue placeholder={placeholder} />
+        </SelectTrigger>
+        <SelectContent className="rounded-xl border-border bg-popover/95 backdrop-blur-xl">
+          {options.map((o) => (
+            <SelectItem key={o.value} value={o.value} className="rounded-lg text-sm">
+              {o.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
     </div>
   );
 }
