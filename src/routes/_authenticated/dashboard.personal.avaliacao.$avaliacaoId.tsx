@@ -1,10 +1,12 @@
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   ChevronDown, Loader2, Save, Plus, Trash2, Upload, X,
   Activity, Ruler, Bone, HeartPulse, Zap, StretchHorizontal, Dumbbell,
   Weight, Camera, PersonStanding, FileText, Share2, Image as ImageIcon,
+  Sparkles, RefreshCw,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -14,6 +16,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Switch } from "@/components/ui/switch";
+import { generateAvaliacaoAnalysis } from "@/lib/avaliacao-ai.functions";
 
 export const Route = createFileRoute("/_authenticated/dashboard/personal/avaliacao/$avaliacaoId")({
   head: () => ({
