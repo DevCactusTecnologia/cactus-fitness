@@ -746,8 +746,7 @@ function ExerciseRow({
           </div>
           <div className="text-[11px] text-muted-foreground">{summary}</div>
         </div>
-        <div onClick={(e) => e.stopPropagation()} className="flex items-center gap-1">
-          <ReorderButtons onUp={onUp} onDown={onDown} canUp={index > 0} canDown={index < total - 1} small />
+        <div onClick={(e) => e.stopPropagation()}>
           <button
             onClick={onRemove}
             className="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-muted text-muted-foreground/60 transition-colors hover:bg-destructive/10 hover:text-destructive"
