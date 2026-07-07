@@ -7,6 +7,8 @@ import {
   ArrowLeft, Search, Loader2,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import logoUrl from "@/assets/cactus-logo.png";
+
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { IconRail } from "@/components/IconRail";
 import {
