@@ -367,12 +367,6 @@ function InformacoesTab({ aluno }: { aluno: Aluno }) {
           <span>Atualizado em {formatDate(aluno.updated_at)}</span>
         </div>
       </div>
-
-        <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <span>Cadastrado em {formatDate(aluno.created_at)}</span>
-          <span>Atualizado em {formatDate(aluno.updated_at)}</span>
-        </div>
-      </div>
     </>
   );
 }
