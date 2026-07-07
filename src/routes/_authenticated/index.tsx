@@ -404,6 +404,12 @@ function ReferralBanner() {
 /* ---------- Dashboard ---------- */
 
 function Dashboard() {
+  const { profile } = useCurrentUser();
+  const { data: stats } = useDashboardStats();
+  const name = firstName(profile?.full_name, profile?.email);
+  const greeting = greetingFor(new Date().getHours());
+  const today = new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" });
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <IconRail />
@@ -418,9 +424,9 @@ function Dashboard() {
             <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between md:gap-6">
               <div>
                 <h1 className="font-display text-2xl font-extrabold leading-tight tracking-tight md:text-3xl">
-                  Boa tarde, Marcos
+                  {greeting}, {name}
                 </h1>
-                <p className="mt-1 text-[0.8125rem] text-fg-muted">segunda-feira, 6 de julho</p>
+                <p className="mt-1 text-[0.8125rem] text-fg-muted">{today}</p>
               </div>
               <div className="flex items-center gap-2">
                 <div className="hidden h-9 min-w-[280px] items-center gap-2 rounded-full border border-border bg-surface-1 px-3.5 text-sm text-fg-muted transition-colors hover:border-border-strong hover:text-fg md:inline-flex">
@@ -437,11 +443,12 @@ function Dashboard() {
 
             {/* KPIs */}
             <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-              <KpiCard label="Alunos ativos" value="1" sub="+1 este mês" trend="1" />
-              <KpiCard label="Treinos ativos" value="0" sub="0 periodizados" />
+              <KpiCard label="Alunos ativos" value={String(stats?.alunosAtivos ?? 0)} sub="ativos agora" />
+              <KpiCard label="Treinos ativos" value={String(stats?.treinosAtivos ?? 0)} sub="modelos criados" />
               <KpiCard label="Receita do mês" value="R$ 0" sub="vs mês anterior" sparkUp={false} />
-              <KpiCard label="Avaliações" value="0" sub="em dia" />
+              <KpiCard label="Avaliações" value={String(stats?.avaliacoes ?? 0)} sub="em dia" />
             </div>
+
 
             {/* Hoje / Pulso */}
             <div className="grid grid-cols-1 gap-3 lg:grid-cols-[1.55fr_1fr]">
