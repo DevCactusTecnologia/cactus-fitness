@@ -489,10 +489,10 @@ function Dashboard() {
 
             <div className="space-y-4">
               
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-[1.3fr_1fr]">
+              <div className="grid grid-cols-1 gap-4">
                 <GreetingCard />
-                <WalletCard />
               </div>
+
               <div className="grid grid-cols-2 gap-3">
                 <ActionButton icon={Lock} label="Adicionar Aluno" />
                 <ActionButton icon={Lock} label="Link de Cadastro" />
