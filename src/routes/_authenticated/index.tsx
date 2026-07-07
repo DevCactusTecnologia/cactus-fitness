@@ -5,7 +5,7 @@ import {
   Home, Users, Calendar,
   Bell, Crown, Lock, Activity,
   ChevronDown, ChevronRight, Pencil, HeartPulse, Dumbbell, Trophy, Gift, ClipboardCheck, ClipboardList,
-  Lightbulb, Sparkles, Eye, ArrowRight, Search,
+  Lightbulb, Sparkles, ArrowRight, Search,
   UserPlus, FileText, Link2, TrendingUp, AlertTriangle, Clock, MapPin,
 } from "lucide-react";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
