@@ -141,8 +141,8 @@ function PerfilPage() {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
     applyPrimaryColor(primaryColor);
     setSavedColor(primaryColor);
-    toast.success("Cor salva");
   }
+
 
   function cancelColor() {
     setPrimaryColor(savedColor);
