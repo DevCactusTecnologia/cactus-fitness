@@ -3,7 +3,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ChevronDown, ChevronUp, Copy, GripVertical, Loader2, MoreHorizontal, CheckSquare,
-  Play, Plus, Save, Search, Settings, Trash2, X, Dumbbell, Pencil,
+  Play, Plus, Save, Search, Settings, Trash2, X, Dumbbell, Pencil, Check,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -381,10 +381,12 @@ export function WorkoutEditor({ kind }: { kind: EditorKind }) {
                     <ExercisePicker
                       state={state}
                       activeTarget={activeTarget}
-                      onPick={(ex) => {
+                      onCommit={(list) => {
                         const target = resolveTarget(state, activeTarget);
                         if (!target) { toast("Selecione um bloco antes de adicionar exercícios."); return; }
-                        dispatch({ type: "ADD_EXERCISE", sessionId: target.sessionId, blockId: target.blockId, exercise: ex });
+                        list.forEach((ex) => {
+                          dispatch({ type: "ADD_EXERCISE", sessionId: target.sessionId, blockId: target.blockId, exercise: ex });
+                        });
                       }}
                     />
                   </div>
@@ -816,17 +818,20 @@ function SidePanel({
           <ExercisePicker
             state={state}
             activeTarget={activeTarget}
-            onPick={(ex) => {
+            onCommit={(list) => {
               const target = resolveTarget(state, activeTarget);
               if (!target) {
                 toast("Selecione um bloco antes de adicionar exercícios.");
                 return;
               }
-              dispatch({ type: "ADD_EXERCISE", sessionId: target.sessionId, blockId: target.blockId, exercise: ex });
+              list.forEach((ex) => {
+                dispatch({ type: "ADD_EXERCISE", sessionId: target.sessionId, blockId: target.blockId, exercise: ex });
+              });
               onPicked?.();
             }}
           />
         </TabsContent>
+
         <TabsContent value="config" className="mt-3 space-y-4">
           {kind === "plan" && (
             <div className="flex items-center justify-between rounded-lg border border-border p-3">
@@ -872,13 +877,15 @@ function difficultyStyle(d: string | null | undefined) {
 }
 
 function ExercisePicker({
-  state, activeTarget, onPick,
+  state, activeTarget, onCommit,
 }: {
   state: State;
   activeTarget: { sessionId: string; blockId: string } | null;
-  onPick: (ex: { id: number | null; name: string }) => void;
+  onCommit: (list: { id: number | null; name: string }[]) => void;
 }) {
   const [q, setQ] = useState("");
+  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const [customPicks, setCustomPicks] = useState<{ id: null; name: string }[]>([]);
   const { data: catalog = [], isLoading } = useQuery({
     queryKey: ["exercises-catalog"],
     queryFn: async (): Promise<ExerciseCatalog[]> => {
@@ -920,6 +927,28 @@ function ExercisePicker({
       })()
     : "—";
 
+  const totalSelected = selectedIds.size + customPicks.length;
+
+  const toggle = (id: number) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  };
+
+  const handleCommit = () => {
+    if (totalSelected === 0) return;
+    const picks: { id: number | null; name: string }[] = [];
+    catalog.forEach((e) => {
+      if (selectedIds.has(e.id)) picks.push({ id: e.id, name: e.name });
+    });
+    customPicks.forEach((c) => picks.push(c));
+    onCommit(picks);
+    setSelectedIds(new Set());
+    setCustomPicks([]);
+  };
+
   return (
     <div className="flex flex-col">
       <div className="mb-2 rounded-lg border border-[oklch(0.92_0.19_115)]/30 bg-[oklch(0.92_0.19_115)]/10 px-3 py-2 text-xs">
@@ -931,7 +960,7 @@ function ExercisePicker({
         <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar exercício..." className="pl-9" />
       </div>
-      <div className="mt-3 max-h-[52vh] space-y-2 overflow-y-auto pr-1">
+      <div className="mt-3 max-h-[46vh] space-y-2 overflow-y-auto pr-1">
         {isLoading ? (
           <div className="grid place-items-center py-8"><Loader2 className="h-4 w-4 animate-spin text-muted-foreground" /></div>
         ) : filtered.length === 0 ? (
@@ -942,11 +971,16 @@ function ExercisePicker({
           filtered.map((e) => {
             const diff = difficultyStyle(e.difficulty);
             const groups = [e.group, ...e.muscles_secondary].filter(Boolean) as string[];
+            const isSelected = selectedIds.has(e.id);
             return (
               <button
                 key={e.id}
-                onClick={() => onPick({ id: e.id, name: e.name })}
-                className="group flex w-full items-center gap-3 rounded-xl border border-border/60 bg-background/40 p-2.5 text-left hover:border-border hover:bg-muted/40"
+                onClick={() => toggle(e.id)}
+                className={`group flex w-full items-center gap-3 rounded-xl border p-2.5 text-left transition-colors ${
+                  isSelected
+                    ? "border-[oklch(0.92_0.19_115)]/60 bg-[oklch(0.92_0.19_115)]/5"
+                    : "border-border/60 bg-background/40 hover:border-border hover:bg-muted/40"
+                }`}
               >
                 <div className="relative grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-lg bg-muted">
                   {e.image_path ? (
@@ -974,16 +1008,48 @@ function ExercisePicker({
                     ))}
                   </div>
                 </div>
-                <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full border border-border/70 group-hover:border-primary" />
+                {isSelected ? (
+                  <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[oklch(0.92_0.19_115)] text-black">
+                    <Check className="h-3.5 w-3.5" strokeWidth={3} />
+                  </span>
+                ) : (
+                  <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full border border-border/70 group-hover:border-primary" />
+                )}
               </button>
             );
           })
         )}
       </div>
-      <CustomExerciseInput onAdd={(name) => onPick({ id: null, name })} />
+      <CustomExerciseInput onAdd={(name) => setCustomPicks((prev) => [...prev, { id: null, name }])} />
+      {totalSelected > 0 && (
+        <div className="mt-3 flex items-center justify-between gap-3 rounded-2xl border border-[oklch(0.92_0.19_115)]/40 bg-card p-3">
+          <div className="flex items-center gap-3">
+            <span className="grid h-9 w-9 place-items-center rounded-full border border-[oklch(0.92_0.19_115)]/60 text-sm font-bold text-[oklch(0.92_0.19_115)]">
+              {totalSelected}
+            </span>
+            <div className="leading-tight">
+              <div className="text-sm font-semibold text-foreground">exercícios selecionados</div>
+              <button
+                type="button"
+                onClick={() => { setSelectedIds(new Set()); setCustomPicks([]); }}
+                className="text-xs text-muted-foreground underline-offset-2 hover:underline"
+              >
+                Limpar seleção
+              </button>
+            </div>
+          </div>
+          <button
+            onClick={handleCommit}
+            className="inline-flex h-9 items-center gap-1 rounded-full bg-[oklch(0.92_0.19_115)] px-4 text-sm font-semibold text-black hover:brightness-110"
+          >
+            Adicionar
+          </button>
+        </div>
+      )}
     </div>
   );
 }
+
 
 
 function CustomExerciseInput({ onAdd }: { onAdd: (name: string) => void }) {
