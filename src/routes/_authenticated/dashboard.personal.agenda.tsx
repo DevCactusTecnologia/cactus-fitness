@@ -374,6 +374,29 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
   );
 }
 
+function AlunoSelect({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const [items, setItems] = useState<{ id: string; full_name: string }[]>([]);
+  useEffect(() => {
+    supabase.from("alunos").select("id, full_name").eq("is_active", true).order("full_name")
+      .then(({ data }) => setItems((data ?? []) as { id: string; full_name: string }[]));
+  }, []);
+  return (
+    <div className="relative">
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full appearance-none rounded-lg border border-border bg-background/40 px-3 py-2 pr-9 text-sm focus:border-primary focus:outline-none"
+      >
+        <option value="">Selecione um aluno</option>
+        {items.map((a) => (
+          <option key={a.id} value={a.full_name}>{a.full_name}</option>
+        ))}
+      </select>
+      <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+    </div>
+  );
+}
+
 function Toggle({ checked, onChange }: { checked: boolean; onChange: (v: boolean) => void }) {
   return (
     <button type="button" role="switch" aria-checked={checked} onClick={() => onChange(!checked)}
