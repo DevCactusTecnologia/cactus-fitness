@@ -221,23 +221,28 @@ function TreinosPage() {
 }
 
 type Tone = "green" | "purple" | "blue";
-const TONE: Record<Tone, string> = {
-  green: "bg-primary/15 text-primary",
-  purple: "bg-[oklch(0.55_0.22_300)]/15 text-[oklch(0.75_0.18_300)]",
-  blue: "bg-[oklch(0.6_0.18_240)]/15 text-[oklch(0.75_0.15_240)]",
+const TONE_ICON: Record<Tone, string> = {
+  green: "text-primary",
+  purple: "text-[oklch(0.75_0.18_300)]",
+  blue: "text-[oklch(0.75_0.15_240)]",
+};
+const TONE_BG: Record<Tone, string> = {
+  green: "lg:bg-primary/10",
+  purple: "lg:bg-[oklch(0.55_0.22_300)]/10",
+  blue: "lg:bg-[oklch(0.6_0.18_240)]/10",
 };
 
 function StatCard({
   icon: Icon, value, label, tone = "green",
 }: { icon: React.ElementType; value: number; label: string; tone?: Tone }) {
   return (
-    <div className="flex flex-col items-center justify-center gap-1.5 rounded-2xl border border-border bg-card p-2.5 text-center sm:flex-row sm:gap-3 sm:p-4">
-      <div className={`grid h-7 w-7 place-items-center rounded-lg sm:h-9 sm:w-9 ${TONE[tone]}`}>
-        <Icon className="h-4 w-4 sm:h-5 sm:w-5" />
+    <div className="rounded-xl bg-card/50 p-3 text-center lg:flex lg:items-center lg:gap-3 lg:p-4 lg:text-left">
+      <div className={`lg:flex lg:h-10 lg:w-10 lg:shrink-0 lg:items-center lg:justify-center lg:rounded-lg ${TONE_BG[tone]}`}>
+        <Icon className={`mx-auto mb-1 h-5 w-5 lg:mx-0 lg:mb-0 ${TONE_ICON[tone]}`} />
       </div>
-      <div className="flex flex-col items-center">
-        <div className="text-lg font-bold leading-none sm:text-2xl">{value}</div>
-        <div className="mt-1 text-[10px] leading-tight text-muted-foreground sm:text-xs">{label}</div>
+      <div className="lg:min-w-0">
+        <p className="font-display text-lg font-bold lg:text-2xl lg:leading-none">{value}</p>
+        <p className="text-[10px] text-muted-foreground lg:mt-1 lg:text-xs">{label}</p>
       </div>
     </div>
   );
