@@ -150,7 +150,7 @@ function useSaveSection<K extends keyof Avaliacao>(id: string, column: K) {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (payload: Avaliacao[K]) => {
-      const patch: Record<string, unknown> = { [column as string]: payload };
+      const patch = { [column as string]: payload } as never;
       const { error } = await supabase.from("avaliacoes").update(patch).eq("id", id);
       if (error) throw error;
     },
