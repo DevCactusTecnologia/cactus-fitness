@@ -253,10 +253,10 @@ function AlunosPage() {
                     key={a.id}
                     to="/dashboard/personal/alunos/$alunoId"
                     params={{ alunoId: a.id }}
-                    className="grid grid-cols-[1.6fr_1fr_1fr_auto] items-center gap-4 px-5 py-4 transition hover:bg-accent/50"
+                    className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-4 py-3 transition hover:bg-accent/50 sm:grid-cols-[1.6fr_1fr_1fr_auto] sm:px-5 sm:py-4"
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="grid h-10 w-10 place-items-center rounded-full bg-primary/20 text-sm font-bold text-primary font-display ring-2 ring-border">
+                    <div className="flex min-w-0 items-center gap-3">
+                      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary/20 text-sm font-bold text-primary font-display ring-2 ring-border">
                         {initialsFromName(a.full_name, a.email)}
                       </div>
                       <div className="min-w-0">
@@ -264,7 +264,7 @@ function AlunosPage() {
                         <div className="truncate text-xs text-muted-foreground">{a.email ?? "sem e-mail"}</div>
                       </div>
                     </div>
-                    <div>
+                    <div className="hidden sm:block">
                       {a.is_active ? (
                         <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/15 px-2.5 py-0.5 text-xs font-medium text-primary">
                           <span className="h-1.5 w-1.5 rounded-full bg-primary" />
@@ -276,10 +276,10 @@ function AlunosPage() {
                         </span>
                       )}
                     </div>
-                    <div className="text-sm text-muted-foreground">
+                    <div className="hidden text-sm text-muted-foreground sm:block">
                       {new Date(a.updated_at).toLocaleDateString("pt-BR")}
                     </div>
-                    <span className="grid h-8 w-8 place-items-center rounded-lg text-muted-foreground">
+                    <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-muted-foreground">
                       <ChevronRight className="h-4 w-4" />
                     </span>
                   </Link>
