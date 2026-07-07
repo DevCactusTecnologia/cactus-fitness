@@ -335,9 +335,9 @@ function InformacoesTab({ aluno }: { aluno: Aluno }) {
 
       <div className="mt-6 space-y-3 border-t border-border pt-4">
         <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Ranking</h3>
-        <div className="rounded-xl border border-border bg-background/40 p-4">
+        <div className="rounded-xl border border-border bg-transparent p-4">
           <div className="flex items-center gap-3">
-            <div className="grid h-11 w-11 shrink-0 place-items-center rounded-2xl bg-accent text-primary">
+            <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-muted/40 text-muted-foreground">
               <Trophy className="h-5 w-5" />
             </div>
             <div className="min-w-0">
@@ -351,17 +351,23 @@ function InformacoesTab({ aluno }: { aluno: Aluno }) {
       </div>
 
       <div className="mt-6 space-y-4 border-t border-border pt-4">
-        <div className="flex flex-wrap items-center gap-4">
+        <div className="flex flex-wrap items-center gap-2">
           <button className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3.5 py-2 text-sm font-semibold hover:bg-accent">
             <Pencil className="h-4 w-4" /> Editar dados
           </button>
-          <button className="inline-flex items-center gap-1.5 px-2 py-2 text-sm font-semibold text-destructive hover:opacity-80">
+          <button className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-semibold text-[oklch(0.72_0.18_45)] transition hover:bg-[oklch(0.72_0.18_45)]/10">
             <Lock className="h-4 w-4" /> {aluno.is_active ? "Desativar aluno" : "Ativar aluno"}
           </button>
-          <button className="inline-flex items-center gap-1.5 px-2 py-2 text-sm font-semibold text-destructive hover:opacity-80">
+          <button className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-semibold text-[oklch(0.68_0.22_25)] transition hover:bg-[oklch(0.68_0.22_25)]/10">
             <Trash2 className="h-4 w-4" /> Excluir aluno
           </button>
         </div>
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <span>Cadastrado em {formatDate(aluno.created_at)}</span>
+          <span>Atualizado em {formatDate(aluno.updated_at)}</span>
+        </div>
+      </div>
+
         <div className="flex items-center justify-between text-xs text-muted-foreground">
           <span>Cadastrado em {formatDate(aluno.created_at)}</span>
           <span>Atualizado em {formatDate(aluno.updated_at)}</span>
