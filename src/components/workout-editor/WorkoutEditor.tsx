@@ -621,36 +621,41 @@ function BlockCard({
   const hasExercises = block.exercises.length > 0;
   return (
     <div
-      className={`rounded-xl border ${isActive ? "ring-1 ring-primary/40" : ""} bg-background/40`}
+      className={`overflow-hidden rounded-lg border ${isActive ? "ring-1 ring-primary/40" : ""} bg-background/40`}
       style={{ borderColor: isActive ? undefined : `${color}55` }}
     >
-      <div className="flex items-center gap-2 px-3 pt-3">
-        <GripVertical className="h-4 w-4 shrink-0 text-muted-foreground/60" />
-        <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: color }} />
-        <span
-          className="min-w-0 flex-1 truncate text-sm font-bold uppercase tracking-wide"
-          style={{ color }}
-        >
-          {block.label}
-        </span>
-        <span className="shrink-0 text-xs text-muted-foreground">
-          {block.exercises.length} {block.exercises.length === 1 ? "ex" : "exs"}
-        </span>
-        <button
-          onClick={() => dispatch({ type: "REMOVE_BLOCK", sessionId, blockId: block.id })}
-          className="grid h-7 w-7 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-destructive"
-          aria-label="Remover bloco"
-          title="Remover bloco"
-        >
-          <MoreHorizontal className="h-4 w-4" />
-        </button>
+      <div
+        className="px-3 pt-3 pb-2"
+        style={{ backgroundColor: `${color}14` }}
+      >
+        <div className="flex items-center gap-2">
+          <GripVertical className="h-4 w-4 shrink-0 text-muted-foreground/60" />
+          <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: color }} />
+          <span
+            className="min-w-0 flex-1 truncate text-sm font-bold uppercase tracking-wide"
+            style={{ color }}
+          >
+            {block.label}
+          </span>
+          <span className="shrink-0 text-xs text-muted-foreground">
+            {block.exercises.length} {block.exercises.length === 1 ? "ex" : "exs"}
+          </span>
+          <button
+            onClick={() => dispatch({ type: "REMOVE_BLOCK", sessionId, blockId: block.id })}
+            className="grid h-7 w-7 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-destructive"
+            aria-label="Remover bloco"
+            title="Remover bloco"
+          >
+            <MoreHorizontal className="h-4 w-4" />
+          </button>
+        </div>
+        {block.description && !hasExercises && (
+          <p className="mt-1 pl-6 text-xs text-muted-foreground">{block.description}</p>
+        )}
       </div>
 
-      {block.description && !hasExercises && (
-        <p className="px-3 pt-1 text-xs text-muted-foreground">{block.description}</p>
-      )}
+      <div className="space-y-2 border-t border-border/50 p-3">
 
-      <div className="mt-3 space-y-2 border-t border-border/50 p-3">
         {block.exercises.map((e, ei) => (
           <ExerciseRow
             key={e.id}
