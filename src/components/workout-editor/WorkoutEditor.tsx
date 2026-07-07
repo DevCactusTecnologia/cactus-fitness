@@ -785,7 +785,15 @@ function TextField({ label, value, onChange, placeholder }: { label: string; val
 
 /* ---------- Side panel ---------- */
 
-type ExerciseCatalog = { id: number; name: string; group: string | null };
+type ExerciseCatalog = {
+  id: number;
+  name: string;
+  group: string | null;
+  difficulty: string | null;
+  image_path: string | null;
+  muscles_primary: string[];
+  muscles_secondary: string[];
+};
 
 function SidePanel({
   kind, state, dispatch, activeTarget, onPicked,
@@ -849,11 +857,18 @@ function resolveTarget(state: State, active: { sessionId: string; blockId: strin
     const b = s?.blocks.find(x => x.id === active.blockId);
     if (s && b) return { sessionId: s.id, blockId: b.id };
   }
-  // fallback: first block of first session
   const s = state.sessions[0];
   const b = s?.blocks[0];
   if (s && b) return { sessionId: s.id, blockId: b.id };
   return null;
+}
+
+function difficultyStyle(d: string | null | undefined) {
+  const k = (d ?? "").toLowerCase();
+  if (k.startsWith("inici")) return { dot: "#22c55e", text: "text-[#22c55e]", label: "Iniciante" };
+  if (k.startsWith("inter")) return { dot: "#eab308", text: "text-[#eab308]", label: "Intermediário" };
+  if (k.startsWith("avan"))  return { dot: "#ef4444", text: "text-[#ef4444]", label: "Avançado" };
+  return { dot: "hsl(var(--muted-foreground))", text: "text-muted-foreground", label: d ?? "—" };
 }
 
 function ExercisePicker({
@@ -869,7 +884,7 @@ function ExercisePicker({
     queryFn: async (): Promise<ExerciseCatalog[]> => {
       const { data, error } = await supabase
         .from("exercises")
-        .select("id, name, exercise_groups(name)")
+        .select("id, name, difficulty, image_path, muscles_primary, muscles_secondary, exercise_groups(name)")
         .order("name", { ascending: true })
         .limit(500);
       if (error) throw error;
@@ -877,7 +892,15 @@ function ExercisePicker({
         type GroupRef = { name: string | null } | { name: string | null }[] | null;
         const g = r.exercise_groups as GroupRef;
         const name = Array.isArray(g) ? (g[0]?.name ?? null) : (g?.name ?? null);
-        return { id: r.id as number, name: r.name as string, group: name };
+        return {
+          id: r.id as number,
+          name: r.name as string,
+          group: name,
+          difficulty: (r.difficulty as string | null) ?? null,
+          image_path: (r.image_path as string | null) ?? null,
+          muscles_primary: (r.muscles_primary as string[] | null) ?? [],
+          muscles_secondary: (r.muscles_secondary as string[] | null) ?? [],
+        };
       });
     },
   });
@@ -899,14 +922,16 @@ function ExercisePicker({
 
   return (
     <div className="flex flex-col">
-      <div className="mb-2 text-xs text-muted-foreground">
-        Adicionando em: <span className="font-medium text-foreground">{targetLabel}</span>
+      <div className="mb-2 rounded-lg border border-[oklch(0.92_0.19_115)]/30 bg-[oklch(0.92_0.19_115)]/10 px-3 py-2 text-xs">
+        <span className="mr-2 inline-block h-1.5 w-1.5 rounded-full bg-[oklch(0.92_0.19_115)] align-middle" />
+        <span className="text-muted-foreground">Adicionando em: </span>
+        <span className="font-semibold text-foreground">{targetLabel}</span>
       </div>
       <div className="relative">
         <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
         <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar exercício..." className="pl-9" />
       </div>
-      <div className="mt-3 max-h-[52vh] space-y-1 overflow-y-auto pr-1">
+      <div className="mt-3 max-h-[52vh] space-y-2 overflow-y-auto pr-1">
         {isLoading ? (
           <div className="grid place-items-center py-8"><Loader2 className="h-4 w-4 animate-spin text-muted-foreground" /></div>
         ) : filtered.length === 0 ? (
@@ -914,23 +939,52 @@ function ExercisePicker({
             Nenhum exercício encontrado. Cadastre em Exercícios ou digite abaixo.
           </p>
         ) : (
-          filtered.map((e) => (
-            <button
-              key={e.id}
-              onClick={() => onPick({ id: e.id, name: e.name })}
-              className="flex w-full items-center gap-2 rounded-lg border border-transparent px-2 py-1.5 text-left text-sm hover:border-border hover:bg-muted"
-            >
-              <Dumbbell className="h-3.5 w-3.5 text-primary" />
-              <span className="flex-1 truncate">{e.name}</span>
-              {e.group && <span className="text-[10px] uppercase text-muted-foreground">{e.group}</span>}
-            </button>
-          ))
+          filtered.map((e) => {
+            const diff = difficultyStyle(e.difficulty);
+            const groups = [e.group, ...e.muscles_secondary].filter(Boolean) as string[];
+            return (
+              <button
+                key={e.id}
+                onClick={() => onPick({ id: e.id, name: e.name })}
+                className="group flex w-full items-center gap-3 rounded-xl border border-border/60 bg-background/40 p-2.5 text-left hover:border-border hover:bg-muted/40"
+              >
+                <div className="relative grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-lg bg-muted">
+                  {e.image_path ? (
+                    <img src={e.image_path} alt="" className="h-full w-full object-cover" loading="lazy" />
+                  ) : (
+                    <Dumbbell className="h-5 w-5 text-muted-foreground" />
+                  )}
+                  <span className="absolute inset-0 grid place-items-center">
+                    <span className="grid h-6 w-6 place-items-center rounded-full bg-[oklch(0.92_0.19_115)] text-black shadow">
+                      <Play className="h-3 w-3 fill-black" />
+                    </span>
+                  </span>
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-sm font-semibold text-foreground">{e.name}</div>
+                  <div className="mt-0.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px]">
+                    <span className={`inline-flex items-center gap-1 font-medium ${diff.text}`}>
+                      <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: diff.dot }} />
+                      {diff.label}
+                    </span>
+                    {groups.slice(0, 3).map((g, i) => (
+                      <span key={`${g}-${i}`} className={`text-muted-foreground ${i === 0 ? "" : "italic"}`}>
+                        · {g}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+                <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full border border-border/70 group-hover:border-primary" />
+              </button>
+            );
+          })
         )}
       </div>
       <CustomExerciseInput onAdd={(name) => onPick({ id: null, name })} />
     </div>
   );
 }
+
 
 function CustomExerciseInput({ onAdd }: { onAdd: (name: string) => void }) {
   const [name, setName] = useState("");
