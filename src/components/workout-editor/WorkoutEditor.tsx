@@ -78,7 +78,7 @@ const uid = () => Math.random().toString(36).slice(2, 10);
 
 const emptyBlock = (idx: number): Block => ({
   id: uid(),
-  label: `Bloco ${String.fromCharCode(65 + idx)}`,
+  label: "",
   exercises: [],
 });
 
@@ -657,6 +657,9 @@ function BlockCard({
   isActive: boolean;
 }) {
   const color = block.color ?? "hsl(var(--muted-foreground))";
+  const blockLabel = block.label.trim();
+  const isAutoBlockLabel = /^bloco\s+[a-z]$/i.test(blockLabel);
+  const isExplicitBlock = Boolean(block.color || block.description || (blockLabel && !isAutoBlockLabel));
   const hasExercises = block.exercises.length > 0;
   const exCount = block.exercises.length;
   const totalSeconds = block.exercises.reduce((sum, e) => {
@@ -671,47 +674,49 @@ function BlockCard({
       className={`overflow-hidden rounded-lg border ${isActive ? "ring-1 ring-primary/40" : ""} bg-background/40`}
       style={{ borderColor: isActive ? undefined : `${color}55` }}
     >
-      <div className="flex items-center gap-2 px-3 pt-2.5 pb-2">
-        <span
-          className="h-2 w-2 shrink-0 rounded-full"
-          style={{ backgroundColor: color }}
-          aria-hidden
-        />
-        <span
-          className="min-w-0 truncate text-[11px] font-bold uppercase tracking-wider"
-          style={{ color }}
-        >
-          {block.label}
-        </span>
-        {hasExercises && (
-          <span className="inline-flex min-w-0 flex-1 items-center gap-1.5 text-[11px] text-muted-foreground">
-            <span className="text-muted-foreground/60">·</span>
-            <span>{exCount} {exCount === 1 ? "ex" : "exs"}</span>
-            <span className="text-muted-foreground/60">·</span>
-            <span>~{totalMin} min</span>
+      {isExplicitBlock && (
+        <div className="flex items-center gap-2 px-3 pt-2.5 pb-2">
+          <span
+            className="h-2 w-2 shrink-0 rounded-full"
+            style={{ backgroundColor: color }}
+            aria-hidden
+          />
+          <span
+            className="min-w-0 truncate text-[11px] font-bold uppercase tracking-wider"
+            style={{ color }}
+          >
+            {block.label}
           </span>
-        )}
-        {!hasExercises && <span className="flex-1" />}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <button
-              className="grid h-7 w-7 shrink-0 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
-              aria-label="Ações do bloco"
-            >
-              <MoreHorizontal className="h-4 w-4" />
-            </button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-40">
-            <DropdownMenuItem
-              onClick={() => dispatch({ type: "REMOVE_BLOCK", sessionId, blockId: block.id })}
-              className="text-destructive focus:text-destructive"
-            >
-              <Trash2 className="mr-2 h-4 w-4" /> Remover bloco
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-      </div>
-      {block.description && (
+          {hasExercises && (
+            <span className="inline-flex min-w-0 flex-1 items-center gap-1.5 text-[11px] text-muted-foreground">
+              <span className="text-muted-foreground/60">·</span>
+              <span>{exCount} {exCount === 1 ? "ex" : "exs"}</span>
+              <span className="text-muted-foreground/60">·</span>
+              <span>~{totalMin} min</span>
+            </span>
+          )}
+          {!hasExercises && <span className="flex-1" />}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                className="grid h-7 w-7 shrink-0 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+                aria-label="Ações do bloco"
+              >
+                <MoreHorizontal className="h-4 w-4" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-40">
+              <DropdownMenuItem
+                onClick={() => dispatch({ type: "REMOVE_BLOCK", sessionId, blockId: block.id })}
+                className="text-destructive focus:text-destructive"
+              >
+                <Trash2 className="mr-2 h-4 w-4" /> Remover bloco
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      )}
+      {isExplicitBlock && block.description && (
         <p className="border-b border-border/60 px-3 pb-2 text-xs text-muted-foreground">{block.description}</p>
       )}
 
