@@ -433,7 +433,7 @@ function ComposicaoCorporalCard({ avaliacao }: { avaliacao: Avaliacao }) {
     peso: avaliacao.composicao_corporal.peso ?? "",
     altura: avaliacao.composicao_corporal.altura ?? "",
     meta_gordura: avaliacao.composicao_corporal.meta_gordura ?? "",
-    protocolo: avaliacao.composicao_corporal.protocolo ?? "pollock_7",
+    protocolo: avaliacao.composicao_corporal.protocolo ?? "",
     ...avaliacao.composicao_corporal,
   }));
   const set = (k: string, v: string) => setForm((f) => ({ ...f, [k]: v }));
