@@ -359,7 +359,7 @@ function QuickTile({ icon: Icon, label }: { icon: React.ElementType; label: stri
       <div className="grid h-11 w-11 place-items-center rounded-full bg-primary/10 text-primary">
         <Icon className="h-5 w-5" strokeWidth={1.75} />
       </div>
-      <span className="max-w-full break-words text-xs font-medium leading-tight text-foreground/85">{label}</span>
+      <span className="max-w-full break-words text-[11px] font-medium leading-tight text-foreground/85">{label}</span>
     </button>
   );
 }
