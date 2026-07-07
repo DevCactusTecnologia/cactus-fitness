@@ -2,9 +2,9 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
-  Home, Users, Dumbbell, ClipboardCheck, Wallet, Bell, Plus, PanelLeftClose,
+  Plus,
   ArrowLeft, LogIn, Mail, Phone, ShieldAlert, Calendar, User,
-  Clock, Trophy, Pencil, Power, Trash2, Tag, Copy, FileText, Sparkles, Loader2,
+  Clock, Trophy, Pencil, Trash2, Tag, Copy, FileText, Sparkles, Loader2, Lock,
 } from "lucide-react";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
@@ -14,6 +14,8 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { initialsFromName } from "@/lib/auth";
+import { IconRail } from "@/components/IconRail";
+import { MobileBottomNav } from "@/components/MobileBottomNav";
 
 export const Route = createFileRoute("/_authenticated/dashboard/personal/alunos/$alunoId")({
   head: () => ({
@@ -51,25 +53,6 @@ function useAluno(alunoId: string) {
   });
 }
 
-function SidebarIcon({
-  icon: Icon, active, badge, to,
-}: { icon: React.ElementType; active?: boolean; badge?: string; to?: string }) {
-  const cls = `relative grid h-10 w-10 place-items-center rounded-xl transition ${
-    active ? "bg-primary/15 text-primary" : "text-sidebar-foreground/70 hover:bg-white/5 hover:text-sidebar-foreground"
-  }`;
-  const content = (
-    <>
-      <Icon className="h-5 w-5" />
-      {badge && (
-        <span className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground">
-          {badge}
-        </span>
-      )}
-    </>
-  );
-  if (to) return <Link to={to} className={cls}>{content}</Link>;
-  return <button className={cls}>{content}</button>;
-}
 
 function Row({
   icon: Icon, label, value, valueNode,
@@ -132,23 +115,10 @@ function AlunoDetailPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <aside className="fixed inset-y-0 left-0 z-20 flex w-16 flex-col items-center gap-2 border-r border-border bg-sidebar py-4">
-        <Link to="/" className="mb-2 grid h-10 w-10 place-items-center rounded-xl bg-primary text-primary-foreground">
-          <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor"><path d="M12 2c-3 4-3 8 0 12 3-4 3-8 0-12zm-7 10c4 3 8 3 12 0-4-3-8-3-12 0zm7 10c-3-4-3-8 0-12 3 4 3 8 0 12z"/></svg>
-        </Link>
-        <SidebarIcon icon={Home} to="/" />
-        <SidebarIcon icon={Users} to="/dashboard/personal/alunos" active />
-        <SidebarIcon icon={Dumbbell} />
-        <SidebarIcon icon={ClipboardCheck} />
-        <SidebarIcon icon={Wallet} />
-        <div className="mt-auto flex flex-col items-center gap-2">
-          <SidebarIcon icon={Plus} />
-          <SidebarIcon icon={Bell} />
-          <SidebarIcon icon={PanelLeftClose} />
-        </div>
-      </aside>
+      <IconRail />
 
-      <main className="ml-16 p-4 md:p-6">
+      <main className="pb-24 md:ml-[72px] md:pb-0 p-4 md:p-6">
+
         <div className="mx-auto max-w-4xl space-y-4">
           <Link to="/dashboard/personal/alunos" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
             <ArrowLeft className="h-4 w-4" /> voltar
@@ -221,6 +191,7 @@ function AlunoDetailPage() {
           </div>
         </div>
       </main>
+      <MobileBottomNav />
 
       <Dialog open={novoPlanoOpen} onOpenChange={setNovoPlanoOpen}>
         <DialogContent className="max-w-lg gap-0 p-0">
@@ -359,14 +330,14 @@ function InformacoesTab({ aluno }: { aluno: Aluno }) {
       </div>
 
       <div className="mt-6 space-y-4 border-t border-border pt-4">
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-4">
           <button className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3.5 py-2 text-sm font-semibold hover:bg-accent">
             <Pencil className="h-4 w-4" /> Editar dados
           </button>
-          <button className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3.5 py-2 text-sm font-semibold hover:bg-accent">
-            <Power className="h-4 w-4" /> {aluno.is_active ? "Desativar aluno" : "Ativar aluno"}
+          <button className="inline-flex items-center gap-1.5 px-2 py-2 text-sm font-semibold text-destructive hover:opacity-80">
+            <Lock className="h-4 w-4" /> {aluno.is_active ? "Desativar aluno" : "Ativar aluno"}
           </button>
-          <button className="inline-flex items-center gap-1.5 rounded-full border border-destructive/40 bg-destructive/10 px-3.5 py-2 text-sm font-semibold text-destructive hover:bg-destructive/15">
+          <button className="inline-flex items-center gap-1.5 px-2 py-2 text-sm font-semibold text-destructive hover:opacity-80">
             <Trash2 className="h-4 w-4" /> Excluir aluno
           </button>
         </div>
@@ -378,6 +349,8 @@ function InformacoesTab({ aluno }: { aluno: Aluno }) {
     </>
   );
 }
+
+
 
 function TreinosTab({ firstName, onNovoPlano }: { firstName: string; onNovoPlano: () => void }) {
   return (
