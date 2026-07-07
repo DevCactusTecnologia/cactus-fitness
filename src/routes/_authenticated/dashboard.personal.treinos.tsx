@@ -21,23 +21,27 @@ function NovoModeloMenu({ trigger }: { trigger: React.ReactNode }) {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-72 rounded-xl p-2">
-        <DropdownMenuItem className="gap-3 rounded-lg p-3 focus:bg-muted">
-          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-[oklch(0.55_0.22_300)]/15 text-[oklch(0.75_0.18_300)]">
-            <Layers className="h-5 w-5" />
-          </span>
-          <span className="flex flex-col">
-            <span className="text-sm font-semibold text-foreground">Modelo de Plano</span>
-            <span className="text-xs text-muted-foreground">Agrupa vários treinos em uma rotina semanal</span>
-          </span>
+        <DropdownMenuItem asChild className="gap-3 rounded-lg p-3 focus:bg-muted">
+          <Link to="/dashboard/personal/treinos/novo-plano" className="flex items-start">
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-[oklch(0.55_0.22_300)]/15 text-[oklch(0.75_0.18_300)]">
+              <Layers className="h-5 w-5" />
+            </span>
+            <span className="flex flex-col">
+              <span className="text-sm font-semibold text-foreground">Modelo de Plano</span>
+              <span className="text-xs text-muted-foreground">Agrupa vários treinos em uma rotina semanal</span>
+            </span>
+          </Link>
         </DropdownMenuItem>
-        <DropdownMenuItem className="gap-3 rounded-lg p-3 focus:bg-muted">
-          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-[oklch(0.6_0.18_240)]/15 text-[oklch(0.75_0.15_240)]">
-            <Dumbbell className="h-5 w-5" />
-          </span>
-          <span className="flex flex-col">
-            <span className="text-sm font-semibold text-foreground">Template de Treino</span>
-            <span className="text-xs text-muted-foreground">Treino único reutilizável (ex: Peito/Tríceps)</span>
-          </span>
+        <DropdownMenuItem asChild className="gap-3 rounded-lg p-3 focus:bg-muted">
+          <Link to="/dashboard/personal/treinos/novo-template" className="flex items-start">
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-[oklch(0.6_0.18_240)]/15 text-[oklch(0.75_0.15_240)]">
+              <Dumbbell className="h-5 w-5" />
+            </span>
+            <span className="flex flex-col">
+              <span className="text-sm font-semibold text-foreground">Template de Treino</span>
+              <span className="text-xs text-muted-foreground">Treino único reutilizável (ex: Peito/Tríceps)</span>
+            </span>
+          </Link>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
