@@ -435,9 +435,10 @@ export function WorkoutEditor({ kind }: { kind: EditorKind }) {
           </div>
         </header>
 
-        <main className="px-4 py-5 md:px-8">
+        <main className="px-3 py-4 sm:px-4 sm:py-5 md:px-8">
           {/* Name / description / Configurações */}
-          <div className="flex items-start gap-3">
+          <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-start">
+
             <div className="flex-1 space-y-1">
               <div className="group relative rounded-lg border border-border/50 bg-card/40 px-4 py-3 transition hover:border-border">
                 <Input
@@ -518,7 +519,7 @@ export function WorkoutEditor({ kind }: { kind: EditorKind }) {
               ))}
               <button
                 onClick={() => dispatch({ type: "ADD_SESSION" })}
-                className="inline-flex h-11 min-w-[220px] items-center justify-center gap-2 rounded-full border border-dashed border-border/70 px-4 text-sm font-medium text-muted-foreground hover:bg-muted"
+                className="inline-flex h-11 w-full sm:w-auto min-w-0 sm:min-w-[220px] items-center justify-center gap-2 rounded-full border border-dashed border-border/70 px-4 text-sm font-medium text-muted-foreground hover:bg-muted"
               >
                 <Plus className="h-4 w-4" /> Adicionar sessão
               </button>
@@ -580,7 +581,7 @@ function SessionCard({
   const groupsCount = session.blocks.filter((b) => b.color || b.exercises.length > 0).length || 1;
 
   return (
-    <div className="w-[360px] overflow-hidden rounded-xl border border-border/60 bg-card/60">
+    <div className="w-full sm:w-[360px] overflow-hidden rounded-xl border border-border/60 bg-card/60">
       <div className="flex items-center gap-2 border-b border-border/60 px-4 py-3">
         <GripVertical className="h-4 w-4 shrink-0 text-muted-foreground/60" />
         <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[oklch(0.92_0.19_115)]/15 text-xs font-bold text-[oklch(0.92_0.19_115)]">
