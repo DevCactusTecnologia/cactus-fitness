@@ -326,7 +326,7 @@ function NextEventCard() {
       <span className="absolute inset-y-3 left-0 w-1 rounded-r-full bg-amber-500" />
       <div className="min-w-0 flex-1 pl-2">
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
-          <Calendar className="h-3.5 w-3.5" /> Próximo evento
+          <CalendarDays className="h-3.5 w-3.5" /> Próximo evento
         </div>
         <div className="mt-1 truncate text-base font-bold font-display">{event.title}</div>
         <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
