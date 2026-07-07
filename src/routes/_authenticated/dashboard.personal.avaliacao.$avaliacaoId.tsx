@@ -2,9 +2,9 @@ import { createFileRoute, notFound } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
-  ChevronDown, Loader2, Save, Plus, Trash2, Upload,
+  ChevronDown, Loader2, Save, Plus, Trash2, Upload, X,
   Activity, Ruler, Bone, HeartPulse, Zap, StretchHorizontal, Dumbbell,
-  Weight, Camera, PersonStanding, FileText, Share2,
+  Weight, Camera, PersonStanding, FileText, Share2, Image as ImageIcon,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -13,6 +13,7 @@ import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 export const Route = createFileRoute("/_authenticated/dashboard/personal/avaliacao/$avaliacaoId")({
   head: () => ({
@@ -153,7 +154,16 @@ function NumField({ label, value, onChange }: { label: string; value: string; on
   return (
     <div className="space-y-1.5">
       <Label className="text-xs text-muted-foreground">{label}</Label>
-      <Input className="h-9 border-border-subtle bg-background text-foreground shadow-none focus-visible:ring-primary/35" type="number" inputMode="decimal" value={value} onChange={(e) => onChange(e.target.value)} step="any" />
+      <Input
+        className="h-9 border-border-subtle bg-background text-foreground shadow-none focus-visible:ring-primary/35 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+        type="text"
+        inputMode="decimal"
+        value={value}
+        onChange={(e) => {
+          const v = e.target.value.replace(/[^0-9.,-]/g, "");
+          onChange(v);
+        }}
+      />
     </div>
   );
 }
@@ -169,14 +179,18 @@ function SelectField({ label, value, onChange, options, placeholder = "Selecione
   return (
     <div className="space-y-1.5">
       <Label className="text-xs text-muted-foreground">{label}</Label>
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="flex h-9 w-full rounded-md border border-border-subtle bg-background px-3 py-1 text-sm text-foreground shadow-none focus:outline-none focus:ring-2 focus:ring-primary/35"
-      >
-        <option value="">{placeholder}</option>
-        {options.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
-      </select>
+      <Select value={value || undefined} onValueChange={onChange}>
+        <SelectTrigger className="h-9 border-border-subtle bg-background text-foreground shadow-none focus:ring-primary/35">
+          <SelectValue placeholder={placeholder} />
+        </SelectTrigger>
+        <SelectContent className="rounded-xl border-border bg-popover/95 backdrop-blur-xl">
+          {options.map((o) => (
+            <SelectItem key={o.value} value={o.value} className="rounded-lg text-sm">
+              {o.label}
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
     </div>
   );
 }
@@ -558,16 +572,53 @@ function FotosCard({ avaliacao }: { avaliacao: Avaliacao }) {
   const [uploading, setUploading] = useState<Record<string, boolean>>({});
   const save = useSaveSection(avaliacao.id, "fotos");
 
+  const renderToast = (id: string | number, file: File, pct: number, status: "uploading" | "done" | "error", errMsg?: string) => {
+    return (
+      <div className="pointer-events-auto flex w-[340px] items-center gap-3 overflow-hidden rounded-2xl border border-border/60 bg-card/95 p-3 shadow-[0_20px_50px_-15px_rgba(0,0,0,0.6),0_0_40px_-10px_hsl(var(--primary)/0.35)] backdrop-blur-xl">
+        <div className="relative grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary/10">
+          {status === "uploading" ? (
+            <Loader2 className="h-4 w-4 animate-spin text-primary" />
+          ) : status === "done" ? (
+            <ImageIcon className="h-4 w-4 text-primary" />
+          ) : (
+            <X className="h-4 w-4 text-destructive" />
+          )}
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-semibold text-foreground">{file.name}</p>
+          <p className="mt-0.5 text-xs text-muted-foreground">
+            {status === "uploading" ? `Enviando... ${Math.round(pct)}%` : status === "done" ? "Enviado com sucesso" : errMsg ?? "Falha no envio"}
+          </p>
+          <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-border/60">
+            <div
+              className={`h-full rounded-full transition-all duration-200 ${status === "error" ? "bg-destructive" : "bg-primary"}`}
+              style={{ width: `${status === "done" ? 100 : pct}%` }}
+            />
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={() => toast.dismiss(id)}
+          className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-muted-foreground hover:bg-accent hover:text-foreground"
+          aria-label="Fechar"
+        >
+          <X className="h-4 w-4" />
+        </button>
+      </div>
+    );
+  };
+
   const handleUpload = async (tipo: string, file: File) => {
     const k = keyOf(tipo);
     setUploading((u) => ({ ...u, [k]: true }));
-    const toastId = toast.loading(file.name, { description: "Enviando... 0%" });
-    // simulated progress (supabase-js v2 upload não expõe progresso)
     let pct = 0;
+    const id = toast.custom(() => renderToast("tmp", file, pct, "uploading"), { duration: Infinity });
+    const update = (p: number, status: "uploading" | "done" | "error", err?: string) =>
+      toast.custom(() => renderToast(id, file, p, status, err), { id, duration: status === "uploading" ? Infinity : 3500 });
     const timer = setInterval(() => {
-      pct = Math.min(pct + Math.random() * 20, 90);
-      toast.loading(file.name, { id: toastId, description: `Enviando... ${Math.round(pct)}%` });
-    }, 250);
+      pct = Math.min(pct + Math.random() * 18, 90);
+      update(pct, "uploading");
+    }, 220);
     try {
       const ext = file.name.split(".").pop() || "jpg";
       const path = `${avaliacao.id}/${k}-${Date.now()}.${ext}`;
@@ -581,13 +632,20 @@ function FotosCard({ avaliacao }: { avaliacao: Avaliacao }) {
       setForm(next);
       await save.mutateAsync(next);
       clearInterval(timer);
-      toast.success(file.name, { id: toastId, description: "Enviado com sucesso" });
+      update(100, "done");
     } catch (e: any) {
       clearInterval(timer);
-      toast.error(file.name, { id: toastId, description: e?.message ?? "Falha no upload" });
+      update(pct, "error", e?.message);
     } finally {
       setUploading((u) => ({ ...u, [k]: false }));
     }
+  };
+
+  const handleRemove = async (tipo: string) => {
+    const k = keyOf(tipo);
+    const next = { ...form, [k]: "" };
+    setForm(next);
+    await save.mutateAsync(next);
   };
 
   return (
@@ -600,22 +658,34 @@ function FotosCard({ avaliacao }: { avaliacao: Avaliacao }) {
           return (
             <div key={t}>
               <p className="mb-2 text-[11px] font-medium tracking-wide text-muted-foreground/70">{t}</p>
-              <label className="relative flex aspect-[3/4] w-full cursor-pointer items-center justify-center rounded-2xl border border-dashed border-border/60 bg-background/20 transition hover:border-border hover:bg-background/40">
-                {url ? (
-                  <img src={url} alt={t} className="h-full w-full rounded-2xl object-cover" />
-                ) : (
-                  <div className="flex flex-col items-center gap-2 text-muted-foreground/60">
-                    <Upload className="h-5 w-5" strokeWidth={1.5} />
-                    <span className="text-xs">{isUp ? "Enviando..." : "Enviar"}</span>
-                  </div>
+              <div className="group relative">
+                <label className="relative flex aspect-[3/4] w-full cursor-pointer items-center justify-center overflow-hidden rounded-2xl border border-dashed border-border/60 bg-background/20 transition hover:border-border hover:bg-background/40">
+                  {url ? (
+                    <img src={url} alt={t} className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="flex flex-col items-center gap-2 text-muted-foreground/60">
+                      <Upload className="h-5 w-5" strokeWidth={1.5} />
+                      <span className="text-xs">{isUp ? "Enviando..." : "Enviar"}</span>
+                    </div>
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(t, f); e.target.value = ""; }}
+                  />
+                </label>
+                {url && (
+                  <button
+                    type="button"
+                    onClick={() => handleRemove(t)}
+                    className="absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-full border border-border/60 bg-background/80 text-foreground opacity-0 backdrop-blur transition hover:bg-destructive hover:text-destructive-foreground group-hover:opacity-100"
+                    aria-label={`Remover ${t}`}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
                 )}
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(t, f); e.target.value = ""; }}
-                />
-              </label>
+              </div>
             </div>
           );
         })}
