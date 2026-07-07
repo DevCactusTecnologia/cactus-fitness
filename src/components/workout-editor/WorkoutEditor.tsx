@@ -491,9 +491,18 @@ function SessionCard({
   onPickTargetBlock: (blockId: string) => void;
   activeBlockId: string | null;
 }) {
+  const [editing, setEditing] = useState(false);
+  const inputRef = useRef<HTMLInputElement | null>(null);
   const displayName = session.label.startsWith("Treino ") ? session.label : `Treino ${session.label}`;
   const letter = (session.label.replace(/^Treino\s+/i, "")[0] ?? "A").toUpperCase();
   const hasBlocks = session.blocks.some(b => b.exercises.length > 0);
+  void index; void total;
+
+  function startEdit() {
+    setEditing(true);
+    requestAnimationFrame(() => { inputRef.current?.focus(); inputRef.current?.select(); });
+  }
+
   return (
     <div className="w-[300px] rounded-xl border border-border/60 bg-card/60 p-3">
       <div className="flex items-center gap-2">
@@ -501,30 +510,40 @@ function SessionCard({
         <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[oklch(0.92_0.19_115)]/15 text-[10px] font-bold text-[oklch(0.92_0.19_115)]">
           {letter}
         </span>
-        <input
-          value={displayName}
-          onChange={(e) => dispatch({ type: "RENAME_SESSION", sessionId: session.id, label: e.target.value.replace(/^Treino\s+/i, "") || "A" })}
-          className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-foreground outline-none"
-        />
-        <button className="grid h-6 w-6 place-items-center rounded text-muted-foreground/70 hover:bg-muted hover:text-foreground" aria-label="Renomear">
+        {editing ? (
+          <input
+            ref={inputRef}
+            value={displayName}
+            onChange={(e) => dispatch({ type: "RENAME_SESSION", sessionId: session.id, label: e.target.value.replace(/^Treino\s+/i, "") || "A" })}
+            onBlur={() => setEditing(false)}
+            onKeyDown={(e) => { if (e.key === "Enter" || e.key === "Escape") setEditing(false); }}
+            className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-foreground outline-none"
+          />
+        ) : (
+          <span className="min-w-0 flex-1 truncate text-sm font-semibold text-foreground">{displayName}</span>
+        )}
+        <button
+          onClick={startEdit}
+          className="grid h-6 w-6 place-items-center rounded text-muted-foreground/70 hover:bg-muted hover:text-foreground"
+          aria-label="Editar nome"
+        >
           <Pencil className="h-3.5 w-3.5" />
         </button>
-        <ReorderButtons
-          onUp={() => dispatch({ type: "MOVE_SESSION", sessionId: session.id, dir: -1 })}
-          onDown={() => dispatch({ type: "MOVE_SESSION", sessionId: session.id, dir: 1 })}
-          canUp={index > 0}
-          canDown={index < total - 1}
-          small
-        />
-        {total > 1 && (
-          <button
-            onClick={() => dispatch({ type: "REMOVE_SESSION", sessionId: session.id })}
-            className="grid h-6 w-6 place-items-center rounded text-muted-foreground/70 hover:bg-muted hover:text-destructive"
-            aria-label="Remover sessão"
-          >
-            <Trash2 className="h-3.5 w-3.5" />
-          </button>
-        )}
+        <button
+          onClick={() => dispatch({ type: "DUPLICATE_SESSION", sessionId: session.id })}
+          className="grid h-6 w-6 place-items-center rounded text-muted-foreground/70 hover:bg-muted hover:text-foreground"
+          aria-label="Duplicar sessão"
+          title="Duplicar sessão"
+        >
+          <Copy className="h-3.5 w-3.5" />
+        </button>
+        <button
+          onClick={() => dispatch({ type: "REMOVE_SESSION", sessionId: session.id })}
+          className="grid h-6 w-6 place-items-center rounded text-muted-foreground/70 hover:bg-muted hover:text-destructive"
+          aria-label="Remover sessão"
+        >
+          <Trash2 className="h-3.5 w-3.5" />
+        </button>
       </div>
 
       {hasBlocks && (
