@@ -276,7 +276,7 @@ function ActionButton({ icon: Icon, label }: { icon: React.ElementType; label: s
       <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
         <Icon className="h-5 w-5" strokeWidth={1.75} />
       </div>
-      <span className="min-w-0 flex-1 text-base font-bold leading-tight sm:text-lg">{label}</span>
+      <span className="min-w-0 flex-1 text-sm font-bold leading-tight sm:text-base">{label}</span>
     </button>
   );
 }
