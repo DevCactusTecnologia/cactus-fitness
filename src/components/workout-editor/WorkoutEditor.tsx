@@ -100,6 +100,23 @@ function reducer(state: State, action: Action): State {
       const idx = state.sessions.findIndex(s => s.id === action.sessionId);
       return { ...state, sessions: move(state.sessions, idx, action.dir) };
     }
+    case "DUPLICATE_SESSION": {
+      const idx = state.sessions.findIndex(s => s.id === action.sessionId);
+      if (idx < 0) return state;
+      const src = state.sessions[idx];
+      const copy: Session = {
+        id: uid(),
+        label: src.label,
+        blocks: src.blocks.map(b => ({
+          id: uid(),
+          label: b.label,
+          exercises: b.exercises.map(e => ({ ...e, id: uid() })),
+        })),
+      };
+      const next = state.sessions.slice();
+      next.splice(idx + 1, 0, copy);
+      return { ...state, sessions: next };
+    }
     case "RENAME_SESSION":
       return { ...state, sessions: state.sessions.map(s => s.id === action.sessionId ? { ...s, label: action.label } : s) };
     case "ADD_BLOCK":
