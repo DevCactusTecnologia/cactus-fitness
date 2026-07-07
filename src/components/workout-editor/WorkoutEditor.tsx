@@ -498,12 +498,11 @@ export function WorkoutEditor({ kind }: { kind: EditorKind }) {
                   isActive={activeTarget?.blockId === b.id}
                 />
               ))}
-              <button
-                onClick={() => dispatch({ type: "ADD_BLOCK", sessionId: state.sessions[0].id })}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-dashed border-border/70 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted"
-              >
-                <Plus className="h-4 w-4" /> Adicionar bloco
-              </button>
+              <AddBlockButton
+                sessionId={state.sessions[0].id}
+                dispatch={dispatch}
+                size="lg"
+              />
             </div>
           )}
         </main>
