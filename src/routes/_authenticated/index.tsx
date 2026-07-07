@@ -353,16 +353,21 @@ function MobilePulseCard() {
 }
 
 
-function QuickTile({ icon: Icon, label }: { icon: React.ElementType; label: string }) {
-  return (
-    <button className="flex min-w-0 flex-col items-center gap-2 py-2 text-center">
+function QuickTile({ icon: Icon, label, to }: { icon: React.ElementType; label: string; to?: string }) {
+  const inner = (
+    <>
       <div className="grid h-11 w-11 place-items-center rounded-full bg-primary/10 text-primary">
         <Icon className="h-5 w-5" strokeWidth={1.75} />
       </div>
       <span className="max-w-full break-words text-[11px] font-medium leading-tight text-foreground/85">{label}</span>
-    </button>
+    </>
   );
+  const cls = "flex min-w-0 flex-col items-center gap-2 py-2 text-center";
+  if (to) return <Link to={to} className={cls}>{inner}</Link>;
+  return <button className={cls}>{inner}</button>;
 }
+
+
 
 function ReferralBanner() {
   return (
@@ -502,7 +507,7 @@ function Dashboard() {
               <div className="rounded-lg border border-border bg-card p-4 md:p-6">
                 <div className="grid min-w-0 grid-cols-4 gap-2 sm:gap-3 md:grid-cols-5">
                   <QuickTile icon={Users} label="Alunos" />
-                  <QuickTile icon={HeartPulse} label="Avaliações" />
+                  <QuickTile icon={HeartPulse} label="Avaliações" to="/dashboard/personal/avaliacoes" />
                   <QuickTile icon={Dumbbell} label="Treinos" />
                   <QuickTile icon={Dumbbell} label="Exercícios" />
                   <QuickTile icon={Trophy} label="Desafios" />
