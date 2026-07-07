@@ -980,49 +980,63 @@ function ExerciseDetailSheet({
               <span />
             </div>
             <div className="space-y-1">
-              {rows.map((i) => (
-                <div key={i} className="grid grid-cols-[130px_minmax(0,1fr)_80px_32px] items-center gap-2 py-1">
-                  <button
-                    type="button"
-                    className="flex h-10 min-w-0 items-center gap-2 rounded-full border border-border bg-muted pl-1.5 pr-2 transition-colors hover:border-foreground/30"
-                  >
-                    <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-card text-xs font-bold">{i + 1}</span>
-                    <span className="flex-1 truncate text-left text-sm font-semibold">Normal</span>
-                    <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const v = window.prompt("Reps / alvo", item.reps || "12");
-                      if (v != null) onChange({ reps: v });
-                    }}
-                    className="flex h-10 items-center justify-center rounded-full border border-border bg-muted px-4 text-sm font-semibold transition-colors hover:border-foreground/30"
-                  >
-                    {item.reps ? `${item.reps} reps` : "— reps"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const v = window.prompt("Descanso (segundos)", String(item.rest_seconds ?? 60));
-                      if (v != null) onChange({ rest_seconds: v === "" ? null : Number(v) });
-                    }}
-                    aria-label="Descanso após esta série"
-                    className="flex h-10 min-w-[64px] items-center justify-center gap-1 rounded-full border border-border bg-muted px-3 text-xs font-semibold tabular-nums transition-colors hover:border-foreground/30"
-                  >
-                    <Clock className="h-3.5 w-3.5" />
-                    {item.rest_seconds ?? 60}s
-                  </button>
-                  <button
-                    type="button"
-                    onClick={removeSet}
-                    aria-label="Remover série"
-                    className="grid h-8 w-8 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
-              ))}
+              {rows.map((i) => {
+                const currentType = (item.set_types?.[i] ?? "normal") as SetType;
+                const meta = setTypeMeta(currentType);
+                const setType = (t: SetType) => {
+                  const arr = [...(item.set_types ?? [])];
+                  while (arr.length < setsCount) arr.push("normal");
+                  arr[i] = t;
+                  onChange({ set_types: arr.slice(0, setsCount) });
+                };
+                const removeThisSet = () => {
+                  const arr = [...(item.set_types ?? [])];
+                  arr.splice(i, 1);
+                  onChange({ sets: Math.max(0, (item.sets ?? 0) - 1), set_types: arr });
+                };
+                return (
+                  <div key={i} className="grid grid-cols-[130px_minmax(0,1fr)_80px_32px] items-center gap-2 py-1">
+                    <SetTypePickerButton
+                      index={i}
+                      currentType={currentType}
+                      onSelect={setType}
+                      onRemoveSet={removeThisSet}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const v = window.prompt("Reps / alvo", item.reps || "12");
+                        if (v != null) onChange({ reps: v });
+                      }}
+                      className="flex h-10 items-center justify-center rounded-full border border-border bg-muted px-4 text-sm font-semibold transition-colors hover:border-foreground/30"
+                    >
+                      {item.reps ? `${item.reps} reps` : "— reps"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const v = window.prompt("Descanso (segundos)", String(item.rest_seconds ?? 60));
+                        if (v != null) onChange({ rest_seconds: v === "" ? null : Number(v) });
+                      }}
+                      aria-label="Descanso após esta série"
+                      className="flex h-10 min-w-[64px] items-center justify-center gap-1 rounded-full border border-border bg-muted px-3 text-xs font-semibold tabular-nums transition-colors hover:border-foreground/30"
+                    >
+                      <Clock className="h-3.5 w-3.5" />
+                      {item.rest_seconds ?? 60}s
+                    </button>
+                    <button
+                      type="button"
+                      onClick={removeThisSet}
+                      aria-label="Remover série"
+                      className="grid h-8 w-8 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                );
+              })}
             </div>
+
             <button
               type="button"
               onClick={addSet}
