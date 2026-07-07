@@ -1088,31 +1088,30 @@ function ExercisePicker({
         <CustomExerciseInput onAdd={(name) => setCustomPicks((prev) => [...prev, { id: null, name }])} />
       </div>
       {totalSelected > 0 && (
-        <div className="flex shrink-0 items-center justify-between gap-3 border-t border-border bg-background px-5 py-3">
-          <div className="flex items-center gap-3">
-            <span className="grid h-9 w-9 place-items-center rounded-full border-2 border-primary/60 text-sm font-bold text-primary">
+        <div className="flex shrink-0 items-center gap-2 border-t border-border bg-card px-3 py-3">
+          <button
+            type="button"
+            onClick={() => { setSelectedIds(new Set()); setCustomPicks([]); }}
+            className="-m-1 flex min-w-0 flex-1 items-center gap-2.5 rounded-lg p-1 text-left transition-opacity hover:bg-muted/40 active:opacity-70"
+            aria-label="Ver lista de selecionados"
+          >
+            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border-2 border-primary bg-primary/15 text-sm font-bold tabular-nums text-primary">
               {totalSelected}
             </span>
-            <div className="leading-tight">
-              <div className="text-sm font-semibold text-foreground">exercícios selecionados</div>
-              <button
-                type="button"
-                onClick={() => { setSelectedIds(new Set()); setCustomPicks([]); }}
-                className="text-xs text-muted-foreground underline-offset-2 hover:underline"
-              >
-                Ver lista
-              </button>
-
-            </div>
-          </div>
+            <span className="min-w-0 flex-1 leading-tight">
+              <span className="block truncate text-sm font-semibold text-foreground">exercícios selecionados</span>
+              <span className="block truncate text-[11px] text-primary">Ver lista</span>
+            </span>
+          </button>
           <button
             onClick={handleCommit}
-            className="inline-flex h-10 items-center gap-1 rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground hover:brightness-110"
+            className="inline-flex h-10 shrink-0 items-center justify-center rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground shadow-[0_0_20px_-4px_hsl(var(--primary)/0.6)] transition-all hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0 active:scale-[0.97]"
           >
             Adicionar
           </button>
         </div>
       )}
+
     </div>
   );
 }
