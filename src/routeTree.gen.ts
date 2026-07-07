@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as DashboardPersonalTreinosRouteImport } from './routes/dashboard.personal.treinos'
 import { Route as DashboardPersonalExerciciosRouteImport } from './routes/dashboard.personal.exercicios'
 import { Route as DashboardPersonalAgendaRouteImport } from './routes/dashboard.personal.agenda'
 import { Route as DashboardPersonalAlunosIndexRouteImport } from './routes/dashboard.personal.alunos.index'
@@ -20,6 +21,12 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardPersonalTreinosRoute =
+  DashboardPersonalTreinosRouteImport.update({
+    id: '/dashboard/personal/treinos',
+    path: '/dashboard/personal/treinos',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const DashboardPersonalExerciciosRoute =
   DashboardPersonalExerciciosRouteImport.update({
     id: '/dashboard/personal/exercicios',
@@ -48,6 +55,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/dashboard/personal/agenda': typeof DashboardPersonalAgendaRoute
   '/dashboard/personal/exercicios': typeof DashboardPersonalExerciciosRoute
+  '/dashboard/personal/treinos': typeof DashboardPersonalTreinosRoute
   '/dashboard/personal/alunos/$alunoId': typeof DashboardPersonalAlunosAlunoIdRoute
   '/dashboard/personal/alunos/': typeof DashboardPersonalAlunosIndexRoute
 }
@@ -55,6 +63,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dashboard/personal/agenda': typeof DashboardPersonalAgendaRoute
   '/dashboard/personal/exercicios': typeof DashboardPersonalExerciciosRoute
+  '/dashboard/personal/treinos': typeof DashboardPersonalTreinosRoute
   '/dashboard/personal/alunos/$alunoId': typeof DashboardPersonalAlunosAlunoIdRoute
   '/dashboard/personal/alunos': typeof DashboardPersonalAlunosIndexRoute
 }
@@ -63,6 +72,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/dashboard/personal/agenda': typeof DashboardPersonalAgendaRoute
   '/dashboard/personal/exercicios': typeof DashboardPersonalExerciciosRoute
+  '/dashboard/personal/treinos': typeof DashboardPersonalTreinosRoute
   '/dashboard/personal/alunos/$alunoId': typeof DashboardPersonalAlunosAlunoIdRoute
   '/dashboard/personal/alunos/': typeof DashboardPersonalAlunosIndexRoute
 }
@@ -72,6 +82,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard/personal/agenda'
     | '/dashboard/personal/exercicios'
+    | '/dashboard/personal/treinos'
     | '/dashboard/personal/alunos/$alunoId'
     | '/dashboard/personal/alunos/'
   fileRoutesByTo: FileRoutesByTo
@@ -79,6 +90,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard/personal/agenda'
     | '/dashboard/personal/exercicios'
+    | '/dashboard/personal/treinos'
     | '/dashboard/personal/alunos/$alunoId'
     | '/dashboard/personal/alunos'
   id:
@@ -86,6 +98,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dashboard/personal/agenda'
     | '/dashboard/personal/exercicios'
+    | '/dashboard/personal/treinos'
     | '/dashboard/personal/alunos/$alunoId'
     | '/dashboard/personal/alunos/'
   fileRoutesById: FileRoutesById
@@ -94,6 +107,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   DashboardPersonalAgendaRoute: typeof DashboardPersonalAgendaRoute
   DashboardPersonalExerciciosRoute: typeof DashboardPersonalExerciciosRoute
+  DashboardPersonalTreinosRoute: typeof DashboardPersonalTreinosRoute
   DashboardPersonalAlunosAlunoIdRoute: typeof DashboardPersonalAlunosAlunoIdRoute
   DashboardPersonalAlunosIndexRoute: typeof DashboardPersonalAlunosIndexRoute
 }
@@ -105,6 +119,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard/personal/treinos': {
+      id: '/dashboard/personal/treinos'
+      path: '/dashboard/personal/treinos'
+      fullPath: '/dashboard/personal/treinos'
+      preLoaderRoute: typeof DashboardPersonalTreinosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard/personal/exercicios': {
@@ -142,6 +163,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   DashboardPersonalAgendaRoute: DashboardPersonalAgendaRoute,
   DashboardPersonalExerciciosRoute: DashboardPersonalExerciciosRoute,
+  DashboardPersonalTreinosRoute: DashboardPersonalTreinosRoute,
   DashboardPersonalAlunosAlunoIdRoute: DashboardPersonalAlunosAlunoIdRoute,
   DashboardPersonalAlunosIndexRoute: DashboardPersonalAlunosIndexRoute,
 }

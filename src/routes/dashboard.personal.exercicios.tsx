@@ -4,7 +4,7 @@ import {
   Home, Calendar, GraduationCap, SlidersHorizontal, Plus, Bell, Users,
   Dumbbell, ClipboardCheck, Trophy, Search, ChevronLeft, Play,
   SlidersHorizontal as FilterIcon, Loader2, AlertTriangle, X, Check,
-  ArrowLeft, ArrowRight, Video, Info, Target, ListChecks,
+  ArrowLeft, ArrowRight, Video, Info, Target, ListChecks, ClipboardList,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
@@ -122,6 +122,7 @@ function IconRail() {
       </div>
       <SidebarIconBtn icon={Home} to="/" label="Início" />
       <SidebarIconBtn icon={Users} to="/dashboard/personal/alunos" label="Alunos" />
+      <SidebarIconBtn icon={ClipboardList} to="/dashboard/personal/treinos" label="Treinos" />
       <SidebarIconBtn icon={Dumbbell} active label="Exercícios" />
       <SidebarIconBtn icon={ClipboardCheck} to="/" label="Avaliações" />
       <SidebarIconBtn icon={Trophy} to="/" label="Desafios" />
