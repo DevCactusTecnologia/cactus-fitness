@@ -7,6 +7,7 @@ import {
   Weight, Camera, PersonStanding, FileText, Share2,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import { IconRail } from "@/components/IconRail";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { Input } from "@/components/ui/input";
@@ -554,38 +555,71 @@ function FotosCard({ avaliacao }: { avaliacao: Avaliacao }) {
   const [form, setForm] = useState<Record<string, string>>(() =>
     Object.fromEntries(FOTOS_TIPOS.map((t) => [keyOf(t), avaliacao.fotos[keyOf(t)] ?? ""])),
   );
+  const [uploading, setUploading] = useState<Record<string, boolean>>({});
   const save = useSaveSection(avaliacao.id, "fotos");
+
+  const handleUpload = async (tipo: string, file: File) => {
+    const k = keyOf(tipo);
+    setUploading((u) => ({ ...u, [k]: true }));
+    const toastId = toast.loading(file.name, { description: "Enviando... 0%" });
+    // simulated progress (supabase-js v2 upload não expõe progresso)
+    let pct = 0;
+    const timer = setInterval(() => {
+      pct = Math.min(pct + Math.random() * 20, 90);
+      toast.loading(file.name, { id: toastId, description: `Enviando... ${Math.round(pct)}%` });
+    }, 250);
+    try {
+      const ext = file.name.split(".").pop() || "jpg";
+      const path = `${avaliacao.id}/${k}-${Date.now()}.${ext}`;
+      const { error } = await supabase.storage.from("avaliacao-fotos").upload(path, file, {
+        contentType: file.type, upsert: true,
+      });
+      if (error) throw error;
+      const { data: signed } = await supabase.storage.from("avaliacao-fotos").createSignedUrl(path, 60 * 60 * 24 * 365);
+      const url = signed?.signedUrl ?? "";
+      const next = { ...form, [k]: url };
+      setForm(next);
+      await save.mutateAsync(next);
+      clearInterval(timer);
+      toast.success(file.name, { id: toastId, description: "Enviado com sucesso" });
+    } catch (e: any) {
+      clearInterval(timer);
+      toast.error(file.name, { id: toastId, description: e?.message ?? "Falha no upload" });
+    } finally {
+      setUploading((u) => ({ ...u, [k]: false }));
+    }
+  };
+
   return (
     <Section icon={Camera} title="Fotos" colorClass="text-assessment-fuchsia">
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
         {FOTOS_TIPOS.map((t) => {
           const k = keyOf(t);
           const url = form[k];
+          const isUp = uploading[k];
           return (
-            <div key={t} className="rounded-xl border border-border bg-background/40 p-3">
-              <p className="mb-2 text-sm font-semibold">{t}</p>
-              {url ? (
-                <img src={url} alt={t} className="mb-2 aspect-[3/4] w-full rounded-lg object-cover" />
-              ) : (
-                <div className="mb-2 grid aspect-[3/4] w-full place-items-center rounded-lg border border-dashed border-border text-muted-foreground">
-                  <Camera className="h-6 w-6" />
-                </div>
-              )}
-              <button
-                type="button"
-                onClick={() => {
-                  const v = window.prompt(`URL da foto (${t}):`, url ?? "");
-                  if (v !== null) setForm((f) => ({ ...f, [k]: v }));
-                }}
-                className="inline-flex w-full items-center justify-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-xs font-semibold hover:bg-accent"
-              >
-                <Upload className="h-3.5 w-3.5" /> Enviar
-              </button>
+            <div key={t}>
+              <p className="mb-2 text-[11px] font-medium tracking-wide text-muted-foreground/70">{t}</p>
+              <label className="relative flex aspect-[3/4] w-full cursor-pointer items-center justify-center rounded-2xl border border-dashed border-border/60 bg-background/20 transition hover:border-border hover:bg-background/40">
+                {url ? (
+                  <img src={url} alt={t} className="h-full w-full rounded-2xl object-cover" />
+                ) : (
+                  <div className="flex flex-col items-center gap-2 text-muted-foreground/60">
+                    <Upload className="h-5 w-5" strokeWidth={1.5} />
+                    <span className="text-xs">{isUp ? "Enviando..." : "Enviar"}</span>
+                  </div>
+                )}
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => { const f = e.target.files?.[0]; if (f) handleUpload(t, f); e.target.value = ""; }}
+                />
+              </label>
             </div>
           );
         })}
       </div>
-      <SaveButton label="Salvar Fotos" onClick={() => save.mutate(form)} pending={save.isPending} />
     </Section>
   );
 }
