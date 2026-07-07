@@ -579,9 +579,17 @@ function SessionCard({
       </div>
 
 
-      {hasBlocks && (
-        <div className="mt-3 space-y-2">
-          {session.blocks.filter(b => b.exercises.length > 0).map((b, bi, arr) => (
+      <div className="mt-4 space-y-2">
+        <button
+          onClick={() => onPickTargetBlock(session.blocks[0].id)}
+          className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-border/70 bg-background/30 py-3 text-sm font-medium text-muted-foreground hover:bg-muted"
+        >
+          <Plus className="h-4 w-4" /> Adicionar exercício
+        </button>
+
+        {session.blocks
+          .filter((b) => b.color || b.exercises.length > 0)
+          .map((b, bi, arr) => (
             <BlockCard
               key={b.id}
               sessionId={session.id}
@@ -593,18 +601,10 @@ function SessionCard({
               isActive={activeBlockId === b.id}
             />
           ))}
-        </div>
-      )}
 
-      <div className="mt-4 space-y-2">
-        <button
-          onClick={() => onPickTargetBlock(session.blocks[0].id)}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-dashed border-border/70 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted"
-        >
-          <Plus className="h-4 w-4" /> Adicionar exercício
-        </button>
         <AddBlockButton sessionId={session.id} dispatch={dispatch} size="lg" />
       </div>
+
 
     </div>
   );
