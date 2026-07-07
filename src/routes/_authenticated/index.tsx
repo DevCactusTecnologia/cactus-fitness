@@ -146,14 +146,15 @@ function SidebarIconBtn({
 
 
 const NAV_ITEMS: { icon: React.ElementType; label: string; to: string; active?: boolean }[] = [
-  { icon: Home, label: "Início", to: "/", active: true },
-  { icon: Users, label: "Alunos", to: "/dashboard/personal/alunos" },
-  { icon: ClipboardList, label: "Treinos", to: "/dashboard/personal/treinos" },
-  { icon: Dumbbell, label: "Exercícios", to: "/dashboard/personal/exercicios" },
-  { icon: ClipboardCheck, label: "Avaliações", to: "/" },
+  { icon: LayoutDashboard, label: "Início", to: "/", active: true },
+  { icon: UsersIcon, label: "Alunos", to: "/dashboard/personal/alunos" },
+  { icon: Dumbbell, label: "Treinos", to: "/dashboard/personal/treinos" },
+  { icon: Flame, label: "Exercícios", to: "/dashboard/personal/exercicios" },
+  { icon: HeartPulse, label: "Avaliações", to: "/" },
   { icon: Trophy, label: "Desafios", to: "/" },
-  { icon: Calendar, label: "Agenda", to: "/dashboard/personal/agenda" },
+  { icon: CalendarDays, label: "Agenda", to: "/dashboard/personal/agenda" },
 ];
+
 
 
 function IconRail() {
