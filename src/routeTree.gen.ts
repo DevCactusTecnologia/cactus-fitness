@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as LoginRouteImport } from './routes/login'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as DashboardPersonalTreinosRouteImport } from './routes/dashboard.personal.treinos'
 import { Route as DashboardPersonalExerciciosRouteImport } from './routes/dashboard.personal.exercicios'
@@ -16,6 +17,11 @@ import { Route as DashboardPersonalAgendaRouteImport } from './routes/dashboard.
 import { Route as DashboardPersonalAlunosIndexRouteImport } from './routes/dashboard.personal.alunos.index'
 import { Route as DashboardPersonalAlunosAlunoIdRouteImport } from './routes/dashboard.personal.alunos.$alunoId'
 
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
@@ -53,6 +59,7 @@ const DashboardPersonalAlunosAlunoIdRoute =
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
   '/dashboard/personal/agenda': typeof DashboardPersonalAgendaRoute
   '/dashboard/personal/exercicios': typeof DashboardPersonalExerciciosRoute
   '/dashboard/personal/treinos': typeof DashboardPersonalTreinosRoute
@@ -61,6 +68,7 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
   '/dashboard/personal/agenda': typeof DashboardPersonalAgendaRoute
   '/dashboard/personal/exercicios': typeof DashboardPersonalExerciciosRoute
   '/dashboard/personal/treinos': typeof DashboardPersonalTreinosRoute
@@ -70,6 +78,7 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/login': typeof LoginRoute
   '/dashboard/personal/agenda': typeof DashboardPersonalAgendaRoute
   '/dashboard/personal/exercicios': typeof DashboardPersonalExerciciosRoute
   '/dashboard/personal/treinos': typeof DashboardPersonalTreinosRoute
@@ -80,6 +89,7 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/login'
     | '/dashboard/personal/agenda'
     | '/dashboard/personal/exercicios'
     | '/dashboard/personal/treinos'
@@ -88,6 +98,7 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/login'
     | '/dashboard/personal/agenda'
     | '/dashboard/personal/exercicios'
     | '/dashboard/personal/treinos'
@@ -96,6 +107,7 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/login'
     | '/dashboard/personal/agenda'
     | '/dashboard/personal/exercicios'
     | '/dashboard/personal/treinos'
@@ -105,6 +117,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  LoginRoute: typeof LoginRoute
   DashboardPersonalAgendaRoute: typeof DashboardPersonalAgendaRoute
   DashboardPersonalExerciciosRoute: typeof DashboardPersonalExerciciosRoute
   DashboardPersonalTreinosRoute: typeof DashboardPersonalTreinosRoute
@@ -114,6 +127,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -161,6 +181,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  LoginRoute: LoginRoute,
   DashboardPersonalAgendaRoute: DashboardPersonalAgendaRoute,
   DashboardPersonalExerciciosRoute: DashboardPersonalExerciciosRoute,
   DashboardPersonalTreinosRoute: DashboardPersonalTreinosRoute,
@@ -170,13 +191,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
