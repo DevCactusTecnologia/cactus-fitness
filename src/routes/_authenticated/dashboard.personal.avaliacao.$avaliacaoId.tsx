@@ -102,6 +102,8 @@ function AvaliacaoPage() {
         </header>
 
         <div className="mx-auto max-w-4xl space-y-3 p-4 md:p-6">
+          <AnaliseIACard avaliacao={data} />
+          <ResultadosCard avaliacao={data} />
           <ComposicaoCorporalCard avaliacao={data} />
           <PerimetrosCard avaliacao={data} />
           <PesoOsseoCard avaliacao={data} />
