@@ -12,6 +12,7 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { supabase } from "@/integrations/supabase/client";
+import { Toaster } from "@/components/ui/sonner";
 
 function NotFoundComponent() {
   return (
@@ -126,6 +127,18 @@ function RootComponent() {
   const router = useRouter();
 
   useEffect(() => {
+    try {
+      const raw = localStorage.getItem("cactus.customization.v1");
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (parsed?.primaryColor) {
+          import("./_authenticated/perfil").then((m) => m.applyPrimaryColor(parsed.primaryColor));
+        }
+      }
+    } catch {}
+  }, []);
+
+  useEffect(() => {
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
       router.invalidate();
@@ -137,6 +150,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <Outlet />
+      <Toaster />
     </QueryClientProvider>
   );
 }
