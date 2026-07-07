@@ -238,10 +238,11 @@ function PerfilPage() {
                         <input
                           value={brandTitle}
                           onChange={(e) => setBrandTitle(e.target.value)}
-                          className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm transition-colors placeholder:text-muted-foreground focus-visible:border-primary focus-visible:outline-none"
+                          className="flex h-11 w-full rounded-lg border border-input/60 bg-background/60 px-4 py-2 text-base font-light tracking-tight shadow-sm transition-colors placeholder:text-muted-foreground/70 focus-visible:border-primary focus-visible:outline-none"
                           placeholder="Nome da consultoria"
                         />
                       )}
+
                     </div>
                   </div>
                 </section>
