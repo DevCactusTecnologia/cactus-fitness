@@ -1016,8 +1016,10 @@ function ExercisePicker({
             ))}
           </PopoverContent>
         </Popover>
+      </div>
 
       <div className="border-t border-border" />
+
       <div className="min-h-0 flex-1 overflow-y-auto px-3 py-2">
         {isLoading ? (
           <div className="grid place-items-center py-8"><Loader2 className="h-4 w-4 animate-spin text-muted-foreground" /></div>
