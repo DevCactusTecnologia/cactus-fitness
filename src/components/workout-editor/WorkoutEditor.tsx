@@ -719,12 +719,12 @@ function ExerciseRow({
   const reps = (item.reps ?? "").toString().trim();
   const summary = item.sets && reps ? `${item.sets}×${reps}` : item.sets ? `${item.sets} séries` : reps ? reps : "—";
   return (
-    <div>
+    <>
       <div
         role="button"
         tabIndex={0}
-        onClick={() => setOpen((v) => !v)}
-        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpen((v) => !v); } }}
+        onClick={() => setOpen(true)}
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpen(true); } }}
         className="group relative flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-muted/40 px-2 py-2 text-sm transition-colors hover:bg-muted"
       >
         <button
@@ -757,23 +757,217 @@ function ExerciseRow({
           </button>
         </div>
       </div>
-      {open && (
-        <div className="mt-2 rounded-lg border border-border/60 bg-card p-2.5">
-          <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
-            <NumField label="Séries" value={item.sets} onChange={(v) => onChange({ sets: v })} />
-            <TextField label="Reps" value={item.reps} onChange={(v) => onChange({ reps: v })} placeholder="10" />
-            <NumField label="Descanso (s)" value={item.rest_seconds} onChange={(v) => onChange({ rest_seconds: v })} />
-            <TextField label="Carga" value={item.load} onChange={(v) => onChange({ load: v })} placeholder="—" />
+      <ExerciseDetailSheet
+        open={open}
+        onOpenChange={setOpen}
+        item={item}
+        onChange={onChange}
+        onRemove={onRemove}
+      />
+    </>
+  );
+}
+
+function ExerciseDetailSheet({
+  open, onOpenChange, item, onChange, onRemove,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  item: ExerciseItem;
+  onChange: (patch: Partial<ExerciseItem>) => void;
+  onRemove: () => void;
+}) {
+  const { data: meta } = useQuery({
+    queryKey: ["exercise-meta", item.exercise_id],
+    enabled: open && item.exercise_id != null,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("exercises")
+        .select("difficulty, muscles_primary, muscles_secondary, exercise_groups(name)")
+        .eq("id", item.exercise_id!)
+        .maybeSingle();
+      if (error) throw error;
+      type GroupRef = { name: string | null } | { name: string | null }[] | null;
+      const g = data?.exercise_groups as GroupRef;
+      const groupName = Array.isArray(g) ? (g[0]?.name ?? null) : (g?.name ?? null);
+      return {
+        difficulty: (data?.difficulty as string | null) ?? null,
+        group: groupName,
+        muscles_primary: (data?.muscles_primary as string[] | null) ?? [],
+        muscles_secondary: (data?.muscles_secondary as string[] | null) ?? [],
+      };
+    },
+  });
+
+  const diff = difficultyStyle(meta?.difficulty);
+  const setsCount = Math.max(item.sets ?? 0, 0);
+  const rows = Array.from({ length: setsCount }, (_, i) => i);
+  const addSet = () => onChange({ sets: (item.sets ?? 0) + 1 });
+  const removeSet = () => onChange({ sets: Math.max(0, (item.sets ?? 0) - 1) });
+
+  return (
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent side="right" className="flex w-full flex-col gap-0 p-0 sm:max-w-md">
+        <SheetHeader className="shrink-0 space-y-0 border-b border-border px-3 pb-3 pt-3 text-left">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => onOpenChange(false)}
+              className="-ml-2 flex shrink-0 items-center gap-1.5 rounded-md px-2 py-2 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              aria-label="Voltar"
+            >
+              <ChevronLeft className="h-5 w-5" />
+              <span className="hidden text-sm font-medium sm:inline">Voltar</span>
+            </button>
+            <div className="min-w-0 flex-1 text-center">
+              <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Exercício</div>
+              <SheetTitle className="truncate text-sm font-semibold text-foreground sm:text-base">
+                {item.name}
+              </SheetTitle>
+            </div>
+            <button
+              type="button"
+              onClick={onRemove}
+              className="grid h-9 w-9 shrink-0 place-items-center rounded-md bg-muted text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+              aria-label="Remover exercício"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
           </div>
-          <Textarea
-            value={item.notes}
-            onChange={(e) => onChange({ notes: e.target.value })}
-            placeholder="Observações (opcional)"
-            className="mt-2 min-h-[36px] text-xs"
-          />
+        </SheetHeader>
+
+        <div className="min-h-0 flex-1 space-y-4 overflow-y-auto p-4">
+          {/* Video placeholder */}
+          <div className="flex justify-center">
+            <div className="relative block aspect-video w-full overflow-hidden rounded-xl border border-border bg-muted">
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="grid h-12 w-12 place-items-center rounded-full bg-primary shadow-lg">
+                  <Play className="ml-0.5 h-5 w-5 fill-primary-foreground text-primary-foreground" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Difficulty + group */}
+          {meta && (
+            <div className="space-y-3 px-1">
+              <div className="flex flex-wrap items-center gap-2">
+                {meta.difficulty && (
+                  <span className={`rounded-full border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${diff.text} border-current/40`}>
+                    {diff.label}
+                  </span>
+                )}
+                {meta.group && (
+                  <span className="text-[11px] text-muted-foreground">{meta.group}</span>
+                )}
+              </div>
+              {meta.muscles_primary.length > 0 && (
+                <div className="space-y-1.5">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Principais</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {meta.muscles_primary.map((m, i) => (
+                      <span key={`p-${i}`} className="inline-flex items-center rounded-full bg-primary/15 px-2 py-0.5 text-[11px] font-medium text-primary">
+                        {m}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {meta.muscles_secondary.length > 0 && (
+                <div className="space-y-1.5">
+                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Auxiliares</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {meta.muscles_secondary.map((m, i) => (
+                      <span key={`s-${i}`} className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">
+                        {m}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Series config */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between gap-2 px-1">
+              <h4 className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Configuração de cada série</h4>
+            </div>
+            <div className="grid grid-cols-[130px_minmax(0,1fr)_80px_32px] gap-2 px-1 pb-0.5">
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Tipo</span>
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Alvo</span>
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Descanso</span>
+              <span />
+            </div>
+            <div className="space-y-1">
+              {rows.map((i) => (
+                <div key={i} className="grid grid-cols-[130px_minmax(0,1fr)_80px_32px] items-center gap-2 py-1">
+                  <button
+                    type="button"
+                    className="flex h-10 min-w-0 items-center gap-2 rounded-full border border-border bg-muted pl-1.5 pr-2 transition-colors hover:border-foreground/30"
+                  >
+                    <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-card text-xs font-bold">{i + 1}</span>
+                    <span className="flex-1 truncate text-left text-sm font-semibold">Normal</span>
+                    <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const v = window.prompt("Reps / alvo", item.reps || "12");
+                      if (v != null) onChange({ reps: v });
+                    }}
+                    className="flex h-10 items-center justify-center rounded-full border border-border bg-muted px-4 text-sm font-semibold transition-colors hover:border-foreground/30"
+                  >
+                    {item.reps ? `${item.reps} reps` : "— reps"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const v = window.prompt("Descanso (segundos)", String(item.rest_seconds ?? 60));
+                      if (v != null) onChange({ rest_seconds: v === "" ? null : Number(v) });
+                    }}
+                    aria-label="Descanso após esta série"
+                    className="flex h-10 min-w-[64px] items-center justify-center gap-1 rounded-full border border-border bg-muted px-3 text-xs font-semibold tabular-nums transition-colors hover:border-foreground/30"
+                  >
+                    <Clock className="h-3.5 w-3.5" />
+                    {item.rest_seconds ?? 60}s
+                  </button>
+                  <button
+                    type="button"
+                    onClick={removeSet}
+                    aria-label="Remover série"
+                    className="grid h-8 w-8 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={addSet}
+              className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-border py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+            >
+              <Plus className="h-4 w-4" /> Adicionar série
+            </button>
+          </div>
+
+          {/* Load + notes */}
+          <div className="space-y-2">
+            <TextField label="Carga" value={item.load} onChange={(v) => onChange({ load: v })} placeholder="—" />
+            <label className="flex flex-col gap-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              Observações
+              <Textarea
+                value={item.notes}
+                onChange={(e) => onChange({ notes: e.target.value })}
+                placeholder="Notas técnicas, dicas, cadência…"
+                className="min-h-[60px] text-xs"
+              />
+            </label>
+          </div>
         </div>
-      )}
-    </div>
+      </SheetContent>
+    </Sheet>
   );
 }
 
