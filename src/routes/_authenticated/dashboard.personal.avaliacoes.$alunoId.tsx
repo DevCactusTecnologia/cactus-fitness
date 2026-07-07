@@ -253,13 +253,10 @@ function NovaAvaliacaoDialog({
       if (error) throw error;
       return data.id as string;
     },
-    onSuccess: (id) => {
+    onSuccess: () => {
       onOpenChange(false);
       qc.invalidateQueries({ queryKey: ["avaliacoes", alunoId] });
       toast.success("Avaliação criada");
-      if (mode === "personal") {
-        navigate({ to: "/dashboard/personal/avaliacao/$avaliacaoId", params: { avaliacaoId: id } });
-      }
     },
     onError: (e: any) => toast.error(e.message ?? "Erro ao criar"),
   });
