@@ -929,3 +929,48 @@ function CustomExerciseInput({ onAdd }: { onAdd: (name: string) => void }) {
     </div>
   );
 }
+
+function AddBlockButton({
+  sessionId, dispatch, size = "sm",
+}: {
+  sessionId: string;
+  dispatch: React.Dispatch<Action>;
+  size?: "sm" | "lg";
+}) {
+  const [open, setOpen] = useState(false);
+  const cls = size === "lg"
+    ? "inline-flex w-full items-center justify-center gap-2 rounded-full border border-dashed border-border/70 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted"
+    : "inline-flex w-full items-center justify-center gap-2 rounded-full border border-dashed border-border/70 py-2 text-xs font-medium text-muted-foreground hover:bg-muted";
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button className={cls}>
+          <Plus className={size === "lg" ? "h-4 w-4" : "h-3.5 w-3.5"} /> Adicionar bloco
+        </button>
+      </PopoverTrigger>
+      <PopoverContent align="center" className="w-[320px] max-h-[420px] overflow-y-auto p-2">
+        <div className="px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+          Escolher tipo de bloco
+        </div>
+        <div className="space-y-0.5">
+          {BLOCK_PRESETS.map((p) => (
+            <button
+              key={p.key}
+              onClick={() => {
+                dispatch({ type: "ADD_BLOCK", sessionId, preset: p });
+                setOpen(false);
+              }}
+              className="flex w-full items-start gap-3 rounded-md px-2 py-2 text-left hover:bg-muted"
+            >
+              <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: p.color }} />
+              <div className="min-w-0 flex-1">
+                <div className="text-sm font-semibold" style={{ color: p.color }}>{p.label}</div>
+                <div className="text-xs text-muted-foreground">{p.description}</div>
+              </div>
+            </button>
+          ))}
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+}
