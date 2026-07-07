@@ -109,75 +109,8 @@ function ListRow({
   );
 }
 
-/* ---------- Sidebar ---------- */
+import { IconRail } from "@/components/IconRail";
 
-function SidebarIconBtn({
-  icon: Icon, active, badge, onClick, to, variant = "ghost", label,
-}: {
-  icon: React.ElementType; active?: boolean; badge?: string;
-  onClick?: () => void; to?: string; variant?: "ghost" | "primary"; label?: string;
-}) {
-  const base = "group relative grid h-11 w-11 place-items-center rounded-[10px] transition";
-  const styles =
-    variant === "primary"
-      ? "h-8 w-8 bg-primary text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.35)] hover:brightness-110"
-      : active
-      ? "bg-primary/20 text-primary"
-      : "text-sidebar-foreground/70 hover:bg-white/5 hover:text-sidebar-foreground";
-  const inner = (
-    <>
-      {active && <span className="absolute -left-3.5 top-1/2 h-7 w-1 -translate-y-1/2 rounded-r-full bg-primary" />}
-      <Icon className={variant === "primary" ? "h-4 w-4" : "h-5 w-5"} strokeWidth={1.75} />
-      {badge && (
-        <span className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-destructive px-1 text-[10px] font-semibold text-white">
-          {badge}
-        </span>
-      )}
-      {label && (
-        <span className="pointer-events-none absolute left-full ml-3 z-50 whitespace-nowrap rounded-md bg-popover px-2 py-1 text-xs font-medium text-popover-foreground shadow-md ring-1 ring-border opacity-0 group-hover:opacity-100 transition">
-          {label}
-        </span>
-      )}
-    </>
-  );
-  if (to) return <Link to={to} title={label} className={`${base} ${styles}`}>{inner}</Link>;
-  return <button onClick={onClick} title={label} className={`${base} ${styles}`}>{inner}</button>;
-}
-
-
-const NAV_ITEMS: { icon: React.ElementType; label: string; to: string; active?: boolean }[] = [
-  { icon: LayoutDashboard, label: "Início", to: "/", active: true },
-  { icon: UsersIcon, label: "Alunos", to: "/dashboard/personal/alunos" },
-  { icon: Dumbbell, label: "Treinos", to: "/dashboard/personal/treinos" },
-  { icon: Flame, label: "Exercícios", to: "/dashboard/personal/exercicios" },
-  { icon: HeartPulse, label: "Avaliações", to: "/" },
-  { icon: Trophy, label: "Desafios", to: "/" },
-  { icon: CalendarDays, label: "Agenda", to: "/dashboard/personal/agenda" },
-];
-
-
-
-function IconRail() {
-  return (
-    <aside className="fixed inset-y-0 left-0 z-40 hidden w-[72px] flex-col items-center gap-2 border-r border-border bg-sidebar py-4 md:flex">
-      <div className="mb-2 grid h-10 w-10 place-items-center rounded-xl">
-        <svg viewBox="0 0 32 32" className="h-7 w-7 text-primary" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M4 8 L10 24 L16 14 L22 24 L28 8" />
-        </svg>
-      </div>
-      {NAV_ITEMS.map((n) => (
-        <SidebarIconBtn key={n.label} icon={n.icon} active={n.active} to={n.to} label={n.label} />
-      ))}
-
-      <div className="mt-auto flex flex-col items-center gap-2">
-        
-        <SidebarIconBtn icon={Bell} badge="2" />
-        <UserAvatarMenu />
-      </div>
-    </aside>
-
-  );
-}
 
 /* ---------- Mobile top / bottom bars ---------- */
 

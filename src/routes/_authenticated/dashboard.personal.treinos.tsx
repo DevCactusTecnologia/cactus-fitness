@@ -2,14 +2,13 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
-  Home, Calendar, Bell, Users,
-  Dumbbell, ClipboardCheck, Trophy, ClipboardList, FolderPlus, Plus,
+  Dumbbell, FolderPlus, Plus,
   Info, ChevronDown, Layers, FileText, MoreHorizontal,
   ArrowLeft, Search, Loader2,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
-import { UserAvatarMenu } from "@/components/UserAvatarMenu";
+import { IconRail } from "@/components/IconRail";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -55,58 +54,6 @@ export const Route = createFileRoute("/_authenticated/dashboard/personal/treinos
   component: TreinosPage,
 });
 
-/* ---------- Sidebar ---------- */
-function SidebarIconBtn({
-  icon: Icon, active, badge, to, label,
-}: {
-  icon: React.ElementType; active?: boolean; badge?: string; to?: string; label?: string;
-}) {
-  const base = "group relative grid h-11 w-11 place-items-center rounded-[10px] transition";
-  const styles = active
-    ? "bg-primary/20 text-primary"
-    : "text-sidebar-foreground/70 hover:bg-white/5 hover:text-sidebar-foreground";
-  const inner = (
-    <>
-      {active && <span className="absolute -left-3.5 top-1/2 h-7 w-1 -translate-y-1/2 rounded-r-full bg-primary" />}
-      <Icon className="h-5 w-5" strokeWidth={1.75} />
-      {badge && (
-        <span className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-destructive px-1 text-[10px] font-semibold text-white">
-          {badge}
-        </span>
-      )}
-      {label && (
-        <span className="pointer-events-none absolute left-full ml-3 z-50 whitespace-nowrap rounded-md bg-popover px-2 py-1 text-xs font-medium text-popover-foreground shadow-md ring-1 ring-border opacity-0 group-hover:opacity-100 transition">
-          {label}
-        </span>
-      )}
-    </>
-  );
-  if (to) return <Link to={to} title={label} className={`${base} ${styles}`}>{inner}</Link>;
-  return <button title={label} className={`${base} ${styles}`}>{inner}</button>;
-}
-
-function IconRail() {
-  return (
-    <aside className="fixed inset-y-0 left-0 z-40 hidden w-[72px] flex-col items-center gap-2 border-r border-border bg-sidebar py-4 md:flex">
-      <div className="mb-2 grid h-10 w-10 place-items-center rounded-xl">
-        <svg viewBox="0 0 32 32" className="h-7 w-7 text-primary" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M4 8 L10 24 L16 14 L22 24 L28 8" />
-        </svg>
-      </div>
-      <SidebarIconBtn icon={Home} to="/" label="Início" />
-      <SidebarIconBtn icon={Users} to="/dashboard/personal/alunos" label="Alunos" />
-      <SidebarIconBtn icon={ClipboardList} active label="Treinos" />
-      <SidebarIconBtn icon={Dumbbell} to="/dashboard/personal/exercicios" label="Exercícios" />
-      <SidebarIconBtn icon={ClipboardCheck} to="/" label="Avaliações" />
-      <SidebarIconBtn icon={Trophy} to="/" label="Desafios" />
-      <SidebarIconBtn icon={Calendar} to="/dashboard/personal/agenda" label="Agenda" />
-      <div className="mt-auto flex flex-col items-center gap-2">
-        <SidebarIconBtn icon={Bell} badge="3" />
-        <UserAvatarMenu />
-      </div>
-    </aside>
-  );
-}
 
 /* ---------- Page ---------- */
 type Modelo = { id: string; name: string; description: string | null; created_at: string };
