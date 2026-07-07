@@ -71,6 +71,8 @@ export type Database = {
           created_at: string
           dinamometria: Json
           fotos: Json
+          ia_analysis: string | null
+          ia_visible_to_aluno: boolean
           id: string
           mode: string
           neuromotora: Json
@@ -90,6 +92,8 @@ export type Database = {
           created_at?: string
           dinamometria?: Json
           fotos?: Json
+          ia_analysis?: string | null
+          ia_visible_to_aluno?: boolean
           id?: string
           mode?: string
           neuromotora?: Json
@@ -109,6 +113,8 @@ export type Database = {
           created_at?: string
           dinamometria?: Json
           fotos?: Json
+          ia_analysis?: string | null
+          ia_visible_to_aluno?: boolean
           id?: string
           mode?: string
           neuromotora?: Json
