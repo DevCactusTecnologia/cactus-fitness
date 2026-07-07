@@ -1,11 +1,16 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
   Home, Calendar, Plus, Bell, Users,
-  Link2, Search, LayoutGrid, ChevronRight, ChevronDown, Play, Filter,
+  Link2, Search, LayoutGrid, ChevronRight, ChevronDown, Filter,
   Activity, CalendarDays, ArrowUpDown, Dumbbell, ClipboardCheck, Trophy, ClipboardList,
+  Loader2,
 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { UserAvatarMenu } from "@/components/UserAvatarMenu";
+import { initialsFromName } from "@/lib/auth";
 
 export const Route = createFileRoute("/_authenticated/dashboard/personal/alunos/")({
   head: () => ({
