@@ -2,9 +2,9 @@ import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
-  Home, Users, Dumbbell, ClipboardCheck, Wallet, Bell, Plus, PanelLeftClose,
+  Plus,
   ArrowLeft, LogIn, Mail, Phone, ShieldAlert, Calendar, User,
-  Clock, Trophy, Pencil, Power, Trash2, Tag, Copy, FileText, Sparkles, Loader2,
+  Clock, Trophy, Pencil, Trash2, Tag, Copy, FileText, Sparkles, Loader2, Lock,
 } from "lucide-react";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
@@ -14,6 +14,8 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { initialsFromName } from "@/lib/auth";
+import { IconRail } from "@/components/IconRail";
+import { MobileBottomNav } from "@/components/MobileBottomNav";
 
 export const Route = createFileRoute("/_authenticated/dashboard/personal/alunos/$alunoId")({
   head: () => ({
