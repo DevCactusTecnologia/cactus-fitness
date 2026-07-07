@@ -1,15 +1,17 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
   Home, Users, Calendar,
-  Plus, Bell, Crown, Wallet, Lock, Activity,
+  Bell, Crown, Wallet, Lock, Activity,
   ChevronDown, ChevronRight, Pencil, HeartPulse, Dumbbell, Trophy, Gift, ClipboardCheck, ClipboardList,
-  Lightbulb, Sparkles, Eye, ArrowRight, Menu as MenuIcon, Search,
+  Lightbulb, Sparkles, Eye, ArrowRight, Search,
   UserPlus, FileText, Link2, TrendingUp, AlertTriangle, Clock, MapPin,
 } from "lucide-react";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { UserAvatarMenu } from "@/components/UserAvatarMenu";
 import { supabase } from "@/integrations/supabase/client";
+import { useCurrentUser, firstName, initialsFromName } from "@/lib/auth";
 
 
 
