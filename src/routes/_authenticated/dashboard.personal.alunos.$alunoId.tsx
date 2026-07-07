@@ -127,10 +127,7 @@ function AlunoDetailPage() {
         {/* Sticky title bar */}
         <div className="sticky top-0 z-30 border-b border-border/60 bg-background/70 backdrop-blur-xl">
           <div className="px-4 py-4 sm:px-6 md:px-8">
-            <Link to="/dashboard/personal/alunos" className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground">
-              <ArrowLeft className="h-3.5 w-3.5" /> voltar
-            </Link>
-            <h1 className="mt-1 text-xl font-bold tracking-tight font-display sm:text-2xl">Perfil do Aluno</h1>
+            <h1 className="text-xl font-bold tracking-tight font-display sm:text-2xl">Perfil do Aluno</h1>
           </div>
         </div>
 
