@@ -62,6 +62,74 @@ export type Database = {
         }
         Relationships: []
       }
+      avaliacoes: {
+        Row: {
+          aluno_id: string
+          assessment_date: string
+          banco_wells: Json
+          composicao_corporal: Json
+          created_at: string
+          dinamometria: Json
+          fotos: Json
+          id: string
+          mode: string
+          neuromotora: Json
+          perimetros: Json
+          personal_id: string
+          peso_osseo: Json
+          postural: Json
+          teste_rm: Json
+          updated_at: string
+          vo2max: Json
+        }
+        Insert: {
+          aluno_id: string
+          assessment_date?: string
+          banco_wells?: Json
+          composicao_corporal?: Json
+          created_at?: string
+          dinamometria?: Json
+          fotos?: Json
+          id?: string
+          mode?: string
+          neuromotora?: Json
+          perimetros?: Json
+          personal_id: string
+          peso_osseo?: Json
+          postural?: Json
+          teste_rm?: Json
+          updated_at?: string
+          vo2max?: Json
+        }
+        Update: {
+          aluno_id?: string
+          assessment_date?: string
+          banco_wells?: Json
+          composicao_corporal?: Json
+          created_at?: string
+          dinamometria?: Json
+          fotos?: Json
+          id?: string
+          mode?: string
+          neuromotora?: Json
+          perimetros?: Json
+          personal_id?: string
+          peso_osseo?: Json
+          postural?: Json
+          teste_rm?: Json
+          updated_at?: string
+          vo2max?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "avaliacoes_aluno_id_fkey"
+            columns: ["aluno_id"]
+            isOneToOne: false
+            referencedRelation: "alunos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       equipments: {
         Row: {
           created_at: string
