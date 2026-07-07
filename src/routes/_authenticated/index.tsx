@@ -120,9 +120,7 @@ function MobileTopBar() {
   return (
     <header className="sticky top-0 z-20 flex items-center justify-between border-b border-border bg-background/80 px-4 py-3 backdrop-blur md:hidden">
       <div className="flex items-center gap-2">
-        <svg viewBox="0 0 32 32" className="h-6 w-6 text-primary" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-          <path d="M4 8 L10 24 L16 14 L22 24 L28 8" />
-        </svg>
+        <img src={logoUrl} alt="CactusFitness" className="h-7 w-7 object-contain" />
         <span className="text-base font-semibold tracking-tight font-display">
           Cactus<span className="italic font-normal">Fitness</span>
         </span>
