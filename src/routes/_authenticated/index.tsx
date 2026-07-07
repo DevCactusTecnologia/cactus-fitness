@@ -3,9 +3,9 @@ import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Home, Users, Calendar,
-  Bell, Crown, Wallet, Lock, Activity,
+  Bell, Crown, Lock, Activity,
   ChevronDown, ChevronRight, Pencil, HeartPulse, Dumbbell, Trophy, Gift, ClipboardCheck, ClipboardList,
-  Lightbulb, Sparkles, Eye, ArrowRight, Search,
+  Lightbulb, Sparkles, ArrowRight, Search,
   UserPlus, FileText, Link2, TrendingUp, AlertTriangle, Clock, MapPin,
 } from "lucide-react";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
@@ -288,25 +288,6 @@ function GreetingCard() {
   );
 }
 
-function WalletCard() {
-  return (
-    <div className="flex h-full flex-col rounded-xl border border-border bg-card p-5">
-      <div className="grid h-10 w-10 place-items-center rounded-full bg-primary/10 text-primary">
-        <Wallet className="h-5 w-5" />
-      </div>
-      <div className="mt-3 text-sm text-muted-foreground">Carteira Welltrainer</div>
-      <div className="text-2xl font-bold text-primary font-display">R$ 0,00</div>
-      <div className="mt-auto flex items-center justify-end gap-2 pt-4">
-        <button className="grid h-8 w-8 place-items-center rounded-full text-muted-foreground hover:bg-white/5">
-          <Eye className="h-4 w-4" />
-        </button>
-        <button className="grid h-8 w-8 place-items-center rounded-full text-muted-foreground hover:bg-white/5">
-          <ChevronRight className="h-4 w-4" />
-        </button>
-      </div>
-    </div>
-  );
-}
 
 function ActionButton({ icon: Icon, label }: { icon: React.ElementType; label: string }) {
   return (
@@ -489,10 +470,10 @@ function Dashboard() {
 
             <div className="space-y-4">
               
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-[1.3fr_1fr]">
+              <div className="grid grid-cols-1 gap-4">
                 <GreetingCard />
-                <WalletCard />
               </div>
+
               <div className="grid grid-cols-2 gap-3">
                 <ActionButton icon={Lock} label="Adicionar Aluno" />
                 <ActionButton icon={Lock} label="Link de Cadastro" />
