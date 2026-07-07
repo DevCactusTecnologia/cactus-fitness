@@ -224,11 +224,11 @@ function GreetingCard() {
 
 function ActionButton({ icon: Icon, label }: { icon: React.ElementType; label: string }) {
   return (
-    <button className="flex items-center gap-3 rounded-xl border border-border bg-card px-4 py-4 text-left transition hover:border-primary/40">
+    <button className="flex min-w-0 items-center gap-3 rounded-xl border border-border bg-card px-4 py-4 text-left transition hover:border-primary/40">
       <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-background/60 text-primary">
         <Icon className="h-5 w-5" strokeWidth={1.75} />
       </div>
-      <span className="text-sm font-semibold leading-tight sm:text-base">{label}</span>
+      <span className="min-w-0 flex-1 text-sm font-semibold leading-tight sm:text-base">{label}</span>
     </button>
   );
 }
