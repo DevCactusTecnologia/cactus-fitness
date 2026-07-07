@@ -1162,9 +1162,19 @@ function AlvoPickerButton({
     }
     return "12";
   });
-  const [tempo, setTempo] = useState<string>(() => {
-    if (mode === "tempo") return value.replace(/s$/i, "").trim() || "30";
-    return "30";
+  const [tempoMin, setTempoMin] = useState<number>(() => {
+    if (mode === "tempo") {
+      const n = parseInt(value.replace(/s$/i, "").trim() || "30", 10) || 0;
+      return Math.floor(n / 60);
+    }
+    return 0;
+  });
+  const [tempoSeg, setTempoSeg] = useState<number>(() => {
+    if (mode === "tempo") {
+      const n = parseInt(value.replace(/s$/i, "").trim() || "30", 10) || 0;
+      return n % 60;
+    }
+    return 30;
   });
 
   const openDialog = () => {
@@ -1175,16 +1185,21 @@ function AlvoPickerButton({
       const [a, b] = (value || "8-12").split("-");
       setFaixaMin(a?.trim() || "8");
       setFaixaMax(b?.trim() || "12");
-    } else setTempo((value || "30s").replace(/s$/i, "").trim() || "30");
+    } else {
+      const n = parseInt((value || "30s").replace(/s$/i, "").trim() || "30", 10) || 0;
+      setTempoMin(Math.floor(n / 60));
+      setTempoSeg(n % 60);
+    }
     setOpen(true);
   };
 
   const confirm = () => {
     if (mode === "rep") onSave(rep.trim() || "0");
     else if (mode === "faixa") onSave(`${faixaMin.trim() || "0"}-${faixaMax.trim() || "0"}`);
-    else onSave(`${tempo.trim() || "0"}s`);
+    else onSave(`${tempoMin * 60 + tempoSeg}s`);
     setOpen(false);
   };
+
 
   const label = value ? (detectMode(value) === "tempo" ? value : `${value} reps`) : "— reps";
 
@@ -1201,7 +1216,11 @@ function AlvoPickerButton({
         <DialogContent className="max-w-sm p-5">
           <div className="flex flex-col items-center gap-2 pt-1">
             <div className="grid size-10 place-items-center rounded-xl border border-primary/20 bg-primary/10">
-              <Hash className="size-5 text-primary" strokeWidth={2.5} />
+              {mode === "tempo" ? (
+                <Clock className="size-5 text-primary" strokeWidth={2.5} />
+              ) : (
+                <Hash className="size-5 text-primary" strokeWidth={2.5} />
+              )}
             </div>
             <DialogTitle className="text-center text-base font-bold">Série {index + 1}</DialogTitle>
             <DialogDescription className="sr-only">Configurar alvo da série</DialogDescription>
@@ -1236,35 +1255,44 @@ function AlvoPickerButton({
               </div>
             )}
             {mode === "faixa" && (
-              <div className="flex items-baseline justify-center gap-2 py-4">
-                <Input
-                  type="number"
-                  value={faixaMin}
-                  onChange={(e) => setFaixaMin(e.target.value)}
-                  className="w-24 rounded-xl border border-border bg-muted px-3 py-3 text-center text-3xl font-bold tabular-nums"
-                />
-                <span className="text-2xl font-bold text-muted-foreground">-</span>
-                <Input
-                  type="number"
-                  value={faixaMax}
-                  onChange={(e) => setFaixaMax(e.target.value)}
-                  className="w-24 rounded-xl border border-border bg-muted px-3 py-3 text-center text-3xl font-bold tabular-nums"
-                />
-                <span className="ml-1 text-base font-medium text-muted-foreground">reps</span>
+              <div className="py-3">
+                <div className="mb-2 grid grid-cols-2 gap-6 px-2">
+                  <span className="text-center text-[0.625rem] font-semibold uppercase tracking-wider text-foreground/60">Mínimo</span>
+                  <span className="text-center text-[0.625rem] font-semibold uppercase tracking-wider text-foreground/60">Máximo</span>
+                </div>
+                <div className="flex items-center justify-center gap-3">
+                  <Input
+                    type="number"
+                    inputMode="numeric"
+                    value={faixaMin}
+                    onChange={(e) => setFaixaMin(e.target.value)}
+                    className="h-14 w-28 rounded-full border border-border bg-muted text-center text-2xl font-bold tabular-nums"
+                  />
+                  <span className="text-xl font-bold text-muted-foreground">—</span>
+                  <Input
+                    type="number"
+                    inputMode="numeric"
+                    value={faixaMax}
+                    onChange={(e) => setFaixaMax(e.target.value)}
+                    className="h-14 w-28 rounded-full border border-border bg-muted text-center text-2xl font-bold tabular-nums"
+                  />
+                </div>
               </div>
             )}
             {mode === "tempo" && (
-              <div className="flex items-baseline justify-center gap-3 py-4">
-                <Input
-                  type="number"
-                  value={tempo}
-                  onChange={(e) => setTempo(e.target.value)}
-                  className="w-32 rounded-xl border border-border bg-muted px-4 py-3 text-center text-4xl font-bold tabular-nums"
-                />
-                <span className="text-base font-medium text-muted-foreground">seg</span>
+              <div className="py-2">
+                <div className="flex items-center justify-center gap-2">
+                  <WheelPicker key={`amm-${open}`} value={tempoMin} onChange={setTempoMin} max={60} label="min" />
+                  <span className="pb-4 text-2xl font-bold text-muted-foreground">:</span>
+                  <WheelPicker key={`ass-${open}`} value={tempoSeg} onChange={setTempoSeg} max={60} label="seg" />
+                </div>
+                <p className="mt-1 text-center text-[0.625rem] text-muted-foreground">
+                  Arraste pra escolher · toque no número central pra digitar
+                </p>
               </div>
             )}
           </div>
+
           <div className="flex gap-2">
             <button
               type="button"
