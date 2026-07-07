@@ -635,51 +635,46 @@ function BlockCard({
 }) {
   const color = block.color ?? "hsl(var(--muted-foreground))";
   const hasExercises = block.exercises.length > 0;
+  const totalSets = block.exercises.reduce((sum, e) => sum + (e.sets ?? 0), 0);
   return (
     <div
       className={`overflow-hidden rounded-lg border ${isActive ? "ring-1 ring-primary/40" : ""} bg-background/40`}
       style={{ borderColor: isActive ? undefined : `${color}55` }}
     >
-      <div
-        className="px-3 pt-3 pb-2"
-        style={{ backgroundColor: `${color}14` }}
-      >
-        <div className="flex items-center gap-2">
-          <GripVertical className="h-4 w-4 shrink-0 text-muted-foreground/60" />
-          <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: color }} />
-          <span
-            className="min-w-0 flex-1 truncate text-sm font-bold uppercase tracking-wide"
-            style={{ color }}
-          >
-            {block.label}
-          </span>
-          <span className="shrink-0 text-xs text-muted-foreground">
-            {block.exercises.length} {block.exercises.length === 1 ? "ex" : "exs"}
-          </span>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button
-                className="grid h-7 w-7 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
-                aria-label="Ações do bloco"
-              >
-                <MoreHorizontal className="h-4 w-4" />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-40">
-              <DropdownMenuItem
-                onClick={() => dispatch({ type: "REMOVE_BLOCK", sessionId, blockId: block.id })}
-                className="text-destructive focus:text-destructive"
-              >
-                <Trash2 className="mr-2 h-4 w-4" /> Remover bloco
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-
-        </div>
-        {block.description && !hasExercises && (
-          <p className="mt-1 pl-6 text-xs text-muted-foreground">{block.description}</p>
-        )}
+      <div className="flex items-center gap-2 px-3 pt-3 pb-2">
+        <span className="inline-flex items-end gap-[2px] shrink-0" aria-hidden>
+          <span className="h-2 w-[3px] rounded-sm bg-primary/70" />
+          <span className="h-3 w-[3px] rounded-sm bg-primary/85" />
+          <span className="h-4 w-[3px] rounded-sm bg-primary" />
+        </span>
+        <span className="min-w-0 flex-1 truncate text-xs text-muted-foreground">
+          <span className="font-semibold text-foreground">{totalSets} {totalSets === 1 ? "série" : "séries"}</span>
+          <span className="mx-1.5 text-muted-foreground/60">·</span>
+          <span>1 grupo</span>
+        </span>
+        <span className="shrink-0 text-[10px] text-muted-foreground/70">Ver detalhes</span>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              className="grid h-7 w-7 shrink-0 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+              aria-label="Ações do bloco"
+            >
+              <MoreHorizontal className="h-4 w-4" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-40">
+            <DropdownMenuItem
+              onClick={() => dispatch({ type: "REMOVE_BLOCK", sessionId, blockId: block.id })}
+              className="text-destructive focus:text-destructive"
+            >
+              <Trash2 className="mr-2 h-4 w-4" /> Remover bloco
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
+      {block.description && !hasExercises && (
+        <p className="px-3 pb-2 text-xs text-muted-foreground">{block.description}</p>
+      )}
 
       <div className="space-y-2 border-t border-border/50 p-3">
 
