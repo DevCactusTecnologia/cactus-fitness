@@ -1216,104 +1216,110 @@ function AlvoPickerButton({
         {label}
       </button>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-sm p-5">
-          <div className="flex flex-col items-center gap-2 pt-1">
-            <div className="grid size-10 place-items-center rounded-xl border border-primary/20 bg-primary/10">
+        <DialogContent className="max-w-sm gap-0 rounded-2xl border border-border bg-surface-1 p-5 shadow-[0_24px_60px_-12px_rgba(0,0,0,0.7),0_0_0_1px_rgba(215,242,5,0.06)] sm:p-6">
+          <div className="flex flex-col items-center gap-2.5 pt-1">
+            <div className="flex size-10 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 shadow-glow">
               {mode === "tempo" ? (
                 <Clock className="size-5 text-primary" strokeWidth={2.5} />
               ) : (
                 <Hash className="size-5 text-primary" strokeWidth={2.5} />
               )}
             </div>
-            <DialogTitle className="text-center text-base font-bold">Série {index + 1}</DialogTitle>
+            <DialogTitle className="text-center font-display text-base font-bold leading-tight">Série {index + 1}</DialogTitle>
             <DialogDescription className="sr-only">Configurar alvo da série</DialogDescription>
           </div>
-          <div className="mt-5 flex gap-1 rounded-full bg-muted p-1">
+          <div className="mt-5 flex gap-1 rounded-full bg-surface-2 p-1">
             {(["rep", "faixa", "tempo"] as const).map((m) => (
               <button
                 key={m}
                 type="button"
                 onClick={() => setMode(m)}
-                className={`h-9 flex-1 rounded-full text-sm font-semibold capitalize transition-all ${
+                className={`h-9 flex-1 rounded-full font-body text-sm font-semibold transition-all ${
                   mode === m
                     ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
+                    : "text-fg-muted hover:bg-surface-3/60 hover:text-foreground"
                 }`}
               >
                 {m === "rep" ? "Rep" : m === "faixa" ? "Faixa" : "Tempo"}
               </button>
             ))}
           </div>
-          <div className="mb-1 mt-4">
+          <div className="mb-5 mt-4">
             {mode === "rep" && (
               <div className="flex items-baseline justify-center gap-3 py-4">
-                <Input
+                <input
                   type="number"
                   inputMode="numeric"
+                  min={1}
+                  max={100}
                   value={rep}
                   onChange={(e) => setRep(e.target.value)}
-                  className="w-32 rounded-xl border border-border bg-muted px-4 py-3 text-center text-4xl font-bold tabular-nums"
+                  className="w-32 rounded-xl border border-border bg-surface-2 px-4 py-3 text-center font-mono text-4xl font-bold tabular-nums outline-none [appearance:textfield] focus:border-primary [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                 />
-                <span className="text-base font-medium text-muted-foreground">reps</span>
+                <span className="text-base font-medium text-fg-muted">reps</span>
               </div>
             )}
             {mode === "faixa" && (
-              <div className="py-3">
-                <div className="mb-2 grid grid-cols-2 gap-6 px-2">
-                  <span className="text-center text-[0.625rem] font-semibold uppercase tracking-wider text-foreground/60">Mínimo</span>
-                  <span className="text-center text-[0.625rem] font-semibold uppercase tracking-wider text-foreground/60">Máximo</span>
-                </div>
-                <div className="flex items-center justify-center gap-3">
-                  <Input
+              <div className="flex items-center justify-center gap-3 py-4">
+                <div className="max-w-[120px] flex-1">
+                  <p className="mb-2 text-center text-[0.625rem] font-semibold uppercase tracking-wider text-fg-muted">mínimo</p>
+                  <input
                     type="number"
                     inputMode="numeric"
+                    min={1}
+                    max={100}
                     value={faixaMin}
                     onChange={(e) => setFaixaMin(e.target.value)}
-                    className="h-14 w-28 rounded-full border border-border bg-muted text-center text-2xl font-bold tabular-nums"
+                    className="w-full rounded-xl border border-border bg-surface-2 px-2 py-3 text-center font-mono text-2xl font-bold tabular-nums outline-none [appearance:textfield] focus:border-primary [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                   />
-                  <span className="text-xl font-bold text-muted-foreground">—</span>
-                  <Input
+                </div>
+                <span className="pt-6 text-lg font-medium text-fg-muted">—</span>
+                <div className="max-w-[120px] flex-1">
+                  <p className="mb-2 text-center text-[0.625rem] font-semibold uppercase tracking-wider text-fg-muted">máximo</p>
+                  <input
                     type="number"
                     inputMode="numeric"
+                    min={1}
+                    max={100}
                     value={faixaMax}
                     onChange={(e) => setFaixaMax(e.target.value)}
-                    className="h-14 w-28 rounded-full border border-border bg-muted text-center text-2xl font-bold tabular-nums"
+                    className="w-full rounded-xl border border-border bg-surface-2 px-2 py-3 text-center font-mono text-2xl font-bold tabular-nums outline-none [appearance:textfield] focus:border-primary [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                   />
                 </div>
               </div>
             )}
             {mode === "tempo" && (
-              <div className="py-2">
+              <div className="flex select-none flex-col items-center gap-1.5 py-2">
                 <div className="flex items-center justify-center gap-2">
                   <WheelPicker key={`amm-${open}`} value={tempoMin} onChange={setTempoMin} max={60} label="min" />
-                  <span className="pb-4 text-2xl font-bold text-muted-foreground">:</span>
                   <WheelPicker key={`ass-${open}`} value={tempoSeg} onChange={setTempoSeg} max={60} label="seg" />
                 </div>
-                <p className="mt-1 text-center text-[0.625rem] text-muted-foreground">
+                <p className="mt-1 text-center text-[0.625rem] text-fg-muted">
                   Arraste pra escolher · toque no número central pra digitar
                 </p>
               </div>
             )}
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex gap-2.5">
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="h-11 flex-1 rounded-full border border-border bg-muted text-sm font-semibold text-foreground hover:bg-muted/70"
+              className="h-11 flex-1 rounded-full border border-border bg-surface-2 font-body text-sm font-semibold text-foreground transition-all hover:border-border-strong hover:bg-surface-3 active:scale-[0.98]"
             >
               Cancelar
             </button>
             <button
               type="button"
               onClick={confirm}
-              className="h-11 flex-[1.6] rounded-full bg-primary text-sm font-semibold text-primary-foreground hover:brightness-110"
+              className="h-11 flex-[1.6] rounded-full bg-primary font-body text-sm font-semibold text-primary-foreground shadow-glow transition-all hover:brightness-110 active:scale-[0.98]"
             >
               Confirmar
             </button>
           </div>
         </DialogContent>
       </Dialog>
+
     </>
   );
 }
