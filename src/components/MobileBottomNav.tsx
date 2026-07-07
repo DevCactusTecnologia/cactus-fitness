@@ -28,7 +28,7 @@ type Item = {
 };
 
 const ITEMS: Item[] = [
-  { icon: Home, label: "Início", to: "/", match: (p) => p === "/" },
+  { icon: LayoutDashboard, label: "Início", to: "/", match: (p) => p === "/" },
   { icon: Users, label: "Alunos", to: "/dashboard/personal/alunos", match: (p) => p.startsWith("/dashboard/personal/alunos") },
   { icon: Dumbbell, label: "Treinos", to: "/dashboard/personal/treinos", match: (p) => p.startsWith("/dashboard/personal/treinos") },
   { icon: Bell, label: "Notificações", to: "/" },
