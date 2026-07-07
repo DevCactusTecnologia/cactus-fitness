@@ -97,7 +97,7 @@ function TreinosPage() {
       <IconRail />
 
       <main className="pb-24 md:pl-[72px] md:pb-8">
-        <div className="mx-auto max-w-5xl px-4 py-6 md:px-8">
+        <div className="mx-auto max-w-7xl px-4 py-6 md:px-8">
           {/* Mobile header */}
           <div className="mb-4 flex items-center justify-between gap-2 md:hidden">
             <button
@@ -127,12 +127,12 @@ function TreinosPage() {
           {/* Desktop header */}
           <div className="hidden flex-wrap items-center justify-between gap-3 md:flex">
             <h1 className="text-2xl font-bold tracking-tight md:text-3xl">Modelos Prontos</h1>
-            <div className="flex items-center gap-2">
-              <button className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-sm font-medium hover:bg-muted">
+            <div className="flex items-center gap-4">
+              <button className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground">
                 <FolderPlus className="h-4 w-4" />
                 Nova pasta
               </button>
-              <button className="inline-flex items-center gap-2 rounded-lg bg-primary px-3 py-2 text-sm font-semibold text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.25)] hover:brightness-110">
+              <button className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.25)] hover:brightness-110">
                 <Plus className="h-4 w-4" />
                 Modelo de Treino
               </button>
@@ -140,54 +140,57 @@ function TreinosPage() {
           </div>
 
           {/* Info banner */}
-          <div className="mt-4 flex gap-3 rounded-xl border border-border bg-card/60 p-4 text-sm text-muted-foreground">
-            <Info className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-            <div className="space-y-1">
-              <p>
-                <span className="font-semibold text-foreground">Modelos prontos</span> são gabaritos reutilizáveis.
-              </p>
-              <p>
-                Um <span className="font-semibold text-foreground">Modelo de Plano</span> agrupa vários treinos em uma rotina semanal (ex: A/B/C em seg/qua/sex).
-              </p>
-              <p>
-                Um <span className="font-semibold text-foreground">Template de Treino</span> é um treino único e independente (ex: Peito/Tríceps).
-              </p>
+          <div className="mt-4 rounded-2xl border border-border bg-card/60 p-4 text-sm text-muted-foreground md:p-5">
+            <div className="flex gap-3 md:block">
+              <Info className="mt-0.5 h-4 w-4 shrink-0 text-primary md:hidden" />
+              <div className="space-y-1 md:space-y-0">
+                <p className="md:inline">
+                  <span className="font-semibold text-foreground">Modelos prontos</span> são gabaritos reutilizáveis.{" "}
+                </p>
+                <p className="md:inline">
+                  Um <span className="font-semibold text-foreground">Modelo de Plano</span> agrupa vários treinos em uma rotina semanal (ex: A/B/C em seg/qua/sex).{" "}
+                </p>
+                <p className="md:inline">
+                  Um <span className="font-semibold text-foreground">Template de Treino</span> é um treino único e independente (ex: Peito/Tríceps).
+                </p>
+              </div>
             </div>
           </div>
 
           {/* Stats */}
-          <div className="mt-4 grid grid-cols-3 gap-3">
+          <div className="mt-4 grid grid-cols-3 gap-3 md:gap-4">
             <StatCard icon={FileText} value={total} label="Total de modelos" />
             <StatCard icon={Layers} value={planos} label="Modelos de Plano" />
             <StatCard icon={Dumbbell} value={templates} label="Templates de Treino" />
           </div>
 
-          {/* Search */}
-          <div className="relative mt-4">
-            <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            <input
-              type="search"
-              placeholder="Buscar modelos..."
-              className="h-11 w-full rounded-full border border-border bg-card pl-11 pr-4 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
-            />
+          {/* Search + Filters */}
+          <div className="mt-4 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+            <div className="relative md:max-w-md md:flex-1">
+              <Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <input
+                type="search"
+                placeholder="Buscar modelos..."
+                className="h-11 w-full rounded-full border border-border bg-card pl-11 pr-4 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary"
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-2 md:flex md:items-center">
+              <FilterSelect
+                value={filter}
+                onChange={setFilter}
+                options={[
+                  { value: "todos", label: "Todos os tipos" },
+                  { value: "plano", label: "Modelos de Plano" },
+                  { value: "template", label: "Templates de Treino" },
+                ]}
+              />
+              <button className="inline-flex items-center justify-between gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm hover:bg-muted">
+                Mais recentes
+                <ChevronDown className="h-4 w-4" />
+              </button>
+            </div>
           </div>
 
-          {/* Filters */}
-          <div className="mt-3 grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center">
-            <FilterSelect
-              value={filter}
-              onChange={setFilter}
-              options={[
-                { value: "todos", label: "Todos os tipos" },
-                { value: "plano", label: "Modelos de Plano" },
-                { value: "template", label: "Templates de Treino" },
-              ]}
-            />
-            <button className="inline-flex items-center justify-between gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm hover:bg-muted sm:justify-start">
-              Mais recentes
-              <ChevronDown className="h-4 w-4" />
-            </button>
-          </div>
 
 
           {/* List */}
