@@ -36,15 +36,13 @@ export function UserAvatarMenu({
         <button
           type="button"
           aria-label="Abrir menu do usuário"
-          className="relative outline-none focus-visible:ring-2 focus-visible:ring-primary rounded-lg"
+          className="relative grid h-8 w-8 place-items-center rounded-lg bg-destructive text-xs font-bold text-white ring-1 ring-border font-display cursor-pointer transition outline-none hover:brightness-110 focus-visible:ring-2 focus-visible:ring-primary"
         >
-          <div className="grid h-8 w-8 place-items-center rounded-lg bg-destructive text-xs font-bold text-white ring-1 ring-border font-display cursor-pointer hover:brightness-110 transition">
-            {initials}
-          </div>
-          <span className="absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-primary ring-2 ring-sidebar" />
+          <span className="pointer-events-none">{initials}</span>
+          <span aria-hidden className="pointer-events-none absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-primary ring-2 ring-sidebar" />
         </button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent side="right" align="end" className="w-56">
+      <DropdownMenuContent side="right" align="end" sideOffset={8} className="z-[60] w-56">
         <DropdownMenuLabel className="flex flex-col">
           <span className="font-semibold">{name}</span>
           {email && <span className="text-xs font-normal text-muted-foreground">{email}</span>}
