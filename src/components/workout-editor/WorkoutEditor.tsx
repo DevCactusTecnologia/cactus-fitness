@@ -1081,10 +1081,10 @@ function SetTypePickerButton({
         <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
       </button>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-md p-5">
+        <DialogContent className="max-w-md gap-0 rounded-2xl border border-border bg-surface-1 p-5 shadow-2xl">
           <DialogHeader className="space-y-0 text-left">
-            <DialogTitle className="text-base font-bold">Tipo de Série</DialogTitle>
-            <DialogDescription className="text-xs">Série {index + 1}</DialogDescription>
+            <DialogTitle className="pb-1 pr-8 font-display text-base font-bold">Tipo de Série</DialogTitle>
+            <DialogDescription className="mb-4 text-xs text-fg-muted">Série {index + 1}</DialogDescription>
           </DialogHeader>
           <div className="space-y-1">
             {SET_TYPE_OPTIONS.map((opt) => {
@@ -1094,31 +1094,33 @@ function SetTypePickerButton({
                   key={opt.key}
                   type="button"
                   onClick={() => { onSelect(opt.key); setOpen(false); }}
-                  className={`flex w-full items-center gap-3 rounded-xl p-3 text-left transition-colors ${
+                  className={`flex w-full items-center gap-3 rounded-xl p-3 text-left transition-all active:scale-[0.98] ${
                     active
                       ? "border-2 border-primary bg-primary/10"
-                      : "border border-border hover:bg-muted"
+                      : "border border-border hover:border-border-strong hover:bg-surface-hover"
                   }`}
                 >
                   <div
-                    className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-[10px] font-bold"
+                    className={`grid h-9 w-9 shrink-0 place-items-center rounded-lg font-display font-bold ${
+                      opt.key === "normal" ? "text-base" : "text-[0.5625rem]"
+                    }`}
                     style={{ color: opt.fg, backgroundColor: opt.bg }}
                   >
                     {opt.key === "normal" ? index + 1 : opt.badge}
                   </div>
                   <div className="min-w-0 flex-1">
-                    <div className="text-sm font-semibold text-foreground">{opt.label}</div>
-                    <div className="mt-0.5 line-clamp-2 text-[11px] text-muted-foreground">{opt.description}</div>
+                    <div className="font-body text-sm font-semibold text-foreground">{opt.label}</div>
+                    <div className="mt-0.5 line-clamp-2 text-[0.6875rem] text-fg-muted">{opt.description}</div>
                   </div>
                 </button>
               );
             })}
           </div>
-          <div className="mt-2 border-t border-border pt-3">
+          <div className="mt-4 border-t border-border pt-4">
             <button
               type="button"
               onClick={() => { onRemoveSet(); setOpen(false); }}
-              className="flex w-full items-center gap-3 rounded-xl border border-destructive/30 bg-destructive/5 p-3 text-sm font-semibold text-destructive transition-colors hover:bg-destructive/10"
+              className="flex w-full items-center gap-3 rounded-xl border border-destructive/30 bg-destructive/5 p-3 text-sm font-semibold text-destructive transition-all hover:bg-destructive/10 active:scale-[0.98]"
             >
               <div className="grid h-9 w-9 place-items-center rounded-lg bg-destructive/15">
                 <X className="h-4 w-4" />
@@ -1128,6 +1130,7 @@ function SetTypePickerButton({
           </div>
         </DialogContent>
       </Dialog>
+
     </>
   );
 }
@@ -1213,104 +1216,110 @@ function AlvoPickerButton({
         {label}
       </button>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-sm p-5">
-          <div className="flex flex-col items-center gap-2 pt-1">
-            <div className="grid size-10 place-items-center rounded-xl border border-primary/20 bg-primary/10">
+        <DialogContent className="max-w-sm gap-0 rounded-2xl border border-border bg-surface-1 p-5 shadow-[0_24px_60px_-12px_rgba(0,0,0,0.7),0_0_0_1px_rgba(215,242,5,0.06)] sm:p-6">
+          <div className="flex flex-col items-center gap-2.5 pt-1">
+            <div className="flex size-10 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 shadow-glow">
               {mode === "tempo" ? (
                 <Clock className="size-5 text-primary" strokeWidth={2.5} />
               ) : (
                 <Hash className="size-5 text-primary" strokeWidth={2.5} />
               )}
             </div>
-            <DialogTitle className="text-center text-base font-bold">Série {index + 1}</DialogTitle>
+            <DialogTitle className="text-center font-display text-base font-bold leading-tight">Série {index + 1}</DialogTitle>
             <DialogDescription className="sr-only">Configurar alvo da série</DialogDescription>
           </div>
-          <div className="mt-5 flex gap-1 rounded-full bg-muted p-1">
+          <div className="mt-5 flex gap-1 rounded-full bg-surface-2 p-1">
             {(["rep", "faixa", "tempo"] as const).map((m) => (
               <button
                 key={m}
                 type="button"
                 onClick={() => setMode(m)}
-                className={`h-9 flex-1 rounded-full text-sm font-semibold capitalize transition-all ${
+                className={`h-9 flex-1 rounded-full font-body text-sm font-semibold transition-all ${
                   mode === m
                     ? "bg-primary text-primary-foreground shadow-sm"
-                    : "text-muted-foreground hover:text-foreground"
+                    : "text-fg-muted hover:bg-surface-3/60 hover:text-foreground"
                 }`}
               >
                 {m === "rep" ? "Rep" : m === "faixa" ? "Faixa" : "Tempo"}
               </button>
             ))}
           </div>
-          <div className="mb-1 mt-4">
+          <div className="mb-5 mt-4">
             {mode === "rep" && (
               <div className="flex items-baseline justify-center gap-3 py-4">
-                <Input
+                <input
                   type="number"
                   inputMode="numeric"
+                  min={1}
+                  max={100}
                   value={rep}
                   onChange={(e) => setRep(e.target.value)}
-                  className="w-32 rounded-xl border border-border bg-muted px-4 py-3 text-center text-4xl font-bold tabular-nums"
+                  className="w-32 rounded-xl border border-border bg-surface-2 px-4 py-3 text-center font-mono text-4xl font-bold tabular-nums outline-none [appearance:textfield] focus:border-primary [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                 />
-                <span className="text-base font-medium text-muted-foreground">reps</span>
+                <span className="text-base font-medium text-fg-muted">reps</span>
               </div>
             )}
             {mode === "faixa" && (
-              <div className="py-3">
-                <div className="mb-2 grid grid-cols-2 gap-6 px-2">
-                  <span className="text-center text-[0.625rem] font-semibold uppercase tracking-wider text-foreground/60">Mínimo</span>
-                  <span className="text-center text-[0.625rem] font-semibold uppercase tracking-wider text-foreground/60">Máximo</span>
-                </div>
-                <div className="flex items-center justify-center gap-3">
-                  <Input
+              <div className="flex items-center justify-center gap-3 py-4">
+                <div className="max-w-[120px] flex-1">
+                  <p className="mb-2 text-center text-[0.625rem] font-semibold uppercase tracking-wider text-fg-muted">mínimo</p>
+                  <input
                     type="number"
                     inputMode="numeric"
+                    min={1}
+                    max={100}
                     value={faixaMin}
                     onChange={(e) => setFaixaMin(e.target.value)}
-                    className="h-14 w-28 rounded-full border border-border bg-muted text-center text-2xl font-bold tabular-nums"
+                    className="w-full rounded-xl border border-border bg-surface-2 px-2 py-3 text-center font-mono text-2xl font-bold tabular-nums outline-none [appearance:textfield] focus:border-primary [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                   />
-                  <span className="text-xl font-bold text-muted-foreground">—</span>
-                  <Input
+                </div>
+                <span className="pt-6 text-lg font-medium text-fg-muted">—</span>
+                <div className="max-w-[120px] flex-1">
+                  <p className="mb-2 text-center text-[0.625rem] font-semibold uppercase tracking-wider text-fg-muted">máximo</p>
+                  <input
                     type="number"
                     inputMode="numeric"
+                    min={1}
+                    max={100}
                     value={faixaMax}
                     onChange={(e) => setFaixaMax(e.target.value)}
-                    className="h-14 w-28 rounded-full border border-border bg-muted text-center text-2xl font-bold tabular-nums"
+                    className="w-full rounded-xl border border-border bg-surface-2 px-2 py-3 text-center font-mono text-2xl font-bold tabular-nums outline-none [appearance:textfield] focus:border-primary [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                   />
                 </div>
               </div>
             )}
             {mode === "tempo" && (
-              <div className="py-2">
+              <div className="flex select-none flex-col items-center gap-1.5 py-2">
                 <div className="flex items-center justify-center gap-2">
                   <WheelPicker key={`amm-${open}`} value={tempoMin} onChange={setTempoMin} max={60} label="min" />
-                  <span className="pb-4 text-2xl font-bold text-muted-foreground">:</span>
                   <WheelPicker key={`ass-${open}`} value={tempoSeg} onChange={setTempoSeg} max={60} label="seg" />
                 </div>
-                <p className="mt-1 text-center text-[0.625rem] text-muted-foreground">
+                <p className="mt-1 text-center text-[0.625rem] text-fg-muted">
                   Arraste pra escolher · toque no número central pra digitar
                 </p>
               </div>
             )}
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex gap-2.5">
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="h-11 flex-1 rounded-full border border-border bg-muted text-sm font-semibold text-foreground hover:bg-muted/70"
+              className="h-11 flex-1 rounded-full border border-border bg-surface-2 font-body text-sm font-semibold text-foreground transition-all hover:border-border-strong hover:bg-surface-3 active:scale-[0.98]"
             >
               Cancelar
             </button>
             <button
               type="button"
               onClick={confirm}
-              className="h-11 flex-[1.6] rounded-full bg-primary text-sm font-semibold text-primary-foreground hover:brightness-110"
+              className="h-11 flex-[1.6] rounded-full bg-primary font-body text-sm font-semibold text-primary-foreground shadow-glow transition-all hover:brightness-110 active:scale-[0.98]"
             >
               Confirmar
             </button>
           </div>
         </DialogContent>
       </Dialog>
+
     </>
   );
 }
@@ -1348,32 +1357,34 @@ function WheelPicker({
       <div className="relative w-[96px]" style={{ height: 144 }}>
         <div
           aria-hidden
-          className="pointer-events-none absolute left-0 right-0 top-1/2 -translate-y-1/2 rounded-lg bg-primary/10"
+          className="pointer-events-none absolute left-0 right-0 top-1/2 -translate-y-1/2 rounded-lg bg-primary/[0.10]"
           style={{ height: ITEM }}
         />
         <div
           ref={ref}
           onScroll={onScroll}
-          className="h-full cursor-ns-resize touch-pan-y overflow-y-scroll [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="h-full cursor-ns-resize touch-pan-y overflow-y-scroll [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           style={{ scrollSnapType: "y mandatory", paddingTop: ITEM, paddingBottom: ITEM }}
         >
           {Array.from({ length: max }, (_, i) => {
-            const isActive = i === value;
+            const dist = Math.abs(i - value);
+            const isActive = dist === 0;
+            const opacity = isActive ? 1 : dist === 1 ? 0.55 : 0.25;
             return (
               <button
                 key={i}
                 type="button"
                 tabIndex={-1}
                 onClick={() => { scrollToValue(i); onChange(i); }}
-                className={`block w-full text-center font-mono tabular-nums leading-none focus:outline-none ${
-                  isActive ? "text-foreground" : "text-muted-foreground/60"
+                className={`block w-full cursor-pointer text-center font-mono tabular-nums leading-none focus:outline-none ${
+                  isActive ? "font-bold text-foreground" : "font-medium text-fg-muted hover:text-foreground/70"
                 }`}
                 style={{
                   height: ITEM,
                   scrollSnapAlign: "center",
                   fontSize: isActive ? 32 : 20,
-                  fontWeight: isActive ? 700 : 500,
-                  transition: "font-size 150ms, color 150ms",
+                  opacity,
+                  transition: "opacity 150ms, font-size 150ms",
                 }}
               >
                 {i.toString().padStart(2, "0")}
@@ -1386,6 +1397,7 @@ function WheelPicker({
     </div>
   );
 }
+
 
 function DescansoPickerButton({
   index, seconds, onSave,
@@ -1420,41 +1432,44 @@ function DescansoPickerButton({
         {seconds}s
       </button>
       <Dialog open={open} onOpenChange={setOpen}>
-        <DialogContent className="max-w-sm p-5">
-          <div className="flex flex-col items-center gap-2 pt-1">
-            <div className="grid size-10 place-items-center rounded-xl border border-primary/20 bg-primary/10">
-              <Clock className="size-5 text-primary" />
+        <DialogContent className="max-w-sm gap-0 rounded-2xl border border-border bg-surface-1 p-5 shadow-[0_24px_60px_-12px_rgba(0,0,0,0.7),0_0_0_1px_rgba(215,242,5,0.06)] sm:p-6">
+          <div className="flex flex-col items-center gap-2.5 pt-1">
+            <div className="flex size-10 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 shadow-glow">
+              <Clock className="size-5 text-primary" strokeWidth={2.5} />
             </div>
-            <DialogTitle className="text-center text-base font-bold">Descanso após série {index + 1}</DialogTitle>
+            <DialogTitle className="text-center font-display text-base font-bold leading-tight">Descanso após série {index + 1}</DialogTitle>
             <DialogDescription className="sr-only">Escolha o tempo de descanso</DialogDescription>
           </div>
           <div className="mb-5 mt-4">
-            <div className="flex items-center justify-center gap-2 py-2">
-              <WheelPicker key={`mm-${open}`} value={mm} onChange={setMm} max={60} label="min" />
-              <WheelPicker key={`ss-${open}`} value={ss} onChange={setSs} max={60} label="seg" />
+            <div className="flex select-none flex-col items-center gap-1.5 py-2">
+              <div className="flex items-center justify-center gap-2">
+                <WheelPicker key={`mm-${open}`} value={mm} onChange={setMm} max={60} label="min" />
+                <WheelPicker key={`ss-${open}`} value={ss} onChange={setSs} max={60} label="seg" />
+              </div>
+              <p className="mt-1 text-center text-[0.625rem] text-fg-muted">
+                Arraste pra escolher · toque no número central pra digitar
+              </p>
             </div>
-            <p className="mt-1 text-center text-[0.625rem] text-muted-foreground">
-              Arraste pra escolher · toque no número pra selecionar
-            </p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2.5">
             <button
               type="button"
               onClick={() => setOpen(false)}
-              className="h-11 flex-1 rounded-full border border-border bg-muted text-sm font-semibold text-foreground hover:bg-muted/70"
+              className="h-11 flex-1 rounded-full border border-border bg-surface-2 font-body text-sm font-semibold text-foreground transition-all hover:border-border-strong hover:bg-surface-3 active:scale-[0.98]"
             >
               Cancelar
             </button>
             <button
               type="button"
               onClick={confirm}
-              className="h-11 flex-[1.6] rounded-full bg-primary text-sm font-semibold text-primary-foreground hover:brightness-110"
+              className="h-11 flex-[1.6] rounded-full bg-primary font-body text-sm font-semibold text-primary-foreground shadow-glow transition-all hover:brightness-110 active:scale-[0.98]"
             >
               Confirmar
             </button>
           </div>
         </DialogContent>
       </Dialog>
+
     </>
   );
 }
