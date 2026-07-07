@@ -1,7 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ClipboardList, Plus, ArrowLeft, User as UserIcon, Send, X, Loader2 } from "lucide-react";
+import { ClipboardList, Plus, ArrowLeft, User as UserIcon, Send, Loader2 } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
