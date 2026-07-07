@@ -598,8 +598,8 @@ function DeleteAlunoDialog({
             </div>
             <DialogTitle className="font-display text-lg">Excluir aluno</DialogTitle>
           </div>
-          <DialogDescription className="pt-3 text-left text-sm text-foreground">
-            Tem certeza que deseja excluir o aluno <span className="font-semibold">{aluno.full_name}</span>? Esta ação não pode ser desfeita.
+          <DialogDescription className="pt-3 text-left text-sm text-muted-foreground">
+            Tem certeza que deseja excluir o aluno <span className="font-semibold text-foreground">{aluno.full_name}</span>? Esta ação não pode ser desfeita.
           </DialogDescription>
         </DialogHeader>
         <DialogFooter>
