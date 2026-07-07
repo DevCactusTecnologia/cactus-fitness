@@ -618,43 +618,39 @@ function BlockCard({
   isActive: boolean;
 }) {
   const color = block.color ?? "hsl(var(--muted-foreground))";
+  const hasExercises = block.exercises.length > 0;
   return (
     <div
-      className={`rounded-lg border ${isActive ? "ring-1 ring-primary/40" : ""} bg-background/40 p-3`}
+      className={`rounded-xl border ${isActive ? "ring-1 ring-primary/40" : ""} bg-background/40`}
       style={{ borderColor: isActive ? undefined : `${color}55` }}
     >
-      <div className="flex items-center gap-2">
+      <div className="flex items-center gap-2 px-3 pt-3">
         <GripVertical className="h-4 w-4 shrink-0 text-muted-foreground/60" />
         <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: color }} />
-        <Input
-          value={block.label}
-          onChange={(e) => dispatch({ type: "RENAME_BLOCK", sessionId, blockId: block.id, label: e.target.value })}
-          className="h-8 flex-1 border-0 bg-transparent px-1 text-sm font-semibold uppercase tracking-wide focus-visible:ring-1"
+        <span
+          className="min-w-0 flex-1 truncate text-sm font-bold uppercase tracking-wide"
           style={{ color }}
-        />
-        <ReorderButtons
-          onUp={() => dispatch({ type: "MOVE_BLOCK", sessionId, blockId: block.id, dir: -1 })}
-          onDown={() => dispatch({ type: "MOVE_BLOCK", sessionId, blockId: block.id, dir: 1 })}
-          canUp={index > 0}
-          canDown={index < total - 1}
-        />
-        {total > 1 && (
-          <button
-            onClick={() => dispatch({ type: "REMOVE_BLOCK", sessionId, blockId: block.id })}
-            className="grid h-7 w-7 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-destructive"
-            aria-label="Remover bloco"
-          >
-            <Trash2 className="h-3.5 w-3.5" />
-          </button>
-        )}
+        >
+          {block.label}
+        </span>
+        <span className="shrink-0 text-xs text-muted-foreground">
+          {block.exercises.length} {block.exercises.length === 1 ? "ex" : "exs"}
+        </span>
+        <button
+          onClick={() => dispatch({ type: "REMOVE_BLOCK", sessionId, blockId: block.id })}
+          className="grid h-7 w-7 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-destructive"
+          aria-label="Remover bloco"
+          title="Remover bloco"
+        >
+          <MoreHorizontal className="h-4 w-4" />
+        </button>
       </div>
 
-      <div className="mt-2 space-y-2">
-        {block.exercises.length === 0 && (
-          <p className="rounded-lg border border-dashed border-border/70 px-3 py-4 text-center text-xs text-muted-foreground">
-            Nenhum exercício. Selecione no painel ao lado.
-          </p>
-        )}
+      {block.description && !hasExercises && (
+        <p className="px-3 pt-1 text-xs text-muted-foreground">{block.description}</p>
+      )}
+
+      <div className="mt-3 space-y-2 border-t border-border/50 p-3">
         {block.exercises.map((e, ei) => (
           <ExerciseRow
             key={e.id}
@@ -669,14 +665,15 @@ function BlockCard({
         ))}
         <button
           onClick={onPickTarget}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-border/70 bg-card py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-border/70 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
         >
-          <Plus className="h-3.5 w-3.5" /> Adicionar exercício
+          <Plus className="h-4 w-4" /> Adicionar exercício
         </button>
       </div>
     </div>
   );
 }
+
 
 function ExerciseRow({
   item, index, total, onChange, onRemove, onUp, onDown,
