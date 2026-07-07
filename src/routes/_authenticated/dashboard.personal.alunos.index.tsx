@@ -169,7 +169,11 @@ function AlunosPage() {
               <button className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card/60 px-3 py-2 text-sm hover:bg-accent">
                 <Link2 className="h-4 w-4" /> <span className="hidden sm:inline">Link de cadastro</span><span className="sm:hidden">Link</span>
               </button>
-              <button className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.35)] hover:brightness-110">
+              <button
+                type="button"
+                onClick={() => setOpenNew(true)}
+                className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.35)] hover:brightness-110"
+              >
                 <Plus className="h-4 w-4" /> Novo Aluno
               </button>
             </div>
