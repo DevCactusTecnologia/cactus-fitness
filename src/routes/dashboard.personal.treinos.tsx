@@ -150,10 +150,14 @@ function TreinosPage() {
             <button className="grid h-9 w-9 place-items-center rounded-lg text-muted-foreground hover:bg-muted" aria-label="Nova pasta">
               <FolderPlus className="h-5 w-5" />
             </button>
-            <button className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.25)] hover:brightness-110">
-              <Plus className="h-4 w-4" />
-              Modelo de Treino
-            </button>
+            <NovoModeloMenu
+              trigger={
+                <button className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.25)] hover:brightness-110">
+                  <Plus className="h-4 w-4" />
+                  Modelo de Treino
+                </button>
+              }
+            />
           </div>
 
           {/* Desktop header */}
