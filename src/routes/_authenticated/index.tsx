@@ -507,7 +507,7 @@ function Dashboard() {
               <div className="rounded-lg border border-border bg-card p-4 md:p-6">
                 <div className="grid min-w-0 grid-cols-4 gap-2 sm:gap-3 md:grid-cols-5">
                   <QuickTile icon={Users} label="Alunos" />
-                  <QuickTile icon={HeartPulse} label="Avaliações" />
+                  <QuickTile icon={HeartPulse} label="Avaliações" to="/dashboard/personal/avaliacoes" />
                   <QuickTile icon={Dumbbell} label="Treinos" />
                   <QuickTile icon={Dumbbell} label="Exercícios" />
                   <QuickTile icon={Trophy} label="Desafios" />
