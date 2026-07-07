@@ -75,7 +75,7 @@ function IconRail() {
       <div className="mt-auto flex flex-col items-center gap-2">
         <SidebarIconBtn icon={Plus} variant="primary" />
         <SidebarIconBtn icon={Bell} badge="3" />
-        <UserAvatarMenu initials="ML" name="Meu perfil" />
+        <UserAvatarMenu />
       </div>
     </aside>
   );
