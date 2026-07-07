@@ -7,6 +7,8 @@ import {
 import { Barbell, User } from "@phosphor-icons/react";
 import { supabase } from "@/integrations/supabase/client";
 import gymBg from "@/assets/gym-background.png.asset.json";
+import logoUrl from "@/assets/cactus-logo.png";
+
 
 const searchSchema = z.object({
   redirect: z.string().optional(),
@@ -27,16 +29,18 @@ export const Route = createFileRoute("/login")({
 type Role = "personal" | "aluno";
 type Mode = "signin" | "signup";
 
-function BrandMark({ className = "size-14 text-foreground" }: { className?: string }) {
-  // Geometric "W-like" mark inspired by the reference logo
+function BrandMark({ className = "size-14" }: { className?: string }) {
   return (
-    <svg viewBox="0 0 209 108" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" className={className}>
-      <path d="M57.25 6.63C55.15 2.56 50.99 0.02 46.41 0.02H0.06s-.06.04-.06.08C1.42 2.87 43.35 84.53 43.35 84.53l.72 1.4s.02.04.04.06c2.05 3.35 5.77 5.6 10.02 5.6s7.97-2.25 10.02-5.6c.06-.12 16.4-31.89 16.93-32.88 0 0 0-.04 0-.06L57.25 6.63z" fill="currentColor"/>
-      <path d="M106.74 16.88c-4.19 0-7.85 2.19-9.91 5.51l-.83 1.61s-14.42 28.13-14.89 29.02v.04l24.82 48.33c2.07 4.05 6.26 6.61 10.82 6.61h43.89v-.04s-43.72-85.11-43.74-85.15c-2.02-3.53-5.8-5.91-10.16-5.91v-.02z" fill="currentColor"/>
-      <path d="M196.17 0.02H162.2s-.04 0-.04.02c-.6 1.16-19.27 37.55-19.29 37.57-.83 1.86-1.18 3.97-.91 6.2.7 5.89 5.93 10.2 11.89 10.2h34.51l18.65-36.31C211.16 9.62 205.28 0 196.21 0l-.04.02z" fill="currentColor"/>
-    </svg>
+    <img
+      src={logoUrl}
+      alt="cactusfitness"
+      className={`${className} object-contain`}
+      width={56}
+      height={56}
+    />
   );
 }
+
 
 function LoginPage() {
   const search = useSearch({ from: "/login" });
