@@ -956,81 +956,101 @@ function ExercisePicker({
   };
 
   return (
-    <div className="flex flex-col">
-      <div className="mb-2 rounded-lg border border-[oklch(0.92_0.19_115)]/30 bg-[oklch(0.92_0.19_115)]/10 px-3 py-2 text-xs">
-        <span className="mr-2 inline-block h-1.5 w-1.5 rounded-full bg-[oklch(0.92_0.19_115)] align-middle" />
-        <span className="text-muted-foreground">Adicionando em: </span>
-        <span className="font-semibold text-foreground">{targetLabel}</span>
+    <div className="flex min-h-0 flex-1 flex-col">
+      <div className="mx-5 mt-3 flex items-center gap-2 rounded-md border border-primary/20 bg-primary/10 px-3 py-2 text-xs font-medium text-primary">
+        <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-primary" aria-hidden />
+        <span>Adicionando em <strong className="font-semibold text-foreground">{targetLabel}</strong></span>
       </div>
-      <div className="relative">
-        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-        <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar exercício..." className="pl-9" />
+      <div className="flex shrink-0 items-center gap-2 px-5 pb-2.5 pt-3">
+        <div className="relative min-w-0 flex-1">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            value={q}
+            onChange={(e) => setQ(e.target.value)}
+            placeholder="Buscar exercício…"
+            className="h-10 pl-9 pr-3"
+          />
+        </div>
+        <button
+          type="button"
+          aria-label="Filtros"
+          className="inline-flex h-10 shrink-0 items-center gap-1.5 rounded-md border border-border px-3 text-sm text-muted-foreground transition-colors hover:border-foreground/40 hover:text-foreground"
+        >
+          <Filter className="h-4 w-4" />
+        </button>
       </div>
-      <div className="mt-3 max-h-[46vh] space-y-2 overflow-y-auto pr-1">
+      <div className="border-t border-border" />
+      <div className="min-h-0 flex-1 overflow-y-auto px-3 py-2">
         {isLoading ? (
           <div className="grid place-items-center py-8"><Loader2 className="h-4 w-4 animate-spin text-muted-foreground" /></div>
         ) : filtered.length === 0 ? (
-          <p className="rounded-lg border border-dashed border-border p-6 text-center text-xs text-muted-foreground">
+          <p className="mx-2 rounded-lg border border-dashed border-border p-6 text-center text-xs text-muted-foreground">
             Nenhum exercício encontrado. Cadastre em Exercícios ou digite abaixo.
           </p>
         ) : (
-          filtered.map((e) => {
-            const diff = difficultyStyle(e.difficulty);
-            const groups = [e.group, ...e.muscles_secondary].filter(Boolean) as string[];
-            const isSelected = selectedIds.has(e.id);
-            return (
-              <button
-                key={e.id}
-                onClick={() => toggle(e.id)}
-                className={`group flex w-full items-center gap-3 rounded-xl border p-2.5 text-left transition-colors ${
-                  isSelected
-                    ? "border-[oklch(0.92_0.19_115)]/60 bg-[oklch(0.92_0.19_115)]/5"
-                    : "border-border/60 bg-background/40 hover:border-border hover:bg-muted/40"
-                }`}
-              >
-                <div className="relative grid h-14 w-14 shrink-0 place-items-center overflow-hidden rounded-lg bg-muted">
-                  {e.image_path ? (
-                    <img src={e.image_path} alt="" className="h-full w-full object-cover" loading="lazy" />
-                  ) : (
-                    <Dumbbell className="h-5 w-5 text-muted-foreground" />
-                  )}
-                  <span className="absolute inset-0 grid place-items-center">
-                    <span className="grid h-6 w-6 place-items-center rounded-full bg-[oklch(0.92_0.19_115)] text-black shadow">
-                      <Play className="h-3 w-3 fill-black" />
+          <div className="space-y-2">
+            {filtered.map((e) => {
+              const diff = difficultyStyle(e.difficulty);
+              const groups = [e.group, ...e.muscles_secondary].filter(Boolean) as string[];
+              const isSelected = selectedIds.has(e.id);
+              return (
+                <button
+                  key={e.id}
+                  onClick={() => toggle(e.id)}
+                  className={`flex w-full items-center gap-3 rounded-xl border p-3 text-left transition-all active:scale-[0.99] ${
+                    isSelected
+                      ? "border-primary/60 bg-primary/5"
+                      : "border-border bg-card hover:border-foreground/30 hover:bg-muted/60"
+                  }`}
+                >
+                  <span className="relative grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-md bg-muted">
+                    {e.image_path ? (
+                      <img src={e.image_path} alt="" className="h-full w-full object-cover" loading="lazy" />
+                    ) : (
+                      <Dumbbell className="h-5 w-5 text-muted-foreground" />
+                    )}
+                    <span className="pointer-events-none absolute left-1/2 top-1/2 grid h-5 w-5 -translate-x-1/2 -translate-y-1/2 place-items-center rounded-full border-2 border-card bg-primary shadow-sm">
+                      <Play className="ml-px h-2.5 w-2.5 fill-primary-foreground text-primary-foreground" />
                     </span>
                   </span>
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-semibold text-foreground">{e.name}</div>
-                  <div className="mt-0.5 flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[11px]">
-                    <span className={`inline-flex items-center gap-1 font-medium ${diff.text}`}>
-                      <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: diff.dot }} />
-                      {diff.label}
-                    </span>
-                    {groups.slice(0, 3).map((g, i) => (
-                      <span key={`${g}-${i}`} className={`text-muted-foreground ${i === 0 ? "" : "italic"}`}>
-                        · {g}
+                  <div className="min-w-0 flex-1 space-y-1">
+                    <div className="truncate text-sm font-medium text-foreground">{e.name}</div>
+                    <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
+                      <span className={`inline-flex items-center gap-1 font-medium ${diff.text}`}>
+                        <span className={`h-1.5 w-1.5 rounded-full ${diff.dot}`} />
+                        {diff.label}
                       </span>
-                    ))}
+                      {groups.slice(0, 3).map((g, i) => (
+                        <span key={`${g}-${i}`} className="flex items-center gap-1.5 text-muted-foreground">
+                          <span className="text-muted-foreground/50">·</span>
+                          <span className={i === 0 ? "" : "italic"}>{g}</span>
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                </div>
-                {isSelected ? (
-                  <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-[oklch(0.92_0.19_115)] text-black">
-                    <Check className="h-3.5 w-3.5" strokeWidth={3} />
+                  <span
+                    className={`grid h-6 w-6 shrink-0 place-items-center rounded-full border-2 transition-all ${
+                      isSelected
+                        ? "border-primary bg-primary text-primary-foreground"
+                        : "border-border bg-transparent text-transparent"
+                    }`}
+                    aria-hidden
+                  >
+                    {isSelected && <Check className="h-3.5 w-3.5" strokeWidth={3} />}
                   </span>
-                ) : (
-                  <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full border border-border/70 group-hover:border-primary" />
-                )}
-              </button>
-            );
-          })
+                </button>
+              );
+            })}
+          </div>
         )}
       </div>
-      <CustomExerciseInput onAdd={(name) => setCustomPicks((prev) => [...prev, { id: null, name }])} />
+      <div className="shrink-0 border-t border-border">
+        <CustomExerciseInput onAdd={(name) => setCustomPicks((prev) => [...prev, { id: null, name }])} />
+      </div>
       {totalSelected > 0 && (
-        <div className="mt-3 flex items-center justify-between gap-3 rounded-2xl border border-[oklch(0.92_0.19_115)]/40 bg-card p-3">
+        <div className="flex shrink-0 items-center justify-between gap-3 border-t border-border bg-background px-5 py-3">
           <div className="flex items-center gap-3">
-            <span className="grid h-9 w-9 place-items-center rounded-full border border-[oklch(0.92_0.19_115)]/60 text-sm font-bold text-[oklch(0.92_0.19_115)]">
+            <span className="grid h-9 w-9 place-items-center rounded-full border-2 border-primary/60 text-sm font-bold text-primary">
               {totalSelected}
             </span>
             <div className="leading-tight">
@@ -1046,7 +1066,7 @@ function ExercisePicker({
           </div>
           <button
             onClick={handleCommit}
-            className="inline-flex h-9 items-center gap-1 rounded-full bg-[oklch(0.92_0.19_115)] px-4 text-sm font-semibold text-black hover:brightness-110"
+            className="inline-flex h-10 items-center gap-1 rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground hover:brightness-110"
           >
             Adicionar
           </button>
@@ -1055,6 +1075,7 @@ function ExercisePicker({
     </div>
   );
 }
+
 
 
 
