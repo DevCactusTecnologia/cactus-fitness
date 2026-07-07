@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   Home, Calendar, GraduationCap, SlidersHorizontal, Plus, Bell, Users,
   Link2, Search, LayoutGrid, ChevronRight, ChevronDown, Play, Filter,
-  Activity, CalendarDays, ArrowUpDown, Dumbbell, ClipboardCheck, Trophy,
+  Activity, CalendarDays, ArrowUpDown, Dumbbell, ClipboardCheck, Trophy, ClipboardList,
 } from "lucide-react";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 
