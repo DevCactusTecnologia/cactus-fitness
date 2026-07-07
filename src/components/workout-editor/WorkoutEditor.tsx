@@ -381,10 +381,12 @@ export function WorkoutEditor({ kind }: { kind: EditorKind }) {
                     <ExercisePicker
                       state={state}
                       activeTarget={activeTarget}
-                      onPick={(ex) => {
+                      onCommit={(list) => {
                         const target = resolveTarget(state, activeTarget);
                         if (!target) { toast("Selecione um bloco antes de adicionar exercícios."); return; }
-                        dispatch({ type: "ADD_EXERCISE", sessionId: target.sessionId, blockId: target.blockId, exercise: ex });
+                        list.forEach((ex) => {
+                          dispatch({ type: "ADD_EXERCISE", sessionId: target.sessionId, blockId: target.blockId, exercise: ex });
+                        });
                       }}
                     />
                   </div>
