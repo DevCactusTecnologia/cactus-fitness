@@ -57,7 +57,10 @@ type ExerciseItem = {
   load: string;
   notes: string;
   set_types?: SetType[];
+  reps_by_set?: string[];
+  rest_by_set?: number[];
 };
+
 
 type Block = {
   id: string;
@@ -982,17 +985,39 @@ function ExerciseDetailSheet({
             <div className="space-y-1">
               {rows.map((i) => {
                 const currentType = (item.set_types?.[i] ?? "normal") as SetType;
-                const meta = setTypeMeta(currentType);
+                const perReps = item.reps_by_set?.[i] ?? item.reps;
+                const perRest = item.rest_by_set?.[i] ?? (item.rest_seconds ?? 60);
                 const setType = (t: SetType) => {
                   const arr = [...(item.set_types ?? [])];
                   while (arr.length < setsCount) arr.push("normal");
                   arr[i] = t;
                   onChange({ set_types: arr.slice(0, setsCount) });
                 };
+                const setReps = (v: string) => {
+                  const arr = [...(item.reps_by_set ?? [])];
+                  while (arr.length < setsCount) arr.push(item.reps);
+                  arr[i] = v;
+                  onChange({ reps_by_set: arr.slice(0, setsCount) });
+                };
+                const setRest = (s: number) => {
+                  const arr = [...(item.rest_by_set ?? [])];
+                  while (arr.length < setsCount) arr.push(item.rest_seconds ?? 60);
+                  arr[i] = s;
+                  onChange({ rest_by_set: arr.slice(0, setsCount) });
+                };
                 const removeThisSet = () => {
-                  const arr = [...(item.set_types ?? [])];
-                  arr.splice(i, 1);
-                  onChange({ sets: Math.max(0, (item.sets ?? 0) - 1), set_types: arr });
+                  const types = [...(item.set_types ?? [])];
+                  const reps = [...(item.reps_by_set ?? [])];
+                  const rests = [...(item.rest_by_set ?? [])];
+                  types.splice(i, 1);
+                  reps.splice(i, 1);
+                  rests.splice(i, 1);
+                  onChange({
+                    sets: Math.max(0, (item.sets ?? 0) - 1),
+                    set_types: types,
+                    reps_by_set: reps,
+                    rest_by_set: rests,
+                  });
                 };
                 return (
                   <div key={i} className="grid grid-cols-[130px_minmax(0,1fr)_80px_32px] items-center gap-2 py-1">
@@ -1004,13 +1029,13 @@ function ExerciseDetailSheet({
                     />
                     <AlvoPickerButton
                       index={i}
-                      value={item.reps}
-                      onSave={(v) => onChange({ reps: v })}
+                      value={perReps}
+                      onSave={setReps}
                     />
                     <DescansoPickerButton
                       index={i}
-                      seconds={item.rest_seconds ?? 60}
-                      onSave={(s) => onChange({ rest_seconds: s })}
+                      seconds={perRest}
+                      onSave={setRest}
                     />
 
                     <button
@@ -1024,6 +1049,7 @@ function ExerciseDetailSheet({
                   </div>
                 );
               })}
+
             </div>
 
             <button
