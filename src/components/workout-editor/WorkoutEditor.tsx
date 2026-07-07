@@ -580,7 +580,7 @@ function SessionCard({
   const groupsCount = session.blocks.filter((b) => b.color || b.exercises.length > 0).length || 1;
 
   return (
-    <div className="w-[360px] overflow-hidden rounded-xl border border-border/60 bg-card/60">
+    <div className="w-full sm:w-[360px] overflow-hidden rounded-xl border border-border/60 bg-card/60">
       <div className="flex items-center gap-2 border-b border-border/60 px-4 py-3">
         <GripVertical className="h-4 w-4 shrink-0 text-muted-foreground/60" />
         <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[oklch(0.92_0.19_115)]/15 text-xs font-bold text-[oklch(0.92_0.19_115)]">
