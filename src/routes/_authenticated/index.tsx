@@ -37,7 +37,7 @@ function Sparkline({ magnitude = 0 }: { magnitude?: number }) {
     [72, baseY - 18 * m],
   ];
   const d = points.map(([x, y], i) => `${i === 0 ? "M" : "L"} ${x} ${y}`).join(" ");
-  const stroke = m === 0 ? "hsl(var(--muted-foreground) / 0.35)" : "hsl(var(--primary))";
+  const stroke = "hsl(var(--primary))";
   return (
     <svg viewBox="0 0 72 22" className="h-[22px] w-[72px] overflow-visible">
       <path d={d} fill="none" stroke={stroke} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
