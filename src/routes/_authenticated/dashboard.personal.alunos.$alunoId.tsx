@@ -350,7 +350,7 @@ function InformacoesTab({ aluno }: { aluno: Aluno }) {
   );
 }
 
-function _unused() { return <MobileBottomNav />; }
+
 
 function TreinosTab({ firstName, onNovoPlano }: { firstName: string; onNovoPlano: () => void }) {
   return (
