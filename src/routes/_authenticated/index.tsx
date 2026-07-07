@@ -429,7 +429,7 @@ function Dashboard() {
               <KpiCard label="Avaliações" value={String(stats?.avaliacoes ?? 0)} sub="em dia" />
             </div>
 
-            <div className="grid grid-cols-1 gap-3">
+            <div className="grid grid-cols-1 gap-3 lg:grid-cols-[1.4fr_1fr]">
               {/* Atalhos rápidos */}
               <section className="rounded-lg border border-border bg-bg-elevated">
                 <div className="flex items-center justify-between border-b border-border px-4 py-3">
@@ -443,7 +443,19 @@ function Dashboard() {
                   <Shortcut icon={HeartPulse} title="Avaliação física" sub="iniciar nova avaliação" k="A" />
                 </div>
               </section>
+
+              {/* Pulso dos alunos */}
+              <section className="rounded-lg border border-border bg-bg-elevated">
+                <div className="flex items-center justify-between border-b border-border px-4 py-3">
+                  <h2 className="font-display text-base font-bold">Pulso</h2>
+                  <Activity className="h-4 w-4 text-primary" />
+                </div>
+                <div className="p-3">
+                  <PulseRow />
+                </div>
+              </section>
             </div>
+
 
           </div>
         </div>
