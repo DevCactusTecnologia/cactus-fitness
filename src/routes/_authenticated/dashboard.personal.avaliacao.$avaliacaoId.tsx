@@ -226,32 +226,92 @@ function useForm<T extends Record<string, string>>(initial: T) {
   return [state, set] as const;
 }
 
+const PROTOCOLO_OPTIONS = [
+  { value: "pollock_7", label: "Pollock 7 Dobras" },
+  { value: "pollock_3", label: "Pollock 3 Dobras" },
+  { value: "guedes_3", label: "Guedes 3 Dobras" },
+  { value: "faulkner", label: "Faulkner 4 Dobras" },
+  { value: "weltman", label: "Weltman" },
+  { value: "us_navy", label: "US Navy (Fita Métrica)" },
+  { value: "bioimpedancia", label: "Bioimpedância" },
+];
+
+const PROTOCOLO_FIELDS: Record<string, { key: string; label: string }[]> = {
+  pollock_7: [
+    { key: "peitoral", label: "Peitoral (mm)" },
+    { key: "axilar_medial", label: "Axilar Medial (mm)" },
+    { key: "triceps", label: "Triceps (mm)" },
+    { key: "subescapular", label: "Subescapular (mm)" },
+    { key: "abdominal", label: "Abdominal (mm)" },
+    { key: "supra_iliaca", label: "Supra-iliaca (mm)" },
+    { key: "coxa", label: "Coxa (mm)" },
+  ],
+  pollock_3: [
+    { key: "peitoral", label: "Peitoral (mm)" },
+    { key: "abdominal", label: "Abdominal (mm)" },
+    { key: "coxa", label: "Coxa (mm)" },
+  ],
+  guedes_3: [
+    { key: "triceps", label: "Triceps (mm)" },
+    { key: "supra_iliaca", label: "Supra-iliaca (mm)" },
+    { key: "abdominal", label: "Abdominal (mm)" },
+  ],
+  faulkner: [
+    { key: "triceps", label: "Triceps (mm)" },
+    { key: "subescapular", label: "Subescapular (mm)" },
+    { key: "supra_iliaca", label: "Supra-iliaca (mm)" },
+    { key: "abdominal", label: "Abdominal (mm)" },
+  ],
+  weltman: [
+    { key: "circ_cintura", label: "Circunferência da Cintura (cm)" },
+    { key: "circ_abdominal", label: "Circunferência Abdominal (cm)" },
+  ],
+  us_navy: [
+    { key: "pescoco", label: "Pescoço (cm)" },
+    { key: "cintura", label: "Cintura (cm)" },
+    { key: "quadril", label: "Quadril (cm) — apenas mulheres" },
+  ],
+  bioimpedancia: [
+    { key: "gordura_aparelho", label: "% Gordura (aparelho)" },
+  ],
+};
+
 function ComposicaoCorporalCard({ avaliacao }: { avaliacao: Avaliacao }) {
-  const [form, set] = useForm({
+  const [form, setForm] = useState<Record<string, string>>(() => ({
     peso: avaliacao.composicao_corporal.peso ?? "",
     altura: avaliacao.composicao_corporal.altura ?? "",
     meta_gordura: avaliacao.composicao_corporal.meta_gordura ?? "",
-    protocolo: avaliacao.composicao_corporal.protocolo ?? "",
-  });
+    protocolo: avaliacao.composicao_corporal.protocolo ?? "pollock_7",
+    ...avaliacao.composicao_corporal,
+  }));
+  const set = (k: string, v: string) => setForm((f) => ({ ...f, [k]: v }));
   const save = useSaveSection(avaliacao.id, "composicao_corporal");
+  const protocoloFields = PROTOCOLO_FIELDS[form.protocolo] ?? [];
   return (
     <Section icon={Activity} title="Composição Corporal">
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
         <NumField label="Peso (kg)" value={form.peso} onChange={(v) => set("peso", v)} />
         <NumField label="Altura (cm)" value={form.altura} onChange={(v) => set("altura", v)} />
         <NumField label="Meta % Gordura" value={form.meta_gordura} onChange={(v) => set("meta_gordura", v)} />
+      </div>
+      <div className="mt-4">
         <SelectField
           label="Protocolo"
           value={form.protocolo}
           onChange={(v) => set("protocolo", v)}
-          options={[
-            { value: "pollock_3", label: "Pollock 3 dobras" },
-            { value: "pollock_7", label: "Pollock 7 dobras" },
-            { value: "faulkner", label: "Faulkner" },
-            { value: "guedes", label: "Guedes" },
-          ]}
+          options={PROTOCOLO_OPTIONS}
         />
       </div>
+      {protocoloFields.length > 0 && (
+        <>
+          <SubHeading>Campos do Protocolo</SubHeading>
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            {protocoloFields.map((f) => (
+              <NumField key={f.key} label={f.label} value={form[f.key] ?? ""} onChange={(v) => set(f.key, v)} />
+            ))}
+          </div>
+        </>
+      )}
       <SaveButton label="Salvar Composição Corporal" onClick={() => save.mutate(form)} pending={save.isPending} />
     </Section>
   );
