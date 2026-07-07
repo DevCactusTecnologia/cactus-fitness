@@ -1357,32 +1357,34 @@ function WheelPicker({
       <div className="relative w-[96px]" style={{ height: 144 }}>
         <div
           aria-hidden
-          className="pointer-events-none absolute left-0 right-0 top-1/2 -translate-y-1/2 rounded-lg bg-primary/10"
+          className="pointer-events-none absolute left-0 right-0 top-1/2 -translate-y-1/2 rounded-lg bg-primary/[0.10]"
           style={{ height: ITEM }}
         />
         <div
           ref={ref}
           onScroll={onScroll}
-          className="h-full cursor-ns-resize touch-pan-y overflow-y-scroll [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="h-full cursor-ns-resize touch-pan-y overflow-y-scroll [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
           style={{ scrollSnapType: "y mandatory", paddingTop: ITEM, paddingBottom: ITEM }}
         >
           {Array.from({ length: max }, (_, i) => {
-            const isActive = i === value;
+            const dist = Math.abs(i - value);
+            const isActive = dist === 0;
+            const opacity = isActive ? 1 : dist === 1 ? 0.55 : 0.25;
             return (
               <button
                 key={i}
                 type="button"
                 tabIndex={-1}
                 onClick={() => { scrollToValue(i); onChange(i); }}
-                className={`block w-full text-center font-mono tabular-nums leading-none focus:outline-none ${
-                  isActive ? "text-foreground" : "text-muted-foreground/60"
+                className={`block w-full cursor-pointer text-center font-mono tabular-nums leading-none focus:outline-none ${
+                  isActive ? "font-bold text-foreground" : "font-medium text-fg-muted hover:text-foreground/70"
                 }`}
                 style={{
                   height: ITEM,
                   scrollSnapAlign: "center",
                   fontSize: isActive ? 32 : 20,
-                  fontWeight: isActive ? 700 : 500,
-                  transition: "font-size 150ms, color 150ms",
+                  opacity,
+                  transition: "opacity 150ms, font-size 150ms",
                 }}
               >
                 {i.toString().padStart(2, "0")}
@@ -1395,6 +1397,7 @@ function WheelPicker({
     </div>
   );
 }
+
 
 function DescansoPickerButton({
   index, seconds, onSave,
