@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { IconRail } from "@/components/IconRail";
 import { initialsFromName } from "@/lib/auth";
+import { colorForId } from "@/lib/avatar-color";
 import {
   Dialog,
   DialogContent,
