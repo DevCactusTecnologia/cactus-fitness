@@ -381,14 +381,14 @@ function PerfilPage() {
                 </section>
 
                 <div className="sticky bottom-20 z-10 flex justify-start pt-2 md:bottom-4">
-                  <Button
+                  <button
                     onClick={onSave}
-                    size="sm"
-                    className="font-semibold shadow-lg"
+                    className="relative inline-flex h-10 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground shadow-[0_0_20px_hsl(var(--primary)/0.35)] transition-all duration-150 ease-out hover:-translate-y-0.5 hover:shadow-[0_0_40px_hsl(var(--primary)/0.55)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 active:translate-y-0 active:scale-[0.97] sm:w-auto"
                   >
                     Salvar customizações
-                  </Button>
+                  </button>
                 </div>
+
 
               </div>
             )}
