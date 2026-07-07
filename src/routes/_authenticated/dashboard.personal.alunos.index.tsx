@@ -290,6 +290,53 @@ function AlunosPage() {
         </div>
       </main>
       <MobileBottomNav />
+
+      <Dialog open={openNew} onOpenChange={(o) => { setOpenNew(o); if (!o) setFormError(null); }}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Novo aluno</DialogTitle>
+            <DialogDescription>Cadastre um novo aluno para começar a montar treinos.</DialogDescription>
+          </DialogHeader>
+          <form onSubmit={submitNew} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="full_name">Nome completo *</Label>
+              <Input id="full_name" value={form.full_name} onChange={(e) => setForm((f) => ({ ...f, full_name: e.target.value }))} placeholder="Ex: Maria Silva" autoFocus />
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="email">E-mail</Label>
+                <Input id="email" type="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} placeholder="aluno@email.com" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="phone">Telefone</Label>
+                <Input id="phone" value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} placeholder="(11) 99999-9999" />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="objective">Objetivo</Label>
+              <Input id="objective" value={form.objective} onChange={(e) => setForm((f) => ({ ...f, objective: e.target.value }))} placeholder="Ex: hipertrofia, emagrecimento" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="notes">Observações</Label>
+              <Textarea id="notes" value={form.notes} onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} rows={3} placeholder="Anotações internas sobre o aluno" />
+            </div>
+            {formError && <p className="text-sm text-destructive">{formError}</p>}
+            <DialogFooter>
+              <button type="button" onClick={() => setOpenNew(false)} className="rounded-md border border-border px-4 py-2 text-sm hover:bg-accent">
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                disabled={createAluno.isPending}
+                className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:brightness-110 disabled:opacity-60"
+              >
+                {createAluno.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+                Cadastrar aluno
+              </button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
