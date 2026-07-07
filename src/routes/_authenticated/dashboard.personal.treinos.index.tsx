@@ -150,10 +150,11 @@ function TreinosPage() {
           </div>
 
           {/* Info banner */}
-          <div className="mt-4 rounded-2xl border border-border bg-card/60 p-3 text-xs leading-relaxed text-muted-foreground md:p-5 md:text-sm">
-            <div className="flex gap-3 md:block">
-              <Info className="mt-0.5 h-4 w-4 shrink-0 text-primary md:hidden" />
-              <div className="space-y-1 md:space-y-0">
+          <div className="mt-4 rounded-2xl border border-border bg-card/60 p-2.5 text-[11px] leading-snug text-muted-foreground md:p-5 md:text-sm md:leading-relaxed">
+            <div className="flex gap-2 md:block md:gap-3">
+              <Info className="mt-0.5 h-3.5 w-3.5 shrink-0 text-primary md:hidden" />
+              <div className="space-y-0.5 md:space-y-0">
+
                 <p className="md:inline">
                   <span className="font-semibold text-foreground">Modelos prontos</span> são gabaritos reutilizáveis.{" "}
                 </p>
