@@ -205,9 +205,8 @@ function TreinosPage() {
                 <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
               </div>
             ) : visible.length === 0 ? (
-              <div className="rounded-xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
-                Nenhum modelo criado ainda. Clique em "Modelo de Treino" para começar.
-              </div>
+              <EmptyState />
+
             ) : (
               visible.map((m) => <ModeloRow key={m.id} modelo={m} />)
             )}
@@ -239,6 +238,56 @@ function StatCard({
       <div className="flex flex-col items-center">
         <div className="text-lg font-bold leading-none sm:text-2xl">{value}</div>
         <div className="mt-1 text-[10px] leading-tight text-muted-foreground sm:text-xs">{label}</div>
+      </div>
+    </div>
+  );
+}
+
+function EmptyState() {
+  return (
+    <div className="rounded-2xl border border-border bg-card p-6 sm:p-8">
+      <div className="mb-6 text-center">
+        <div className="mx-auto mb-3 grid h-14 w-14 place-items-center rounded-2xl bg-primary/10">
+          <FileText className="h-7 w-7 text-primary" />
+        </div>
+        <h3 className="mb-1 font-display text-lg font-bold text-foreground">Crie seu primeiro modelo</h3>
+        <p className="mx-auto max-w-sm text-sm text-muted-foreground">
+          Modelos são gabaritos reutilizáveis. Crie uma vez e use em vários alunos.
+        </p>
+      </div>
+      <div className="space-y-3">
+        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Comece por aqui</p>
+        <Link
+          to="/dashboard/personal/treinos/novo-plano"
+          className="flex w-full items-center gap-4 rounded-xl border border-primary/30 bg-primary/5 p-4 text-left transition-all hover:bg-primary/10 active:scale-[0.98]"
+        >
+          <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[oklch(0.55_0.22_300)]/15 text-[oklch(0.75_0.18_300)]">
+            <Layers className="h-5 w-5" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold text-foreground">Modelo de Plano</p>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              Agrupa vários treinos em uma rotina semanal (ex: A/B/C, seg/qua/sex)
+            </p>
+          </div>
+          <span className="shrink-0 rounded-full border border-primary/30 bg-primary/10 px-3 py-0.5 text-[10px] font-semibold text-primary">
+            Recomendado
+          </span>
+        </Link>
+        <Link
+          to="/dashboard/personal/treinos/novo-template"
+          className="flex w-full items-center gap-4 rounded-xl border border-border bg-muted/30 p-4 text-left transition-all hover:bg-muted/60 active:scale-[0.98]"
+        >
+          <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-[oklch(0.6_0.18_240)]/15 text-[oklch(0.75_0.15_240)]">
+            <Dumbbell className="h-5 w-5" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <p className="text-sm font-semibold text-foreground">Template de Treino</p>
+            <p className="mt-0.5 text-xs text-muted-foreground">
+              Treino único reutilizável (ex: Peito/Tríceps) — ideal para aulas avulsas
+            </p>
+          </div>
+        </Link>
       </div>
     </div>
   );
