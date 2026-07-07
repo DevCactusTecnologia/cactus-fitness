@@ -16,6 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { initialsFromName } from "@/lib/auth";
 import { IconRail } from "@/components/IconRail";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
+import { colorForId } from "@/lib/avatar-color";
 
 export const Route = createFileRoute("/_authenticated/dashboard/personal/alunos/$alunoId")({
   head: () => ({
