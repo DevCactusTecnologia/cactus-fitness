@@ -168,10 +168,14 @@ function TreinosPage() {
                 <FolderPlus className="h-4 w-4" />
                 Nova pasta
               </button>
-              <button className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.25)] hover:brightness-110">
-                <Plus className="h-4 w-4" />
-                Modelo de Treino
-              </button>
+              <NovoModeloMenu
+                trigger={
+                  <button className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.25)] hover:brightness-110">
+                    <Plus className="h-4 w-4" />
+                    Modelo de Treino
+                  </button>
+                }
+              />
             </div>
           </div>
 
