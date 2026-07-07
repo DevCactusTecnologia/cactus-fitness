@@ -57,7 +57,10 @@ type ExerciseItem = {
   load: string;
   notes: string;
   set_types?: SetType[];
+  reps_by_set?: string[];
+  rest_by_set?: number[];
 };
+
 
 type Block = {
   id: string;
