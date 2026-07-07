@@ -163,8 +163,6 @@ function NovaAvaliacaoDialog({
           >
             {mode === "aluno" ? "Enviar ao aluno" : "Criar"}
           </button>
-            Criar
-          </button>
         </div>
       </DialogContent>
     </Dialog>
