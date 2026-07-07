@@ -4,6 +4,7 @@ import {
   Home, Calendar, GraduationCap, SlidersHorizontal, Bell, Users,
   Dumbbell, ClipboardCheck, Trophy, ClipboardList, FolderPlus, Plus,
   Info, ChevronDown, LayoutGrid, Layers, FileText, MoreHorizontal,
+  ArrowLeft, Search,
 } from "lucide-react";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { UserAvatarMenu } from "@/components/UserAvatarMenu";
