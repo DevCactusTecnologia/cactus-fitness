@@ -246,64 +246,70 @@ function AuthForm({
     setNotice("Enviamos um link de recuperação para seu e-mail.");
   }
 
+  const roleLabel = role === "personal" ? "Personal Trainer" : "Aluno";
+  const roleTitle = role === "personal" ? "Bem-vindo, Personal" : "Bem-vindo, Aluno";
+  const roleSubtitle = role === "personal" ? "Entre para gerenciar seus alunos" : "Acesse seus treinos e progresso";
+  const RoleIcon =
+    role === "personal" ? (
+      <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256" className="h-5 w-5 text-primary">
+        <path d="M248,120h-8V88a16,16,0,0,0-16-16H208V64a16,16,0,0,0-16-16H168a16,16,0,0,0-16,16v56H104V64A16,16,0,0,0,88,48H64A16,16,0,0,0,48,64v8H32A16,16,0,0,0,16,88v32H8a8,8,0,0,0,0,16h8v32a16,16,0,0,0,16,16H48v8a16,16,0,0,0,16,16H88a16,16,0,0,0,16-16V136h48v56a16,16,0,0,0,16,16h24a16,16,0,0,0,16-16v-8h16a16,16,0,0,0,16-16V136h8a8,8,0,0,0,0-16ZM32,168V88H48v80Zm56,24H64V64H88V192Zm104,0H168V64h24V175.82c0,.06,0,.12,0,.18s0,.12,0,.18V192Zm32-24H208V88h16Z" />
+      </svg>
+    ) : (
+      <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256" className="h-5 w-5 text-primary">
+        <path d="M234.38,210a123.36,123.36,0,0,0-60.78-53.23,76,76,0,1,0-91.2,0A123.36,123.36,0,0,0,21.62,210a12,12,0,1,0,20.77,12c18.12-31.32,50.12-50,85.61-50s67.49,18.69,85.61,50a12,12,0,0,0,20.77-12ZM76,96a52,52,0,1,1,52,52A52.06,52.06,0,0,1,76,96Z" />
+      </svg>
+    );
+
+  const emailValid = z.string().email().safeParse(email.trim()).success;
+
   return (
     <div>
       <button
         type="button"
         onClick={onBack}
-        className="inline-flex items-center gap-1.5 text-sm text-fg-muted hover:text-foreground mb-6 font-body"
+        className="flex items-center gap-2 text-fg-muted hover:text-foreground transition-colors mb-6 active:scale-95 bg-surface-2 rounded-full px-3 py-1.5"
       >
         <ArrowLeft className="h-4 w-4" />
-        Trocar de perfil
+        <span className="text-sm font-body">Trocar perfil</span>
       </button>
 
-      <div className="mb-6">
-        <h1 className="text-[1.5rem] md:text-2xl font-bold font-display text-primary leading-tight">
-          {mode === "signin" ? `Entrar como ${label}` : `Criar conta de ${label}`}
+      <div className="mb-8">
+        <div className="flex items-center gap-3 mb-3">
+          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+            {RoleIcon}
+          </div>
+          <span className="text-primary/70 text-sm font-medium uppercase tracking-wider font-body">
+            {roleLabel}
+          </span>
+        </div>
+        <h1 className="text-[1.75rem] md:text-3xl font-bold font-display text-foreground leading-tight">
+          {mode === "signin" ? roleTitle : `Criar conta de ${roleLabel}`}
         </h1>
         <p className="text-fg-muted mt-2 text-sm font-body">
-          {mode === "signin" ? "Acesse com seu e-mail e senha" : "Preencha seus dados para começar"}
+          {mode === "signin" ? roleSubtitle : "Preencha seus dados para começar"}
         </p>
       </div>
 
-      <div className="inline-flex w-full rounded-lg bg-surface-2 p-1 text-sm mb-5 font-body">
-        <button
-          type="button"
-          onClick={() => setMode("signin")}
-          className={`flex-1 rounded-md py-1.5 font-semibold transition ${mode === "signin" ? "bg-surface-3 text-foreground shadow" : "text-fg-muted hover:text-foreground"}`}
-        >
-          Entrar
-        </button>
-        <button
-          type="button"
-          onClick={() => setMode("signup")}
-          className={`flex-1 rounded-md py-1.5 font-semibold transition ${mode === "signup" ? "bg-surface-3 text-foreground shadow" : "text-fg-muted hover:text-foreground"}`}
-        >
-          Criar conta
-        </button>
-      </div>
-
-      <form onSubmit={handleSubmit} className="space-y-4 font-body">
+      <form onSubmit={handleSubmit} className="space-y-4">
         {mode === "signup" && (
           <div className="space-y-1.5">
-            <label htmlFor="name" className="text-sm font-medium text-foreground">Nome completo</label>
-            <input
-              id="name"
-              type="text"
-              autoComplete="name"
-              required
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              placeholder="Como você quer ser chamado"
-              className="h-11 w-full rounded-lg border border-border bg-surface-2 px-3 text-sm placeholder:text-fg-muted focus:outline-none focus:ring-2 focus:ring-primary"
-            />
+            <div className="relative">
+              <input
+                id="name"
+                type="text"
+                autoComplete="name"
+                required
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                placeholder="Nome completo"
+                className="w-full h-12 bg-surface-2 text-foreground placeholder-fg-muted rounded-md px-4 text-sm font-body outline-none transition-all duration-200 border focus:border-primary focus:shadow-[0_0_0_3px_var(--primary-glow)] border-border hover:border-border-strong"
+              />
+            </div>
           </div>
         )}
 
         <div className="space-y-1.5">
-          <label htmlFor="email" className="text-sm font-medium text-foreground">E-mail</label>
           <div className="relative">
-            <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-fg-muted" />
             <input
               id="email"
               type="email"
@@ -311,68 +317,95 @@ function AuthForm({
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="voce@exemplo.com"
-              className="h-11 w-full rounded-lg border border-border bg-surface-2 pl-10 pr-3 text-sm placeholder:text-fg-muted focus:outline-none focus:ring-2 focus:ring-primary"
+              placeholder="Email"
+              className="w-full h-12 bg-surface-2 text-foreground placeholder-fg-muted rounded-md px-4 text-sm font-body outline-none transition-all duration-200 border focus:border-primary focus:shadow-[0_0_0_3px_var(--primary-glow)] border-border hover:border-border-strong"
             />
           </div>
         </div>
 
         <div className="space-y-1.5">
-          <div className="flex items-center justify-between">
-            <label htmlFor="password" className="text-sm font-medium text-foreground">Senha</label>
-            {mode === "signin" && (
-              <button type="button" onClick={handleForgotPassword} className="text-xs text-fg-muted hover:text-primary">
-                Esqueci minha senha
-              </button>
-            )}
-          </div>
           <div className="relative">
-            <Lock className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-fg-muted" />
             <input
               id="password"
               type={showPwd ? "text" : "password"}
               autoComplete={mode === "signin" ? "current-password" : "new-password"}
               required
               minLength={6}
+              disabled={!emailValid}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder={mode === "signup" ? "Mínimo 6 caracteres" : "••••••••"}
-              className="h-11 w-full rounded-lg border border-border bg-surface-2 pl-10 pr-10 text-sm placeholder:text-fg-muted focus:outline-none focus:ring-2 focus:ring-primary"
+              placeholder={emailValid ? (mode === "signup" ? "Crie uma senha (mín. 6)" : "Senha") : "Preencha o email primeiro"}
+              className={`w-full h-12 bg-surface-2 text-foreground placeholder-fg-muted rounded-md px-4 pr-12 text-sm font-body outline-none transition-all duration-200 border focus:border-primary focus:shadow-[0_0_0_3px_var(--primary-glow)] normal-case border-border hover:border-border-strong ${!emailValid ? "opacity-40 cursor-not-allowed" : ""}`}
             />
-            <button
-              type="button"
-              onClick={() => setShowPwd((v) => !v)}
-              className="absolute right-2 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-md text-fg-muted hover:bg-surface-3"
-              aria-label={showPwd ? "Ocultar senha" : "Mostrar senha"}
-            >
-              {showPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-            </button>
+            {emailValid && (
+              <button
+                type="button"
+                onClick={() => setShowPwd((v) => !v)}
+                className="absolute right-2 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-md text-fg-muted hover:bg-surface-3"
+                aria-label={showPwd ? "Ocultar senha" : "Mostrar senha"}
+              >
+                {showPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            )}
           </div>
         </div>
 
+        {mode === "signin" && (
+          <div className="flex justify-end pt-1">
+            <button
+              type="button"
+              onClick={handleForgotPassword}
+              className="text-sm text-primary hover:underline transition-colors font-body"
+            >
+              Esqueceu a senha?
+            </button>
+          </div>
+        )}
+
         {error && (
-          <div className="flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive">
+          <div className="flex items-start gap-2 rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2 text-sm text-destructive font-body">
             <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
             <span>{error}</span>
           </div>
         )}
         {notice && (
-          <div className="rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-sm text-primary">
+          <div className="rounded-lg border border-primary/30 bg-primary/10 px-3 py-2 text-sm text-primary font-body">
             {notice}
           </div>
         )}
 
-        <button
-          type="submit"
-          disabled={loading}
-          className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg bg-primary text-sm font-semibold font-display text-primary-foreground shadow-glow hover:brightness-110 transition disabled:opacity-70"
-        >
-          {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : mode === "signin" ? "Entrar" : "Criar conta"}
-        </button>
+        <div className="pt-2">
+          <button
+            type="submit"
+            disabled={loading || !emailValid || password.length < 6}
+            className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full transition-all duration-200 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/50 disabled:pointer-events-none disabled:opacity-50 active:scale-[0.97] bg-primary text-primary-foreground shadow-glow hover:shadow-glow-lg hover:-translate-y-0.5 active:translate-y-0 px-8 py-3.5 w-full h-12 text-sm font-semibold font-body"
+          >
+            {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : mode === "signin" ? "Entrar" : "Criar conta"}
+          </button>
+        </div>
       </form>
+
+      <div className="mt-6 text-center">
+        {mode === "signin" ? (
+          <p className="text-fg-muted text-sm font-body">
+            Não tem uma conta?{" "}
+            <button type="button" onClick={() => setMode("signup")} className="text-primary font-semibold hover:underline">
+              Cadastre-se
+            </button>
+          </p>
+        ) : (
+          <p className="text-fg-muted text-sm font-body">
+            Já tem conta?{" "}
+            <button type="button" onClick={() => setMode("signin")} className="text-primary font-semibold hover:underline">
+              Entrar
+            </button>
+          </p>
+        )}
+      </div>
     </div>
   );
 }
+
 
 function mapAuthError(msg: string): string {
   const m = msg.toLowerCase();
