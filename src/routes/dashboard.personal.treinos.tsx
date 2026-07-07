@@ -8,6 +8,40 @@ import {
 } from "lucide-react";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { UserAvatarMenu } from "@/components/UserAvatarMenu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+function NovoModeloMenu({ trigger }: { trigger: React.ReactNode }) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-72 rounded-xl p-2">
+        <DropdownMenuItem className="gap-3 rounded-lg p-3 focus:bg-muted">
+          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-[oklch(0.55_0.22_300)]/15 text-[oklch(0.75_0.18_300)]">
+            <Layers className="h-5 w-5" />
+          </span>
+          <span className="flex flex-col">
+            <span className="text-sm font-semibold text-foreground">Modelo de Plano</span>
+            <span className="text-xs text-muted-foreground">Agrupa vários treinos em uma rotina semanal</span>
+          </span>
+        </DropdownMenuItem>
+        <DropdownMenuItem className="gap-3 rounded-lg p-3 focus:bg-muted">
+          <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-[oklch(0.6_0.18_240)]/15 text-[oklch(0.75_0.15_240)]">
+            <Dumbbell className="h-5 w-5" />
+          </span>
+          <span className="flex flex-col">
+            <span className="text-sm font-semibold text-foreground">Template de Treino</span>
+            <span className="text-xs text-muted-foreground">Treino único reutilizável (ex: Peito/Tríceps)</span>
+          </span>
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
+}
 
 export const Route = createFileRoute("/dashboard/personal/treinos")({
   head: () => ({
@@ -116,10 +150,14 @@ function TreinosPage() {
             <button className="grid h-9 w-9 place-items-center rounded-lg text-muted-foreground hover:bg-muted" aria-label="Nova pasta">
               <FolderPlus className="h-5 w-5" />
             </button>
-            <button className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.25)] hover:brightness-110">
-              <Plus className="h-4 w-4" />
-              Modelo de Treino
-            </button>
+            <NovoModeloMenu
+              trigger={
+                <button className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.25)] hover:brightness-110">
+                  <Plus className="h-4 w-4" />
+                  Modelo de Treino
+                </button>
+              }
+            />
           </div>
 
           {/* Desktop header */}
@@ -130,10 +168,14 @@ function TreinosPage() {
                 <FolderPlus className="h-4 w-4" />
                 Nova pasta
               </button>
-              <button className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.25)] hover:brightness-110">
-                <Plus className="h-4 w-4" />
-                Modelo de Treino
-              </button>
+              <NovoModeloMenu
+                trigger={
+                  <button className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.25)] hover:brightness-110">
+                    <Plus className="h-4 w-4" />
+                    Modelo de Treino
+                  </button>
+                }
+              />
             </div>
           </div>
 
