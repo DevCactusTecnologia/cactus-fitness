@@ -343,8 +343,9 @@ function MobilePulseCard() {
         </span>
       </div>
       <div className="min-w-0 flex-1">
-        <div className="truncate text-base font-extrabold text-foreground sm:text-lg">pulso dos alunos</div>
-        <div className="truncate text-sm text-muted-foreground sm:text-base">3 atividades novas</div>
+        <div className="truncate text-sm font-extrabold text-foreground sm:text-base">pulso dos alunos</div>
+        <div className="truncate text-xs text-muted-foreground sm:text-sm">3 atividades novas</div>
+
       </div>
       <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
     </button>
