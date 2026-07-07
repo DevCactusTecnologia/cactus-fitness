@@ -87,6 +87,46 @@ type TabKey = "todos" | "ativos" | "convidados" | "desativados";
 function AlunosPage() {
   const [q, setQ] = useState("");
   const [tab, setTab] = useState<TabKey>("todos");
+  const [openNew, setOpenNew] = useState(false);
+  const [form, setForm] = useState({ full_name: "", email: "", phone: "", objective: "", notes: "" });
+  const [formError, setFormError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+
+  const createAluno = useMutation({
+    mutationFn: async (payload: typeof form) => {
+      const { data: userData } = await supabase.auth.getUser();
+      const personalId = userData.user?.id;
+      if (!personalId) throw new Error("Sessão expirada. Faça login novamente.");
+      const { error } = await supabase.from("alunos").insert({
+        personal_id: personalId,
+        full_name: payload.full_name.trim(),
+        email: payload.email.trim() || null,
+        phone: payload.phone.trim() || null,
+        objective: payload.objective.trim() || null,
+        notes: payload.notes.trim() || null,
+        is_active: true,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["alunos"] });
+      setOpenNew(false);
+      setForm({ full_name: "", email: "", phone: "", objective: "", notes: "" });
+      setFormError(null);
+    },
+    onError: (e: Error) => setFormError(e.message),
+  });
+
+  const submitNew = (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormError(null);
+    if (!form.full_name.trim()) {
+      setFormError("Informe o nome completo do aluno.");
+      return;
+    }
+    createAluno.mutate(form);
+  };
+
 
   const { data: alunos = [], isLoading } = useQuery({
     queryKey: ["alunos"],
