@@ -7,7 +7,7 @@ import {
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { UserAvatarMenu } from "@/components/UserAvatarMenu";
 
-export const Route = createFileRoute("/dashboard/personal/alunos/")({
+export const Route = createFileRoute("/_authenticated/dashboard/personal/alunos/")({
   head: () => ({
     meta: [
       { title: "Alunos · cactusfitness" },

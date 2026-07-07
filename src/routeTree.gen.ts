@@ -10,80 +10,87 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as DashboardPersonalTreinosRouteImport } from './routes/dashboard.personal.treinos'
-import { Route as DashboardPersonalExerciciosRouteImport } from './routes/dashboard.personal.exercicios'
-import { Route as DashboardPersonalAgendaRouteImport } from './routes/dashboard.personal.agenda'
-import { Route as DashboardPersonalAlunosIndexRouteImport } from './routes/dashboard.personal.alunos.index'
-import { Route as DashboardPersonalAlunosAlunoIdRouteImport } from './routes/dashboard.personal.alunos.$alunoId'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
+import { Route as AuthenticatedDashboardPersonalTreinosRouteImport } from './routes/_authenticated/dashboard.personal.treinos'
+import { Route as AuthenticatedDashboardPersonalExerciciosRouteImport } from './routes/_authenticated/dashboard.personal.exercicios'
+import { Route as AuthenticatedDashboardPersonalAgendaRouteImport } from './routes/_authenticated/dashboard.personal.agenda'
+import { Route as AuthenticatedDashboardPersonalAlunosIndexRouteImport } from './routes/_authenticated/dashboard.personal.alunos.index'
+import { Route as AuthenticatedDashboardPersonalAlunosAlunoIdRouteImport } from './routes/_authenticated/dashboard.personal.alunos.$alunoId'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const DashboardPersonalTreinosRoute =
-  DashboardPersonalTreinosRouteImport.update({
+const AuthenticatedDashboardPersonalTreinosRoute =
+  AuthenticatedDashboardPersonalTreinosRouteImport.update({
     id: '/dashboard/personal/treinos',
     path: '/dashboard/personal/treinos',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const DashboardPersonalExerciciosRoute =
-  DashboardPersonalExerciciosRouteImport.update({
+const AuthenticatedDashboardPersonalExerciciosRoute =
+  AuthenticatedDashboardPersonalExerciciosRouteImport.update({
     id: '/dashboard/personal/exercicios',
     path: '/dashboard/personal/exercicios',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const DashboardPersonalAgendaRoute = DashboardPersonalAgendaRouteImport.update({
-  id: '/dashboard/personal/agenda',
-  path: '/dashboard/personal/agenda',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DashboardPersonalAlunosIndexRoute =
-  DashboardPersonalAlunosIndexRouteImport.update({
+const AuthenticatedDashboardPersonalAgendaRoute =
+  AuthenticatedDashboardPersonalAgendaRouteImport.update({
+    id: '/dashboard/personal/agenda',
+    path: '/dashboard/personal/agenda',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedDashboardPersonalAlunosIndexRoute =
+  AuthenticatedDashboardPersonalAlunosIndexRouteImport.update({
     id: '/dashboard/personal/alunos/',
     path: '/dashboard/personal/alunos/',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
-const DashboardPersonalAlunosAlunoIdRoute =
-  DashboardPersonalAlunosAlunoIdRouteImport.update({
+const AuthenticatedDashboardPersonalAlunosAlunoIdRoute =
+  AuthenticatedDashboardPersonalAlunosAlunoIdRouteImport.update({
     id: '/dashboard/personal/alunos/$alunoId',
     path: '/dashboard/personal/alunos/$alunoId',
-    getParentRoute: () => rootRouteImport,
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
+  '/': typeof AuthenticatedIndexRoute
   '/login': typeof LoginRoute
-  '/dashboard/personal/agenda': typeof DashboardPersonalAgendaRoute
-  '/dashboard/personal/exercicios': typeof DashboardPersonalExerciciosRoute
-  '/dashboard/personal/treinos': typeof DashboardPersonalTreinosRoute
-  '/dashboard/personal/alunos/$alunoId': typeof DashboardPersonalAlunosAlunoIdRoute
-  '/dashboard/personal/alunos/': typeof DashboardPersonalAlunosIndexRoute
+  '/dashboard/personal/agenda': typeof AuthenticatedDashboardPersonalAgendaRoute
+  '/dashboard/personal/exercicios': typeof AuthenticatedDashboardPersonalExerciciosRoute
+  '/dashboard/personal/treinos': typeof AuthenticatedDashboardPersonalTreinosRoute
+  '/dashboard/personal/alunos/$alunoId': typeof AuthenticatedDashboardPersonalAlunosAlunoIdRoute
+  '/dashboard/personal/alunos/': typeof AuthenticatedDashboardPersonalAlunosIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
   '/login': typeof LoginRoute
-  '/dashboard/personal/agenda': typeof DashboardPersonalAgendaRoute
-  '/dashboard/personal/exercicios': typeof DashboardPersonalExerciciosRoute
-  '/dashboard/personal/treinos': typeof DashboardPersonalTreinosRoute
-  '/dashboard/personal/alunos/$alunoId': typeof DashboardPersonalAlunosAlunoIdRoute
-  '/dashboard/personal/alunos': typeof DashboardPersonalAlunosIndexRoute
+  '/': typeof AuthenticatedIndexRoute
+  '/dashboard/personal/agenda': typeof AuthenticatedDashboardPersonalAgendaRoute
+  '/dashboard/personal/exercicios': typeof AuthenticatedDashboardPersonalExerciciosRoute
+  '/dashboard/personal/treinos': typeof AuthenticatedDashboardPersonalTreinosRoute
+  '/dashboard/personal/alunos/$alunoId': typeof AuthenticatedDashboardPersonalAlunosAlunoIdRoute
+  '/dashboard/personal/alunos': typeof AuthenticatedDashboardPersonalAlunosIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/login': typeof LoginRoute
-  '/dashboard/personal/agenda': typeof DashboardPersonalAgendaRoute
-  '/dashboard/personal/exercicios': typeof DashboardPersonalExerciciosRoute
-  '/dashboard/personal/treinos': typeof DashboardPersonalTreinosRoute
-  '/dashboard/personal/alunos/$alunoId': typeof DashboardPersonalAlunosAlunoIdRoute
-  '/dashboard/personal/alunos/': typeof DashboardPersonalAlunosIndexRoute
+  '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/dashboard/personal/agenda': typeof AuthenticatedDashboardPersonalAgendaRoute
+  '/_authenticated/dashboard/personal/exercicios': typeof AuthenticatedDashboardPersonalExerciciosRoute
+  '/_authenticated/dashboard/personal/treinos': typeof AuthenticatedDashboardPersonalTreinosRoute
+  '/_authenticated/dashboard/personal/alunos/$alunoId': typeof AuthenticatedDashboardPersonalAlunosAlunoIdRoute
+  '/_authenticated/dashboard/personal/alunos/': typeof AuthenticatedDashboardPersonalAlunosIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -97,8 +104,8 @@ export interface FileRouteTypes {
     | '/dashboard/personal/alunos/'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/'
     | '/login'
+    | '/'
     | '/dashboard/personal/agenda'
     | '/dashboard/personal/exercicios'
     | '/dashboard/personal/treinos'
@@ -106,23 +113,19 @@ export interface FileRouteTypes {
     | '/dashboard/personal/alunos'
   id:
     | '__root__'
-    | '/'
+    | '/_authenticated'
     | '/login'
-    | '/dashboard/personal/agenda'
-    | '/dashboard/personal/exercicios'
-    | '/dashboard/personal/treinos'
-    | '/dashboard/personal/alunos/$alunoId'
-    | '/dashboard/personal/alunos/'
+    | '/_authenticated/'
+    | '/_authenticated/dashboard/personal/agenda'
+    | '/_authenticated/dashboard/personal/exercicios'
+    | '/_authenticated/dashboard/personal/treinos'
+    | '/_authenticated/dashboard/personal/alunos/$alunoId'
+    | '/_authenticated/dashboard/personal/alunos/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
+  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   LoginRoute: typeof LoginRoute
-  DashboardPersonalAgendaRoute: typeof DashboardPersonalAgendaRoute
-  DashboardPersonalExerciciosRoute: typeof DashboardPersonalExerciciosRoute
-  DashboardPersonalTreinosRoute: typeof DashboardPersonalTreinosRoute
-  DashboardPersonalAlunosAlunoIdRoute: typeof DashboardPersonalAlunosAlunoIdRoute
-  DashboardPersonalAlunosIndexRoute: typeof DashboardPersonalAlunosIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -134,59 +137,87 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/': {
+      id: '/_authenticated/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/dashboard/personal/treinos': {
-      id: '/dashboard/personal/treinos'
+    '/_authenticated/dashboard/personal/treinos': {
+      id: '/_authenticated/dashboard/personal/treinos'
       path: '/dashboard/personal/treinos'
       fullPath: '/dashboard/personal/treinos'
-      preLoaderRoute: typeof DashboardPersonalTreinosRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedDashboardPersonalTreinosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/dashboard/personal/exercicios': {
-      id: '/dashboard/personal/exercicios'
+    '/_authenticated/dashboard/personal/exercicios': {
+      id: '/_authenticated/dashboard/personal/exercicios'
       path: '/dashboard/personal/exercicios'
       fullPath: '/dashboard/personal/exercicios'
-      preLoaderRoute: typeof DashboardPersonalExerciciosRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedDashboardPersonalExerciciosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/dashboard/personal/agenda': {
-      id: '/dashboard/personal/agenda'
+    '/_authenticated/dashboard/personal/agenda': {
+      id: '/_authenticated/dashboard/personal/agenda'
       path: '/dashboard/personal/agenda'
       fullPath: '/dashboard/personal/agenda'
-      preLoaderRoute: typeof DashboardPersonalAgendaRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedDashboardPersonalAgendaRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/dashboard/personal/alunos/': {
-      id: '/dashboard/personal/alunos/'
+    '/_authenticated/dashboard/personal/alunos/': {
+      id: '/_authenticated/dashboard/personal/alunos/'
       path: '/dashboard/personal/alunos'
       fullPath: '/dashboard/personal/alunos/'
-      preLoaderRoute: typeof DashboardPersonalAlunosIndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedDashboardPersonalAlunosIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/dashboard/personal/alunos/$alunoId': {
-      id: '/dashboard/personal/alunos/$alunoId'
+    '/_authenticated/dashboard/personal/alunos/$alunoId': {
+      id: '/_authenticated/dashboard/personal/alunos/$alunoId'
       path: '/dashboard/personal/alunos/$alunoId'
       fullPath: '/dashboard/personal/alunos/$alunoId'
-      preLoaderRoute: typeof DashboardPersonalAlunosAlunoIdRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof AuthenticatedDashboardPersonalAlunosAlunoIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
   }
 }
 
+interface AuthenticatedRouteRouteChildren {
+  AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedDashboardPersonalAgendaRoute: typeof AuthenticatedDashboardPersonalAgendaRoute
+  AuthenticatedDashboardPersonalExerciciosRoute: typeof AuthenticatedDashboardPersonalExerciciosRoute
+  AuthenticatedDashboardPersonalTreinosRoute: typeof AuthenticatedDashboardPersonalTreinosRoute
+  AuthenticatedDashboardPersonalAlunosAlunoIdRoute: typeof AuthenticatedDashboardPersonalAlunosAlunoIdRoute
+  AuthenticatedDashboardPersonalAlunosIndexRoute: typeof AuthenticatedDashboardPersonalAlunosIndexRoute
+}
+
+const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedDashboardPersonalAgendaRoute:
+    AuthenticatedDashboardPersonalAgendaRoute,
+  AuthenticatedDashboardPersonalExerciciosRoute:
+    AuthenticatedDashboardPersonalExerciciosRoute,
+  AuthenticatedDashboardPersonalTreinosRoute:
+    AuthenticatedDashboardPersonalTreinosRoute,
+  AuthenticatedDashboardPersonalAlunosAlunoIdRoute:
+    AuthenticatedDashboardPersonalAlunosAlunoIdRoute,
+  AuthenticatedDashboardPersonalAlunosIndexRoute:
+    AuthenticatedDashboardPersonalAlunosIndexRoute,
+}
+
+const AuthenticatedRouteRouteWithChildren =
+  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
+  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   LoginRoute: LoginRoute,
-  DashboardPersonalAgendaRoute: DashboardPersonalAgendaRoute,
-  DashboardPersonalExerciciosRoute: DashboardPersonalExerciciosRoute,
-  DashboardPersonalTreinosRoute: DashboardPersonalTreinosRoute,
-  DashboardPersonalAlunosAlunoIdRoute: DashboardPersonalAlunosAlunoIdRoute,
-  DashboardPersonalAlunosIndexRoute: DashboardPersonalAlunosIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

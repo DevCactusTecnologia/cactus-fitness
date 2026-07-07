@@ -43,7 +43,7 @@ function NovoModeloMenu({ trigger }: { trigger: React.ReactNode }) {
   );
 }
 
-export const Route = createFileRoute("/dashboard/personal/treinos")({
+export const Route = createFileRoute("/_authenticated/dashboard/personal/treinos")({
   head: () => ({
     meta: [
       { title: "Treinos · cactusfitness" },
