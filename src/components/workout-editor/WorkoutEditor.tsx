@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { IconRail } from "@/components/IconRail";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
@@ -32,8 +33,30 @@ type ExerciseItem = {
 type Block = {
   id: string;
   label: string;
+  description?: string;
+  color?: string; // oklch/hex/tailwind color
   exercises: ExerciseItem[];
 };
+
+export type BlockPreset = {
+  key: string;
+  label: string;
+  description: string;
+  color: string; // css color
+};
+
+export const BLOCK_PRESETS: BlockPreset[] = [
+  { key: "mobilidade",  label: "Mobilidade",   description: "Alongamentos e flexibilidade",         color: "#a855f7" },
+  { key: "aquecimento", label: "Aquecimento",  description: "Preparação física inicial",            color: "#f97316" },
+  { key: "ativacao",    label: "Ativação",     description: "Ativar musculatura alvo",              color: "#22c55e" },
+  { key: "forca",       label: "Força",        description: "Séries pesadas, hipertrofia",          color: "#eab308" },
+  { key: "metabolico",  label: "Metabólico",   description: "Cardio em alta intensidade",           color: "#06b6d4" },
+  { key: "amrap",       label: "AMRAP",        description: "As Many Rounds As Possible",           color: "#3b82f6" },
+  { key: "emom",        label: "EMOM",         description: "Every Minute On the Minute",           color: "#f59e0b" },
+  { key: "fortime",     label: "For Time",     description: "Concluir o mais rápido possível",      color: "#ec4899" },
+  { key: "tabata",      label: "Tabata",       description: "Intervalos de alta intensidade (20s/10s, 8 rounds)", color: "#f43f5e" },
+  { key: "volta",       label: "Volta à Calma", description: "Recuperação ativa",                    color: "#14b8a6" },
+];
 
 type Session = {
   id: string;
@@ -58,6 +81,14 @@ const emptyBlock = (idx: number): Block => ({
   exercises: [],
 });
 
+const blockFromPreset = (p: BlockPreset): Block => ({
+  id: uid(),
+  label: p.label,
+  description: p.description,
+  color: p.color,
+  exercises: [],
+});
+
 const emptySession = (idx: number): Session => ({
   id: uid(),
   label: `Treino ${String.fromCharCode(65 + idx)}`,
@@ -71,7 +102,7 @@ type Action =
   | { type: "MOVE_SESSION"; sessionId: string; dir: -1 | 1 }
   | { type: "DUPLICATE_SESSION"; sessionId: string }
   | { type: "RENAME_SESSION"; sessionId: string; label: string }
-  | { type: "ADD_BLOCK"; sessionId: string }
+  | { type: "ADD_BLOCK"; sessionId: string; preset?: BlockPreset }
   | { type: "REMOVE_BLOCK"; sessionId: string; blockId: string }
   | { type: "MOVE_BLOCK"; sessionId: string; blockId: string; dir: -1 | 1 }
   | { type: "RENAME_BLOCK"; sessionId: string; blockId: string; label: string }
@@ -123,7 +154,7 @@ function reducer(state: State, action: Action): State {
       return {
         ...state,
         sessions: state.sessions.map(s => s.id === action.sessionId
-          ? { ...s, blocks: [...s.blocks, emptyBlock(s.blocks.length)] }
+          ? { ...s, blocks: [...s.blocks, action.preset ? blockFromPreset(action.preset) : emptyBlock(s.blocks.length)] }
           : s),
       };
     case "REMOVE_BLOCK":
@@ -468,12 +499,11 @@ export function WorkoutEditor({ kind }: { kind: EditorKind }) {
                   isActive={activeTarget?.blockId === b.id}
                 />
               ))}
-              <button
-                onClick={() => dispatch({ type: "ADD_BLOCK", sessionId: state.sessions[0].id })}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-dashed border-border/70 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted"
-              >
-                <Plus className="h-4 w-4" /> Adicionar bloco
-              </button>
+              <AddBlockButton
+                sessionId={state.sessions[0].id}
+                dispatch={dispatch}
+                size="lg"
+              />
             </div>
           )}
         </main>
@@ -570,12 +600,7 @@ function SessionCard({
         >
           <Plus className="h-3.5 w-3.5" /> Adicionar exercício
         </button>
-        <button
-          onClick={() => dispatch({ type: "ADD_BLOCK", sessionId: session.id })}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-dashed border-border/70 py-2 text-xs font-medium text-muted-foreground hover:bg-muted"
-        >
-          <Plus className="h-3.5 w-3.5" /> Adicionar bloco
-        </button>
+        <AddBlockButton sessionId={session.id} dispatch={dispatch} size="sm" />
       </div>
     </div>
   );
@@ -589,14 +614,20 @@ function BlockCard({
   onPickTarget: () => void;
   isActive: boolean;
 }) {
+  const color = block.color ?? "hsl(var(--muted-foreground))";
   return (
-    <div className={`rounded-lg border ${isActive ? "border-primary/60 ring-1 ring-primary/40" : "border-border"} bg-background/40 p-3`}>
+    <div
+      className={`rounded-lg border ${isActive ? "ring-1 ring-primary/40" : ""} bg-background/40 p-3`}
+      style={{ borderColor: isActive ? undefined : `${color}55` }}
+    >
       <div className="flex items-center gap-2">
         <GripVertical className="h-4 w-4 shrink-0 text-muted-foreground/60" />
+        <span className="h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: color }} />
         <Input
           value={block.label}
           onChange={(e) => dispatch({ type: "RENAME_BLOCK", sessionId, blockId: block.id, label: e.target.value })}
-          className="h-8 flex-1 border-0 bg-transparent px-1 text-sm font-semibold focus-visible:ring-1"
+          className="h-8 flex-1 border-0 bg-transparent px-1 text-sm font-semibold uppercase tracking-wide focus-visible:ring-1"
+          style={{ color }}
         />
         <ReorderButtons
           onUp={() => dispatch({ type: "MOVE_BLOCK", sessionId, blockId: block.id, dir: -1 })}
@@ -896,5 +927,50 @@ function CustomExerciseInput({ onAdd }: { onAdd: (name: string) => void }) {
         <Plus className="h-3.5 w-3.5" /> Add
       </button>
     </div>
+  );
+}
+
+function AddBlockButton({
+  sessionId, dispatch, size = "sm",
+}: {
+  sessionId: string;
+  dispatch: React.Dispatch<Action>;
+  size?: "sm" | "lg";
+}) {
+  const [open, setOpen] = useState(false);
+  const cls = size === "lg"
+    ? "inline-flex w-full items-center justify-center gap-2 rounded-full border border-dashed border-border/70 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted"
+    : "inline-flex w-full items-center justify-center gap-2 rounded-full border border-dashed border-border/70 py-2 text-xs font-medium text-muted-foreground hover:bg-muted";
+  return (
+    <Popover open={open} onOpenChange={setOpen}>
+      <PopoverTrigger asChild>
+        <button className={cls}>
+          <Plus className={size === "lg" ? "h-4 w-4" : "h-3.5 w-3.5"} /> Adicionar bloco
+        </button>
+      </PopoverTrigger>
+      <PopoverContent align="center" className="w-[320px] max-h-[420px] overflow-y-auto p-2">
+        <div className="px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+          Escolher tipo de bloco
+        </div>
+        <div className="space-y-0.5">
+          {BLOCK_PRESETS.map((p) => (
+            <button
+              key={p.key}
+              onClick={() => {
+                dispatch({ type: "ADD_BLOCK", sessionId, preset: p });
+                setOpen(false);
+              }}
+              className="flex w-full items-start gap-3 rounded-md px-2 py-2 text-left hover:bg-muted"
+            >
+              <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full" style={{ backgroundColor: p.color }} />
+              <div className="min-w-0 flex-1">
+                <div className="text-sm font-semibold" style={{ color: p.color }}>{p.label}</div>
+                <div className="text-xs text-muted-foreground">{p.description}</div>
+              </div>
+            </button>
+          ))}
+        </div>
+      </PopoverContent>
+    </Popover>
   );
 }
