@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { IconRail } from "@/components/IconRail";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { initialsFromName } from "@/lib/auth";
+import { colorForId } from "@/lib/avatar-color";
 
 export const Route = createFileRoute("/_authenticated/dashboard/personal/avaliacoes/")({
   head: () => ({
@@ -24,20 +25,6 @@ type AlunoRow = {
   is_active: boolean;
 };
 
-const AVATAR_COLORS = [
-  "bg-fuchsia-500",
-  "bg-rose-500",
-  "bg-amber-500",
-  "bg-emerald-500",
-  "bg-sky-500",
-  "bg-violet-500",
-  "bg-orange-500",
-];
-function colorFor(id: string) {
-  let h = 0;
-  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) | 0;
-  return AVATAR_COLORS[Math.abs(h) % AVATAR_COLORS.length];
-}
 
 function AvaliacoesPage() {
   const [q, setQ] = useState("");
@@ -135,7 +122,8 @@ function AvaliacoesPage() {
                     className="flex items-center gap-3 rounded-2xl border border-border/60 bg-card/60 px-3 py-3 transition hover:bg-card sm:px-4"
                   >
                     <div
-                      className={`grid h-10 w-10 shrink-0 place-items-center rounded-full text-xs font-bold text-white ${colorFor(a.id)}`}
+                      className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-xs font-bold font-display ring-2 ring-primary"
+                      style={{ backgroundColor: colorForId(a.id).bg, color: colorForId(a.id).fg }}
                     >
                       {initials}
                     </div>
