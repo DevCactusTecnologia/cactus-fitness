@@ -463,7 +463,7 @@ function AgendaPage() {
     load();
   }
 
-  const today = "2026-07-06";
+  const today = new Date().toISOString().slice(0, 10);
   const todayEvents = events.filter((e) => e.event_date === today);
   const upcoming = events.filter((e) => e.event_date >= today);
 
