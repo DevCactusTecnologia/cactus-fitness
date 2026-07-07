@@ -13,6 +13,8 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { IconRail } from "@/components/IconRail";
+import { MobileBottomNav } from "@/components/MobileBottomNav";
 
 export type EditorKind = "plan" | "template";
 
@@ -285,139 +287,143 @@ export function WorkoutEditor({ kind }: { kind: EditorKind }) {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Header */}
-      <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur-md">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 md:px-8">
-          <div className="flex items-center gap-3 min-w-0">
-            <button
-              onClick={() => navigate({ to: "/dashboard/personal/treinos" })}
-              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted"
-              aria-label="Voltar"
-            >
-              <ArrowLeft className="h-5 w-5" />
-            </button>
-            <h1 className="truncate text-base font-semibold md:text-xl">{title}</h1>
+      <IconRail />
+      <div className="pb-24 md:pl-[72px] md:pb-0">
+        {/* Header */}
+        <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur-md">
+          <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 md:px-8">
+            <div className="flex min-w-0 items-center gap-3">
+              <button
+                onClick={() => navigate({ to: "/dashboard/personal/treinos" })}
+                className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted"
+                aria-label="Voltar"
+              >
+                <ArrowLeft className="h-5 w-5" />
+              </button>
+              <h1 className="truncate text-base font-semibold md:text-xl">{title}</h1>
+            </div>
+            <div className="flex items-center gap-2">
+              <Sheet open={mobilePanelOpen} onOpenChange={setMobilePanelOpen}>
+                <SheetTrigger asChild>
+                  <button className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border bg-card px-3 text-xs font-medium md:hidden">
+                    <Settings2 className="h-4 w-4" />
+                    Painel
+                  </button>
+                </SheetTrigger>
+                <SheetContent side="bottom" className="h-[85vh] overflow-y-auto">
+                  <SheetHeader>
+                    <SheetTitle>Painel</SheetTitle>
+                  </SheetHeader>
+                  <div className="mt-4">
+                    <SidePanel
+                      kind={kind}
+                      state={state}
+                      dispatch={dispatch}
+                      activeTarget={activeTarget}
+                      onPicked={() => setMobilePanelOpen(false)}
+                    />
+                  </div>
+                </SheetContent>
+              </Sheet>
+              <button
+                onClick={handleSave}
+                disabled={!canSave}
+                className="inline-flex h-9 items-center gap-1.5 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.25)] hover:brightness-110 disabled:opacity-50"
+              >
+                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                Salvar
+              </button>
+            </div>
           </div>
-          <div className="flex items-center gap-2">
-            <Sheet open={mobilePanelOpen} onOpenChange={setMobilePanelOpen}>
-              <SheetTrigger asChild>
-                <button className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border bg-card px-3 text-xs font-medium md:hidden">
-                  <Settings2 className="h-4 w-4" />
-                  Painel
-                </button>
-              </SheetTrigger>
-              <SheetContent side="bottom" className="h-[85vh] overflow-y-auto">
-                <SheetHeader>
-                  <SheetTitle>Painel</SheetTitle>
-                </SheetHeader>
-                <div className="mt-4">
-                  <SidePanel
-                    kind={kind}
-                    state={state}
-                    dispatch={dispatch}
-                    activeTarget={activeTarget}
-                    onPicked={() => setMobilePanelOpen(false)}
+        </header>
+
+        <main className="mx-auto grid max-w-7xl gap-6 px-4 py-6 md:grid-cols-[minmax(0,1fr)_360px] md:px-8">
+          {/* Left column: structure */}
+          <section className="space-y-4">
+            <div className="rounded-2xl border border-border bg-card p-4 md:p-5">
+              <div className="space-y-3">
+                <div>
+                  <Label htmlFor="wt-name">{nameLabel}</Label>
+                  <Input
+                    id="wt-name"
+                    value={state.name}
+                    onChange={(e) => dispatch({ type: "SET_META", patch: { name: e.target.value } })}
+                    placeholder={kind === "plan" ? "Ex: Hipertrofia A/B/C" : "Ex: Peito e Tríceps"}
+                    className="mt-1.5"
                   />
                 </div>
-              </SheetContent>
-            </Sheet>
-            <button
-              onClick={handleSave}
-              disabled={!canSave}
-              className="inline-flex h-9 items-center gap-1.5 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.25)] hover:brightness-110 disabled:opacity-50"
-            >
-              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-              Salvar
-            </button>
-          </div>
-        </div>
-      </header>
-
-      <main className="mx-auto grid max-w-7xl gap-6 px-4 py-6 md:grid-cols-[minmax(0,1fr)_360px] md:px-8">
-        {/* Left column: structure */}
-        <section className="space-y-4">
-          <div className="rounded-2xl border border-border bg-card p-4 md:p-5">
-            <div className="space-y-3">
-              <div>
-                <Label htmlFor="wt-name">{nameLabel}</Label>
-                <Input
-                  id="wt-name"
-                  value={state.name}
-                  onChange={(e) => dispatch({ type: "SET_META", patch: { name: e.target.value } })}
-                  placeholder={kind === "plan" ? "Ex: Hipertrofia A/B/C" : "Ex: Peito e Tríceps"}
-                  className="mt-1.5"
-                />
-              </div>
-              <div>
-                <Label htmlFor="wt-desc">Descrição</Label>
-                <Textarea
-                  id="wt-desc"
-                  value={state.description}
-                  onChange={(e) => dispatch({ type: "SET_META", patch: { description: e.target.value } })}
-                  placeholder="Notas gerais, objetivo, público-alvo..."
-                  className="mt-1.5 min-h-[72px]"
-                />
+                <div>
+                  <Label htmlFor="wt-desc">Descrição</Label>
+                  <Textarea
+                    id="wt-desc"
+                    value={state.description}
+                    onChange={(e) => dispatch({ type: "SET_META", patch: { description: e.target.value } })}
+                    placeholder="Notas gerais, objetivo, público-alvo..."
+                    className="mt-1.5 min-h-[72px]"
+                  />
+                </div>
               </div>
             </div>
-          </div>
 
-          {kind === "plan" ? (
-            <>
-              {state.sessions.map((s, i) => (
-                <SessionCard
-                  key={s.id}
-                  index={i}
-                  total={state.sessions.length}
-                  session={s}
-                  dispatch={dispatch}
-                  onPickTargetBlock={(blockId) => {
-                    setActiveTarget({ sessionId: s.id, blockId });
-                    setMobilePanelOpen(true);
-                  }}
-                  activeBlockId={activeTarget?.sessionId === s.id ? activeTarget.blockId : null}
-                />
-              ))}
-              <button
-                onClick={() => dispatch({ type: "ADD_SESSION" })}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-card/40 py-3 text-sm font-medium text-muted-foreground hover:bg-muted"
-              >
-                <Plus className="h-4 w-4" /> Adicionar sessão
-              </button>
-            </>
-          ) : (
-            <div className="space-y-3">
-              {state.sessions[0].blocks.map((b, bi) => (
-                <BlockCard
-                  key={b.id}
-                  sessionId={state.sessions[0].id}
-                  index={bi}
-                  total={state.sessions[0].blocks.length}
-                  block={b}
-                  dispatch={dispatch}
-                  onPickTarget={() => {
-                    setActiveTarget({ sessionId: state.sessions[0].id, blockId: b.id });
-                    setMobilePanelOpen(true);
-                  }}
-                  isActive={activeTarget?.blockId === b.id}
-                />
-              ))}
-              <button
-                onClick={() => dispatch({ type: "ADD_BLOCK", sessionId: state.sessions[0].id })}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-card/40 py-3 text-sm font-medium text-muted-foreground hover:bg-muted"
-              >
-                <Plus className="h-4 w-4" /> Adicionar bloco
-              </button>
+            {kind === "plan" ? (
+              <>
+                {state.sessions.map((s, i) => (
+                  <SessionCard
+                    key={s.id}
+                    index={i}
+                    total={state.sessions.length}
+                    session={s}
+                    dispatch={dispatch}
+                    onPickTargetBlock={(blockId) => {
+                      setActiveTarget({ sessionId: s.id, blockId });
+                      setMobilePanelOpen(true);
+                    }}
+                    activeBlockId={activeTarget?.sessionId === s.id ? activeTarget.blockId : null}
+                  />
+                ))}
+                <button
+                  onClick={() => dispatch({ type: "ADD_SESSION" })}
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-card/40 py-3 text-sm font-medium text-muted-foreground hover:bg-muted"
+                >
+                  <Plus className="h-4 w-4" /> Adicionar sessão
+                </button>
+              </>
+            ) : (
+              <div className="space-y-3">
+                {state.sessions[0].blocks.map((b, bi) => (
+                  <BlockCard
+                    key={b.id}
+                    sessionId={state.sessions[0].id}
+                    index={bi}
+                    total={state.sessions[0].blocks.length}
+                    block={b}
+                    dispatch={dispatch}
+                    onPickTarget={() => {
+                      setActiveTarget({ sessionId: state.sessions[0].id, blockId: b.id });
+                      setMobilePanelOpen(true);
+                    }}
+                    isActive={activeTarget?.blockId === b.id}
+                  />
+                ))}
+                <button
+                  onClick={() => dispatch({ type: "ADD_BLOCK", sessionId: state.sessions[0].id })}
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-card/40 py-3 text-sm font-medium text-muted-foreground hover:bg-muted"
+                >
+                  <Plus className="h-4 w-4" /> Adicionar bloco
+                </button>
+              </div>
+            )}
+          </section>
+
+          {/* Right column: panel */}
+          <aside className="hidden md:block">
+            <div className="sticky top-[76px]">
+              <SidePanel kind={kind} state={state} dispatch={dispatch} activeTarget={activeTarget} />
             </div>
-          )}
-        </section>
-
-        {/* Right column: panel */}
-        <aside className="hidden md:block">
-          <div className="sticky top-[76px]">
-            <SidePanel kind={kind} state={state} dispatch={dispatch} activeTarget={activeTarget} />
-          </div>
-        </aside>
-      </main>
+          </aside>
+        </main>
+      </div>
+      <MobileBottomNav />
     </div>
   );
 }
