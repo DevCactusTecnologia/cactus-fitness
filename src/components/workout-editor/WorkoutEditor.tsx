@@ -435,9 +435,10 @@ export function WorkoutEditor({ kind }: { kind: EditorKind }) {
           </div>
         </header>
 
-        <main className="px-4 py-5 md:px-8">
+        <main className="px-3 py-4 sm:px-4 sm:py-5 md:px-8">
           {/* Name / description / Configurações */}
-          <div className="flex items-start gap-3">
+          <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-start">
+
             <div className="flex-1 space-y-1">
               <div className="group relative rounded-lg border border-border/50 bg-card/40 px-4 py-3 transition hover:border-border">
                 <Input
