@@ -1,6 +1,6 @@
-import { createFileRoute, Link, notFound } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { ClipboardList, Plus, ArrowLeft, User as UserIcon, Send, Loader2 } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
@@ -94,17 +94,42 @@ function AvaliacoesAlunoPage() {
       </main>
       <MobileBottomNav />
 
-      <NovaAvaliacaoDialog open={open} onOpenChange={setOpen} alunoNome={aluno.full_name} />
+      <NovaAvaliacaoDialog open={open} onOpenChange={setOpen} alunoNome={aluno.full_name} alunoId={aluno.id} />
     </div>
   );
 }
 
 function NovaAvaliacaoDialog({
-  open, onOpenChange, alunoNome,
-}: { open: boolean; onOpenChange: (o: boolean) => void; alunoNome: string }) {
+  open, onOpenChange, alunoNome, alunoId,
+}: { open: boolean; onOpenChange: (o: boolean) => void; alunoNome: string; alunoId: string }) {
   const today = new Date().toISOString().slice(0, 10);
   const [mode, setMode] = useState<"personal" | "aluno">("personal");
   const [date, setDate] = useState(today);
+  const navigate = useNavigate();
+
+  const createAvaliacao = useMutation({
+    mutationFn: async () => {
+      const { data: userData } = await supabase.auth.getUser();
+      const personalId = userData.user?.id;
+      if (!personalId) throw new Error("Sessão expirada.");
+      const { data, error } = await supabase
+        .from("avaliacoes")
+        .insert({
+          personal_id: personalId,
+          aluno_id: alunoId,
+          assessment_date: date,
+          mode,
+        })
+        .select("id")
+        .single();
+      if (error) throw error;
+      return data.id as string;
+    },
+    onSuccess: (id) => {
+      onOpenChange(false);
+      navigate({ to: "/dashboard/personal/avaliacao/$avaliacaoId", params: { avaliacaoId: id } });
+    },
+  });
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -150,9 +175,11 @@ function NovaAvaliacaoDialog({
           </button>
           <button
             type="button"
-            onClick={() => onOpenChange(false)}
-            className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground hover:brightness-110"
+            onClick={() => createAvaliacao.mutate()}
+            disabled={createAvaliacao.isPending}
+            className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground hover:brightness-110 disabled:opacity-60"
           >
+            {createAvaliacao.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
             {mode === "aluno" ? "Enviar ao aluno" : "Criar"}
           </button>
         </div>
