@@ -308,7 +308,7 @@ function NextEventCard() {
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <CalendarDays className="h-3.5 w-3.5" /> Próximo evento
         </div>
-        <div className="mt-1 truncate text-base font-bold font-display">{event.title}</div>
+        <div className="mt-1 truncate text-sm font-bold font-display">{event.title}</div>
         <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
           <span className="inline-flex items-center gap-1"><Clock className="h-3.5 w-3.5" /> {dateLabel}</span>
           {event.location && <span className="inline-flex items-center gap-1"><MapPin className="h-3.5 w-3.5" /> {event.location}</span>}
