@@ -205,9 +205,8 @@ function TreinosPage() {
                 <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
               </div>
             ) : visible.length === 0 ? (
-              <div className="rounded-xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
-                Nenhum modelo criado ainda. Clique em "Modelo de Treino" para começar.
-              </div>
+              <EmptyState />
+
             ) : (
               visible.map((m) => <ModeloRow key={m.id} modelo={m} />)
             )}
