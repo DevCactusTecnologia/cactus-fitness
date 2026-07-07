@@ -67,16 +67,19 @@ function toEmbedUrl(url: string): string {
 }
 
 
-/* ---------- identidade local (sem auth) ---------- */
-function getPersonalId(): string {
-  if (typeof window === "undefined") return "";
-  let id = localStorage.getItem("personal_id");
-  if (!id) {
-    id = `personal_${crypto.randomUUID()}`;
-    localStorage.setItem("personal_id", id);
-  }
+/* ---------- personal id: real auth session ---------- */
+function usePersonalId(): string | null {
+  const [id, setId] = useState<string | null>(null);
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setId(data.user?.id ?? null));
+    const { data: sub } = supabase.auth.onAuthStateChange((_, session) => {
+      setId(session?.user?.id ?? null);
+    });
+    return () => sub.subscription.unsubscribe();
+  }, []);
   return id;
 }
+
 
 /* ---------- Sidebar ---------- */
 function SidebarIconBtn({
