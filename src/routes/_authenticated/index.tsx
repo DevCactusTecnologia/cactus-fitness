@@ -7,6 +7,7 @@ import {
   ChevronDown, ChevronRight, Pencil, HeartPulse, Dumbbell, Trophy, Gift, ClipboardCheck, Flame,
   Lightbulb, Sparkles, ArrowRight, Search,
   UserPlus, FileText, Link2, TrendingUp, AlertTriangle, Clock, MapPin, Home, Users as UsersIcon,
+  Wallet, Eye,
 } from "lucide-react";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import logoUrl from "@/assets/cactus-logo.png";
@@ -134,7 +135,7 @@ import { IconRail } from "@/components/IconRail";
 
 function MobileTopBar() {
   return (
-    <header className="sticky top-0 z-20 grid w-full max-w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-2 overflow-hidden border-b border-border bg-background/80 px-4 py-3 backdrop-blur md:hidden">
+    <header data-mobile-fit="true" className="sticky top-0 z-20 grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-2 overflow-hidden border-b border-border bg-background/80 px-6 py-3 backdrop-blur md:hidden">
       <div className="flex min-w-0 items-center gap-2">
         <span
           aria-label="CactusFitness"
@@ -223,30 +224,46 @@ function GreetingCard() {
   const initials = initialsFromName(profile?.full_name, profile?.email);
   const greeting = greetingFor(new Date().getHours());
   return (
-    <div className="rounded-lg border border-border bg-card p-5 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.6)]">
+    <div className="rounded-[1.55rem] border border-border bg-[image:var(--gradient-greeting-card)] p-5 shadow-[var(--shadow-mobile-card)] sm:p-6">
       <div className="flex items-center gap-4">
-        <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full text-sm font-semibold font-display" style={{ backgroundColor: "rgb(244, 63, 94)", color: "#fff" }}>
+        <div className="grid h-16 w-16 shrink-0 place-items-center rounded-full text-lg font-bold ring-2 ring-primary/70 font-display" style={{ backgroundColor: "rgb(244, 63, 94)", color: "#fff" }}>
           {initials}
         </div>
         <div className="min-w-0">
-          <div className="text-sm text-muted-foreground">{greeting},</div>
-          <div className="text-xl font-bold tracking-tight font-display">{name}</div>
+          <div className="text-[1.05rem] font-medium text-muted-foreground">{greeting},</div>
+          <div className="truncate text-[1.7rem] font-extrabold leading-tight tracking-tight font-display">{name}</div>
         </div>
       </div>
-      <div className="mt-5 grid grid-cols-3 gap-4">
+      <div className="mt-8 grid grid-cols-3 gap-4">
         <div>
-          <div className="text-3xl font-bold font-display">{stats?.alunosAtivos ?? 0}</div>
-          <div className="mt-1 text-xs leading-tight text-muted-foreground">alunos<br/>ativos</div>
+          <div className="text-[2.75rem] font-extrabold leading-none font-display">{stats?.alunosAtivos ?? 0}</div>
+          <div className="mt-2 text-[1.05rem] leading-tight text-muted-foreground">alunos<br/>ativos</div>
         </div>
         <div>
-          <div className="text-3xl font-bold font-display">{stats?.treinosAtivos ?? 0}</div>
-          <div className="mt-1 text-xs leading-tight text-muted-foreground">treinos<br/>ativos</div>
+          <div className="text-[2.75rem] font-extrabold leading-none font-display">{stats?.treinosAtivos ?? 0}</div>
+          <div className="mt-2 text-[1.05rem] leading-tight text-muted-foreground">treinos<br/>ativos</div>
         </div>
         <div>
-          <div className="text-3xl font-bold font-display">{stats?.avaliacoes ?? 0}</div>
-          <div className="mt-1 text-xs leading-tight text-muted-foreground">avaliações<br/>físicas</div>
+          <div className="text-[2.75rem] font-extrabold leading-none font-display">{stats?.avaliacoes ?? 0}</div>
+          <div className="mt-2 text-[1.05rem] leading-tight text-muted-foreground">avaliações<br/>físicas</div>
         </div>
       </div>
+    </div>
+  );
+}
+
+function WalletCard() {
+  return (
+    <div className="flex items-center gap-4 rounded-[1.55rem] border border-border bg-card px-5 py-4 shadow-[var(--shadow-mobile-card)]">
+      <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
+        <Wallet className="h-5 w-5" strokeWidth={1.75} />
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="truncate text-sm text-muted-foreground">Carteira CactusFitness</div>
+        <div className="truncate text-2xl font-extrabold leading-tight text-primary font-display">R$ 0,00</div>
+      </div>
+      <Eye className="h-5 w-5 shrink-0 text-muted-foreground" strokeWidth={1.75} />
+      <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground" strokeWidth={1.75} />
     </div>
   );
 }
@@ -254,11 +271,11 @@ function GreetingCard() {
 
 function ActionButton({ icon: Icon, label }: { icon: React.ElementType; label: string }) {
   return (
-    <button className="flex w-full min-w-0 items-center gap-2.5 overflow-hidden rounded-lg border border-border bg-card px-3 py-4 text-left transition hover:border-primary/40 sm:gap-3 sm:px-4">
-      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-background/60 text-primary">
+    <button className="flex w-full min-w-0 items-center gap-4 overflow-hidden rounded-[1.25rem] border border-border bg-card px-6 py-5 text-left shadow-[var(--shadow-mobile-card)] transition hover:border-primary/40 sm:px-6">
+      <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
         <Icon className="h-5 w-5" strokeWidth={1.75} />
       </div>
-      <span className="min-w-0 flex-1 break-words text-[0.8125rem] font-semibold leading-tight sm:text-base">{label}</span>
+      <span className="min-w-0 flex-1 break-words text-[1.15rem] font-bold leading-tight">{label}</span>
     </button>
   );
 }
@@ -314,19 +331,19 @@ function MobilePulseCard() {
   return (
     <button
       type="button"
-      className="flex w-full min-w-0 items-center gap-3 overflow-hidden rounded-lg border border-primary/40 bg-[#0d0f0d] px-4 py-3 text-left"
+      className="flex w-full min-w-0 items-center gap-4 overflow-hidden rounded-[1.55rem] border border-primary/40 bg-card px-5 py-4 text-left shadow-[var(--shadow-mobile-card)]"
     >
       <div className="relative shrink-0">
-        <div className="grid h-11 w-11 place-items-center rounded-full bg-primary/15 text-primary">
-          <Activity className="h-5 w-5" strokeWidth={2} />
+        <div className="grid h-14 w-14 place-items-center rounded-full bg-primary/15 text-primary">
+          <Activity className="h-7 w-7" strokeWidth={2} />
         </div>
-        <span className="absolute -right-1 -top-1 grid h-5 w-5 place-items-center rounded-full bg-primary text-[10px] font-bold text-black">
+        <span className="absolute -right-1 -top-1 grid h-6 w-6 place-items-center rounded-full bg-primary text-xs font-extrabold text-primary-foreground">
           3
         </span>
       </div>
       <div className="min-w-0 flex-1">
-        <div className="text-sm font-bold text-foreground">pulso dos alunos</div>
-        <div className="text-xs text-muted-foreground">3 atividades novas</div>
+        <div className="truncate text-[1.15rem] font-extrabold text-foreground">pulso dos alunos</div>
+        <div className="truncate text-[1rem] text-muted-foreground">3 atividades novas</div>
       </div>
       <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
     </button>
@@ -372,12 +389,12 @@ function Dashboard() {
   const today = new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" });
 
   return (
-    <div data-mobile-fit="true" className="min-h-screen w-full max-w-[100dvw] overflow-x-hidden bg-background text-foreground md:max-w-full">
+    <div data-mobile-fit="true" className="min-h-screen w-full overflow-x-hidden bg-background text-foreground">
       <IconRail />
       <MobileTopBar />
 
 
-      <main data-mobile-fit="true" className="w-full max-w-[100dvw] overflow-x-hidden pb-24 md:ml-[72px] md:w-[calc(100%-72px)] md:max-w-full md:pb-8">
+      <main data-mobile-fit="true" className="w-full overflow-x-hidden pb-24 md:ml-[72px] md:w-[calc(100%-72px)] md:pb-8">
         {/* ==================== DESKTOP (lg+) ==================== */}
         <div className="hidden lg:block">
           <div className="mx-auto flex w-full max-w-[1180px] flex-col gap-4 px-4 pb-12 pt-4">
@@ -441,8 +458,8 @@ function Dashboard() {
         </div>
 
         {/* ==================== TABLET / MOBILE (<lg) ==================== */}
-        <div data-mobile-fit="true" className="w-full max-w-[100dvw] overflow-hidden lg:hidden">
-          <div className="mx-auto w-full max-w-[100dvw] overflow-hidden px-3 py-4 sm:px-4 md:max-w-6xl md:px-8 md:py-8">
+        <div data-mobile-fit="true" className="w-full overflow-hidden lg:hidden">
+          <div data-mobile-fit="true" className="mx-auto w-full overflow-hidden px-3 py-4 sm:px-4 md:max-w-6xl md:px-8 md:py-8">
             <div className="mb-6 hidden items-start justify-between gap-4 md:flex">
               <div>
                 <h1 className="text-3xl font-bold tracking-tight font-display">Início</h1>
@@ -460,11 +477,13 @@ function Dashboard() {
               </div>
             </div>
 
-            <div className="space-y-4">
+            <div data-mobile-fit="true" className="space-y-4">
               
               <div className="grid grid-cols-1 gap-4">
                 <GreetingCard />
               </div>
+
+              <WalletCard />
 
               <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-3">
                 <ActionButton icon={Lock} label="Adicionar Aluno" />
