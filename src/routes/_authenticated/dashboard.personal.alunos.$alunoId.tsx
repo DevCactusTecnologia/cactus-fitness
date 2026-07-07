@@ -1,9 +1,10 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
   Home, Users, Dumbbell, ClipboardCheck, Wallet, Bell, Plus, PanelLeftClose,
   ArrowLeft, LogIn, Mail, Phone, ShieldAlert, Calendar, User,
-  Clock, Trophy, Pencil, Power, Trash2, Tag, Copy, FileText, Sparkles,
+  Clock, Trophy, Pencil, Power, Trash2, Tag, Copy, FileText, Sparkles, Loader2,
 } from "lucide-react";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
@@ -11,6 +12,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
+import { supabase } from "@/integrations/supabase/client";
+import { initialsFromName } from "@/lib/auth";
 
 export const Route = createFileRoute("/_authenticated/dashboard/personal/alunos/$alunoId")({
   head: () => ({
@@ -21,6 +24,32 @@ export const Route = createFileRoute("/_authenticated/dashboard/personal/alunos/
   }),
   component: AlunoDetailPage,
 });
+
+type Aluno = {
+  id: string;
+  full_name: string;
+  email: string | null;
+  phone: string | null;
+  birth_date: string | null;
+  gender: string | null;
+  objective: string | null;
+  notes: string | null;
+  is_active: boolean;
+  created_at: string;
+  updated_at: string;
+};
+
+function useAluno(alunoId: string) {
+  return useQuery({
+    queryKey: ["aluno", alunoId],
+    queryFn: async (): Promise<Aluno> => {
+      const { data, error } = await supabase.from("alunos").select("*").eq("id", alunoId).maybeSingle();
+      if (error) throw error;
+      if (!data) throw notFound();
+      return data as Aluno;
+    },
+  });
+}
 
 function SidebarIcon({
   icon: Icon, active, badge, to,
@@ -52,7 +81,7 @@ function Row({
       </div>
       <div className="min-w-0 flex-1">
         <div className="text-xs text-muted-foreground">{label}</div>
-        <div className="text-sm font-medium truncate">{valueNode ?? value}</div>
+        <div className="text-sm font-medium truncate">{valueNode ?? value ?? "Não informado"}</div>
       </div>
     </div>
   );
@@ -78,10 +107,28 @@ function PermissionRow({
   );
 }
 
+function formatDate(iso: string | null): string | undefined {
+  if (!iso) return undefined;
+  const d = new Date(iso.includes("T") ? iso : iso + "T00:00:00");
+  return d.toLocaleDateString("pt-BR");
+}
+
 function AlunoDetailPage() {
+  const { alunoId } = Route.useParams();
+  const { data: aluno, isLoading } = useAluno(alunoId);
   const [activeTab, setActiveTab] = useState(0);
   const [novoPlanoOpen, setNovoPlanoOpen] = useState(false);
   const [configOpen, setConfigOpen] = useState(false);
+
+  if (isLoading || !aluno) {
+    return (
+      <div className="grid min-h-screen place-items-center bg-background text-foreground">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  const initials = initialsFromName(aluno.full_name, aluno.email);
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -96,9 +143,8 @@ function AlunoDetailPage() {
         <SidebarIcon icon={Wallet} />
         <div className="mt-auto flex flex-col items-center gap-2">
           <SidebarIcon icon={Plus} />
-          <SidebarIcon icon={Bell} badge="2" />
+          <SidebarIcon icon={Bell} />
           <SidebarIcon icon={PanelLeftClose} />
-          <div className="grid h-10 w-10 place-items-center rounded-xl bg-destructive/90 text-sm font-semibold text-white">ML</div>
         </div>
       </aside>
 
@@ -109,18 +155,17 @@ function AlunoDetailPage() {
           </Link>
           <h1 className="text-2xl font-bold tracking-tight font-display">Perfil do Aluno</h1>
 
-          {/* Header card */}
           <div className="rounded-xl border border-border bg-card p-5 md:p-6">
             <div className="flex items-center gap-4">
-              <div className="relative grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-full bg-gradient-to-br from-fuchsia-500 to-fuchsia-700 text-lg font-bold text-white font-display ring-2 ring-border shadow-md">
-                ML
+              <div className="grid h-16 w-16 shrink-0 place-items-center rounded-full bg-primary/20 text-lg font-bold text-primary font-display ring-2 ring-border shadow-md">
+                {initials}
               </div>
               <div className="min-w-0 flex-1">
-                <h2 className="truncate text-xl font-bold md:text-2xl font-display">marcos Lisboa</h2>
-                <p className="truncate text-sm text-muted-foreground">marcosalan.bcc@gmail.com</p>
+                <h2 className="truncate text-xl font-bold md:text-2xl font-display">{aluno.full_name}</h2>
+                <p className="truncate text-sm text-muted-foreground">{aluno.email ?? "Sem e-mail cadastrado"}</p>
                 <div className="mt-2 flex flex-wrap items-center gap-2">
-                  <span className="inline-flex items-center rounded-full bg-primary/15 px-2.5 py-1 text-xs font-medium text-primary">
-                    Ativo
+                  <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${aluno.is_active ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"}`}>
+                    {aluno.is_active ? "Ativo" : "Desativado"}
                   </span>
                   <button className="inline-flex items-center gap-1 rounded-full border border-dashed border-muted-foreground/40 px-2.5 py-1 text-xs font-medium text-muted-foreground hover:text-foreground">
                     <Tag className="h-3 w-3" /> Adicionar categorias
@@ -130,7 +175,6 @@ function AlunoDetailPage() {
             </div>
           </div>
 
-          {/* Acessar como aluno */}
           <button className="flex w-full items-center justify-between rounded-xl border border-border bg-card p-4 transition hover:bg-accent active:scale-[0.99]">
             <div className="flex min-w-0 items-center gap-3">
               <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary/15">
@@ -139,14 +183,13 @@ function AlunoDetailPage() {
               <div className="min-w-0 text-left">
                 <p className="text-sm font-medium">Acessar como aluno</p>
                 <p className="text-xs text-muted-foreground">
-                  Entre no app como marcos para iniciar o treino no presencial.
+                  Entre no app como {aluno.full_name.split(" ")[0]} para iniciar o treino no presencial.
                 </p>
               </div>
             </div>
             <span className="hidden shrink-0 text-xs font-medium text-primary sm:inline">Entrar →</span>
           </button>
 
-          {/* Tabs + content card */}
           <div className="overflow-hidden rounded-xl border border-border bg-card">
             <div className="border-b border-border overflow-x-auto">
               <div className="inline-flex w-max min-w-full items-center">
@@ -167,8 +210,8 @@ function AlunoDetailPage() {
             </div>
 
             <div className="p-5 md:p-6">
-              {activeTab === 0 && <InformacoesTab />}
-              {activeTab === 1 && <TreinosTab onNovoPlano={() => setNovoPlanoOpen(true)} />}
+              {activeTab === 0 && <InformacoesTab aluno={aluno} />}
+              {activeTab === 1 && <TreinosTab firstName={aluno.full_name.split(" ")[0]} onNovoPlano={() => setNovoPlanoOpen(true)} />}
               {activeTab > 1 && (
                 <div className="py-12 text-center text-sm text-muted-foreground">
                   Em breve.
@@ -179,11 +222,10 @@ function AlunoDetailPage() {
         </div>
       </main>
 
-      {/* Modal: Novo plano */}
       <Dialog open={novoPlanoOpen} onOpenChange={setNovoPlanoOpen}>
         <DialogContent className="max-w-lg gap-0 p-0">
           <DialogHeader className="border-b border-border p-5">
-            <DialogTitle className="font-display text-lg">Novo plano · marcos Lisboa</DialogTitle>
+            <DialogTitle className="font-display text-lg">Novo plano · {aluno.full_name}</DialogTitle>
             <DialogDescription className="sr-only">Escolha como criar o novo plano</DialogDescription>
           </DialogHeader>
           <div className="space-y-5 p-5">
@@ -193,12 +235,8 @@ function AlunoDetailPage() {
                 Use um modelo pronto pra acelerar — ou comece do zero pra montar tudo manualmente.
               </p>
             </div>
-
             <button
-              onClick={() => {
-                setNovoPlanoOpen(false);
-                setConfigOpen(true);
-              }}
+              onClick={() => { setNovoPlanoOpen(false); setConfigOpen(true); }}
               className="group flex w-full items-start gap-3 rounded-xl border border-border bg-background/40 p-4 text-left transition hover:border-primary/60 hover:bg-primary/5"
             >
               <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-primary/15 text-primary">
@@ -225,22 +263,20 @@ function AlunoDetailPage() {
         </DialogContent>
       </Dialog>
 
-      {/* Modal: Configurações do plano */}
       <Dialog open={configOpen} onOpenChange={setConfigOpen}>
         <DialogContent className="max-w-xl gap-0 p-0">
           <DialogHeader className="border-b border-border p-5">
-            <DialogTitle className="font-display text-lg">Novo plano · marcos Lisboa</DialogTitle>
+            <DialogTitle className="font-display text-lg">Novo plano · {aluno.full_name}</DialogTitle>
             <DialogDescription className="sr-only">Configurações do plano</DialogDescription>
           </DialogHeader>
           <div className="max-h-[70vh] space-y-6 overflow-y-auto p-5">
             <div>
               <p className="text-sm font-semibold">Configurações do plano</p>
             </div>
-
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               <div className="md:col-span-3">
                 <Label className="text-xs">Nome do plano</Label>
-                <Input className="mt-1.5" defaultValue="Plano de marcos" />
+                <Input className="mt-1.5" defaultValue={`Plano de ${aluno.full_name.split(" ")[0]}`} />
               </div>
               <div>
                 <Label className="text-xs">Início</Label>
@@ -251,7 +287,6 @@ function AlunoDetailPage() {
                 <Input className="mt-1.5" type="number" defaultValue={4} min={1} />
               </div>
             </div>
-
             <div className="space-y-3">
               <div>
                 <p className="text-sm font-semibold">Permissões na execução</p>
@@ -260,24 +295,10 @@ function AlunoDetailPage() {
                 </p>
               </div>
               <div className="space-y-2">
-                <PermissionRow
-                  title="Solicitar RPE por exercício"
-                  description="O aluno deverá informar o nível de esforço percebido (1 a 10) após cada exercício."
-                />
-                <PermissionRow
-                  title="Permitir adicionar séries"
-                  description="O aluno poderá adicionar séries extras além do prescrito durante o treino."
-                  defaultChecked
-                />
-                <PermissionRow
-                  title="Rastrear tempo das séries"
-                  description="O aluno usa um botão Iniciar e o cronômetro registra o tempo até concluir cada série."
-                />
-                <PermissionRow
-                  title="Permitir baixar o treino em PDF"
-                  description="O aluno pode exportar o treino em PDF. Desligue para manter o PDF só com você."
-                  defaultChecked
-                />
+                <PermissionRow title="Solicitar RPE por exercício" description="O aluno deverá informar o nível de esforço percebido (1 a 10) após cada exercício." />
+                <PermissionRow title="Permitir adicionar séries" description="O aluno poderá adicionar séries extras além do prescrito durante o treino." defaultChecked />
+                <PermissionRow title="Rastrear tempo das séries" description="O aluno usa um botão Iniciar e o cronômetro registra o tempo até concluir cada série." />
+                <PermissionRow title="Permitir baixar o treino em PDF" description="O aluno pode exportar o treino em PDF. Desligue para manter o PDF só com você." defaultChecked />
               </div>
             </div>
           </div>
@@ -295,33 +316,31 @@ function AlunoDetailPage() {
   );
 }
 
-function InformacoesTab() {
+function InformacoesTab({ aluno }: { aluno: Aluno }) {
+  const genderLabel = aluno.gender ? aluno.gender.charAt(0).toUpperCase() + aluno.gender.slice(1) : null;
   return (
     <>
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-        {/* Contato */}
         <div className="space-y-3">
           <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Contato</h3>
-          <Row icon={Mail} label="Email" value="marcosalan.bcc@gmail.com" />
-          <Row icon={Phone} label="Telefone" value="(83) 99634-0118" />
-          <Row icon={ShieldAlert} label="Telefone de Emergência" value="Não informado" />
+          <Row icon={Mail} label="Email" value={aluno.email ?? undefined} />
+          <Row icon={Phone} label="Telefone" value={aluno.phone ?? undefined} />
+          <Row icon={ShieldAlert} label="Telefone de Emergência" />
         </div>
-        {/* Dados Pessoais */}
         <div className="space-y-3">
           <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Dados Pessoais</h3>
-          <Row icon={Calendar} label="Data de Nascimento" value="02/09/1988" />
+          <Row icon={Calendar} label="Data de Nascimento" value={formatDate(aluno.birth_date)} />
           <Row
             icon={User}
             label="Gênero"
-            valueNode={
-              <span className="inline-flex items-center rounded-full bg-accent px-2 py-0.5 text-xs">Feminino</span>
-            }
+            valueNode={genderLabel ? (
+              <span className="inline-flex items-center rounded-full bg-accent px-2 py-0.5 text-xs">{genderLabel}</span>
+            ) : undefined}
           />
-          <Row icon={Clock} label="Último Acesso" value="Hoje" />
+          <Row icon={Clock} label="Objetivo" value={aluno.objective ?? undefined} />
         </div>
       </div>
 
-      {/* Ranking */}
       <div className="mt-6 space-y-3 border-t border-border pt-4">
         <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Ranking</h3>
         <div className="rounded-xl border border-border bg-background/40 p-4">
@@ -332,36 +351,35 @@ function InformacoesTab() {
             <div className="min-w-0">
               <p className="text-sm font-medium">Ranking</p>
               <p className="text-xs text-muted-foreground">
-                marcos ainda não está no ranking. Treinos concluídos colocam o aluno na disputa.
+                {aluno.full_name.split(" ")[0]} ainda não está no ranking. Treinos concluídos colocam o aluno na disputa.
               </p>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Actions */}
       <div className="mt-6 space-y-4 border-t border-border pt-4">
         <div className="flex flex-wrap items-center gap-2">
           <button className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3.5 py-2 text-sm font-semibold hover:bg-accent">
             <Pencil className="h-4 w-4" /> Editar dados
           </button>
           <button className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3.5 py-2 text-sm font-semibold hover:bg-accent">
-            <Power className="h-4 w-4" /> Desativar aluno
+            <Power className="h-4 w-4" /> {aluno.is_active ? "Desativar aluno" : "Ativar aluno"}
           </button>
           <button className="inline-flex items-center gap-1.5 rounded-full border border-destructive/40 bg-destructive/10 px-3.5 py-2 text-sm font-semibold text-destructive hover:bg-destructive/15">
             <Trash2 className="h-4 w-4" /> Excluir aluno
           </button>
         </div>
         <div className="flex items-center justify-between text-xs text-muted-foreground">
-          <span>Cadastrado em 06/07/2026</span>
-          <span>Atualizado em 06/07/2026</span>
+          <span>Cadastrado em {formatDate(aluno.created_at)}</span>
+          <span>Atualizado em {formatDate(aluno.updated_at)}</span>
         </div>
       </div>
     </>
   );
 }
 
-function TreinosTab({ onNovoPlano }: { onNovoPlano: () => void }) {
+function TreinosTab({ firstName, onNovoPlano }: { firstName: string; onNovoPlano: () => void }) {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -383,7 +401,7 @@ function TreinosTab({ onNovoPlano }: { onNovoPlano: () => void }) {
         <div className="grid h-12 w-12 place-items-center rounded-2xl bg-accent text-primary">
           <FileText className="h-6 w-6" />
         </div>
-        <p className="text-sm font-medium">Nenhum plano de treino para este aluno.</p>
+        <p className="text-sm font-medium">Nenhum plano de treino para {firstName}.</p>
         <p className="max-w-sm text-xs text-muted-foreground">
           Crie um plano personalizado ou use um modelo pronto.
         </p>
