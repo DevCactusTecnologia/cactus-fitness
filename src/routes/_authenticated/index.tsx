@@ -135,7 +135,7 @@ import { IconRail } from "@/components/IconRail";
 
 function MobileTopBar() {
   return (
-    <header data-mobile-fit="true" className="sticky top-0 z-20 grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-2 overflow-hidden border-b border-border bg-background/80 px-6 py-3 backdrop-blur md:hidden">
+    <header data-mobile-fit="true" className="sticky top-0 z-20 grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-2 overflow-hidden border-b border-border bg-background/80 px-4 py-3 backdrop-blur md:hidden">
       <div className="flex min-w-0 items-center gap-2">
         <span
           aria-label="CactusFitness"
@@ -224,28 +224,28 @@ function GreetingCard() {
   const initials = initialsFromName(profile?.full_name, profile?.email);
   const greeting = greetingFor(new Date().getHours());
   return (
-    <div className="rounded-[1.55rem] border border-border bg-[image:var(--gradient-greeting-card)] p-5 shadow-[var(--shadow-mobile-card)] sm:p-6">
+    <div className="rounded-[1.55rem] border border-border bg-[image:var(--gradient-greeting-card)] p-5 shadow-[var(--shadow-mobile-card)]">
       <div className="flex items-center gap-4">
-        <div className="grid h-16 w-16 shrink-0 place-items-center rounded-full text-lg font-bold ring-2 ring-primary/70 font-display" style={{ backgroundColor: "rgb(244, 63, 94)", color: "#fff" }}>
+        <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full text-base font-bold ring-2 ring-primary/70 font-display sm:h-14 sm:w-14" style={{ backgroundColor: "rgb(244, 63, 94)", color: "#fff" }}>
           {initials}
         </div>
         <div className="min-w-0">
-          <div className="text-[1.05rem] font-medium text-muted-foreground">{greeting},</div>
-          <div className="truncate text-[1.7rem] font-extrabold leading-tight tracking-tight font-display">{name}</div>
+          <div className="text-sm font-medium text-muted-foreground sm:text-base">{greeting},</div>
+          <div className="truncate text-2xl font-extrabold leading-tight tracking-tight font-display sm:text-[1.7rem]">{name}</div>
         </div>
       </div>
-      <div className="mt-8 grid grid-cols-3 gap-4">
+      <div className="mt-6 grid grid-cols-3 gap-4 sm:mt-7">
         <div>
-          <div className="text-[2.75rem] font-extrabold leading-none font-display">{stats?.alunosAtivos ?? 0}</div>
-          <div className="mt-2 text-[1.05rem] leading-tight text-muted-foreground">alunos<br/>ativos</div>
+          <div className="text-4xl font-extrabold leading-none font-display sm:text-[2.5rem]">{stats?.alunosAtivos ?? 0}</div>
+          <div className="mt-2 text-sm leading-tight text-muted-foreground sm:text-base">alunos<br/>ativos</div>
         </div>
         <div>
-          <div className="text-[2.75rem] font-extrabold leading-none font-display">{stats?.treinosAtivos ?? 0}</div>
-          <div className="mt-2 text-[1.05rem] leading-tight text-muted-foreground">treinos<br/>ativos</div>
+          <div className="text-4xl font-extrabold leading-none font-display sm:text-[2.5rem]">{stats?.treinosAtivos ?? 0}</div>
+          <div className="mt-2 text-sm leading-tight text-muted-foreground sm:text-base">treinos<br/>ativos</div>
         </div>
         <div>
-          <div className="text-[2.75rem] font-extrabold leading-none font-display">{stats?.avaliacoes ?? 0}</div>
-          <div className="mt-2 text-[1.05rem] leading-tight text-muted-foreground">avaliações<br/>físicas</div>
+          <div className="text-4xl font-extrabold leading-none font-display sm:text-[2.5rem]">{stats?.avaliacoes ?? 0}</div>
+          <div className="mt-2 text-sm leading-tight text-muted-foreground sm:text-base">avaliações<br/>físicas</div>
         </div>
       </div>
     </div>
@@ -255,7 +255,7 @@ function GreetingCard() {
 function WalletCard() {
   return (
     <div className="flex items-center gap-4 rounded-[1.55rem] border border-border bg-card px-5 py-4 shadow-[var(--shadow-mobile-card)]">
-      <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
+      <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
         <Wallet className="h-5 w-5" strokeWidth={1.75} />
       </div>
       <div className="min-w-0 flex-1">
@@ -271,11 +271,11 @@ function WalletCard() {
 
 function ActionButton({ icon: Icon, label }: { icon: React.ElementType; label: string }) {
   return (
-    <button className="flex w-full min-w-0 items-center gap-4 overflow-hidden rounded-[1.25rem] border border-border bg-card px-6 py-5 text-left shadow-[var(--shadow-mobile-card)] transition hover:border-primary/40 sm:px-6">
-      <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
+    <button className="flex w-full min-w-0 items-center gap-3 overflow-hidden rounded-[1.25rem] border border-border bg-card px-4 py-4 text-left shadow-[var(--shadow-mobile-card)] transition hover:border-primary/40 sm:gap-4 sm:px-5">
+      <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
         <Icon className="h-5 w-5" strokeWidth={1.75} />
       </div>
-      <span className="min-w-0 flex-1 break-words text-[1.15rem] font-bold leading-tight">{label}</span>
+      <span className="min-w-0 flex-1 text-base font-bold leading-tight sm:text-lg">{label}</span>
     </button>
   );
 }
@@ -334,16 +334,16 @@ function MobilePulseCard() {
       className="flex w-full min-w-0 items-center gap-4 overflow-hidden rounded-[1.55rem] border border-primary/40 bg-card px-5 py-4 text-left shadow-[var(--shadow-mobile-card)]"
     >
       <div className="relative shrink-0">
-        <div className="grid h-14 w-14 place-items-center rounded-full bg-primary/15 text-primary">
-          <Activity className="h-7 w-7" strokeWidth={2} />
+        <div className="grid h-12 w-12 place-items-center rounded-full bg-primary/15 text-primary">
+          <Activity className="h-6 w-6" strokeWidth={2} />
         </div>
-        <span className="absolute -right-1 -top-1 grid h-6 w-6 place-items-center rounded-full bg-primary text-xs font-extrabold text-primary-foreground">
+        <span className="absolute -right-1 -top-1 grid h-5 w-5 place-items-center rounded-full bg-primary text-[11px] font-extrabold text-primary-foreground">
           3
         </span>
       </div>
       <div className="min-w-0 flex-1">
-        <div className="truncate text-[1.15rem] font-extrabold text-foreground">pulso dos alunos</div>
-        <div className="truncate text-[1rem] text-muted-foreground">3 atividades novas</div>
+        <div className="truncate text-base font-extrabold text-foreground sm:text-lg">pulso dos alunos</div>
+        <div className="truncate text-sm text-muted-foreground sm:text-base">3 atividades novas</div>
       </div>
       <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
     </button>
