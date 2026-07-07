@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Plus, Users,
   Link2, Search, LayoutGrid, ChevronRight, ChevronDown, Filter,
@@ -11,6 +11,17 @@ import { supabase } from "@/integrations/supabase/client";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { IconRail } from "@/components/IconRail";
 import { initialsFromName } from "@/lib/auth";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 
 export const Route = createFileRoute("/_authenticated/dashboard/personal/alunos/")({
   head: () => ({
@@ -76,6 +87,46 @@ type TabKey = "todos" | "ativos" | "convidados" | "desativados";
 function AlunosPage() {
   const [q, setQ] = useState("");
   const [tab, setTab] = useState<TabKey>("todos");
+  const [openNew, setOpenNew] = useState(false);
+  const [form, setForm] = useState({ full_name: "", email: "", phone: "", objective: "", notes: "" });
+  const [formError, setFormError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+
+  const createAluno = useMutation({
+    mutationFn: async (payload: typeof form) => {
+      const { data: userData } = await supabase.auth.getUser();
+      const personalId = userData.user?.id;
+      if (!personalId) throw new Error("Sessão expirada. Faça login novamente.");
+      const { error } = await supabase.from("alunos").insert({
+        personal_id: personalId,
+        full_name: payload.full_name.trim(),
+        email: payload.email.trim() || null,
+        phone: payload.phone.trim() || null,
+        objective: payload.objective.trim() || null,
+        notes: payload.notes.trim() || null,
+        is_active: true,
+      });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["alunos"] });
+      setOpenNew(false);
+      setForm({ full_name: "", email: "", phone: "", objective: "", notes: "" });
+      setFormError(null);
+    },
+    onError: (e: Error) => setFormError(e.message),
+  });
+
+  const submitNew = (e: React.FormEvent) => {
+    e.preventDefault();
+    setFormError(null);
+    if (!form.full_name.trim()) {
+      setFormError("Informe o nome completo do aluno.");
+      return;
+    }
+    createAluno.mutate(form);
+  };
+
 
   const { data: alunos = [], isLoading } = useQuery({
     queryKey: ["alunos"],
@@ -118,7 +169,11 @@ function AlunosPage() {
               <button className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card/60 px-3 py-2 text-sm hover:bg-accent">
                 <Link2 className="h-4 w-4" /> <span className="hidden sm:inline">Link de cadastro</span><span className="sm:hidden">Link</span>
               </button>
-              <button className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.35)] hover:brightness-110">
+              <button
+                type="button"
+                onClick={() => setOpenNew(true)}
+                className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.35)] hover:brightness-110"
+              >
                 <Plus className="h-4 w-4" /> Novo Aluno
               </button>
             </div>
@@ -128,7 +183,7 @@ function AlunosPage() {
         <div className="px-4 py-6 sm:px-6 md:px-8">
           <div className="mx-auto max-w-3xl">
             <div className="mt-4 flex flex-wrap items-center gap-2">
-              <div className="flex min-w-[240px] flex-1 items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm">
+              <div className="flex min-w-0 flex-1 basis-full items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm sm:basis-auto sm:min-w-[240px]">
                 <Search className="h-4 w-4 text-muted-foreground" />
                 <input
                   value={q}
@@ -171,7 +226,7 @@ function AlunosPage() {
             </p>
 
             <div className="mt-2 overflow-hidden rounded-xl border border-border bg-card">
-              <div className="grid grid-cols-[1.6fr_1fr_1fr_auto] items-center gap-4 border-b border-border px-5 py-3 text-xs uppercase tracking-wider text-muted-foreground">
+              <div className="hidden sm:grid grid-cols-[1.6fr_1fr_1fr_auto] items-center gap-4 border-b border-border px-5 py-3 text-xs uppercase tracking-wider text-muted-foreground">
                 <div>Nome</div>
                 <div>Status</div>
                 <div>Atualizado</div>
@@ -198,10 +253,10 @@ function AlunosPage() {
                     key={a.id}
                     to="/dashboard/personal/alunos/$alunoId"
                     params={{ alunoId: a.id }}
-                    className="grid grid-cols-[1.6fr_1fr_1fr_auto] items-center gap-4 px-5 py-4 transition hover:bg-accent/50"
+                    className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-4 py-3 transition hover:bg-accent/50 sm:grid-cols-[1.6fr_1fr_1fr_auto] sm:px-5 sm:py-4"
                   >
-                    <div className="flex items-center gap-3">
-                      <div className="grid h-10 w-10 place-items-center rounded-full bg-primary/20 text-sm font-bold text-primary font-display ring-2 ring-border">
+                    <div className="flex min-w-0 items-center gap-3">
+                      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary/20 text-sm font-bold text-primary font-display ring-2 ring-border">
                         {initialsFromName(a.full_name, a.email)}
                       </div>
                       <div className="min-w-0">
@@ -209,7 +264,7 @@ function AlunosPage() {
                         <div className="truncate text-xs text-muted-foreground">{a.email ?? "sem e-mail"}</div>
                       </div>
                     </div>
-                    <div>
+                    <div className="hidden sm:block">
                       {a.is_active ? (
                         <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/15 px-2.5 py-0.5 text-xs font-medium text-primary">
                           <span className="h-1.5 w-1.5 rounded-full bg-primary" />
@@ -221,10 +276,10 @@ function AlunosPage() {
                         </span>
                       )}
                     </div>
-                    <div className="text-sm text-muted-foreground">
+                    <div className="hidden text-sm text-muted-foreground sm:block">
                       {new Date(a.updated_at).toLocaleDateString("pt-BR")}
                     </div>
-                    <span className="grid h-8 w-8 place-items-center rounded-lg text-muted-foreground">
+                    <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-muted-foreground">
                       <ChevronRight className="h-4 w-4" />
                     </span>
                   </Link>
@@ -235,6 +290,53 @@ function AlunosPage() {
         </div>
       </main>
       <MobileBottomNav />
+
+      <Dialog open={openNew} onOpenChange={(o) => { setOpenNew(o); if (!o) setFormError(null); }}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Novo aluno</DialogTitle>
+            <DialogDescription>Cadastre um novo aluno para começar a montar treinos.</DialogDescription>
+          </DialogHeader>
+          <form onSubmit={submitNew} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="full_name">Nome completo *</Label>
+              <Input id="full_name" value={form.full_name} onChange={(e) => setForm((f) => ({ ...f, full_name: e.target.value }))} placeholder="Ex: Maria Silva" autoFocus />
+            </div>
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label htmlFor="email">E-mail</Label>
+                <Input id="email" type="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} placeholder="aluno@email.com" />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="phone">Telefone</Label>
+                <Input id="phone" value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: e.target.value }))} placeholder="(11) 99999-9999" />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="objective">Objetivo</Label>
+              <Input id="objective" value={form.objective} onChange={(e) => setForm((f) => ({ ...f, objective: e.target.value }))} placeholder="Ex: hipertrofia, emagrecimento" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="notes">Observações</Label>
+              <Textarea id="notes" value={form.notes} onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} rows={3} placeholder="Anotações internas sobre o aluno" />
+            </div>
+            {formError && <p className="text-sm text-destructive">{formError}</p>}
+            <DialogFooter>
+              <button type="button" onClick={() => setOpenNew(false)} className="rounded-md border border-border px-4 py-2 text-sm hover:bg-accent">
+                Cancelar
+              </button>
+              <button
+                type="submit"
+                disabled={createAluno.isPending}
+                className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:brightness-110 disabled:opacity-60"
+              >
+                {createAluno.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+                Cadastrar aluno
+              </button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
