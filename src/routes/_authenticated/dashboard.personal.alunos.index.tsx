@@ -226,7 +226,7 @@ function AlunosPage() {
             </p>
 
             <div className="mt-2 overflow-hidden rounded-xl border border-border bg-card">
-              <div className="grid grid-cols-[1.6fr_1fr_1fr_auto] items-center gap-4 border-b border-border px-5 py-3 text-xs uppercase tracking-wider text-muted-foreground">
+              <div className="hidden sm:grid grid-cols-[1.6fr_1fr_1fr_auto] items-center gap-4 border-b border-border px-5 py-3 text-xs uppercase tracking-wider text-muted-foreground">
                 <div>Nome</div>
                 <div>Status</div>
                 <div>Atualizado</div>
