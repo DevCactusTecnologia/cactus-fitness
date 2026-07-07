@@ -2,8 +2,8 @@ import { useMemo, useReducer, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  ArrowLeft, ChevronDown, ChevronUp, GripVertical, Loader2,
-  Plus, Search, Settings2, Trash2, X, Dumbbell, Layers, Pencil,
+  ChevronDown, ChevronUp, GripVertical, Loader2, MoreHorizontal, CheckSquare,
+  Plus, Save, Search, Settings, Trash2, X, Dumbbell, Pencil,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -285,137 +285,179 @@ export function WorkoutEditor({ kind }: { kind: EditorKind }) {
     }
   }
 
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [configOpen, setConfigOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <IconRail />
       <div className="pb-24 md:pl-[72px] md:pb-0">
         {/* Header */}
-        <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur-md">
-          <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 md:px-8">
+        <header className="sticky top-0 z-30 border-b border-border/60 bg-background/90 backdrop-blur-md">
+          <div className="flex items-center justify-between gap-3 px-4 py-3 md:px-6">
             <div className="flex min-w-0 items-center gap-3">
               <button
                 onClick={() => navigate({ to: "/dashboard/personal/treinos" })}
-                className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted"
-                aria-label="Voltar"
+                className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
               >
-                <ArrowLeft className="h-5 w-5" />
+                <ChevronUp className="h-4 w-4 -rotate-90" />
+                Voltar
               </button>
-              <h1 className="truncate text-base font-semibold md:text-xl">{title}</h1>
+              <h1 className="truncate text-sm font-semibold md:text-base">{title}</h1>
             </div>
             <div className="flex items-center gap-2">
-              <Sheet open={mobilePanelOpen} onOpenChange={setMobilePanelOpen}>
+              <button
+                onClick={handleSave}
+                disabled={!canSave}
+                className="inline-flex h-9 items-center gap-1.5 rounded-full bg-[oklch(0.92_0.19_115)] px-4 text-sm font-semibold text-[oklch(0.2_0.05_115)] hover:brightness-105 disabled:opacity-50"
+              >
+                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                Salvar
+              </button>
+              <Sheet open={pickerOpen} onOpenChange={setPickerOpen}>
                 <SheetTrigger asChild>
-                  <button className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border bg-card px-3 text-xs font-medium md:hidden">
-                    <Settings2 className="h-4 w-4" />
-                    Painel
+                  <button className="hidden md:inline-flex h-9 items-center gap-1.5 rounded-full border border-border bg-card px-4 text-sm font-medium text-foreground hover:bg-muted">
+                    <CheckSquare className="h-4 w-4" />
+                    Selecionar exercícios
                   </button>
                 </SheetTrigger>
-                <SheetContent side="bottom" className="h-[85vh] overflow-y-auto">
+                <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
                   <SheetHeader>
-                    <SheetTitle>Painel</SheetTitle>
+                    <SheetTitle>Selecionar exercícios</SheetTitle>
                   </SheetHeader>
                   <div className="mt-4">
-                    <SidePanel
-                      kind={kind}
+                    <ExercisePicker
                       state={state}
-                      dispatch={dispatch}
                       activeTarget={activeTarget}
-                      onPicked={() => setMobilePanelOpen(false)}
+                      onPick={(ex) => {
+                        const target = resolveTarget(state, activeTarget);
+                        if (!target) { toast("Selecione um bloco antes de adicionar exercícios."); return; }
+                        dispatch({ type: "ADD_EXERCISE", sessionId: target.sessionId, blockId: target.blockId, exercise: ex });
+                      }}
                     />
                   </div>
                 </SheetContent>
               </Sheet>
-              <button
-                onClick={handleSave}
-                disabled={!canSave}
-                className="inline-flex h-9 items-center gap-1.5 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.25)] hover:brightness-110 disabled:opacity-50"
-              >
-                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
-                Salvar
+              <button className="grid h-9 w-9 place-items-center rounded-full border border-border text-muted-foreground hover:bg-muted" aria-label="Mais">
+                <MoreHorizontal className="h-4 w-4" />
               </button>
             </div>
           </div>
         </header>
 
-        <main className="mx-auto grid max-w-7xl gap-6 px-4 py-6 md:grid-cols-[minmax(0,1fr)_360px] md:px-8">
-          {/* Left column: structure */}
-          <section className="space-y-4">
-            <div className="space-y-2">
-              <div className="group relative rounded-xl border border-border/60 bg-card/40 px-4 py-3 transition hover:border-border">
+        <main className="px-4 py-5 md:px-8">
+          {/* Name / description / Configurações */}
+          <div className="flex items-start gap-3">
+            <div className="flex-1 space-y-1">
+              <div className="group relative rounded-xl border border-border/50 bg-card/40 px-4 py-3 transition hover:border-border">
                 <Input
-                  id="wt-name"
                   value={state.name}
                   onChange={(e) => dispatch({ type: "SET_META", patch: { name: e.target.value } })}
                   placeholder={nameLabel}
-                  className="h-auto border-0 bg-transparent p-0 text-xl font-semibold tracking-tight text-foreground placeholder:text-foreground/70 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                  className="h-auto border-0 bg-transparent p-0 text-xl font-semibold tracking-tight text-foreground placeholder:text-foreground/60 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
                 />
                 <Pencil className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60 opacity-0 transition group-hover:opacity-100" />
               </div>
               <Textarea
-                id="wt-desc"
                 value={state.description}
                 onChange={(e) => dispatch({ type: "SET_META", patch: { description: e.target.value } })}
                 placeholder="Adicionar descrição"
-                className="min-h-[40px] resize-none border-0 bg-transparent px-4 py-1 text-base text-muted-foreground placeholder:text-muted-foreground/70 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                className="min-h-[36px] resize-none border-0 bg-transparent px-4 py-1 text-base text-muted-foreground placeholder:text-muted-foreground/70 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
               />
             </div>
-
-            {kind === "plan" ? (
-              <>
-                {state.sessions.map((s, i) => (
-                  <SessionCard
-                    key={s.id}
-                    index={i}
-                    total={state.sessions.length}
-                    session={s}
-                    dispatch={dispatch}
-                    onPickTargetBlock={(blockId) => {
-                      setActiveTarget({ sessionId: s.id, blockId });
-                      setMobilePanelOpen(true);
-                    }}
-                    activeBlockId={activeTarget?.sessionId === s.id ? activeTarget.blockId : null}
-                  />
-                ))}
-                <button
-                  onClick={() => dispatch({ type: "ADD_SESSION" })}
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-card/40 py-3 text-sm font-medium text-muted-foreground hover:bg-muted"
-                >
-                  <Plus className="h-4 w-4" /> Adicionar sessão
+            <Sheet open={configOpen} onOpenChange={setConfigOpen}>
+              <SheetTrigger asChild>
+                <button className="mt-1 inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border border-border bg-card px-4 text-sm font-medium text-foreground hover:bg-muted">
+                  <Settings className="h-4 w-4" />
+                  Configurações
                 </button>
-              </>
-            ) : (
-              <div className="space-y-3">
-                {state.sessions[0].blocks.map((b, bi) => (
-                  <BlockCard
-                    key={b.id}
-                    sessionId={state.sessions[0].id}
-                    index={bi}
-                    total={state.sessions[0].blocks.length}
-                    block={b}
-                    dispatch={dispatch}
-                    onPickTarget={() => {
-                      setActiveTarget({ sessionId: state.sessions[0].id, blockId: b.id });
-                      setMobilePanelOpen(true);
-                    }}
-                    isActive={activeTarget?.blockId === b.id}
-                  />
-                ))}
-                <button
-                  onClick={() => dispatch({ type: "ADD_BLOCK", sessionId: state.sessions[0].id })}
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-card/40 py-3 text-sm font-medium text-muted-foreground hover:bg-muted"
-                >
-                  <Plus className="h-4 w-4" /> Adicionar bloco
-                </button>
-              </div>
-            )}
-          </section>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
+                <SheetHeader><SheetTitle>Configurações</SheetTitle></SheetHeader>
+                <div className="mt-4 space-y-4">
+                  {kind === "plan" && (
+                    <div className="flex items-center justify-between rounded-lg border border-border p-3">
+                      <div>
+                        <div className="text-sm font-medium">Periodizar</div>
+                        <div className="text-xs text-muted-foreground">Variação de estímulos por semana</div>
+                      </div>
+                      <Switch checked={state.periodize} onCheckedChange={(v) => dispatch({ type: "SET_META", patch: { periodize: v } })} />
+                    </div>
+                  )}
+                  <div className="space-y-2">
+                    <Label htmlFor="wt-level">Nível</Label>
+                    <Input id="wt-level" value={state.level} onChange={(e) => dispatch({ type: "SET_META", patch: { level: e.target.value } })} placeholder="Iniciante, Intermediário, Avançado" />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="wt-goal">Objetivo</Label>
+                    <Input id="wt-goal" value={state.goal} onChange={(e) => dispatch({ type: "SET_META", patch: { goal: e.target.value } })} placeholder="Hipertrofia, força, resistência..." />
+                  </div>
+                </div>
+              </SheetContent>
+            </Sheet>
+          </div>
 
-          {/* Right column: panel */}
-          <aside className="hidden md:block">
-            <div className="sticky top-[76px]">
-              <SidePanel kind={kind} state={state} dispatch={dispatch} activeTarget={activeTarget} />
+          {/* Periodizar chip */}
+          {kind === "plan" && (
+            <div className="mt-5 border-y border-border/50 py-3">
+              <button
+                onClick={() => dispatch({ type: "SET_META", patch: { periodize: !state.periodize } })}
+                className={`inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-sm ${state.periodize ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
+              >
+                <Plus className="h-4 w-4" /> Periodizar
+              </button>
             </div>
-          </aside>
+          )}
+
+          {/* Sessions row */}
+          {kind === "plan" ? (
+            <div className="mt-4 flex flex-wrap items-start gap-3">
+              {state.sessions.map((s, i) => (
+                <SessionCard
+                  key={s.id}
+                  index={i}
+                  total={state.sessions.length}
+                  session={s}
+                  dispatch={dispatch}
+                  onPickTargetBlock={(blockId) => {
+                    setActiveTarget({ sessionId: s.id, blockId });
+                    setPickerOpen(true);
+                  }}
+                  activeBlockId={activeTarget?.sessionId === s.id ? activeTarget.blockId : null}
+                />
+              ))}
+              <button
+                onClick={() => dispatch({ type: "ADD_SESSION" })}
+                className="inline-flex h-11 min-w-[220px] items-center justify-center gap-2 rounded-full border border-dashed border-border/70 px-4 text-sm font-medium text-muted-foreground hover:bg-muted"
+              >
+                <Plus className="h-4 w-4" /> Adicionar sessão
+              </button>
+            </div>
+          ) : (
+            <div className="mt-4 max-w-md space-y-3">
+              {state.sessions[0].blocks.map((b, bi) => (
+                <BlockCard
+                  key={b.id}
+                  sessionId={state.sessions[0].id}
+                  index={bi}
+                  total={state.sessions[0].blocks.length}
+                  block={b}
+                  dispatch={dispatch}
+                  onPickTarget={() => {
+                    setActiveTarget({ sessionId: state.sessions[0].id, blockId: b.id });
+                    setPickerOpen(true);
+                  }}
+                  isActive={activeTarget?.blockId === b.id}
+                />
+              ))}
+              <button
+                onClick={() => dispatch({ type: "ADD_BLOCK", sessionId: state.sessions[0].id })}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-dashed border-border/70 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted"
+              >
+                <Plus className="h-4 w-4" /> Adicionar bloco
+              </button>
+            </div>
+          )}
         </main>
       </div>
       <MobileBottomNav />
@@ -431,50 +473,69 @@ function SessionCard({
   onPickTargetBlock: (blockId: string) => void;
   activeBlockId: string | null;
 }) {
+  const displayName = session.label.startsWith("Treino ") ? session.label : `Treino ${session.label}`;
+  const letter = (session.label.replace(/^Treino\s+/i, "")[0] ?? "A").toUpperCase();
+  const hasBlocks = session.blocks.some(b => b.exercises.length > 0);
   return (
-    <div className="rounded-2xl border border-border bg-card p-4">
+    <div className="w-[300px] rounded-2xl border border-border/60 bg-card/60 p-3">
       <div className="flex items-center gap-2">
-        <span className="grid h-8 w-8 place-items-center rounded-lg bg-[oklch(0.55_0.22_300)]/15 text-[oklch(0.75_0.18_300)]">
-          <Layers className="h-4 w-4" />
+        <GripVertical className="h-3.5 w-3.5 shrink-0 text-muted-foreground/60" />
+        <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[oklch(0.92_0.19_115)]/15 text-[10px] font-bold text-[oklch(0.92_0.19_115)]">
+          {letter}
         </span>
-        <Input
-          value={session.label}
-          onChange={(e) => dispatch({ type: "RENAME_SESSION", sessionId: session.id, label: e.target.value })}
-          className="h-8 flex-1 border-0 bg-transparent px-1 text-base font-semibold focus-visible:ring-1"
+        <input
+          value={displayName}
+          onChange={(e) => dispatch({ type: "RENAME_SESSION", sessionId: session.id, label: e.target.value.replace(/^Treino\s+/i, "") || "A" })}
+          className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-foreground outline-none"
         />
+        <button className="grid h-6 w-6 place-items-center rounded text-muted-foreground/70 hover:bg-muted hover:text-foreground" aria-label="Renomear">
+          <Pencil className="h-3.5 w-3.5" />
+        </button>
         <ReorderButtons
           onUp={() => dispatch({ type: "MOVE_SESSION", sessionId: session.id, dir: -1 })}
           onDown={() => dispatch({ type: "MOVE_SESSION", sessionId: session.id, dir: 1 })}
           canUp={index > 0}
           canDown={index < total - 1}
+          small
         />
         {total > 1 && (
           <button
             onClick={() => dispatch({ type: "REMOVE_SESSION", sessionId: session.id })}
-            className="grid h-8 w-8 place-items-center rounded-lg text-muted-foreground hover:bg-muted hover:text-destructive"
+            className="grid h-6 w-6 place-items-center rounded text-muted-foreground/70 hover:bg-muted hover:text-destructive"
             aria-label="Remover sessão"
           >
-            <Trash2 className="h-4 w-4" />
+            <Trash2 className="h-3.5 w-3.5" />
           </button>
         )}
       </div>
 
-      <div className="mt-3 space-y-3">
-        {session.blocks.map((b, bi) => (
-          <BlockCard
-            key={b.id}
-            sessionId={session.id}
-            index={bi}
-            total={session.blocks.length}
-            block={b}
-            dispatch={dispatch}
-            onPickTarget={() => onPickTargetBlock(b.id)}
-            isActive={activeBlockId === b.id}
-          />
-        ))}
+      {hasBlocks && (
+        <div className="mt-3 space-y-2">
+          {session.blocks.filter(b => b.exercises.length > 0).map((b, bi, arr) => (
+            <BlockCard
+              key={b.id}
+              sessionId={session.id}
+              index={bi}
+              total={arr.length}
+              block={b}
+              dispatch={dispatch}
+              onPickTarget={() => onPickTargetBlock(b.id)}
+              isActive={activeBlockId === b.id}
+            />
+          ))}
+        </div>
+      )}
+
+      <div className="mt-3 space-y-2">
+        <button
+          onClick={() => onPickTargetBlock(session.blocks[0].id)}
+          className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-dashed border-border/70 py-2 text-xs font-medium text-muted-foreground hover:bg-muted"
+        >
+          <Plus className="h-3.5 w-3.5" /> Adicionar exercício
+        </button>
         <button
           onClick={() => dispatch({ type: "ADD_BLOCK", sessionId: session.id })}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-border py-2 text-xs font-medium text-muted-foreground hover:bg-muted"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-dashed border-border/70 py-2 text-xs font-medium text-muted-foreground hover:bg-muted"
         >
           <Plus className="h-3.5 w-3.5" /> Adicionar bloco
         </button>
