@@ -367,7 +367,7 @@ function QuickTile({ icon: Icon, label, to }: { icon: React.ElementType; label: 
   return <button className={cls}>{inner}</button>;
 }
 
-}
+
 
 function ReferralBanner() {
   return (
