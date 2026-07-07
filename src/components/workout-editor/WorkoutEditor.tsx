@@ -2,7 +2,7 @@ import { useMemo, useReducer, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
-  ChevronDown, ChevronUp, GripVertical, Loader2, MoreHorizontal, CheckSquare,
+  ChevronDown, ChevronUp, Copy, GripVertical, Loader2, MoreHorizontal, CheckSquare,
   Plus, Save, Search, Settings, Trash2, X, Dumbbell, Pencil,
 } from "lucide-react";
 import { toast } from "sonner";
