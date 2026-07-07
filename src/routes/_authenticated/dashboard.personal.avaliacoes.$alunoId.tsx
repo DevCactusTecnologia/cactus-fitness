@@ -232,7 +232,7 @@ function NovaAvaliacaoDialog({
   const today = new Date().toISOString().slice(0, 10);
   const [mode, setMode] = useState<"personal" | "aluno">("personal");
   const [date, setDate] = useState(today);
-  const navigate = useNavigate();
+  
   const qc = useQueryClient();
 
   const createAvaliacao = useMutation({
