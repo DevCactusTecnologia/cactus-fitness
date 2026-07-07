@@ -50,8 +50,8 @@ export function MobileBottomNav() {
 
   const handleLogout = () => {
     if (typeof window !== "undefined") {
-      localStorage.removeItem("personal_id");
-      window.location.href = "/";
+      localStorage.removeItem("personal_id"); localStorage.removeItem("aluno_id"); localStorage.removeItem("user_role");
+      window.location.href = "/login";
     }
   };
 

@@ -25,8 +25,8 @@ export function UserAvatarMenu({
   const handleLogout = () => {
     if (onLogout) return onLogout();
     if (typeof window !== "undefined") {
-      localStorage.removeItem("personal_id");
-      window.location.href = "/";
+      localStorage.removeItem("personal_id"); localStorage.removeItem("aluno_id"); localStorage.removeItem("user_role");
+      window.location.href = "/login";
     }
   };
 
