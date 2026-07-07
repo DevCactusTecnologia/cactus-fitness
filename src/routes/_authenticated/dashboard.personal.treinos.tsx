@@ -1,11 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
   Home, Calendar, Bell, Users,
   Dumbbell, ClipboardCheck, Trophy, ClipboardList, FolderPlus, Plus,
-  Info, ChevronDown, LayoutGrid, Layers, FileText, MoreHorizontal,
-  ArrowLeft, Search,
+  Info, ChevronDown, Layers, FileText, MoreHorizontal,
+  ArrowLeft, Search, Loader2,
 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { UserAvatarMenu } from "@/components/UserAvatarMenu";
 import {
@@ -43,7 +45,7 @@ function NovoModeloMenu({ trigger }: { trigger: React.ReactNode }) {
   );
 }
 
-export const Route = createFileRoute("/dashboard/personal/treinos")({
+export const Route = createFileRoute("/_authenticated/dashboard/personal/treinos")({
   head: () => ({
     meta: [
       { title: "Treinos · cactusfitness" },
@@ -100,29 +102,34 @@ function IconRail() {
       <SidebarIconBtn icon={Calendar} to="/dashboard/personal/agenda" label="Agenda" />
       <div className="mt-auto flex flex-col items-center gap-2">
         <SidebarIconBtn icon={Bell} badge="3" />
-        <UserAvatarMenu initials="ML" name="Meu perfil" />
+        <UserAvatarMenu />
       </div>
     </aside>
   );
 }
 
 /* ---------- Page ---------- */
-type Kind = "plano" | "template";
-type Modelo = { id: string; name: string; kind: Kind; sessions: number; tag: string };
-
-const SEED: Modelo[] = [
-  { id: "1", name: "teste", kind: "plano", sessions: 1, tag: "Simples" },
-];
+type Modelo = { id: string; name: string; description: string | null; created_at: string };
 
 function TreinosPage() {
-  const [items] = useState<Modelo[]>(SEED);
-  const [filter, setFilter] = useState<"todos" | "plano" | "template">("todos");
+  const [filter, setFilter] = useState<"todos">("todos");
+
+  const { data: items = [], isLoading } = useQuery({
+    queryKey: ["workout_templates"],
+    queryFn: async (): Promise<Modelo[]> => {
+      const { data, error } = await supabase
+        .from("workout_templates")
+        .select("id, name, description, created_at")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data ?? []) as Modelo[];
+    },
+  });
 
   const total = items.length;
-  const planos = items.filter((m) => m.kind === "plano").length;
-  const templates = items.filter((m) => m.kind === "template").length;
 
-  const visible = items.filter((m) => filter === "todos" || m.kind === filter);
+  const visible = items;
+
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -200,8 +207,8 @@ function TreinosPage() {
           {/* Stats */}
           <div className="mt-4 grid grid-cols-3 gap-3 md:gap-4">
             <StatCard icon={FileText} value={total} label="Total de modelos" tone="green" />
-            <StatCard icon={Layers} value={planos} label="Modelos de Plano" tone="purple" />
-            <StatCard icon={Dumbbell} value={templates} label="Templates de Treino" tone="blue" />
+            <StatCard icon={Layers} value={0} label="Modelos de Plano" tone="purple" />
+            <StatCard icon={Dumbbell} value={total} label="Templates de Treino" tone="blue" />
           </div>
 
           {/* Search + Filters */}
@@ -218,11 +225,7 @@ function TreinosPage() {
               <FilterSelect
                 value={filter}
                 onChange={setFilter}
-                options={[
-                  { value: "todos", label: "Todos os tipos" },
-                  { value: "plano", label: "Modelos de Plano" },
-                  { value: "template", label: "Templates de Treino" },
-                ]}
+                options={[{ value: "todos", label: "Todos os tipos" }]}
               />
               <button className="inline-flex items-center justify-between gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm hover:bg-muted">
                 Mais recentes
@@ -231,13 +234,15 @@ function TreinosPage() {
             </div>
           </div>
 
-
-
           {/* List */}
           <div className="mt-4 space-y-2">
-            {visible.length === 0 ? (
+            {isLoading ? (
+              <div className="grid place-items-center rounded-xl border border-dashed border-border p-10">
+                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+              </div>
+            ) : visible.length === 0 ? (
               <div className="rounded-xl border border-dashed border-border p-10 text-center text-sm text-muted-foreground">
-                Nenhum modelo encontrado.
+                Nenhum modelo criado ainda. Clique em "Modelo de Treino" para começar.
               </div>
             ) : (
               visible.map((m) => <ModeloRow key={m.id} modelo={m} />)
@@ -245,6 +250,7 @@ function TreinosPage() {
           </div>
         </div>
       </main>
+
 
       <MobileBottomNav />
     </div>
@@ -299,21 +305,17 @@ function FilterSelect<T extends string>({
 }
 
 function ModeloRow({ modelo }: { modelo: Modelo }) {
-  const kindLabel = modelo.kind === "plano" ? "Modelo de Plano" : "Template de Treino";
   return (
     <div className="flex items-center justify-between gap-3 rounded-xl border border-border bg-card p-4 hover:bg-muted/50">
       <div className="flex items-center gap-3">
         <div className="grid h-10 w-10 place-items-center rounded-lg bg-primary/15 text-primary">
-          {modelo.kind === "plano" ? <Layers className="h-5 w-5" /> : <FileText className="h-5 w-5" />}
+          <FileText className="h-5 w-5" />
         </div>
         <div>
           <div className="font-semibold">{modelo.name}</div>
           <div className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground">
-            <span>{kindLabel}</span>
-            <span>•</span>
-            <span className="rounded-full bg-muted px-2 py-0.5">{modelo.tag}</span>
-            <span>•</span>
-            <span>{modelo.sessions} {modelo.sessions === 1 ? "sessão" : "sessões"}</span>
+            <span>Template de Treino</span>
+            {modelo.description && <><span>•</span><span className="truncate max-w-xs">{modelo.description}</span></>}
           </div>
         </div>
       </div>

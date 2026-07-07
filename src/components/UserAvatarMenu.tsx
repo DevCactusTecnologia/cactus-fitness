@@ -8,27 +8,15 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useCurrentUser, useSignOut, initialsFromName, firstName } from "@/lib/auth";
 
-type Props = {
-  initials?: string;
-  name?: string;
-  email?: string;
-  onLogout?: () => void;
-};
+export function UserAvatarMenu() {
+  const { profile } = useCurrentUser();
+  const signOut = useSignOut();
 
-export function UserAvatarMenu({
-  initials = "ML",
-  name = "Meu perfil",
-  email,
-  onLogout,
-}: Props) {
-  const handleLogout = () => {
-    if (onLogout) return onLogout();
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("personal_id"); localStorage.removeItem("aluno_id"); localStorage.removeItem("user_role");
-      window.location.href = "/login";
-    }
-  };
+  const initials = initialsFromName(profile?.full_name, profile?.email);
+  const displayName = firstName(profile?.full_name, profile?.email);
+  const email = profile?.email ?? undefined;
 
   return (
     <DropdownMenu>
@@ -36,7 +24,7 @@ export function UserAvatarMenu({
         <button
           type="button"
           aria-label="Abrir menu do usuário"
-          className="relative grid h-8 w-8 place-items-center rounded-lg bg-destructive text-xs font-bold text-white ring-1 ring-border font-display cursor-pointer transition outline-none hover:brightness-110 focus-visible:ring-2 focus-visible:ring-primary"
+          className="relative grid h-8 w-8 place-items-center rounded-lg bg-primary/20 text-xs font-bold text-primary ring-1 ring-border font-display cursor-pointer transition outline-none hover:brightness-110 focus-visible:ring-2 focus-visible:ring-primary"
         >
           <span className="pointer-events-none">{initials}</span>
           <span aria-hidden className="pointer-events-none absolute -bottom-0.5 -right-0.5 h-2 w-2 rounded-full bg-primary ring-2 ring-sidebar" />
@@ -44,7 +32,7 @@ export function UserAvatarMenu({
       </DropdownMenuTrigger>
       <DropdownMenuContent side="right" align="end" sideOffset={8} className="z-[60] w-56">
         <DropdownMenuLabel className="flex flex-col">
-          <span className="font-semibold">{name}</span>
+          <span className="font-semibold">{displayName}</span>
           {email && <span className="text-xs font-normal text-muted-foreground">{email}</span>}
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
@@ -62,7 +50,7 @@ export function UserAvatarMenu({
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem
-          onSelect={handleLogout}
+          onSelect={(e) => { e.preventDefault(); signOut(); }}
           className="flex items-center gap-2 text-destructive focus:text-destructive cursor-pointer"
         >
           <LogOut className="h-4 w-4" />

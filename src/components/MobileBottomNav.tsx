@@ -17,6 +17,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import { useSignOut } from "@/lib/auth";
 
 type Item = {
   icon: React.ElementType;
@@ -30,7 +31,7 @@ const ITEMS: Item[] = [
   { icon: Home, label: "Início", to: "/", match: (p) => p === "/" },
   { icon: Users, label: "Alunos", to: "/dashboard/personal/alunos", match: (p) => p.startsWith("/dashboard/personal/alunos") },
   { icon: Dumbbell, label: "Treinos", to: "/dashboard/personal/treinos", match: (p) => p.startsWith("/dashboard/personal/treinos") },
-  { icon: Bell, label: "Notificações", to: "/", badge: "8" },
+  { icon: Bell, label: "Notificações", to: "/" },
 ];
 
 type MenuLink = {
@@ -47,13 +48,7 @@ const MENU_LINKS: MenuLink[] = [
 
 export function MobileBottomNav() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-
-  const handleLogout = () => {
-    if (typeof window !== "undefined") {
-      localStorage.removeItem("personal_id"); localStorage.removeItem("aluno_id"); localStorage.removeItem("user_role");
-      window.location.href = "/login";
-    }
-  };
+  const signOut = useSignOut();
 
   const linkClass = (active: boolean) =>
     `relative flex flex-1 flex-col items-center gap-0.5 py-1 text-[11px] ${
@@ -115,7 +110,7 @@ export function MobileBottomNav() {
 
             <button
               type="button"
-              onClick={handleLogout}
+              onClick={() => signOut()}
               className="flex items-center gap-3 rounded-2xl bg-muted/40 px-4 py-3 text-left hover:bg-destructive/10"
             >
               <span className="grid h-9 w-9 place-items-center rounded-full bg-muted">

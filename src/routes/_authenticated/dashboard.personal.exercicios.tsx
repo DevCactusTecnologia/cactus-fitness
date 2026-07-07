@@ -10,7 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { UserAvatarMenu } from "@/components/UserAvatarMenu";
 
-export const Route = createFileRoute("/dashboard/personal/exercicios")({
+export const Route = createFileRoute("/_authenticated/dashboard/personal/exercicios")({
   head: () => ({
     meta: [
       { title: "Exercícios · cactusfitness" },
@@ -67,16 +67,19 @@ function toEmbedUrl(url: string): string {
 }
 
 
-/* ---------- identidade local (sem auth) ---------- */
-function getPersonalId(): string {
-  if (typeof window === "undefined") return "";
-  let id = localStorage.getItem("personal_id");
-  if (!id) {
-    id = `personal_${crypto.randomUUID()}`;
-    localStorage.setItem("personal_id", id);
-  }
+/* ---------- personal id: real auth session ---------- */
+function usePersonalId(): string | null {
+  const [id, setId] = useState<string | null>(null);
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setId(data.user?.id ?? null));
+    const { data: sub } = supabase.auth.onAuthStateChange((_, session) => {
+      setId(session?.user?.id ?? null);
+    });
+    return () => sub.subscription.unsubscribe();
+  }, []);
   return id;
 }
+
 
 /* ---------- Sidebar ---------- */
 function SidebarIconBtn({
@@ -130,7 +133,7 @@ function IconRail() {
       <div className="mt-auto flex flex-col items-center gap-2">
         
         <SidebarIconBtn icon={Bell} badge="3" />
-        <UserAvatarMenu initials="ML" name="Meu perfil" />
+        <UserAvatarMenu />
 
       </div>
     </aside>
@@ -159,7 +162,7 @@ function ExerciciosPage() {
   const [showWizard, setShowWizard] = useState(false);
   const [detailEx, setDetailEx] = useState<Exercise | null>(null);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
-  const personalId = useMemo(() => getPersonalId(), []);
+  const personalId = usePersonalId();
 
   const fetchAll = async () => {
     const pageSize = 1000;
@@ -350,7 +353,7 @@ function ExerciciosPage() {
 
       <MobileBottomNav />
 
-      {showWizard && (
+      {showWizard && personalId && (
         <NewExerciseWizard
           groups={groups}
           equipments={equipments}

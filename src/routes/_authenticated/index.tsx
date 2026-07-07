@@ -1,19 +1,21 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
   Home, Users, Calendar,
-  Plus, Bell, Crown, Wallet, Lock, Activity,
+  Bell, Crown, Wallet, Lock, Activity,
   ChevronDown, ChevronRight, Pencil, HeartPulse, Dumbbell, Trophy, Gift, ClipboardCheck, ClipboardList,
-  Lightbulb, Sparkles, Eye, ArrowRight, Menu as MenuIcon, Search,
+  Lightbulb, Sparkles, Eye, ArrowRight, Search,
   UserPlus, FileText, Link2, TrendingUp, AlertTriangle, Clock, MapPin,
 } from "lucide-react";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { UserAvatarMenu } from "@/components/UserAvatarMenu";
 import { supabase } from "@/integrations/supabase/client";
+import { useCurrentUser, firstName, initialsFromName } from "@/lib/auth";
 
 
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute("/_authenticated/")({
   component: Dashboard,
 });
 
@@ -169,7 +171,7 @@ function IconRail() {
       <div className="mt-auto flex flex-col items-center gap-2">
         
         <SidebarIconBtn icon={Bell} badge="2" />
-        <UserAvatarMenu initials="ML" name="Meu perfil" />
+        <UserAvatarMenu />
       </div>
     </aside>
 
@@ -227,30 +229,58 @@ function PlanBanner() {
   );
 }
 
+function useDashboardStats() {
+  return useQuery({
+    queryKey: ["dashboard-stats"],
+    staleTime: 30_000,
+    queryFn: async () => {
+      const [alunosRes, treinosRes] = await Promise.all([
+        supabase.from("alunos").select("id", { count: "exact", head: true }).eq("is_active", true),
+        supabase.from("workout_templates").select("id", { count: "exact", head: true }),
+      ]);
+      return {
+        alunosAtivos: alunosRes.count ?? 0,
+        treinosAtivos: treinosRes.count ?? 0,
+        avaliacoes: 0,
+      };
+    },
+  });
+}
+
+function greetingFor(hour: number) {
+  if (hour < 12) return "Bom dia";
+  if (hour < 18) return "Boa tarde";
+  return "Boa noite";
+}
+
 function GreetingCard() {
+  const { profile } = useCurrentUser();
+  const { data: stats } = useDashboardStats();
+  const name = firstName(profile?.full_name, profile?.email);
+  const initials = initialsFromName(profile?.full_name, profile?.email);
+  const greeting = greetingFor(new Date().getHours());
   return (
     <div className="rounded-xl border border-border bg-card p-5 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.6)]">
       <div className="flex items-center gap-4">
-        <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-destructive text-sm font-semibold text-white">
-          ML
+        <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-primary/20 text-sm font-semibold text-primary font-display">
+          {initials}
         </div>
         <div className="min-w-0">
-          <div className="text-sm text-muted-foreground">Boa tarde,</div>
-          <div className="text-xl font-bold tracking-tight font-display">Marcos</div>
+          <div className="text-sm text-muted-foreground">{greeting},</div>
+          <div className="text-xl font-bold tracking-tight font-display">{name}</div>
         </div>
       </div>
       <div className="mt-5 grid grid-cols-3 gap-4">
         <div>
-          <div className="text-3xl font-bold font-display">1</div>
+          <div className="text-3xl font-bold font-display">{stats?.alunosAtivos ?? 0}</div>
           <div className="mt-1 text-xs leading-tight text-muted-foreground">alunos<br/>ativos</div>
-          <div className="mt-1 text-xs font-semibold text-primary">↑ 1 este mês</div>
         </div>
         <div>
-          <div className="text-3xl font-bold font-display">0</div>
+          <div className="text-3xl font-bold font-display">{stats?.treinosAtivos ?? 0}</div>
           <div className="mt-1 text-xs leading-tight text-muted-foreground">treinos<br/>ativos</div>
         </div>
         <div>
-          <div className="text-3xl font-bold font-display">0</div>
+          <div className="text-3xl font-bold font-display">{stats?.avaliacoes ?? 0}</div>
           <div className="mt-1 text-xs leading-tight text-muted-foreground">avaliações<br/>físicas</div>
         </div>
       </div>
@@ -374,6 +404,12 @@ function ReferralBanner() {
 /* ---------- Dashboard ---------- */
 
 function Dashboard() {
+  const { profile } = useCurrentUser();
+  const { data: stats } = useDashboardStats();
+  const name = firstName(profile?.full_name, profile?.email);
+  const greeting = greetingFor(new Date().getHours());
+  const today = new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" });
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <IconRail />
@@ -388,9 +424,9 @@ function Dashboard() {
             <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between md:gap-6">
               <div>
                 <h1 className="font-display text-2xl font-extrabold leading-tight tracking-tight md:text-3xl">
-                  Boa tarde, Marcos
+                  {greeting}, {name}
                 </h1>
-                <p className="mt-1 text-[0.8125rem] text-fg-muted">segunda-feira, 6 de julho</p>
+                <p className="mt-1 text-[0.8125rem] text-fg-muted">{today}</p>
               </div>
               <div className="flex items-center gap-2">
                 <div className="hidden h-9 min-w-[280px] items-center gap-2 rounded-full border border-border bg-surface-1 px-3.5 text-sm text-fg-muted transition-colors hover:border-border-strong hover:text-fg md:inline-flex">
@@ -407,11 +443,12 @@ function Dashboard() {
 
             {/* KPIs */}
             <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-              <KpiCard label="Alunos ativos" value="1" sub="+1 este mês" trend="1" />
-              <KpiCard label="Treinos ativos" value="0" sub="0 periodizados" />
+              <KpiCard label="Alunos ativos" value={String(stats?.alunosAtivos ?? 0)} sub="ativos agora" />
+              <KpiCard label="Treinos ativos" value={String(stats?.treinosAtivos ?? 0)} sub="modelos criados" />
               <KpiCard label="Receita do mês" value="R$ 0" sub="vs mês anterior" sparkUp={false} />
-              <KpiCard label="Avaliações" value="0" sub="em dia" />
+              <KpiCard label="Avaliações" value={String(stats?.avaliacoes ?? 0)} sub="em dia" />
             </div>
+
 
             {/* Hoje / Pulso */}
             <div className="grid grid-cols-1 gap-3 lg:grid-cols-[1.55fr_1fr]">

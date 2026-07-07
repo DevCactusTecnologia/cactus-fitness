@@ -10,7 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { UserAvatarMenu } from "@/components/UserAvatarMenu";
 
-export const Route = createFileRoute("/dashboard/personal/agenda")({
+export const Route = createFileRoute("/_authenticated/dashboard/personal/agenda")({
   head: () => ({
     meta: [
       { title: "Agenda · cactusfitness" },
@@ -94,7 +94,7 @@ function IconRail() {
       <div className="mt-auto flex flex-col items-center gap-2">
         <SidebarIconBtn icon={Plus} variant="primary" />
         <SidebarIconBtn icon={Bell} badge="3" />
-        <UserAvatarMenu initials="ML" name="Meu perfil" />
+        <UserAvatarMenu />
       </div>
     </aside>
   );
@@ -188,7 +188,7 @@ type FormState = {
 
 const emptyForm: FormState = {
   title: "", description: "", location: "",
-  event_date: "2026-07-06", event_time: "08:00", color: 0, student: "",
+  event_date: new Date().toISOString().slice(0, 10), event_time: "08:00", color: 0, student: "",
   is_public: false, multi_day: false, recurring: false,
 };
 
@@ -230,6 +230,9 @@ function NovoEventoModal({
   async function handleSubmit() {
     if (!form.title.trim()) { setError("Informe o título do evento."); return; }
     setSaving(true); setError(null);
+    const { data: userData } = await supabase.auth.getUser();
+    const userId = userData.user?.id;
+    if (!userId) { setSaving(false); setError("Sessão expirada."); return; }
     const payload = {
       title: form.title.trim(),
       description: form.description || null,
@@ -244,7 +247,7 @@ function NovoEventoModal({
     };
     const { error: err } = editing
       ? await supabase.from("events").update(payload).eq("id", editing.id)
-      : await supabase.from("events").insert(payload);
+      : await supabase.from("events").insert({ ...payload, personal_id: userId });
     setSaving(false);
     if (err) { setError(err.message); return; }
     onSaved(); onClose();
@@ -304,14 +307,7 @@ function NovoEventoModal({
           </Field>
 
           <Field label="Aluno (opcional)">
-            <div className="relative">
-              <select value={form.student} onChange={(e) => update("student", e.target.value)} className="w-full appearance-none rounded-lg border border-border bg-background/40 px-3 py-2 pr-9 text-sm focus:border-primary focus:outline-none">
-                <option value="">Selecione um aluno</option>
-                <option value="Nenhum aluno">Nenhum aluno</option>
-                <option value="marcos Lisboa">marcos Lisboa</option>
-              </select>
-              <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-            </div>
+            <AlunoSelect value={form.student} onChange={(v) => update("student", v)} />
           </Field>
 
           <div className="space-y-2 pt-1">
@@ -374,6 +370,29 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
     <div>
       <div className="mb-1.5 text-xs font-semibold text-fg-secondary">{label}</div>
       {children}
+    </div>
+  );
+}
+
+function AlunoSelect({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const [items, setItems] = useState<{ id: string; full_name: string }[]>([]);
+  useEffect(() => {
+    supabase.from("alunos").select("id, full_name").eq("is_active", true).order("full_name")
+      .then(({ data }) => setItems((data ?? []) as { id: string; full_name: string }[]));
+  }, []);
+  return (
+    <div className="relative">
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="w-full appearance-none rounded-lg border border-border bg-background/40 px-3 py-2 pr-9 text-sm focus:border-primary focus:outline-none"
+      >
+        <option value="">Selecione um aluno</option>
+        {items.map((a) => (
+          <option key={a.id} value={a.full_name}>{a.full_name}</option>
+        ))}
+      </select>
+      <ChevronDown className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
     </div>
   );
 }
@@ -444,7 +463,7 @@ function AgendaPage() {
     load();
   }
 
-  const today = "2026-07-06";
+  const today = new Date().toISOString().slice(0, 10);
   const todayEvents = events.filter((e) => e.event_date === today);
   const upcoming = events.filter((e) => e.event_date >= today);
 

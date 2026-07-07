@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      alunos: {
+        Row: {
+          aluno_user_id: string | null
+          birth_date: string | null
+          created_at: string
+          email: string | null
+          full_name: string
+          gender: string | null
+          id: string
+          is_active: boolean
+          notes: string | null
+          objective: string | null
+          personal_id: string
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          aluno_user_id?: string | null
+          birth_date?: string | null
+          created_at?: string
+          email?: string | null
+          full_name: string
+          gender?: string | null
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+          objective?: string | null
+          personal_id: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          aluno_user_id?: string | null
+          birth_date?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string
+          gender?: string | null
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+          objective?: string | null
+          personal_id?: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       equipments: {
         Row: {
           created_at: string
@@ -49,6 +97,7 @@ export type Database = {
           is_public: boolean
           location: string | null
           multi_day: boolean
+          personal_id: string | null
           recurring: boolean
           student: string | null
           title: string
@@ -64,6 +113,7 @@ export type Database = {
           is_public?: boolean
           location?: string | null
           multi_day?: boolean
+          personal_id?: string | null
           recurring?: boolean
           student?: string | null
           title: string
@@ -79,6 +129,7 @@ export type Database = {
           is_public?: boolean
           location?: string | null
           multi_day?: boolean
+          personal_id?: string | null
           recurring?: boolean
           student?: string | null
           title?: string
@@ -181,15 +232,216 @@ export type Database = {
           },
         ]
       }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string
+          cref: string | null
+          full_name: string | null
+          id: string
+          phone: string | null
+          specialties: string[]
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          cref?: string | null
+          full_name?: string | null
+          id: string
+          phone?: string | null
+          specialties?: string[]
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          cref?: string | null
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          specialties?: string[]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      student_workouts: {
+        Row: {
+          aluno_id: string
+          created_at: string
+          id: string
+          name: string
+          personal_id: string
+          scheduled_for: string | null
+          status: string
+          template_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          aluno_id: string
+          created_at?: string
+          id?: string
+          name: string
+          personal_id: string
+          scheduled_for?: string | null
+          status?: string
+          template_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          aluno_id?: string
+          created_at?: string
+          id?: string
+          name?: string
+          personal_id?: string
+          scheduled_for?: string | null
+          status?: string
+          template_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "student_workouts_aluno_id_fkey"
+            columns: ["aluno_id"]
+            isOneToOne: false
+            referencedRelation: "alunos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "student_workouts_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "workout_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      workout_template_exercises: {
+        Row: {
+          created_at: string
+          exercise_id: number | null
+          id: string
+          load: string | null
+          notes: string | null
+          position: number
+          reps: string | null
+          rest_seconds: number | null
+          sets: number | null
+          template_id: string
+        }
+        Insert: {
+          created_at?: string
+          exercise_id?: number | null
+          id?: string
+          load?: string | null
+          notes?: string | null
+          position?: number
+          reps?: string | null
+          rest_seconds?: number | null
+          sets?: number | null
+          template_id: string
+        }
+        Update: {
+          created_at?: string
+          exercise_id?: number | null
+          id?: string
+          load?: string | null
+          notes?: string | null
+          position?: number
+          reps?: string | null
+          rest_seconds?: number | null
+          sets?: number | null
+          template_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workout_template_exercises_exercise_id_fkey"
+            columns: ["exercise_id"]
+            isOneToOne: false
+            referencedRelation: "exercises"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "workout_template_exercises_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "workout_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      workout_templates: {
+        Row: {
+          category: string | null
+          created_at: string
+          description: string | null
+          duration_min: number | null
+          id: string
+          name: string
+          personal_id: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          duration_min?: number | null
+          id?: string
+          name: string
+          personal_id: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          created_at?: string
+          description?: string | null
+          duration_min?: number | null
+          id?: string
+          name?: string
+          personal_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "personal" | "aluno"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -316,6 +568,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["personal", "aluno"],
+    },
   },
 } as const
