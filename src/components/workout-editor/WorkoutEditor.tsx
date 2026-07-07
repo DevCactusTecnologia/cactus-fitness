@@ -1081,20 +1081,98 @@ function ExercisePicker({
       </div>
       {totalSelected > 0 && (
         <div className="flex shrink-0 items-center gap-2 border-t border-border bg-card px-3 py-3">
-          <button
-            type="button"
-            onClick={() => { setSelectedIds(new Set()); setCustomPicks([]); }}
-            className="-m-1 flex min-w-0 flex-1 items-center gap-2.5 rounded-lg p-1 text-left transition-opacity hover:bg-muted/40 active:opacity-70"
-            aria-label="Ver lista de selecionados"
-          >
-            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border-2 border-primary bg-primary/15 text-sm font-bold tabular-nums text-primary">
-              {totalSelected}
-            </span>
-            <span className="min-w-0 flex-1 leading-tight">
-              <span className="block truncate text-sm font-semibold text-foreground">exercícios selecionados</span>
-              <span className="block truncate text-[11px] text-primary">Ver lista</span>
-            </span>
-          </button>
+          <Sheet>
+            <SheetTrigger asChild>
+              <button
+                type="button"
+                className="-m-1 flex min-w-0 flex-1 items-center gap-2.5 rounded-lg p-1 text-left transition-opacity hover:bg-muted/40 active:opacity-70"
+                aria-label="Ver lista de selecionados"
+              >
+                <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border-2 border-primary bg-primary/15 text-sm font-bold tabular-nums text-primary">
+                  {totalSelected}
+                </span>
+                <span className="min-w-0 flex-1 leading-tight">
+                  <span className="block truncate text-sm font-semibold text-foreground">exercícios selecionados</span>
+                  <span className="block truncate text-[11px] text-primary">Ver lista</span>
+                </span>
+              </button>
+            </SheetTrigger>
+            <SheetContent side="right" className="flex w-full flex-col gap-0 p-0 sm:max-w-md">
+              <SheetHeader className="shrink-0 space-y-1 border-b border-border px-5 pb-3 pt-3 text-left">
+                <SheetTitle className="text-base font-semibold text-foreground">
+                  {totalSelected} {totalSelected === 1 ? "exercício selecionado" : "exercícios selecionados"}
+                </SheetTitle>
+                <p className="text-xs text-muted-foreground">
+                  Revise antes de confirmar. Toque em <X className="inline h-3 w-3" aria-hidden /> pra remover.
+                </p>
+              </SheetHeader>
+              <div className="min-h-0 flex-1 space-y-2 overflow-y-auto px-4 py-3">
+                {catalog.filter((e) => selectedIds.has(e.id)).map((e) => {
+                  const diff = difficultyStyle(e.difficulty);
+                  const muscles = [...(e.muscles_primary ?? []), ...(e.muscles_secondary ?? [])].slice(0, 3).join(" • ");
+                  return (
+                    <div key={`sel-${e.id}`} className="flex items-center gap-3 rounded-xl border border-border bg-card p-3">
+                      <span className="relative grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-md bg-muted">
+                        <span className="grid h-5 w-5 place-items-center rounded-full bg-primary shadow-sm">
+                          <Play className="ml-px h-2.5 w-2.5 fill-primary-foreground text-primary-foreground" />
+                        </span>
+                      </span>
+                      <div className="min-w-0 flex-1 space-y-1">
+                        <div className="truncate text-sm font-medium text-foreground">{e.name}</div>
+                        <div className="flex flex-wrap items-center gap-1.5 text-[11px]">
+                          <span className={`inline-flex items-center gap-1 font-medium ${diff.text}`}>
+                            <span className={`h-1.5 w-1.5 rounded-full ${diff.dot}`} />
+                            {diff.label}
+                          </span>
+                          {muscles && (
+                            <span className="truncate text-muted-foreground">· {muscles}</span>
+                          )}
+                        </div>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => toggle(e.id)}
+                        aria-label={`Remover ${e.name} da seleção`}
+                        className="grid h-9 w-9 shrink-0 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                      >
+                        <X className="h-4 w-4" />
+                      </button>
+                    </div>
+                  );
+                })}
+                {customPicks.map((c, i) => (
+                  <div key={`csel-${i}`} className="flex items-center gap-3 rounded-xl border border-border bg-card p-3">
+                    <span className="relative grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-md bg-muted">
+                      <span className="grid h-5 w-5 place-items-center rounded-full bg-primary shadow-sm">
+                        <Play className="ml-px h-2.5 w-2.5 fill-primary-foreground text-primary-foreground" />
+                      </span>
+                    </span>
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm font-medium text-foreground">{c.name}</div>
+                      <div className="text-[11px] text-muted-foreground">Exercício livre</div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setCustomPicks((prev) => prev.filter((_, idx) => idx !== i))}
+                      aria-label={`Remover ${c.name} da seleção`}
+                      className="grid h-9 w-9 shrink-0 place-items-center rounded-md text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                    >
+                      <X className="h-4 w-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <div className="flex shrink-0 items-center justify-between gap-2 border-t border-border bg-card px-4 py-3">
+                <span className="text-xs text-muted-foreground">{totalSelected} no total</span>
+                <button
+                  onClick={handleCommit}
+                  className="inline-flex h-10 shrink-0 items-center justify-center rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground shadow-[0_0_20px_-4px_hsl(var(--primary)/0.6)] transition-all hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0 active:scale-[0.97]"
+                >
+                  Adicionar
+                </button>
+              </div>
+            </SheetContent>
+          </Sheet>
           <button
             onClick={handleCommit}
             className="inline-flex h-10 shrink-0 items-center justify-center rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground shadow-[0_0_20px_-4px_hsl(var(--primary)/0.6)] transition-all hover:-translate-y-0.5 hover:brightness-110 active:translate-y-0 active:scale-[0.97]"
