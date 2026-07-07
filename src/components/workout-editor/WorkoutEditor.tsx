@@ -519,7 +519,7 @@ export function WorkoutEditor({ kind }: { kind: EditorKind }) {
               ))}
               <button
                 onClick={() => dispatch({ type: "ADD_SESSION" })}
-                className="inline-flex h-11 min-w-[220px] items-center justify-center gap-2 rounded-full border border-dashed border-border/70 px-4 text-sm font-medium text-muted-foreground hover:bg-muted"
+                className="inline-flex h-11 w-full sm:w-auto min-w-0 sm:min-w-[220px] items-center justify-center gap-2 rounded-full border border-dashed border-border/70 px-4 text-sm font-medium text-muted-foreground hover:bg-muted"
               >
                 <Plus className="h-4 w-4" /> Adicionar sessão
               </button>
