@@ -230,22 +230,23 @@ function GreetingCard() {
           {initials}
         </div>
         <div className="min-w-0">
-          <div className="text-sm font-medium text-muted-foreground sm:text-base">{greeting},</div>
-          <div className="truncate text-2xl font-extrabold leading-tight tracking-tight font-display sm:text-[1.7rem]">{name}</div>
+          <div className="text-xs font-medium text-muted-foreground sm:text-sm">{greeting},</div>
+          <div className="truncate text-xl font-extrabold leading-tight tracking-tight font-display sm:text-[1.5rem]">{name}</div>
         </div>
       </div>
       <div className="mt-6 grid grid-cols-3 gap-4 sm:mt-7">
         <div>
-          <div className="text-4xl font-extrabold leading-none font-display sm:text-[2.5rem]">{stats?.alunosAtivos ?? 0}</div>
-          <div className="mt-2 text-sm leading-tight text-muted-foreground sm:text-base">alunos<br/>ativos</div>
+          <div className="text-3xl font-extrabold leading-none font-display sm:text-[2.15rem]">{stats?.alunosAtivos ?? 0}</div>
+          <div className="mt-2 text-xs leading-tight text-muted-foreground sm:text-sm">alunos<br/>ativos</div>
         </div>
         <div>
-          <div className="text-4xl font-extrabold leading-none font-display sm:text-[2.5rem]">{stats?.treinosAtivos ?? 0}</div>
-          <div className="mt-2 text-sm leading-tight text-muted-foreground sm:text-base">treinos<br/>ativos</div>
+          <div className="text-3xl font-extrabold leading-none font-display sm:text-[2.15rem]">{stats?.treinosAtivos ?? 0}</div>
+          <div className="mt-2 text-xs leading-tight text-muted-foreground sm:text-sm">treinos<br/>ativos</div>
         </div>
         <div>
-          <div className="text-4xl font-extrabold leading-none font-display sm:text-[2.5rem]">{stats?.avaliacoes ?? 0}</div>
-          <div className="mt-2 text-sm leading-tight text-muted-foreground sm:text-base">avaliações<br/>físicas</div>
+          <div className="text-3xl font-extrabold leading-none font-display sm:text-[2.15rem]">{stats?.avaliacoes ?? 0}</div>
+          <div className="mt-2 text-xs leading-tight text-muted-foreground sm:text-sm">avaliações<br/>físicas</div>
+
         </div>
       </div>
     </div>
