@@ -441,7 +441,7 @@ function Dashboard() {
                 <ActionButton icon={Lock} label="Link de Cadastro" />
               </div>
               <NextEventCard />
-              <PulseRow />
+              <MobilePulseCard />
 
               <div className="flex justify-end">
                 <button className="inline-flex items-center gap-1.5 rounded-full border border-primary/40 px-4 py-1.5 text-sm text-primary hover:bg-primary/10">
