@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -19,6 +20,32 @@ import { IconRail } from "@/components/IconRail";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 
 export type EditorKind = "plan" | "template";
+
+type SetType =
+  | "normal"
+  | "aquecimento"
+  | "ativacao"
+  | "drop"
+  | "falha";
+
+const SET_TYPE_OPTIONS: {
+  key: SetType;
+  label: string;
+  badge: string;
+  description: string;
+  fg: string;
+  bg: string;
+}[] = [
+  { key: "normal", label: "Normal", badge: "1", description: "Série padrão de trabalho com carga efetiva.", fg: "hsl(var(--foreground))", bg: "hsl(var(--muted))" },
+  { key: "aquecimento", label: "Aquecimento", badge: "Aquec.", description: "Série leve para preparar os músculos. Use carga baixa e foque no movimento.", fg: "hsl(38 92% 50%)", bg: "hsl(38 92% 50% / 0.15)" },
+  { key: "ativacao", label: "Ativação", badge: "Ativ.", description: "Série intermediária para ativar o músculo antes das séries efetivas.", fg: "hsl(199 89% 55%)", bg: "hsl(199 89% 55% / 0.15)" },
+  { key: "drop", label: "Drop Set", badge: "Drop", description: "Ao completar as reps, reduza a carga sem descanso e continue.", fg: "rgb(168, 85, 247)", bg: "rgba(168, 85, 247, 0.15)" },
+  { key: "falha", label: "Até a Falha", badge: "Falha", description: "Faça o máximo de reps que conseguir com boa forma. Pare quando não conseguir mais.", fg: "hsl(var(--destructive))", bg: "hsl(var(--destructive) / 0.15)" },
+];
+
+function setTypeMeta(k: SetType | undefined) {
+  return SET_TYPE_OPTIONS.find((o) => o.key === (k ?? "normal")) ?? SET_TYPE_OPTIONS[0];
+}
 
 type ExerciseItem = {
   id: string; // client id
@@ -29,6 +56,7 @@ type ExerciseItem = {
   rest_seconds: number | null;
   load: string;
   notes: string;
+  set_types?: SetType[];
 };
 
 type Block = {
@@ -952,49 +980,63 @@ function ExerciseDetailSheet({
               <span />
             </div>
             <div className="space-y-1">
-              {rows.map((i) => (
-                <div key={i} className="grid grid-cols-[130px_minmax(0,1fr)_80px_32px] items-center gap-2 py-1">
-                  <button
-                    type="button"
-                    className="flex h-10 min-w-0 items-center gap-2 rounded-full border border-border bg-muted pl-1.5 pr-2 transition-colors hover:border-foreground/30"
-                  >
-                    <span className="grid h-7 w-7 shrink-0 place-items-center rounded-lg bg-card text-xs font-bold">{i + 1}</span>
-                    <span className="flex-1 truncate text-left text-sm font-semibold">Normal</span>
-                    <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const v = window.prompt("Reps / alvo", item.reps || "12");
-                      if (v != null) onChange({ reps: v });
-                    }}
-                    className="flex h-10 items-center justify-center rounded-full border border-border bg-muted px-4 text-sm font-semibold transition-colors hover:border-foreground/30"
-                  >
-                    {item.reps ? `${item.reps} reps` : "— reps"}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const v = window.prompt("Descanso (segundos)", String(item.rest_seconds ?? 60));
-                      if (v != null) onChange({ rest_seconds: v === "" ? null : Number(v) });
-                    }}
-                    aria-label="Descanso após esta série"
-                    className="flex h-10 min-w-[64px] items-center justify-center gap-1 rounded-full border border-border bg-muted px-3 text-xs font-semibold tabular-nums transition-colors hover:border-foreground/30"
-                  >
-                    <Clock className="h-3.5 w-3.5" />
-                    {item.rest_seconds ?? 60}s
-                  </button>
-                  <button
-                    type="button"
-                    onClick={removeSet}
-                    aria-label="Remover série"
-                    className="grid h-8 w-8 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
-              ))}
+              {rows.map((i) => {
+                const currentType = (item.set_types?.[i] ?? "normal") as SetType;
+                const meta = setTypeMeta(currentType);
+                const setType = (t: SetType) => {
+                  const arr = [...(item.set_types ?? [])];
+                  while (arr.length < setsCount) arr.push("normal");
+                  arr[i] = t;
+                  onChange({ set_types: arr.slice(0, setsCount) });
+                };
+                const removeThisSet = () => {
+                  const arr = [...(item.set_types ?? [])];
+                  arr.splice(i, 1);
+                  onChange({ sets: Math.max(0, (item.sets ?? 0) - 1), set_types: arr });
+                };
+                return (
+                  <div key={i} className="grid grid-cols-[130px_minmax(0,1fr)_80px_32px] items-center gap-2 py-1">
+                    <SetTypePickerButton
+                      index={i}
+                      currentType={currentType}
+                      onSelect={setType}
+                      onRemoveSet={removeThisSet}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const v = window.prompt("Reps / alvo", item.reps || "12");
+                        if (v != null) onChange({ reps: v });
+                      }}
+                      className="flex h-10 items-center justify-center rounded-full border border-border bg-muted px-4 text-sm font-semibold transition-colors hover:border-foreground/30"
+                    >
+                      {item.reps ? `${item.reps} reps` : "— reps"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const v = window.prompt("Descanso (segundos)", String(item.rest_seconds ?? 60));
+                        if (v != null) onChange({ rest_seconds: v === "" ? null : Number(v) });
+                      }}
+                      aria-label="Descanso após esta série"
+                      className="flex h-10 min-w-[64px] items-center justify-center gap-1 rounded-full border border-border bg-muted px-3 text-xs font-semibold tabular-nums transition-colors hover:border-foreground/30"
+                    >
+                      <Clock className="h-3.5 w-3.5" />
+                      {item.rest_seconds ?? 60}s
+                    </button>
+                    <button
+                      type="button"
+                      onClick={removeThisSet}
+                      aria-label="Remover série"
+                      className="grid h-8 w-8 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </button>
+                  </div>
+                );
+              })}
             </div>
+
             <button
               type="button"
               onClick={addSet}
@@ -1020,6 +1062,84 @@ function ExerciseDetailSheet({
         </div>
       </SheetContent>
     </Sheet>
+  );
+}
+
+function SetTypePickerButton({
+  index, currentType, onSelect, onRemoveSet,
+}: {
+  index: number;
+  currentType: SetType;
+  onSelect: (t: SetType) => void;
+  onRemoveSet: () => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const meta = setTypeMeta(currentType);
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="flex h-10 min-w-0 items-center gap-2 rounded-full border border-border bg-muted pl-1.5 pr-2 transition-colors hover:border-foreground/30"
+      >
+        <span
+          className="grid h-7 w-7 shrink-0 place-items-center rounded-lg text-[10px] font-bold"
+          style={{ color: meta.fg, backgroundColor: meta.bg }}
+        >
+          {currentType === "normal" ? index + 1 : meta.badge}
+        </span>
+        <span className="flex-1 truncate text-left text-sm font-semibold">{meta.label}</span>
+        <ChevronRight className="h-3.5 w-3.5 text-muted-foreground" />
+      </button>
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="max-w-md p-5">
+          <DialogHeader className="space-y-0 text-left">
+            <DialogTitle className="text-base font-bold">Tipo de Série</DialogTitle>
+            <DialogDescription className="text-xs">Série {index + 1}</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-1">
+            {SET_TYPE_OPTIONS.map((opt) => {
+              const active = opt.key === currentType;
+              return (
+                <button
+                  key={opt.key}
+                  type="button"
+                  onClick={() => { onSelect(opt.key); setOpen(false); }}
+                  className={`flex w-full items-center gap-3 rounded-xl p-3 text-left transition-colors ${
+                    active
+                      ? "border-2 border-primary bg-primary/10"
+                      : "border border-border hover:bg-muted"
+                  }`}
+                >
+                  <div
+                    className="grid h-9 w-9 shrink-0 place-items-center rounded-lg text-[10px] font-bold"
+                    style={{ color: opt.fg, backgroundColor: opt.bg }}
+                  >
+                    {opt.key === "normal" ? index + 1 : opt.badge}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-sm font-semibold text-foreground">{opt.label}</div>
+                    <div className="mt-0.5 line-clamp-2 text-[11px] text-muted-foreground">{opt.description}</div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+          <div className="mt-2 border-t border-border pt-3">
+            <button
+              type="button"
+              onClick={() => { onRemoveSet(); setOpen(false); }}
+              className="flex w-full items-center gap-3 rounded-xl border border-destructive/30 bg-destructive/5 p-3 text-sm font-semibold text-destructive transition-colors hover:bg-destructive/10"
+            >
+              <div className="grid h-9 w-9 place-items-center rounded-lg bg-destructive/15">
+                <X className="h-4 w-4" />
+              </div>
+              <span>Remover Série</span>
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
 
