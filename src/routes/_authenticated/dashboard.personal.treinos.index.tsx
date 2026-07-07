@@ -98,13 +98,26 @@ function TreinosPage() {
               <ArrowLeft className="h-5 w-5" />
             </button>
             <div className="flex items-center gap-2">
-              <svg viewBox="0 0 32 32" className="h-6 w-6 text-primary" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M4 8 L10 24 L16 14 L22 24 L28 8" />
-              </svg>
-              <span className="text-lg font-bold tracking-tight">
-                well<span className="italic font-light">trainer</span>
+              <span
+                aria-label="CactusFitness"
+                role="img"
+                className="block h-6 w-6 bg-primary"
+                style={{
+                  WebkitMaskImage: `url(${logoUrl})`,
+                  maskImage: `url(${logoUrl})`,
+                  WebkitMaskRepeat: "no-repeat",
+                  maskRepeat: "no-repeat",
+                  WebkitMaskPosition: "center",
+                  maskPosition: "center",
+                  WebkitMaskSize: "contain",
+                  maskSize: "contain",
+                }}
+              />
+              <span className="text-base font-semibold tracking-tight font-display">
+                Cactus<span className="italic font-normal">Fitness</span>
               </span>
             </div>
+
             <button className="grid h-9 w-9 place-items-center rounded-lg text-muted-foreground hover:bg-muted" aria-label="Nova pasta">
               <FolderPlus className="h-5 w-5" />
             </button>
