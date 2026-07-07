@@ -55,9 +55,9 @@
   --color-sidebar: hsl(var(--bg));
   --color-sidebar-foreground: hsl(var(--fg));
 
-  --font-body: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
-  --font-display: "Plus Jakarta Sans", ui-sans-serif, system-ui, sans-serif;
-  --font-sans: var(--font-body);
+ --font-body: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+ --font-display: "Space Grotesk", ui-sans-serif, system-ui, sans-serif;
+ --font-sans: var(--font-body);
 
   --shadow-sm: 0 1px 2px rgba(0,0,0,0.4);
   --shadow-md: 0 4px 12px rgba(0,0,0,0.5);
