@@ -1,11 +1,11 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
-  Home,
+  LayoutDashboard,
   Users,
   Menu as MenuIcon,
   Dumbbell,
   Bell,
-  User,
+  UserCircle2,
   Settings,
   LogOut,
   ChevronRight,
