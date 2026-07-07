@@ -134,22 +134,28 @@ function AlunoDetailPage() {
     <div className="min-h-screen bg-background text-foreground">
       <IconRail />
 
-      <main className="pb-24 md:ml-[72px] md:pb-10 p-4 md:p-6">
+      <main className="pb-24 md:ml-[72px] md:pb-10">
 
-        <div className="mx-auto max-w-4xl space-y-4">
-          <Link to="/dashboard/personal/alunos" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
-            <ArrowLeft className="h-4 w-4" /> voltar
-          </Link>
-          <h1 className="text-2xl font-bold tracking-tight font-display">Perfil do Aluno</h1>
+        {/* Sticky title bar */}
+        <div className="sticky top-0 z-30 border-b border-border/60 bg-background/70 backdrop-blur-xl">
+          <div className="px-4 py-4 sm:px-6 md:px-8">
+            <Link to="/dashboard/personal/alunos" className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground">
+              <ArrowLeft className="h-3.5 w-3.5" /> voltar
+            </Link>
+            <h1 className="mt-1 text-xl font-bold tracking-tight font-display sm:text-2xl">Perfil do Aluno</h1>
+          </div>
+        </div>
 
+        <div className="mx-auto max-w-4xl space-y-4 p-4 md:p-6">
           <div className="rounded-xl border border-border bg-card p-5 md:p-6">
             <div className="flex items-center gap-4">
               <div
-                className="grid h-16 w-16 shrink-0 place-items-center rounded-full text-lg font-bold font-display ring-2 shadow-md"
-                style={{ backgroundColor: avColor.bg, color: avColor.fg, boxShadow: `0 0 0 2px ${avColor.fg} inset` }}
+                className="grid h-16 w-16 shrink-0 place-items-center rounded-full text-lg font-bold font-display ring-2 ring-primary shadow-md"
+                style={{ backgroundColor: avColor.bg, color: avColor.fg }}
               >
                 {initials}
               </div>
+
               <div className="min-w-0 flex-1">
                 <h2 className="truncate text-xl font-bold md:text-2xl font-display">{aluno.full_name}</h2>
                 <p className="truncate text-sm text-muted-foreground">{aluno.email ?? "Sem e-mail cadastrado"}</p>
