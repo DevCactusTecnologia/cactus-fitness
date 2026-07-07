@@ -224,7 +224,7 @@ function GreetingCard() {
 
 function ActionButton({ icon: Icon, label }: { icon: React.ElementType; label: string }) {
   return (
-    <button className="flex min-w-0 items-center gap-3 rounded-xl border border-border bg-card px-4 py-4 text-left transition hover:border-primary/40">
+    <button className="flex min-w-0 items-center gap-3 rounded-lg border border-border bg-card px-4 py-4 text-left transition hover:border-primary/40">
       <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-background/60 text-primary">
         <Icon className="h-5 w-5" strokeWidth={1.75} />
       </div>
@@ -253,7 +253,7 @@ function NextEventCard() {
   return (
     <Link
       to="/dashboard/personal/agenda"
-      className="relative flex items-start gap-3 overflow-hidden rounded-xl border border-border bg-card p-5"
+      className="relative flex items-start gap-3 overflow-hidden rounded-lg border border-border bg-card p-5"
     >
       <span className="absolute inset-y-3 left-0 w-1 rounded-r-full bg-amber-500" />
       <div className="min-w-0 flex-1 pl-2">
@@ -284,7 +284,7 @@ function MobilePulseCard() {
   return (
     <button
       type="button"
-      className="flex w-full items-center gap-3 rounded-2xl border border-primary/40 bg-[#0d0f0d] px-4 py-3 text-left"
+      className="flex w-full items-center gap-3 rounded-xl border border-primary/40 bg-[#0d0f0d] px-4 py-3 text-left"
     >
       <div className="relative shrink-0">
         <div className="grid h-11 w-11 place-items-center rounded-full bg-primary/15 text-primary">
@@ -448,7 +448,7 @@ function Dashboard() {
                   <Pencil className="h-3.5 w-3.5" /> Editar
                 </button>
               </div>
-              <div className="rounded-xl border border-border bg-card p-4 md:p-6">
+              <div className="rounded-lg border border-border bg-card p-4 md:p-6">
                 <div className="grid grid-cols-4 gap-3 md:grid-cols-5">
                   <QuickTile icon={Users} label="Alunos" />
                   <QuickTile icon={HeartPulse} label="Avaliações" />
