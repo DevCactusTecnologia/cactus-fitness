@@ -9,6 +9,7 @@ import {
   UserPlus, FileText, Link2, TrendingUp, AlertTriangle, Clock, MapPin, Home, Users as UsersIcon,
 } from "lucide-react";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
+import logoUrl from "@/assets/cactus-logo.png";
 import { UserAvatarMenu } from "@/components/UserAvatarMenu";
 import { supabase } from "@/integrations/supabase/client";
 import { useCurrentUser, firstName, initialsFromName } from "@/lib/auth";
