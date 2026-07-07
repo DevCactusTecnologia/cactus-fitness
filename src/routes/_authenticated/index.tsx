@@ -229,30 +229,58 @@ function PlanBanner() {
   );
 }
 
+function useDashboardStats() {
+  return useQuery({
+    queryKey: ["dashboard-stats"],
+    staleTime: 30_000,
+    queryFn: async () => {
+      const [alunosRes, treinosRes] = await Promise.all([
+        supabase.from("alunos").select("id", { count: "exact", head: true }).eq("is_active", true),
+        supabase.from("workout_templates").select("id", { count: "exact", head: true }),
+      ]);
+      return {
+        alunosAtivos: alunosRes.count ?? 0,
+        treinosAtivos: treinosRes.count ?? 0,
+        avaliacoes: 0,
+      };
+    },
+  });
+}
+
+function greetingFor(hour: number) {
+  if (hour < 12) return "Bom dia";
+  if (hour < 18) return "Boa tarde";
+  return "Boa noite";
+}
+
 function GreetingCard() {
+  const { profile } = useCurrentUser();
+  const { data: stats } = useDashboardStats();
+  const name = firstName(profile?.full_name, profile?.email);
+  const initials = initialsFromName(profile?.full_name, profile?.email);
+  const greeting = greetingFor(new Date().getHours());
   return (
     <div className="rounded-xl border border-border bg-card p-5 shadow-[0_10px_30px_-15px_rgba(0,0,0,0.6)]">
       <div className="flex items-center gap-4">
-        <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-destructive text-sm font-semibold text-white">
-          ML
+        <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-primary/20 text-sm font-semibold text-primary font-display">
+          {initials}
         </div>
         <div className="min-w-0">
-          <div className="text-sm text-muted-foreground">Boa tarde,</div>
-          <div className="text-xl font-bold tracking-tight font-display">Marcos</div>
+          <div className="text-sm text-muted-foreground">{greeting},</div>
+          <div className="text-xl font-bold tracking-tight font-display">{name}</div>
         </div>
       </div>
       <div className="mt-5 grid grid-cols-3 gap-4">
         <div>
-          <div className="text-3xl font-bold font-display">1</div>
+          <div className="text-3xl font-bold font-display">{stats?.alunosAtivos ?? 0}</div>
           <div className="mt-1 text-xs leading-tight text-muted-foreground">alunos<br/>ativos</div>
-          <div className="mt-1 text-xs font-semibold text-primary">↑ 1 este mês</div>
         </div>
         <div>
-          <div className="text-3xl font-bold font-display">0</div>
+          <div className="text-3xl font-bold font-display">{stats?.treinosAtivos ?? 0}</div>
           <div className="mt-1 text-xs leading-tight text-muted-foreground">treinos<br/>ativos</div>
         </div>
         <div>
-          <div className="text-3xl font-bold font-display">0</div>
+          <div className="text-3xl font-bold font-display">{stats?.avaliacoes ?? 0}</div>
           <div className="mt-1 text-xs leading-tight text-muted-foreground">avaliações<br/>físicas</div>
         </div>
       </div>
