@@ -17,6 +17,7 @@ import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedDashboardPersonalExerciciosRouteImport } from './routes/_authenticated/dashboard.personal.exercicios'
 import { Route as AuthenticatedDashboardPersonalAgendaRouteImport } from './routes/_authenticated/dashboard.personal.agenda'
 import { Route as AuthenticatedDashboardPersonalTreinosIndexRouteImport } from './routes/_authenticated/dashboard.personal.treinos.index'
+import { Route as AuthenticatedDashboardPersonalAvaliacoesIndexRouteImport } from './routes/_authenticated/dashboard.personal.avaliacoes.index'
 import { Route as AuthenticatedDashboardPersonalAlunosIndexRouteImport } from './routes/_authenticated/dashboard.personal.alunos.index'
 import { Route as AuthenticatedDashboardPersonalTreinosNovoTemplateRouteImport } from './routes/_authenticated/dashboard.personal.treinos.novo-template'
 import { Route as AuthenticatedDashboardPersonalTreinosNovoPlanoRouteImport } from './routes/_authenticated/dashboard.personal.treinos.novo-plano'
@@ -64,6 +65,12 @@ const AuthenticatedDashboardPersonalTreinosIndexRoute =
     path: '/dashboard/personal/treinos/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedDashboardPersonalAvaliacoesIndexRoute =
+  AuthenticatedDashboardPersonalAvaliacoesIndexRouteImport.update({
+    id: '/dashboard/personal/avaliacoes/',
+    path: '/dashboard/personal/avaliacoes/',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedDashboardPersonalAlunosIndexRoute =
   AuthenticatedDashboardPersonalAlunosIndexRouteImport.update({
     id: '/dashboard/personal/alunos/',
@@ -100,6 +107,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/personal/treinos/novo-plano': typeof AuthenticatedDashboardPersonalTreinosNovoPlanoRoute
   '/dashboard/personal/treinos/novo-template': typeof AuthenticatedDashboardPersonalTreinosNovoTemplateRoute
   '/dashboard/personal/alunos/': typeof AuthenticatedDashboardPersonalAlunosIndexRoute
+  '/dashboard/personal/avaliacoes/': typeof AuthenticatedDashboardPersonalAvaliacoesIndexRoute
   '/dashboard/personal/treinos/': typeof AuthenticatedDashboardPersonalTreinosIndexRoute
 }
 export interface FileRoutesByTo {
@@ -113,6 +121,7 @@ export interface FileRoutesByTo {
   '/dashboard/personal/treinos/novo-plano': typeof AuthenticatedDashboardPersonalTreinosNovoPlanoRoute
   '/dashboard/personal/treinos/novo-template': typeof AuthenticatedDashboardPersonalTreinosNovoTemplateRoute
   '/dashboard/personal/alunos': typeof AuthenticatedDashboardPersonalAlunosIndexRoute
+  '/dashboard/personal/avaliacoes': typeof AuthenticatedDashboardPersonalAvaliacoesIndexRoute
   '/dashboard/personal/treinos': typeof AuthenticatedDashboardPersonalTreinosIndexRoute
 }
 export interface FileRoutesById {
@@ -128,6 +137,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/personal/treinos/novo-plano': typeof AuthenticatedDashboardPersonalTreinosNovoPlanoRoute
   '/_authenticated/dashboard/personal/treinos/novo-template': typeof AuthenticatedDashboardPersonalTreinosNovoTemplateRoute
   '/_authenticated/dashboard/personal/alunos/': typeof AuthenticatedDashboardPersonalAlunosIndexRoute
+  '/_authenticated/dashboard/personal/avaliacoes/': typeof AuthenticatedDashboardPersonalAvaliacoesIndexRoute
   '/_authenticated/dashboard/personal/treinos/': typeof AuthenticatedDashboardPersonalTreinosIndexRoute
 }
 export interface FileRouteTypes {
@@ -143,6 +153,7 @@ export interface FileRouteTypes {
     | '/dashboard/personal/treinos/novo-plano'
     | '/dashboard/personal/treinos/novo-template'
     | '/dashboard/personal/alunos/'
+    | '/dashboard/personal/avaliacoes/'
     | '/dashboard/personal/treinos/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -156,6 +167,7 @@ export interface FileRouteTypes {
     | '/dashboard/personal/treinos/novo-plano'
     | '/dashboard/personal/treinos/novo-template'
     | '/dashboard/personal/alunos'
+    | '/dashboard/personal/avaliacoes'
     | '/dashboard/personal/treinos'
   id:
     | '__root__'
@@ -170,6 +182,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/personal/treinos/novo-plano'
     | '/_authenticated/dashboard/personal/treinos/novo-template'
     | '/_authenticated/dashboard/personal/alunos/'
+    | '/_authenticated/dashboard/personal/avaliacoes/'
     | '/_authenticated/dashboard/personal/treinos/'
   fileRoutesById: FileRoutesById
 }
@@ -237,6 +250,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardPersonalTreinosIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/dashboard/personal/avaliacoes/': {
+      id: '/_authenticated/dashboard/personal/avaliacoes/'
+      path: '/dashboard/personal/avaliacoes'
+      fullPath: '/dashboard/personal/avaliacoes/'
+      preLoaderRoute: typeof AuthenticatedDashboardPersonalAvaliacoesIndexRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/dashboard/personal/alunos/': {
       id: '/_authenticated/dashboard/personal/alunos/'
       path: '/dashboard/personal/alunos'
@@ -277,6 +297,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardPersonalTreinosNovoPlanoRoute: typeof AuthenticatedDashboardPersonalTreinosNovoPlanoRoute
   AuthenticatedDashboardPersonalTreinosNovoTemplateRoute: typeof AuthenticatedDashboardPersonalTreinosNovoTemplateRoute
   AuthenticatedDashboardPersonalAlunosIndexRoute: typeof AuthenticatedDashboardPersonalAlunosIndexRoute
+  AuthenticatedDashboardPersonalAvaliacoesIndexRoute: typeof AuthenticatedDashboardPersonalAvaliacoesIndexRoute
   AuthenticatedDashboardPersonalTreinosIndexRoute: typeof AuthenticatedDashboardPersonalTreinosIndexRoute
 }
 
@@ -295,6 +316,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedDashboardPersonalTreinosNovoTemplateRoute,
   AuthenticatedDashboardPersonalAlunosIndexRoute:
     AuthenticatedDashboardPersonalAlunosIndexRoute,
+  AuthenticatedDashboardPersonalAvaliacoesIndexRoute:
+    AuthenticatedDashboardPersonalAvaliacoesIndexRoute,
   AuthenticatedDashboardPersonalTreinosIndexRoute:
     AuthenticatedDashboardPersonalTreinosIndexRoute,
 }
