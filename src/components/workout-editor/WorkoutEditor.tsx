@@ -32,8 +32,30 @@ type ExerciseItem = {
 type Block = {
   id: string;
   label: string;
+  description?: string;
+  color?: string; // oklch/hex/tailwind color
   exercises: ExerciseItem[];
 };
+
+export type BlockPreset = {
+  key: string;
+  label: string;
+  description: string;
+  color: string; // css color
+};
+
+export const BLOCK_PRESETS: BlockPreset[] = [
+  { key: "mobilidade",  label: "Mobilidade",   description: "Alongamentos e flexibilidade",         color: "#a855f7" },
+  { key: "aquecimento", label: "Aquecimento",  description: "Preparação física inicial",            color: "#f97316" },
+  { key: "ativacao",    label: "Ativação",     description: "Ativar musculatura alvo",              color: "#22c55e" },
+  { key: "forca",       label: "Força",        description: "Séries pesadas, hipertrofia",          color: "#eab308" },
+  { key: "metabolico",  label: "Metabólico",   description: "Cardio em alta intensidade",           color: "#06b6d4" },
+  { key: "amrap",       label: "AMRAP",        description: "As Many Rounds As Possible",           color: "#3b82f6" },
+  { key: "emom",        label: "EMOM",         description: "Every Minute On the Minute",           color: "#f59e0b" },
+  { key: "fortime",     label: "For Time",     description: "Concluir o mais rápido possível",      color: "#ec4899" },
+  { key: "tabata",      label: "Tabata",       description: "Intervalos de alta intensidade (20s/10s, 8 rounds)", color: "#f43f5e" },
+  { key: "volta",       label: "Volta à Calma", description: "Recuperação ativa",                    color: "#14b8a6" },
+];
 
 type Session = {
   id: string;
@@ -55,6 +77,14 @@ const uid = () => Math.random().toString(36).slice(2, 10);
 const emptyBlock = (idx: number): Block => ({
   id: uid(),
   label: `Bloco ${String.fromCharCode(65 + idx)}`,
+  exercises: [],
+});
+
+const blockFromPreset = (p: BlockPreset): Block => ({
+  id: uid(),
+  label: p.label,
+  description: p.description,
+  color: p.color,
   exercises: [],
 });
 
