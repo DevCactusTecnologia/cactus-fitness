@@ -948,7 +948,7 @@ function AddBlockButton({
           <Plus className={size === "lg" ? "h-4 w-4" : "h-3.5 w-3.5"} /> Adicionar bloco
         </button>
       </PopoverTrigger>
-      <PopoverContent align="center" className="w-[320px] max-h-[420px] overflow-y-auto p-2">
+      <PopoverContent side="bottom" align="center" sideOffset={8} collisionPadding={16} avoidCollisions={false} className="w-[320px] max-h-[60vh] overflow-y-auto p-2">
         <div className="px-2 py-1.5 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
           Escolher tipo de bloco
         </div>
