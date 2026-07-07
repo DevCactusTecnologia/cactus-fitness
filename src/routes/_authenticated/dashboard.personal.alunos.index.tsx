@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
-  Plus,
+  Plus, Users,
   Link2, Search, LayoutGrid, ChevronRight, ChevronDown, Filter,
   Activity, CalendarDays, ArrowUpDown,
   Loader2,
