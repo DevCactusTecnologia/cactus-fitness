@@ -372,12 +372,12 @@ function Dashboard() {
   const today = new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" });
 
   return (
-    <div className="min-h-screen w-full max-w-full overflow-x-hidden bg-background text-foreground">
+    <div data-mobile-fit="true" className="min-h-screen w-full max-w-[100dvw] overflow-x-hidden bg-background text-foreground md:max-w-full">
       <IconRail />
       <MobileTopBar />
 
 
-      <main className="w-full max-w-full overflow-x-hidden pb-24 md:ml-[72px] md:w-[calc(100%-72px)] md:pb-8">
+      <main data-mobile-fit="true" className="w-full max-w-[100dvw] overflow-x-hidden pb-24 md:ml-[72px] md:w-[calc(100%-72px)] md:max-w-full md:pb-8">
         {/* ==================== DESKTOP (lg+) ==================== */}
         <div className="hidden lg:block">
           <div className="mx-auto flex w-full max-w-[1180px] flex-col gap-4 px-4 pb-12 pt-4">
@@ -441,8 +441,8 @@ function Dashboard() {
         </div>
 
         {/* ==================== TABLET / MOBILE (<lg) ==================== */}
-        <div className="lg:hidden">
-          <div className="mx-auto w-full max-w-6xl overflow-hidden px-3 py-4 sm:px-4 md:px-8 md:py-8">
+        <div data-mobile-fit="true" className="w-full max-w-[100dvw] overflow-hidden lg:hidden">
+          <div className="mx-auto w-full max-w-[100dvw] overflow-hidden px-3 py-4 sm:px-4 md:max-w-6xl md:px-8 md:py-8">
             <div className="mb-6 hidden items-start justify-between gap-4 md:flex">
               <div>
                 <h1 className="text-3xl font-bold tracking-tight font-display">Início</h1>
