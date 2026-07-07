@@ -1,7 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { ClipboardList, Plus, ArrowLeft, User as UserIcon, Send, X, Loader2 } from "lucide-react";
+import { ClipboardList, Plus, ArrowLeft, User as UserIcon, Send, Loader2 } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -116,14 +116,6 @@ function NovaAvaliacaoDialog({
               Quem vai preencher as medidas desta avaliação de {alunoNome.split(" ")[0]}?
             </p>
           </div>
-          <button
-            type="button"
-            onClick={() => onOpenChange(false)}
-            className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-muted-foreground hover:bg-accent hover:text-foreground"
-            aria-label="Fechar"
-          >
-            <X className="h-4 w-4" />
-          </button>
         </div>
 
         <div className="space-y-3 px-5 pt-5">
