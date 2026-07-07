@@ -4,13 +4,12 @@ import { useQuery } from "@tanstack/react-query";
 import {
   Dumbbell, FolderPlus, Plus,
   ChevronDown, Layers, FileText, MoreHorizontal,
-  ArrowLeft, Search, Loader2,
+  ArrowLeft, Search,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import logoUrl from "@/assets/cactus-logo.png";
 
 import { MobileBottomNav } from "@/components/MobileBottomNav";
-import { IconRail } from "@/components/IconRail";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -67,7 +66,7 @@ type Modelo = { id: string; name: string; description: string | null; created_at
 function TreinosPage() {
   const [filter, setFilter] = useState<"todos">("todos");
 
-  const { data: items = [], isLoading } = useQuery({
+  const { data: items = [] } = useQuery({
     queryKey: ["workout_templates"],
     queryFn: async (): Promise<Modelo[]> => {
       const { data, error } = await supabase
@@ -86,10 +85,8 @@ function TreinosPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <IconRail />
-
-      <main className="pb-24 md:pl-[72px] md:pb-8">
-        <div className="border-b border-border bg-background/80 px-4 py-5 backdrop-blur md:px-8">
+      <main className="pb-24 md:pb-8">
+        <div className="flex min-h-[84px] items-center border-b border-border bg-background/80 px-4 backdrop-blur md:px-5">
           {/* Mobile header */}
           <div className="flex items-center justify-between gap-2 md:hidden">
             <button
@@ -131,7 +128,7 @@ function TreinosPage() {
           </div>
 
           {/* Desktop header */}
-          <div className="hidden flex-wrap items-center justify-between gap-3 md:flex">
+          <div className="hidden w-full flex-wrap items-center justify-between gap-3 md:flex">
             <h1 className="font-display text-2xl font-bold tracking-tight md:text-3xl">Modelos Prontos</h1>
             <div className="flex items-center gap-4">
               <button className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground">
@@ -183,11 +180,7 @@ function TreinosPage() {
 
           {/* List */}
           <div className="mt-11 space-y-2 md:mt-12">
-            {isLoading ? (
-              <div className="grid place-items-center rounded-xl border border-dashed border-border p-10">
-                <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-              </div>
-            ) : visible.length === 0 ? (
+            {visible.length === 0 ? (
               <EmptyState />
 
             ) : (
