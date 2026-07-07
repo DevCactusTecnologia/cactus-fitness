@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import logoUrl from "@/assets/cactus-logo.png";
 
 import { MobileBottomNav } from "@/components/MobileBottomNav";
+import { IconRail } from "@/components/IconRail";
 import {
   DropdownMenu,
   DropdownMenuContent,
