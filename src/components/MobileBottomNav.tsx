@@ -3,12 +3,12 @@ import {
   Home,
   Users,
   Menu as MenuIcon,
-  Calendar,
   Dumbbell,
   Bell,
   User,
   Settings,
   LogOut,
+  ChevronRight,
 } from "lucide-react";
 import {
   Sheet,
@@ -29,14 +29,20 @@ type Item = {
 const ITEMS: Item[] = [
   { icon: Home, label: "Início", to: "/", match: (p) => p === "/" },
   { icon: Users, label: "Alunos", to: "/dashboard/personal/alunos", match: (p) => p.startsWith("/dashboard/personal/alunos") },
-  { icon: Calendar, label: "Agenda", to: "/dashboard/personal/agenda", match: (p) => p.startsWith("/dashboard/personal/agenda") },
+  { icon: Dumbbell, label: "Treinos", to: "/dashboard/personal/exercicios", match: (p) => p.startsWith("/dashboard/personal/exercicios") },
+  { icon: Bell, label: "Notificações", to: "/", badge: "8" },
 ];
 
-const MENU_LINKS: { icon: React.ElementType; label: string; to: string }[] = [
-  { icon: Dumbbell, label: "Exercícios", to: "/dashboard/personal/exercicios" },
-  { icon: Bell, label: "Notificações", to: "/" },
-  { icon: User, label: "Perfil", to: "/" },
-  { icon: Settings, label: "Configurações", to: "/" },
+type MenuLink = {
+  icon: React.ElementType;
+  label: string;
+  description: string;
+  to: string;
+};
+
+const MENU_LINKS: MenuLink[] = [
+  { icon: User, label: "Perfil", description: "Gerencie suas informações pessoais", to: "/" },
+  { icon: Settings, label: "Configurações", description: "Assinatura, integrações e notificações", to: "/" },
 ];
 
 export function MobileBottomNav() {
@@ -81,27 +87,45 @@ export function MobileBottomNav() {
           </button>
         </SheetTrigger>
         <SheetContent side="bottom" className="rounded-t-2xl">
-          <SheetHeader>
-            <SheetTitle>Menu</SheetTitle>
+          <SheetHeader className="text-left">
+            <SheetTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Conta
+            </SheetTitle>
           </SheetHeader>
-          <div className="mt-4 flex flex-col gap-1">
+
+          <div className="mt-3 flex flex-col gap-2">
             {MENU_LINKS.map((l) => (
               <Link
                 key={l.label}
                 to={l.to}
-                className="flex items-center gap-3 rounded-lg px-3 py-3 text-sm hover:bg-muted"
+                className="flex items-center gap-3 rounded-2xl bg-muted/40 px-4 py-3 hover:bg-muted"
               >
-                <l.icon className="h-4 w-4" />
-                <span>{l.label}</span>
+                <span className="grid h-9 w-9 place-items-center rounded-full bg-muted">
+                  <l.icon className="h-4 w-4" />
+                </span>
+                <span className="flex-1">
+                  <span className="block text-sm font-semibold">{l.label}</span>
+                  <span className="block text-xs text-muted-foreground">{l.description}</span>
+                </span>
+                <ChevronRight className="h-4 w-4 text-muted-foreground" />
               </Link>
             ))}
+
+            <div className="my-2 h-px bg-border" />
+
             <button
               type="button"
               onClick={handleLogout}
-              className="mt-2 flex items-center gap-3 rounded-lg px-3 py-3 text-sm text-destructive hover:bg-destructive/10"
+              className="flex items-center gap-3 rounded-2xl bg-muted/40 px-4 py-3 text-left hover:bg-destructive/10"
             >
-              <LogOut className="h-4 w-4" />
-              <span>Sair</span>
+              <span className="grid h-9 w-9 place-items-center rounded-full bg-muted">
+                <LogOut className="h-4 w-4" />
+              </span>
+              <span className="flex-1">
+                <span className="block text-sm font-semibold">Sair</span>
+                <span className="block text-xs text-muted-foreground">Encerrar sessão</span>
+              </span>
+              <ChevronRight className="h-4 w-4 text-muted-foreground" />
             </button>
           </div>
         </SheetContent>
