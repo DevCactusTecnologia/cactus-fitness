@@ -528,7 +528,6 @@ function SessionCard({
   const displayName = session.label;
   const letter = (displayName.replace(/^Treino\s+/i, "").trim()[0] ?? displayName.trim()[0] ?? "?").toUpperCase();
   void index; void total;
-  void index; void total;
 
   function startEdit() {
     setEditing(true);
