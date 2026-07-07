@@ -73,7 +73,21 @@ export function IconRail() {
   return (
     <aside className="fixed inset-y-0 left-0 z-40 hidden w-[72px] flex-col items-center gap-2 border-r border-border bg-sidebar py-4 md:flex">
       <div className="mb-2 grid h-10 w-10 place-items-center rounded-xl">
-        <img src={logoUrl} alt="CactusFitness" className="h-8 w-8 object-contain" />
+        <span
+          aria-label="CactusFitness"
+          role="img"
+          className="block h-8 w-8 bg-primary"
+          style={{
+            WebkitMaskImage: `url(${logoUrl})`,
+            maskImage: `url(${logoUrl})`,
+            WebkitMaskRepeat: "no-repeat",
+            maskRepeat: "no-repeat",
+            WebkitMaskPosition: "center",
+            maskPosition: "center",
+            WebkitMaskSize: "contain",
+            maskSize: "contain",
+          }}
+        />
       </div>
       {NAV_ITEMS.map((n) => (
         <SidebarIconBtn key={n.label} icon={n.icon} to={n.to} label={n.label} active={n.match(pathname)} />

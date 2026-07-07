@@ -120,7 +120,21 @@ function MobileTopBar() {
   return (
     <header className="sticky top-0 z-20 flex items-center justify-between border-b border-border bg-background/80 px-4 py-3 backdrop-blur md:hidden">
       <div className="flex items-center gap-2">
-        <img src={logoUrl} alt="CactusFitness" className="h-7 w-7 object-contain" />
+        <span
+          aria-label="CactusFitness"
+          role="img"
+          className="block h-7 w-7 bg-primary"
+          style={{
+            WebkitMaskImage: `url(${logoUrl})`,
+            maskImage: `url(${logoUrl})`,
+            WebkitMaskRepeat: "no-repeat",
+            maskRepeat: "no-repeat",
+            WebkitMaskPosition: "center",
+            maskPosition: "center",
+            WebkitMaskSize: "contain",
+            maskSize: "contain",
+          }}
+        />
         <span className="text-base font-semibold tracking-tight font-display">
           Cactus<span className="italic font-normal">Fitness</span>
         </span>
