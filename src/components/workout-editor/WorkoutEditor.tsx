@@ -671,11 +671,17 @@ function BlockCard({
   const totalMin = Math.max(1, Math.round(totalSeconds / 60));
   return (
     <div
-      className={`overflow-hidden rounded-lg border ${isActive ? "ring-1 ring-primary/40" : ""} bg-background/40`}
-      style={{ borderColor: isActive ? undefined : `${color}55` }}
+      className={`overflow-hidden rounded-lg border ${isActive ? "ring-1 ring-primary/40" : ""}`}
+      style={{
+        borderColor: isActive ? undefined : `${color}40`,
+        backgroundColor: isExplicitBlock ? `color-mix(in oklab, ${color} 10%, hsl(var(--card)))` : "hsl(var(--card) / 0.4)",
+      }}
     >
       {isExplicitBlock && (
-        <div className="flex items-center gap-2 px-3 pt-2.5 pb-2">
+        <div
+          className="flex items-center gap-2 px-3 pt-2.5 pb-2"
+          style={{ backgroundColor: `color-mix(in oklab, ${color} 14%, transparent)` }}
+        >
           <span
             className="h-2 w-2 shrink-0 rounded-full"
             style={{ backgroundColor: color }}
@@ -717,8 +723,14 @@ function BlockCard({
         </div>
       )}
       {isExplicitBlock && block.description && (
-        <p className="border-b border-border/60 px-3 pb-2 text-xs text-muted-foreground">{block.description}</p>
+        <p
+          className="border-b border-border/60 px-3 pb-2 pt-1 text-xs text-muted-foreground"
+          style={{ backgroundColor: `color-mix(in oklab, ${color} 14%, transparent)` }}
+        >
+          {block.description}
+        </p>
       )}
+
 
       <div className="space-y-2 p-3">
 
