@@ -1100,8 +1100,9 @@ function ExercisePicker({
                 onClick={() => { setSelectedIds(new Set()); setCustomPicks([]); }}
                 className="text-xs text-muted-foreground underline-offset-2 hover:underline"
               >
-                Limpar seleção
+                Ver lista
               </button>
+
             </div>
           </div>
           <button
