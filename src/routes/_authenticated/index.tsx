@@ -442,47 +442,13 @@ function Dashboard() {
             </div>
 
             {/* KPIs */}
-            <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+            <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
               <KpiCard label="Alunos ativos" value={String(stats?.alunosAtivos ?? 0)} sub="ativos agora" />
               <KpiCard label="Treinos ativos" value={String(stats?.treinosAtivos ?? 0)} sub="modelos criados" />
-              <KpiCard label="Receita do mês" value="R$ 0" sub="vs mês anterior" sparkUp={false} />
               <KpiCard label="Avaliações" value={String(stats?.avaliacoes ?? 0)} sub="em dia" />
             </div>
 
-
-            {/* Hoje / Pulso */}
-            <div className="grid grid-cols-1 gap-3 lg:grid-cols-[1.55fr_1fr]">
-              <SectionCard
-                title="Hoje"
-                hint="nenhuma sessão agendada"
-                headerAction={
-                  <a className="inline-flex items-center gap-1 text-[0.6875rem] font-bold text-primary hover:underline" href="#">
-                    Agenda completa <ArrowRight className="h-3 w-3" />
-                  </a>
-                }
-              >
-                <div className="flex flex-col items-center justify-center gap-2 px-4 py-12 text-center">
-                  <Calendar className="h-8 w-8 text-fg-dim" />
-                  <p className="text-sm text-fg-muted">Sem sessões agendadas pra hoje.</p>
-                  <a href="#" className="text-[0.75rem] font-semibold text-primary hover:underline">Agendar nova sessão →</a>
-                </div>
-              </SectionCard>
-
-              <SectionCard title="Pulso" hint="sem atividades recentes"
-                footer={
-                  <a className="flex items-center justify-center gap-1 border-t border-border px-4 py-2.5 text-[0.6875rem] font-bold text-primary transition-colors hover:bg-primary/10" href="#">
-                    Ver todos os pulsos <ArrowRight className="h-3 w-3" />
-                  </a>
-                }
-              >
-                <div className="flex flex-col items-center justify-center gap-2 px-4 py-12 text-center">
-                  <Activity className="h-8 w-8 text-fg-dim" />
-                  <p className="text-sm text-fg-muted">Nenhuma atividade no momento.</p>
-                </div>
-              </SectionCard>
-            </div>
-
-            <div className="grid grid-cols-1 gap-3 lg:grid-cols-[1.55fr_1fr]">
+            <div className="grid grid-cols-1 gap-3">
               {/* Atalhos rápidos */}
               <section className="rounded-lg border border-border bg-bg-elevated">
                 <div className="flex items-center justify-between border-b border-border px-4 py-3">
@@ -496,23 +462,8 @@ function Dashboard() {
                   <Shortcut icon={HeartPulse} title="Avaliação física" sub="iniciar nova avaliação" k="A" />
                 </div>
               </section>
-
-              {/* A acompanhar */}
-              <section className="rounded-lg border border-border bg-bg-elevated">
-                <div className="border-b border-border px-4 py-3">
-                  <h2 className="font-display text-base font-bold">A acompanhar</h2>
-                  <p className="text-[0.6875rem] text-fg-muted">snapshot financeiro</p>
-                </div>
-                <ul className="divide-y divide-border-subtle">
-                  <ListRow icon={Wallet} label="Carteira" sub="disponível para saque" value="R$ 0,00" />
-                  <ListRow icon={AlertTriangle} label="Renovações vencendo" sub="nenhuma nos próximos 7 dias" value="OK" valueClass="rounded-full bg-surface-3 px-2 py-1 text-[0.625rem] font-bold text-fg-muted" />
-                  <ListRow icon={TrendingUp} label="Próximo recebimento" sub="sem agendamentos" value="" />
-                </ul>
-                <a href="#" className="flex items-center justify-center gap-1 border-t border-border px-4 py-2.5 text-[0.6875rem] font-bold text-primary transition-colors hover:bg-primary/10">
-                  Ir para financeiro <ArrowRight className="h-3 w-3" />
-                </a>
-              </section>
             </div>
+
           </div>
         </div>
 
