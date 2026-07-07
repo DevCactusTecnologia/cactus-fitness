@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import {
-  Home, Calendar, GraduationCap, SlidersHorizontal, Plus, Bell, Share2,
+  Home, Calendar, Plus, Bell, Share2,
   ChevronLeft, ChevronRight, Play, X, PartyPopper, CircleDollarSign,
   Activity, Wallet, Cake, ShoppingBag, CreditCard, ChevronDown,
   Pencil, Trash2, Loader2, Users, Dumbbell, ClipboardCheck, Trophy,
@@ -44,8 +44,6 @@ const NAV = [
   { icon: ClipboardCheck, label: "Avaliações", to: "/" as const },
   { icon: Trophy, label: "Desafios", to: "/" as const },
   { icon: Calendar, label: "Agenda", to: "/dashboard/personal/agenda" as const, active: true },
-  { icon: GraduationCap, label: "Tutoriais", to: "/" as const },
-  { icon: SlidersHorizontal, label: "Configurações", to: "/" as const },
 ];
 
 function SidebarIconBtn({

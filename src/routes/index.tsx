@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import {
-  Home, Users, Calendar, GraduationCap, SlidersHorizontal,
+  Home, Users, Calendar,
   Plus, Bell, Crown, Wallet, Lock, Activity,
   ChevronDown, ChevronRight, Pencil, HeartPulse, Dumbbell, Trophy, Gift, ClipboardCheck, ClipboardList,
   Lightbulb, Sparkles, Eye, ArrowRight, Menu as MenuIcon, Search,
@@ -151,8 +151,6 @@ const NAV_ITEMS: { icon: React.ElementType; label: string; to: string; active?: 
   { icon: ClipboardCheck, label: "Avaliações", to: "/" },
   { icon: Trophy, label: "Desafios", to: "/" },
   { icon: Calendar, label: "Agenda", to: "/dashboard/personal/agenda" },
-  { icon: GraduationCap, label: "Tutoriais", to: "/" },
-  { icon: SlidersHorizontal, label: "Configurações", to: "/" },
 ];
 
 

@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import {
-  Home, Calendar, GraduationCap, SlidersHorizontal, Bell, Users,
+  Home, Calendar, Bell, Users,
   Dumbbell, ClipboardCheck, Trophy, ClipboardList, FolderPlus, Plus,
   Info, ChevronDown, LayoutGrid, Layers, FileText, MoreHorizontal,
   ArrowLeft, Search,
@@ -64,8 +64,6 @@ function IconRail() {
       <SidebarIconBtn icon={ClipboardCheck} to="/" label="Avaliações" />
       <SidebarIconBtn icon={Trophy} to="/" label="Desafios" />
       <SidebarIconBtn icon={Calendar} to="/dashboard/personal/agenda" label="Agenda" />
-      <SidebarIconBtn icon={GraduationCap} to="/" label="Tutoriais" />
-      <SidebarIconBtn icon={SlidersHorizontal} to="/" label="Configurações" />
       <div className="mt-auto flex flex-col items-center gap-2">
         <SidebarIconBtn icon={Bell} badge="3" />
         <UserAvatarMenu initials="ML" name="Meu perfil" />
