@@ -5,6 +5,7 @@ import {
   Activity, CalendarDays, ArrowUpDown, Dumbbell, ClipboardCheck, Trophy, ClipboardList,
 } from "lucide-react";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
+import { UserAvatarMenu } from "@/components/UserAvatarMenu";
 
 export const Route = createFileRoute("/dashboard/personal/alunos/")({
   head: () => ({
