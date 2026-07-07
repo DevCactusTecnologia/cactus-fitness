@@ -349,7 +349,7 @@ export function WorkoutEditor({ kind }: { kind: EditorKind }) {
           {/* Name / description / Configurações */}
           <div className="flex items-start gap-3">
             <div className="flex-1 space-y-1">
-              <div className="group relative rounded-md border border-border/50 bg-card/40 px-4 py-3 transition hover:border-border">
+              <div className="group relative rounded-lg border border-border/50 bg-card/40 px-4 py-3 transition hover:border-border">
                 <Input
                   value={state.name}
                   onChange={(e) => dispatch({ type: "SET_META", patch: { name: e.target.value } })}
@@ -477,7 +477,7 @@ function SessionCard({
   const letter = (session.label.replace(/^Treino\s+/i, "")[0] ?? "A").toUpperCase();
   const hasBlocks = session.blocks.some(b => b.exercises.length > 0);
   return (
-    <div className="w-[300px] rounded-lg border border-border/60 bg-card/60 p-3">
+    <div className="w-[300px] rounded-xl border border-border/60 bg-card/60 p-3">
       <div className="flex items-center gap-2">
         <GripVertical className="h-3.5 w-3.5 shrink-0 text-muted-foreground/60" />
         <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[oklch(0.92_0.19_115)]/15 text-[10px] font-bold text-[oklch(0.92_0.19_115)]">
@@ -553,7 +553,7 @@ function BlockCard({
   isActive: boolean;
 }) {
   return (
-    <div className={`rounded-md border ${isActive ? "border-primary/60 ring-1 ring-primary/40" : "border-border"} bg-background/40 p-3`}>
+    <div className={`rounded-lg border ${isActive ? "border-primary/60 ring-1 ring-primary/40" : "border-border"} bg-background/40 p-3`}>
       <div className="flex items-center gap-2">
         <GripVertical className="h-4 w-4 shrink-0 text-muted-foreground/60" />
         <Input
