@@ -380,15 +380,16 @@ function PerfilPage() {
                   </div>
                 </section>
 
-                <div className="sticky bottom-20 z-10 pt-2 md:bottom-4">
+                <div className="sticky bottom-20 z-10 flex justify-start pt-2 md:bottom-4">
                   <Button
                     onClick={onSave}
-                    size="lg"
-                    className="w-full font-bold shadow-lg"
+                    size="sm"
+                    className="font-semibold shadow-lg"
                   >
                     Salvar customizações
                   </Button>
                 </div>
+
               </div>
             )}
 
