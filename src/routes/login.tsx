@@ -191,7 +191,7 @@ function AuthForm({
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
 
-  const label = role === "personal" ? "Personal Trainer" : "Aluno";
+  
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
