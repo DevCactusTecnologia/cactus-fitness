@@ -60,7 +60,7 @@ const emptyBlock = (idx: number): Block => ({
 
 const emptySession = (idx: number): Session => ({
   id: uid(),
-  label: String.fromCharCode(65 + idx),
+  label: `Treino ${String.fromCharCode(65 + idx)}`,
   blocks: [emptyBlock(0)],
 });
 
