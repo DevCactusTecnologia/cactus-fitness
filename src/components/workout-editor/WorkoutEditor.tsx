@@ -657,7 +657,9 @@ function BlockCard({
   isActive: boolean;
 }) {
   const color = block.color ?? "hsl(var(--muted-foreground))";
-  const isExplicitBlock = Boolean(block.color || block.description || block.label.trim());
+  const blockLabel = block.label.trim();
+  const isAutoBlockLabel = /^bloco\s+[a-z]$/i.test(blockLabel);
+  const isExplicitBlock = Boolean(block.color || block.description || (blockLabel && !isAutoBlockLabel));
   const hasExercises = block.exercises.length > 0;
   const exCount = block.exercises.length;
   const totalSeconds = block.exercises.reduce((sum, e) => {
