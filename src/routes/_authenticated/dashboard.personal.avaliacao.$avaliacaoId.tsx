@@ -121,7 +121,138 @@ function AvaliacaoPage() {
   );
 }
 
+/* ------------ Análise IA + Resultados ------------ */
+
+function toNum(v: string | undefined | null): number | null {
+  if (!v) return null;
+  const n = Number(String(v).replace(",", "."));
+  return Number.isFinite(n) ? n : null;
+}
+
+function computeIMC(comp: Record<string, string>): number | null {
+  const peso = toNum(comp?.peso);
+  const alturaCm = toNum(comp?.altura);
+  if (!peso || !alturaCm) return null;
+  const m = alturaCm / 100;
+  if (m <= 0) return null;
+  return peso / (m * m);
+}
+
+function imcClass(v: number): string {
+  if (v < 18.5) return "Abaixo do peso";
+  if (v < 25) return "Peso normal";
+  if (v < 30) return "Sobrepeso";
+  if (v < 35) return "Obesidade I";
+  if (v < 40) return "Obesidade II";
+  return "Obesidade III";
+}
+
+function ResultadosCard({ avaliacao }: { avaliacao: Avaliacao }) {
+  const imc = computeIMC(avaliacao.composicao_corporal);
+  if (imc == null) return null;
+  return (
+    <div className="rounded-[22px] border border-border bg-card p-5 md:p-6">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">Resultados</p>
+      <div className="mt-3 flex flex-wrap items-end gap-8">
+        <div>
+          <p className="font-display text-4xl font-bold text-primary">{imc.toFixed(1)}</p>
+          <p className="mt-1 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">IMC</p>
+        </div>
+        <div>
+          <p className="font-display text-sm font-semibold">{imcClass(imc)}</p>
+          <p className="mt-1 text-[11px] uppercase tracking-wider text-muted-foreground">Classificação</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AnaliseIACard({ avaliacao }: { avaliacao: Avaliacao }) {
+  const qc = useQueryClient();
+  const generate = useServerFn(generateAvaliacaoAnalysis);
+
+  const gen = useMutation({
+    mutationFn: async () => generate({ data: { avaliacaoId: avaliacao.id } }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["avaliacao", avaliacao.id] });
+      toast.success("Análise gerada");
+    },
+    onError: (e: any) => toast.error(e?.message ?? "Erro ao gerar análise"),
+  });
+
+  const toggleVisible = useMutation({
+    mutationFn: async (v: boolean) => {
+      const { error } = await supabase
+        .from("avaliacoes")
+        .update({ ia_visible_to_aluno: v })
+        .eq("id", avaliacao.id);
+      if (error) throw error;
+    },
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["avaliacao", avaliacao.id] }),
+  });
+
+  const hasComp = Boolean(avaliacao.composicao_corporal?.peso && avaliacao.composicao_corporal?.altura);
+  if (!hasComp && !avaliacao.ia_analysis) return null;
+
+  return (
+    <div className="rounded-[22px] border border-primary/30 bg-[radial-gradient(120%_120%_at_0%_0%,rgba(198,255,0,0.12),transparent_55%)] p-5 md:p-6">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="flex items-start gap-3">
+          <div className="grid h-9 w-9 place-items-center rounded-full bg-primary/15 text-primary">
+            <Sparkles className="h-4 w-4" />
+          </div>
+          <div>
+            <p className="font-display text-base font-semibold">Análise da IA</p>
+            {avaliacao.ia_analysis && (
+              <button
+                type="button"
+                onClick={() => gen.mutate()}
+                disabled={gen.isPending}
+                className="mt-1 inline-flex items-center gap-1 text-[11px] font-medium text-muted-foreground hover:text-foreground disabled:opacity-60"
+              >
+                {gen.isPending ? <Loader2 className="h-3 w-3 animate-spin" /> : <RefreshCw className="h-3 w-3" />}
+                Regenerar
+              </button>
+            )}
+          </div>
+        </div>
+        <label className="flex items-center gap-2 text-[11px] font-medium text-muted-foreground">
+          visível para o aluno
+          <Switch
+            checked={avaliacao.ia_visible_to_aluno}
+            onCheckedChange={(v) => toggleVisible.mutate(v)}
+          />
+        </label>
+      </div>
+
+      <div className="mt-4 text-sm leading-relaxed text-foreground/90">
+        {avaliacao.ia_analysis ? (
+          avaliacao.ia_analysis.split(/\n{2,}/).map((p, i) => (
+            <p key={i} className="mb-3 last:mb-0 whitespace-pre-wrap">{p}</p>
+          ))
+        ) : (
+          <div className="flex items-center justify-between gap-3 rounded-xl border border-dashed border-border/60 p-4">
+            <p className="text-xs text-muted-foreground">
+              Gere uma análise personalizada com base nos dados preenchidos.
+            </p>
+            <button
+              type="button"
+              onClick={() => gen.mutate()}
+              disabled={gen.isPending}
+              className="inline-flex h-9 items-center gap-2 rounded-full bg-primary px-4 text-xs font-semibold text-primary-foreground hover:brightness-110 disabled:opacity-60"
+            >
+              {gen.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Sparkles className="h-3.5 w-3.5" />}
+              Gerar análise
+            </button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 /* ------------ Reusable Collapsible section ------------ */
+
 
 function Section({
   icon: Icon, title, subtitle, colorClass, children,
