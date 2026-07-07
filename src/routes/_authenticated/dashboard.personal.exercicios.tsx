@@ -353,7 +353,7 @@ function ExerciciosPage() {
 
       <MobileBottomNav />
 
-      {showWizard && (
+      {showWizard && personalId && (
         <NewExerciseWizard
           groups={groups}
           equipments={equipments}
