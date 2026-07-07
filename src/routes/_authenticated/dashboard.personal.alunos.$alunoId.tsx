@@ -115,23 +115,10 @@ function AlunoDetailPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <aside className="fixed inset-y-0 left-0 z-20 flex w-16 flex-col items-center gap-2 border-r border-border bg-sidebar py-4">
-        <Link to="/" className="mb-2 grid h-10 w-10 place-items-center rounded-xl bg-primary text-primary-foreground">
-          <svg viewBox="0 0 24 24" className="h-5 w-5" fill="currentColor"><path d="M12 2c-3 4-3 8 0 12 3-4 3-8 0-12zm-7 10c4 3 8 3 12 0-4-3-8-3-12 0zm7 10c-3-4-3-8 0-12 3 4 3 8 0 12z"/></svg>
-        </Link>
-        <SidebarIcon icon={Home} to="/" />
-        <SidebarIcon icon={Users} to="/dashboard/personal/alunos" active />
-        <SidebarIcon icon={Dumbbell} />
-        <SidebarIcon icon={ClipboardCheck} />
-        <SidebarIcon icon={Wallet} />
-        <div className="mt-auto flex flex-col items-center gap-2">
-          <SidebarIcon icon={Plus} />
-          <SidebarIcon icon={Bell} />
-          <SidebarIcon icon={PanelLeftClose} />
-        </div>
-      </aside>
+      <IconRail />
 
-      <main className="ml-16 p-4 md:p-6">
+      <main className="pb-24 md:ml-[72px] md:pb-0 p-4 md:p-6">
+
         <div className="mx-auto max-w-4xl space-y-4">
           <Link to="/dashboard/personal/alunos" className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
             <ArrowLeft className="h-4 w-4" /> voltar
