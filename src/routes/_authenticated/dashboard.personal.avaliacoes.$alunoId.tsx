@@ -94,7 +94,7 @@ function AvaliacoesAlunoPage() {
       </main>
       <MobileBottomNav />
 
-      <NovaAvaliacaoDialog open={open} onOpenChange={setOpen} alunoNome={aluno.full_name} />
+      <NovaAvaliacaoDialog open={open} onOpenChange={setOpen} alunoNome={aluno.full_name} alunoId={aluno.id} />
     </div>
   );
 }
