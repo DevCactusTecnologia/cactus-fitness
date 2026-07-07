@@ -134,12 +134,12 @@ import { IconRail } from "@/components/IconRail";
 
 function MobileTopBar() {
   return (
-    <header className="sticky top-0 z-20 flex items-center justify-between border-b border-border bg-background/80 px-4 py-3 backdrop-blur md:hidden">
-      <div className="flex items-center gap-2">
+    <header className="sticky top-0 z-20 grid w-full max-w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-2 overflow-hidden border-b border-border bg-background/80 px-4 py-3 backdrop-blur md:hidden">
+      <div className="flex min-w-0 items-center gap-2">
         <span
           aria-label="CactusFitness"
           role="img"
-          className="block h-7 w-7 bg-primary"
+          className="block h-7 w-7 shrink-0 bg-primary"
           style={{
             WebkitMaskImage: `url(${logoUrl})`,
             maskImage: `url(${logoUrl})`,
@@ -151,11 +151,11 @@ function MobileTopBar() {
             maskSize: "contain",
           }}
         />
-        <span className="text-base font-semibold tracking-tight font-display">
+        <span className="min-w-0 truncate text-base font-semibold tracking-tight font-display">
           Cactus<span className="italic font-normal">Fitness</span>
         </span>
       </div>
-      <div className="flex items-center gap-2">
+      <div className="flex shrink-0 items-center gap-2">
         <button className="grid h-9 w-9 place-items-center rounded-full border border-border text-muted-foreground">
           <Lightbulb className="h-4 w-4" />
         </button>
