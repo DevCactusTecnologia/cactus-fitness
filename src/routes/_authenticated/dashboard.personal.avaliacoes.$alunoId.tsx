@@ -1,7 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ClipboardList, Plus, ArrowLeft, User as UserIcon, Send, Loader2, Calendar as CalendarIcon, Trash2, ChevronRight } from "lucide-react";
+import { ClipboardList, Plus, ArrowLeft, User as UserIcon, Send, Loader2, Calendar as CalendarIcon, Trash2, ChevronRight, CheckCircle2, Circle } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
