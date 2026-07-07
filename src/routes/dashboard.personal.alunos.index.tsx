@@ -21,8 +21,6 @@ export const Route = createFileRoute("/dashboard/personal/alunos/")({
 const NAV = [
   { icon: Home, label: "Início", to: "/" as const },
   { icon: Calendar, label: "Agenda", to: "/dashboard/personal/agenda" as const },
-  { icon: GraduationCap, label: "Tutoriais", to: "/" as const },
-  { icon: SlidersHorizontal, label: "Configurações", to: "/" as const },
 ];
 
 function SidebarIconBtn({
@@ -73,8 +71,6 @@ function IconRail() {
       <SidebarIconBtn icon={ClipboardCheck} to="/" label="Avaliações" />
       <SidebarIconBtn icon={Trophy} to="/" label="Desafios" />
       <SidebarIconBtn icon={Calendar} to="/dashboard/personal/agenda" label="Agenda" />
-      <SidebarIconBtn icon={GraduationCap} to="/" label="Tutoriais" />
-      <SidebarIconBtn icon={SlidersHorizontal} to="/" label="Configurações" />
       <div className="mt-auto flex flex-col items-center gap-2">
         <SidebarIconBtn icon={Plus} variant="primary" />
         <SidebarIconBtn icon={Bell} badge="3" />

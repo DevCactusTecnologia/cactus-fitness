@@ -127,8 +127,6 @@ function IconRail() {
       <SidebarIconBtn icon={ClipboardCheck} to="/" label="Avaliações" />
       <SidebarIconBtn icon={Trophy} to="/" label="Desafios" />
       <SidebarIconBtn icon={Calendar} to="/dashboard/personal/agenda" label="Agenda" />
-      <SidebarIconBtn icon={GraduationCap} to="/" label="Tutoriais" />
-      <SidebarIconBtn icon={SlidersHorizontal} to="/" label="Configurações" />
       <div className="mt-auto flex flex-col items-center gap-2">
         
         <SidebarIconBtn icon={Bell} badge="3" />

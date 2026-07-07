@@ -44,8 +44,6 @@ const NAV = [
   { icon: ClipboardCheck, label: "Avaliações", to: "/" as const },
   { icon: Trophy, label: "Desafios", to: "/" as const },
   { icon: Calendar, label: "Agenda", to: "/dashboard/personal/agenda" as const, active: true },
-  { icon: GraduationCap, label: "Tutoriais", to: "/" as const },
-  { icon: SlidersHorizontal, label: "Configurações", to: "/" as const },
 ];
 
 function SidebarIconBtn({

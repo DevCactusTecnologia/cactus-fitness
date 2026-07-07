@@ -151,8 +151,6 @@ const NAV_ITEMS: { icon: React.ElementType; label: string; to: string; active?: 
   { icon: ClipboardCheck, label: "Avaliações", to: "/" },
   { icon: Trophy, label: "Desafios", to: "/" },
   { icon: Calendar, label: "Agenda", to: "/dashboard/personal/agenda" },
-  { icon: GraduationCap, label: "Tutoriais", to: "/" },
-  { icon: SlidersHorizontal, label: "Configurações", to: "/" },
 ];
 
 
