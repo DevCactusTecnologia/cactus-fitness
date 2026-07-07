@@ -162,7 +162,7 @@ function ExerciciosPage() {
   const [showWizard, setShowWizard] = useState(false);
   const [detailEx, setDetailEx] = useState<Exercise | null>(null);
   const sentinelRef = useRef<HTMLDivElement | null>(null);
-  const personalId = useMemo(() => getPersonalId(), []);
+  const personalId = usePersonalId();
 
   const fetchAll = async () => {
     const pageSize = 1000;
