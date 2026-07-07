@@ -230,22 +230,23 @@ function GreetingCard() {
           {initials}
         </div>
         <div className="min-w-0">
-          <div className="text-sm font-medium text-muted-foreground sm:text-base">{greeting},</div>
-          <div className="truncate text-2xl font-extrabold leading-tight tracking-tight font-display sm:text-[1.7rem]">{name}</div>
+          <div className="text-xs font-medium text-muted-foreground sm:text-sm">{greeting},</div>
+          <div className="truncate text-xl font-extrabold leading-tight tracking-tight font-display sm:text-[1.5rem]">{name}</div>
         </div>
       </div>
       <div className="mt-6 grid grid-cols-3 gap-4 sm:mt-7">
         <div>
-          <div className="text-4xl font-extrabold leading-none font-display sm:text-[2.5rem]">{stats?.alunosAtivos ?? 0}</div>
-          <div className="mt-2 text-sm leading-tight text-muted-foreground sm:text-base">alunos<br/>ativos</div>
+          <div className="text-3xl font-extrabold leading-none font-display sm:text-[2.15rem]">{stats?.alunosAtivos ?? 0}</div>
+          <div className="mt-2 text-xs leading-tight text-muted-foreground sm:text-sm">alunos<br/>ativos</div>
         </div>
         <div>
-          <div className="text-4xl font-extrabold leading-none font-display sm:text-[2.5rem]">{stats?.treinosAtivos ?? 0}</div>
-          <div className="mt-2 text-sm leading-tight text-muted-foreground sm:text-base">treinos<br/>ativos</div>
+          <div className="text-3xl font-extrabold leading-none font-display sm:text-[2.15rem]">{stats?.treinosAtivos ?? 0}</div>
+          <div className="mt-2 text-xs leading-tight text-muted-foreground sm:text-sm">treinos<br/>ativos</div>
         </div>
         <div>
-          <div className="text-4xl font-extrabold leading-none font-display sm:text-[2.5rem]">{stats?.avaliacoes ?? 0}</div>
-          <div className="mt-2 text-sm leading-tight text-muted-foreground sm:text-base">avaliações<br/>físicas</div>
+          <div className="text-3xl font-extrabold leading-none font-display sm:text-[2.15rem]">{stats?.avaliacoes ?? 0}</div>
+          <div className="mt-2 text-xs leading-tight text-muted-foreground sm:text-sm">avaliações<br/>físicas</div>
+
         </div>
       </div>
     </div>
@@ -275,7 +276,7 @@ function ActionButton({ icon: Icon, label }: { icon: React.ElementType; label: s
       <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
         <Icon className="h-5 w-5" strokeWidth={1.75} />
       </div>
-      <span className="min-w-0 flex-1 text-base font-bold leading-tight sm:text-lg">{label}</span>
+      <span className="min-w-0 flex-1 text-sm font-bold leading-tight sm:text-base">{label}</span>
     </button>
   );
 }
@@ -307,7 +308,7 @@ function NextEventCard() {
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
           <CalendarDays className="h-3.5 w-3.5" /> Próximo evento
         </div>
-        <div className="mt-1 truncate text-base font-bold font-display">{event.title}</div>
+        <div className="mt-1 truncate text-sm font-bold font-display">{event.title}</div>
         <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
           <span className="inline-flex items-center gap-1"><Clock className="h-3.5 w-3.5" /> {dateLabel}</span>
           {event.location && <span className="inline-flex items-center gap-1"><MapPin className="h-3.5 w-3.5" /> {event.location}</span>}
@@ -342,8 +343,9 @@ function MobilePulseCard() {
         </span>
       </div>
       <div className="min-w-0 flex-1">
-        <div className="truncate text-base font-extrabold text-foreground sm:text-lg">pulso dos alunos</div>
-        <div className="truncate text-sm text-muted-foreground sm:text-base">3 atividades novas</div>
+        <div className="truncate text-sm font-extrabold text-foreground sm:text-base">pulso dos alunos</div>
+        <div className="truncate text-xs text-muted-foreground sm:text-sm">3 atividades novas</div>
+
       </div>
       <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
     </button>
@@ -357,7 +359,7 @@ function QuickTile({ icon: Icon, label }: { icon: React.ElementType; label: stri
       <div className="grid h-11 w-11 place-items-center rounded-full bg-primary/10 text-primary">
         <Icon className="h-5 w-5" strokeWidth={1.75} />
       </div>
-      <span className="max-w-full break-words text-xs font-medium leading-tight text-foreground/85">{label}</span>
+      <span className="max-w-full break-words text-[11px] font-medium leading-tight text-foreground/85">{label}</span>
     </button>
   );
 }
@@ -369,10 +371,11 @@ function ReferralBanner() {
         <Gift className="h-5 w-5" />
       </div>
       <div className="min-w-0 flex-1">
-        <div className="text-sm font-semibold">Indique e ganhe 15% recorrente</div>
-        <div className="text-xs text-muted-foreground">
+        <div className="text-xs font-semibold">Indique e ganhe 15% recorrente</div>
+        <div className="text-[11px] text-muted-foreground">
           Receba 15% de cada mensalidade paga, todo mês, enquanto o indicado mantiver a assinatura.
         </div>
+
       </div>
       <ChevronRight className="h-5 w-5 shrink-0 text-primary" />
     </div>
@@ -483,9 +486,8 @@ function Dashboard() {
                 <GreetingCard />
               </div>
 
-              <WalletCard />
-
               <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-3">
+
                 <ActionButton icon={Lock} label="Adicionar Aluno" />
                 <ActionButton icon={Lock} label="Link de Cadastro" />
               </div>
