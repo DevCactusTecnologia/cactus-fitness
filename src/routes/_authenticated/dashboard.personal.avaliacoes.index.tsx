@@ -117,7 +117,7 @@ function AvaliacoesPage() {
               return (
                 <li key={a.id}>
                   <Link
-                    to="/dashboard/personal/alunos/$alunoId"
+                    to="/dashboard/personal/avaliacoes/$alunoId"
                     params={{ alunoId: a.id }}
                     className="flex items-center gap-3 rounded-2xl border border-border/60 bg-card/60 px-3 py-3 transition hover:bg-card sm:px-4"
                   >
