@@ -280,6 +280,29 @@ function PulseRow() {
   );
 }
 
+function MobilePulseCard() {
+  return (
+    <button
+      type="button"
+      className="flex w-full items-center gap-3 rounded-2xl border border-primary/40 bg-[#0d0f0d] px-4 py-3 text-left"
+    >
+      <div className="relative shrink-0">
+        <div className="grid h-11 w-11 place-items-center rounded-full bg-primary/15 text-primary">
+          <Activity className="h-5 w-5" strokeWidth={2} />
+        </div>
+        <span className="absolute -right-1 -top-1 grid h-5 w-5 place-items-center rounded-full bg-primary text-[10px] font-bold text-black">
+          3
+        </span>
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="text-sm font-bold text-foreground">pulso dos alunos</div>
+        <div className="text-xs text-muted-foreground">3 atividades novas</div>
+      </div>
+      <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
+    </button>
+  );
+}
+
 
 function QuickTile({ icon: Icon, label }: { icon: React.ElementType; label: string }) {
   return (
@@ -418,7 +441,7 @@ function Dashboard() {
                 <ActionButton icon={Lock} label="Link de Cadastro" />
               </div>
               <NextEventCard />
-              <PulseRow />
+              <MobilePulseCard />
 
               <div className="flex justify-end">
                 <button className="inline-flex items-center gap-1.5 rounded-full border border-primary/40 px-4 py-1.5 text-sm text-primary hover:bg-primary/10">
