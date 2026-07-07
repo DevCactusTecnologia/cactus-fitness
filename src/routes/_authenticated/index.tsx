@@ -342,18 +342,12 @@ function NextEventCard() {
 
 function PulseRow() {
   return (
-    <button className="flex w-full items-center gap-3 rounded-xl border border-border bg-card px-4 py-3.5 text-left transition hover:border-primary/40">
-      <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-white/5 text-muted-foreground">
-        <Activity className="h-5 w-5" strokeWidth={1.75} />
-      </div>
-      <div className="min-w-0 flex-1">
-        <div className="text-sm font-semibold">pulso dos alunos</div>
-        <div className="truncate text-xs text-muted-foreground">Tudo tranquilo · sem novidades</div>
-      </div>
-      <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
-    </button>
+    <div className="px-1 py-2 text-sm text-muted-foreground">
+      Nenhuma atividade no momento
+    </div>
   );
 }
+
 
 function QuickTile({ icon: Icon, label }: { icon: React.ElementType; label: string }) {
   return (
