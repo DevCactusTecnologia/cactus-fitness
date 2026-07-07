@@ -53,25 +53,6 @@ function useAluno(alunoId: string) {
   });
 }
 
-function SidebarIcon({
-  icon: Icon, active, badge, to,
-}: { icon: React.ElementType; active?: boolean; badge?: string; to?: string }) {
-  const cls = `relative grid h-10 w-10 place-items-center rounded-xl transition ${
-    active ? "bg-primary/15 text-primary" : "text-sidebar-foreground/70 hover:bg-white/5 hover:text-sidebar-foreground"
-  }`;
-  const content = (
-    <>
-      <Icon className="h-5 w-5" />
-      {badge && (
-        <span className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-primary px-1 text-[10px] font-semibold text-primary-foreground">
-          {badge}
-        </span>
-      )}
-    </>
-  );
-  if (to) return <Link to={to} className={cls}>{content}</Link>;
-  return <button className={cls}>{content}</button>;
-}
 
 function Row({
   icon: Icon, label, value, valueNode,
