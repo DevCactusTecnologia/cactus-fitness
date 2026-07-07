@@ -444,7 +444,7 @@ function Dashboard() {
                 <div className="grid grid-cols-1 gap-2 p-3 sm:grid-cols-2">
                   <Shortcut icon={UserPlus} title="Novo aluno" sub="cadastrar ou convidar" k="N" to="/dashboard/personal/alunos" />
                   <Shortcut icon={FileText} title="Modelo de plano" sub="criar plano reutilizável" k="P" to="/dashboard/personal/treinos" />
-                  {/* keep spacing between shortcuts */}
+                  
                   <Shortcut icon={HeartPulse} title="Avaliação física" sub="iniciar nova avaliação" k="A" to="/dashboard/personal/avaliacoes" />
                 </div>
               </section>
