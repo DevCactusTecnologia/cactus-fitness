@@ -43,6 +43,8 @@ type Avaliacao = {
   teste_rm: { exercicios?: Array<{ nome: string; carga: string; reps: string }>; observacoes?: string };
   fotos: Record<string, string>;
   postural: Record<string, string>;
+  ia_analysis: string | null;
+  ia_visible_to_aluno: boolean;
 };
 
 function useAvaliacao(id: string) {
