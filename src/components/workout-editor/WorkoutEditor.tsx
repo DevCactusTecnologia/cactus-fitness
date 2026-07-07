@@ -715,34 +715,64 @@ function ExerciseRow({
   onRemove: () => void;
   onUp: () => void; onDown: () => void;
 }) {
+  const [open, setOpen] = useState(false);
+  const reps = (item.reps ?? "").toString().trim();
+  const summary = item.sets && reps ? `${item.sets}×${reps}` : item.sets ? `${item.sets} séries` : reps ? reps : "—";
   return (
-    <div className="rounded-lg border border-border bg-card p-2.5">
-      <div className="flex items-center gap-2">
-        <span className="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-primary/15 text-primary">
-          <Dumbbell className="h-3.5 w-3.5" />
-        </span>
-        <span className="flex-1 truncate text-sm font-medium">{item.name}</span>
-        <ReorderButtons onUp={onUp} onDown={onDown} canUp={index > 0} canDown={index < total - 1} small />
+    <div>
+      <div
+        role="button"
+        tabIndex={0}
+        onClick={() => setOpen((v) => !v)}
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpen((v) => !v); } }}
+        className="group relative flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-muted/40 px-2 py-2 text-sm transition-colors hover:bg-muted"
+      >
         <button
-          onClick={onRemove}
-          className="grid h-7 w-7 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-destructive"
-          aria-label="Remover exercício"
+          type="button"
+          onClick={(e) => e.stopPropagation()}
+          className="-m-1 shrink-0 cursor-grab p-1 text-muted-foreground/40 group-hover:text-muted-foreground active:cursor-grabbing"
+          aria-label="Arrastar exercício"
         >
-          <X className="h-3.5 w-3.5" />
+          <GripVertical className="h-4 w-4" />
         </button>
+        <span className="relative grid h-8 w-8 shrink-0 place-items-center overflow-hidden rounded-md bg-muted">
+          <span className="grid h-4 w-4 place-items-center rounded-full bg-primary shadow-sm">
+            <Play className="ml-px h-2 w-2 fill-primary-foreground text-primary-foreground" />
+          </span>
+        </span>
+        <div className="min-w-0 flex-1">
+          <div className="line-clamp-2 break-words text-sm font-medium leading-snug text-foreground" title={item.name}>
+            {item.name}
+          </div>
+          <div className="text-[11px] text-muted-foreground">{summary}</div>
+        </div>
+        <div onClick={(e) => e.stopPropagation()} className="flex items-center gap-1">
+          <ReorderButtons onUp={onUp} onDown={onDown} canUp={index > 0} canDown={index < total - 1} small />
+          <button
+            onClick={onRemove}
+            className="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-muted text-muted-foreground/60 transition-colors hover:bg-destructive/10 hover:text-destructive"
+            aria-label="Remover exercício"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
       </div>
-      <div className="mt-2 grid grid-cols-2 gap-2 md:grid-cols-4">
-        <NumField label="Séries" value={item.sets} onChange={(v) => onChange({ sets: v })} />
-        <TextField label="Reps" value={item.reps} onChange={(v) => onChange({ reps: v })} placeholder="10" />
-        <NumField label="Descanso (s)" value={item.rest_seconds} onChange={(v) => onChange({ rest_seconds: v })} />
-        <TextField label="Carga" value={item.load} onChange={(v) => onChange({ load: v })} placeholder="—" />
-      </div>
-      <Textarea
-        value={item.notes}
-        onChange={(e) => onChange({ notes: e.target.value })}
-        placeholder="Observações (opcional)"
-        className="mt-2 min-h-[36px] text-xs"
-      />
+      {open && (
+        <div className="mt-2 rounded-lg border border-border/60 bg-card p-2.5">
+          <div className="grid grid-cols-2 gap-2 md:grid-cols-4">
+            <NumField label="Séries" value={item.sets} onChange={(v) => onChange({ sets: v })} />
+            <TextField label="Reps" value={item.reps} onChange={(v) => onChange({ reps: v })} placeholder="10" />
+            <NumField label="Descanso (s)" value={item.rest_seconds} onChange={(v) => onChange({ rest_seconds: v })} />
+            <TextField label="Carga" value={item.load} onChange={(v) => onChange({ load: v })} placeholder="—" />
+          </div>
+          <Textarea
+            value={item.notes}
+            onChange={(e) => onChange({ notes: e.target.value })}
+            placeholder="Observações (opcional)"
+            className="mt-2 min-h-[36px] text-xs"
+          />
+        </div>
+      )}
     </div>
   );
 }
