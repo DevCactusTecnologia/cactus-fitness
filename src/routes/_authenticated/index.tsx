@@ -22,25 +22,40 @@ export const Route = createFileRoute("/_authenticated/")({
 
 /* ---------- Desktop KPI helpers ---------- */
 
-function Sparkline({ up = true }: { up?: boolean }) {
-  const d = up
-    ? "M 0 18 L 10 17 L 20 17 L 30 16 L 40 15 L 50 13 L 60 9 L 72 2"
-    : "M 0 15 L 10 15 L 20 15 L 30 15 L 40 15 L 50 15 L 60 15 L 72 15";
+function Sparkline({ magnitude = 0 }: { magnitude?: number }) {
+  // magnitude: 0 = flat line at zero; 1 = full rise.
+  const m = Math.max(0, Math.min(1, magnitude));
+  const baseY = 20;
+  const points = [
+    [0, baseY],
+    [10, baseY - 1 * m],
+    [20, baseY - 1 * m],
+    [30, baseY - 2 * m],
+    [40, baseY - 3 * m],
+    [50, baseY - 5 * m],
+    [60, baseY - 9 * m],
+    [72, baseY - 18 * m],
+  ];
+  const d = points.map(([x, y], i) => `${i === 0 ? "M" : "L"} ${x} ${y}`).join(" ");
+  const stroke = m === 0 ? "hsl(var(--muted-foreground) / 0.35)" : "hsl(var(--primary))";
   return (
     <svg viewBox="0 0 72 22" className="h-[22px] w-[72px] overflow-visible">
-      <path d={d} fill="none" stroke="hsl(var(--primary))" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+      <path d={d} fill="none" stroke={stroke} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
 
 function KpiCard({
-  label, value, sub, trend, sparkUp = true,
-}: { label: string; value: string; sub: string; trend?: string; sparkUp?: boolean }) {
+  label, value, sub, trend,
+}: { label: string; value: string; sub: string; trend?: string }) {
+  const numeric = Number(String(value).replace(/[^\d.-]/g, "")) || 0;
+  // Scale: small counts stay subtle, larger counts approach a full rise.
+  const magnitude = numeric <= 0 ? 0 : Math.min(1, Math.log10(numeric + 1) / 2);
   return (
     <div className="rounded-lg border border-border bg-bg-elevated p-4 transition-colors hover:border-border-strong">
       <div className="flex items-center justify-between">
         <span className="text-[0.6875rem] font-semibold text-fg-secondary">{label}</span>
-        {trend && (
+        {trend && numeric > 0 && (
           <span className="rounded-full bg-primary/15 px-1.5 py-0.5 font-display text-[0.625rem] font-bold leading-none text-primary">
             {trend}
           </span>
@@ -48,12 +63,13 @@ function KpiCard({
       </div>
       <div className="mt-2 flex items-end justify-between gap-3">
         <div className="font-display text-[1.625rem] font-extrabold leading-none tracking-tight">{value}</div>
-        <Sparkline up={sparkUp} />
+        <Sparkline magnitude={magnitude} />
       </div>
       <div className="mt-1.5 truncate text-[0.6875rem] text-fg-muted">{sub}</div>
     </div>
   );
 }
+
 
 function SectionCard({
   title, hint, children, headerAction, footer,
