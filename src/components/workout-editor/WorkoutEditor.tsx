@@ -3,7 +3,7 @@ import { useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowLeft, ChevronDown, ChevronUp, GripVertical, Loader2,
-  Plus, Search, Settings2, Trash2, X, Dumbbell, Layers,
+  Plus, Search, Settings2, Trash2, X, Dumbbell, Layers, Pencil,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -340,29 +340,24 @@ export function WorkoutEditor({ kind }: { kind: EditorKind }) {
         <main className="mx-auto grid max-w-7xl gap-6 px-4 py-6 md:grid-cols-[minmax(0,1fr)_360px] md:px-8">
           {/* Left column: structure */}
           <section className="space-y-4">
-            <div className="rounded-2xl border border-border bg-card p-4 md:p-5">
-              <div className="space-y-3">
-                <div>
-                  <Label htmlFor="wt-name">{nameLabel}</Label>
-                  <Input
-                    id="wt-name"
-                    value={state.name}
-                    onChange={(e) => dispatch({ type: "SET_META", patch: { name: e.target.value } })}
-                    placeholder={kind === "plan" ? "Ex: Hipertrofia A/B/C" : "Ex: Peito e Tríceps"}
-                    className="mt-1.5"
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="wt-desc">Descrição</Label>
-                  <Textarea
-                    id="wt-desc"
-                    value={state.description}
-                    onChange={(e) => dispatch({ type: "SET_META", patch: { description: e.target.value } })}
-                    placeholder="Notas gerais, objetivo, público-alvo..."
-                    className="mt-1.5 min-h-[72px]"
-                  />
-                </div>
+            <div className="space-y-2">
+              <div className="group relative rounded-xl border border-border/60 bg-card/40 px-4 py-3 transition hover:border-border">
+                <Input
+                  id="wt-name"
+                  value={state.name}
+                  onChange={(e) => dispatch({ type: "SET_META", patch: { name: e.target.value } })}
+                  placeholder={nameLabel}
+                  className="h-auto border-0 bg-transparent p-0 text-xl font-semibold tracking-tight text-foreground placeholder:text-foreground/70 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                />
+                <Pencil className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60 opacity-0 transition group-hover:opacity-100" />
               </div>
+              <Textarea
+                id="wt-desc"
+                value={state.description}
+                onChange={(e) => dispatch({ type: "SET_META", patch: { description: e.target.value } })}
+                placeholder="Adicionar descrição"
+                className="min-h-[40px] resize-none border-0 bg-transparent px-4 py-1 text-base text-muted-foreground placeholder:text-muted-foreground/70 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
+              />
             </div>
 
             {kind === "plan" ? (
