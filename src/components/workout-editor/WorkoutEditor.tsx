@@ -473,50 +473,69 @@ function SessionCard({
   onPickTargetBlock: (blockId: string) => void;
   activeBlockId: string | null;
 }) {
+  const displayName = session.label.startsWith("Treino ") ? session.label : `Treino ${session.label}`;
+  const letter = (session.label.replace(/^Treino\s+/i, "")[0] ?? "A").toUpperCase();
+  const hasBlocks = session.blocks.some(b => b.exercises.length > 0);
   return (
-    <div className="rounded-2xl border border-border bg-card p-4">
+    <div className="w-[300px] rounded-2xl border border-border/60 bg-card/60 p-3">
       <div className="flex items-center gap-2">
-        <span className="grid h-8 w-8 place-items-center rounded-lg bg-[oklch(0.55_0.22_300)]/15 text-[oklch(0.75_0.18_300)]">
-          <Layers className="h-4 w-4" />
+        <GripVertical className="h-3.5 w-3.5 shrink-0 text-muted-foreground/60" />
+        <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-[oklch(0.92_0.19_115)]/15 text-[10px] font-bold text-[oklch(0.92_0.19_115)]">
+          {letter}
         </span>
-        <Input
-          value={session.label}
-          onChange={(e) => dispatch({ type: "RENAME_SESSION", sessionId: session.id, label: e.target.value })}
-          className="h-8 flex-1 border-0 bg-transparent px-1 text-base font-semibold focus-visible:ring-1"
+        <input
+          value={displayName}
+          onChange={(e) => dispatch({ type: "RENAME_SESSION", sessionId: session.id, label: e.target.value.replace(/^Treino\s+/i, "") || "A" })}
+          className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-foreground outline-none"
         />
+        <button className="grid h-6 w-6 place-items-center rounded text-muted-foreground/70 hover:bg-muted hover:text-foreground" aria-label="Renomear">
+          <Pencil className="h-3.5 w-3.5" />
+        </button>
         <ReorderButtons
           onUp={() => dispatch({ type: "MOVE_SESSION", sessionId: session.id, dir: -1 })}
           onDown={() => dispatch({ type: "MOVE_SESSION", sessionId: session.id, dir: 1 })}
           canUp={index > 0}
           canDown={index < total - 1}
+          small
         />
         {total > 1 && (
           <button
             onClick={() => dispatch({ type: "REMOVE_SESSION", sessionId: session.id })}
-            className="grid h-8 w-8 place-items-center rounded-lg text-muted-foreground hover:bg-muted hover:text-destructive"
+            className="grid h-6 w-6 place-items-center rounded text-muted-foreground/70 hover:bg-muted hover:text-destructive"
             aria-label="Remover sessão"
           >
-            <Trash2 className="h-4 w-4" />
+            <Trash2 className="h-3.5 w-3.5" />
           </button>
         )}
       </div>
 
-      <div className="mt-3 space-y-3">
-        {session.blocks.map((b, bi) => (
-          <BlockCard
-            key={b.id}
-            sessionId={session.id}
-            index={bi}
-            total={session.blocks.length}
-            block={b}
-            dispatch={dispatch}
-            onPickTarget={() => onPickTargetBlock(b.id)}
-            isActive={activeBlockId === b.id}
-          />
-        ))}
+      {hasBlocks && (
+        <div className="mt-3 space-y-2">
+          {session.blocks.filter(b => b.exercises.length > 0).map((b, bi, arr) => (
+            <BlockCard
+              key={b.id}
+              sessionId={session.id}
+              index={bi}
+              total={arr.length}
+              block={b}
+              dispatch={dispatch}
+              onPickTarget={() => onPickTargetBlock(b.id)}
+              isActive={activeBlockId === b.id}
+            />
+          ))}
+        </div>
+      )}
+
+      <div className="mt-3 space-y-2">
+        <button
+          onClick={() => onPickTargetBlock(session.blocks[0].id)}
+          className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-dashed border-border/70 py-2 text-xs font-medium text-muted-foreground hover:bg-muted"
+        >
+          <Plus className="h-3.5 w-3.5" /> Adicionar exercício
+        </button>
         <button
           onClick={() => dispatch({ type: "ADD_BLOCK", sessionId: session.id })}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-border py-2 text-xs font-medium text-muted-foreground hover:bg-muted"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-dashed border-border/70 py-2 text-xs font-medium text-muted-foreground hover:bg-muted"
         >
           <Plus className="h-3.5 w-3.5" /> Adicionar bloco
         </button>
