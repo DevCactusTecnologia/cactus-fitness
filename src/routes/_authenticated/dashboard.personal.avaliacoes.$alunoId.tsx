@@ -185,7 +185,11 @@ function AvaliacoesAlunoPage() {
                             key={s.key}
                             className={`inline-flex items-center gap-1.5 ${filled ? "text-primary" : "text-muted-foreground/60"}`}
                           >
-                            <span className={`h-2 w-2 rounded-full border ${filled ? "border-primary bg-primary" : "border-muted-foreground/40"}`} />
+                            {filled ? (
+                              <CheckCircle2 className="h-3.5 w-3.5 text-primary" strokeWidth={2.25} />
+                            ) : (
+                              <Circle className="h-3.5 w-3.5 text-muted-foreground/40" strokeWidth={1.75} />
+                            )}
                             {s.label}
                           </span>
                         );
