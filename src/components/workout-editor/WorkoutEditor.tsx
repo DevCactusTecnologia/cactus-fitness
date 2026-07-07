@@ -493,8 +493,8 @@ function SessionCard({
 }) {
   const [editing, setEditing] = useState(false);
   const inputRef = useRef<HTMLInputElement | null>(null);
-  const displayName = session.label.startsWith("Treino ") ? session.label : `Treino ${session.label}`;
-  const letter = (session.label.replace(/^Treino\s+/i, "")[0] ?? "A").toUpperCase();
+  const displayName = session.label;
+  const letter = (displayName.replace(/^Treino\s+/i, "").trim()[0] ?? displayName.trim()[0] ?? "?").toUpperCase();
   const hasBlocks = session.blocks.some(b => b.exercises.length > 0);
   void index; void total;
 
@@ -514,13 +514,13 @@ function SessionCard({
           <input
             ref={inputRef}
             value={displayName}
-            onChange={(e) => dispatch({ type: "RENAME_SESSION", sessionId: session.id, label: e.target.value.replace(/^Treino\s+/i, "") || "A" })}
-            onBlur={() => setEditing(false)}
-            onKeyDown={(e) => { if (e.key === "Enter" || e.key === "Escape") setEditing(false); }}
+            onChange={(e) => dispatch({ type: "RENAME_SESSION", sessionId: session.id, label: e.target.value })}
+            onBlur={() => { if (!session.label.trim()) dispatch({ type: "RENAME_SESSION", sessionId: session.id, label: "Treino" }); setEditing(false); }}
+            onKeyDown={(e) => { if (e.key === "Enter" || e.key === "Escape") (e.target as HTMLInputElement).blur(); }}
             className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-foreground outline-none"
           />
         ) : (
-          <span className="min-w-0 flex-1 truncate text-sm font-semibold text-foreground">{displayName}</span>
+          <span className="min-w-0 flex-1 truncate text-sm font-semibold text-foreground">{displayName || "Sem nome"}</span>
         )}
         <button
           onClick={startEdit}
