@@ -190,7 +190,7 @@ function MobileTopBar() {
           <path d="M4 8 L10 24 L16 14 L22 24 L28 8" />
         </svg>
         <span className="text-base font-semibold tracking-tight font-display">
-          well<span className="italic font-normal">trainer</span>
+          Cactus<span className="italic font-normal">Fitness</span>
         </span>
       </div>
       <div className="flex items-center gap-2">
