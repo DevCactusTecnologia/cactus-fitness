@@ -305,21 +305,17 @@ function FilterSelect<T extends string>({
 }
 
 function ModeloRow({ modelo }: { modelo: Modelo }) {
-  const kindLabel = modelo.kind === "plano" ? "Modelo de Plano" : "Template de Treino";
   return (
     <div className="flex items-center justify-between gap-3 rounded-xl border border-border bg-card p-4 hover:bg-muted/50">
       <div className="flex items-center gap-3">
         <div className="grid h-10 w-10 place-items-center rounded-lg bg-primary/15 text-primary">
-          {modelo.kind === "plano" ? <Layers className="h-5 w-5" /> : <FileText className="h-5 w-5" />}
+          <FileText className="h-5 w-5" />
         </div>
         <div>
           <div className="font-semibold">{modelo.name}</div>
           <div className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground">
-            <span>{kindLabel}</span>
-            <span>•</span>
-            <span className="rounded-full bg-muted px-2 py-0.5">{modelo.tag}</span>
-            <span>•</span>
-            <span>{modelo.sessions} {modelo.sessions === 1 ? "sessão" : "sessões"}</span>
+            <span>Template de Treino</span>
+            {modelo.description && <><span>•</span><span className="truncate max-w-xs">{modelo.description}</span></>}
           </div>
         </div>
       </div>
