@@ -36,6 +36,17 @@
   --color-primary-foreground: hsl(var(--primary-foreground));
   --color-primary-dim: hsl(var(--primary-dim));
 
+  --color-assessment-lime: hsl(var(--assessment-lime));
+  --color-assessment-cyan: hsl(var(--assessment-cyan));
+  --color-assessment-violet: hsl(var(--assessment-violet));
+  --color-assessment-rose: hsl(var(--assessment-rose));
+  --color-assessment-amber: hsl(var(--assessment-amber));
+  --color-assessment-sky: hsl(var(--assessment-sky));
+  --color-assessment-orange: hsl(var(--assessment-orange));
+  --color-assessment-emerald: hsl(var(--assessment-emerald));
+  --color-assessment-fuchsia: hsl(var(--assessment-fuchsia));
+  --color-assessment-blue: hsl(var(--assessment-blue));
+
   --color-secondary: hsl(var(--surface-3));
   --color-secondary-foreground: hsl(var(--fg));
   --color-muted: hsl(var(--surface-3));
@@ -94,6 +105,17 @@
   --primary-glow: rgba(215,242,5,0.15);
   --primary-glow-medium: rgba(215,242,5,0.20);
   --primary-glow-strong: rgba(215,242,5,0.30);
+
+  --assessment-lime: 67 96% 48%;
+  --assessment-cyan: 188 95% 52%;
+  --assessment-violet: 262 92% 70%;
+  --assessment-rose: 340 88% 64%;
+  --assessment-amber: 38 96% 56%;
+  --assessment-sky: 204 96% 62%;
+  --assessment-orange: 24 95% 58%;
+  --assessment-emerald: 153 76% 48%;
+  --assessment-fuchsia: 292 88% 66%;
+  --assessment-blue: 224 92% 65%;
 
   --gradient-greeting-card:
     radial-gradient(circle at 82% 10%, hsl(var(--primary) / 0.14) 0%, transparent 42%),
