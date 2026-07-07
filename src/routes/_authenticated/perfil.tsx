@@ -114,9 +114,12 @@ function PerfilPage() {
   const [brandTitle, setBrandTitle] = useState(initial.brandTitle);
   const [showBrandTitle, setShowBrandTitle] = useState(initial.showBrandTitle);
   const [primaryColor, setPrimaryColor] = useState(initial.primaryColor);
+  const [savedColor, setSavedColor] = useState(initial.primaryColor);
   const [welcome, setWelcome] = useState(initial.welcome);
   const [sections, setSections] = useState<Record<string, boolean>>(initial.sections);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
+
+  const colorPending = primaryColor.toLowerCase() !== savedColor.toLowerCase();
 
   useEffect(() => {
     applyPrimaryColor(primaryColor);
@@ -132,10 +135,25 @@ function PerfilPage() {
     setLogoPreview(URL.createObjectURL(f));
   }
 
+  function saveColor() {
+    const current = loadCustomization();
+    const payload: Customization = { ...current, primaryColor };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+    applyPrimaryColor(primaryColor);
+    setSavedColor(primaryColor);
+    toast.success("Cor salva");
+  }
+
+  function cancelColor() {
+    setPrimaryColor(savedColor);
+    applyPrimaryColor(savedColor);
+  }
+
   function onSave() {
     const payload: Customization = { brandTitle, showBrandTitle, primaryColor, welcome, sections };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
     applyPrimaryColor(primaryColor);
+    setSavedColor(primaryColor);
     toast.success("Customizações salvas");
   }
 
@@ -264,22 +282,51 @@ function PerfilPage() {
                     <div className="flex items-center gap-3">
                       <Label className="shrink-0 text-sm font-medium">Personalizada:</Label>
                       <div className="flex items-center gap-2">
-                        <input
-                          type="color"
-                          value={primaryColor}
-                          onChange={(e) => setPrimaryColor(e.target.value.toUpperCase())}
-                          className="h-10 w-10 cursor-pointer rounded-md border border-border bg-transparent p-0.5"
-                        />
+                        <div className="relative grid h-10 w-10 place-items-center rounded-md border border-border bg-background p-1">
+                          <div
+                            className="h-full w-full rounded-[4px]"
+                            style={{ backgroundColor: primaryColor }}
+                          />
+                          <input
+                            type="color"
+                            value={primaryColor}
+                            onChange={(e) => setPrimaryColor(e.target.value.toUpperCase())}
+                            className="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+                            aria-label="Escolher cor personalizada"
+                          />
+                        </div>
                         <input
                           value={primaryColor}
                           onChange={(e) => {
                             const v = e.target.value;
                             if (/^#[0-9a-fA-F]{0,6}$/.test(v)) setPrimaryColor(v.toUpperCase());
                           }}
-                          className="flex h-9 w-28 rounded-md border border-input bg-background px-3 py-1 font-mono text-sm shadow-sm focus-visible:border-primary focus-visible:outline-none"
+                          className="flex h-10 w-32 rounded-md border border-input bg-background px-3 font-mono text-sm shadow-sm focus-visible:border-primary focus-visible:outline-none"
                         />
                       </div>
                     </div>
+
+                    {colorPending && (
+                      <div className="flex items-center gap-2 pt-1">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={cancelColor}
+                          className="rounded-full"
+                        >
+                          Cancelar
+                        </Button>
+                        <Button
+                          type="button"
+                          size="sm"
+                          onClick={saveColor}
+                          className="rounded-full font-semibold"
+                        >
+                          Salvar cor
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 </section>
 
