@@ -75,25 +75,17 @@ function AvaliacoesAlunoPage() {
           </div>
         </div>
 
-        <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-10">
-          <p className="mb-4 text-sm text-muted-foreground">
-            Avaliações de <span className="font-semibold text-foreground">{aluno.full_name}</span>.
-          </p>
-
-          <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-border bg-card/60 px-6 py-16 text-center">
-            <div className="grid h-12 w-12 place-items-center rounded-xl bg-muted/40 text-muted-foreground">
-              <ClipboardList className="h-6 w-6" />
-            </div>
-            <div>
-              <p className="text-base font-semibold">Nenhuma avaliação física</p>
-              <p className="mt-1 text-sm text-muted-foreground">
-                Crie a primeira avaliação física para acompanhar a evolução do aluno.
-              </p>
-            </div>
+        <div className="mx-auto max-w-4xl space-y-4 p-4 md:p-6">
+          <div className="rounded-xl border border-border bg-card p-8 text-center">
+            <ClipboardList className="mx-auto mb-4 h-12 w-12 text-muted-foreground" strokeWidth={1.75} />
+            <h3 className="mb-2 text-lg font-semibold">Nenhuma avaliação física</h3>
+            <p className="mb-4 text-sm text-muted-foreground">
+              Crie a primeira avaliação física para acompanhar a evolução do aluno.
+            </p>
             <button
               type="button"
               onClick={() => setOpen(true)}
-              className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:brightness-110"
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-full bg-primary px-6 py-2.5 text-sm font-semibold text-primary-foreground transition hover:brightness-110 active:scale-[0.97]"
             >
               <Plus className="h-4 w-4" /> Criar Avaliação
             </button>
