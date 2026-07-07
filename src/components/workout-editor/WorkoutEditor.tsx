@@ -594,15 +594,16 @@ function SessionCard({
         </div>
       )}
 
-      <div className="mt-3 space-y-2">
+      <div className="mt-4 space-y-2">
         <button
           onClick={() => onPickTargetBlock(session.blocks[0].id)}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-dashed border-border/70 py-2 text-xs font-medium text-muted-foreground hover:bg-muted"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-dashed border-border/70 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted"
         >
-          <Plus className="h-3.5 w-3.5" /> Adicionar exercício
+          <Plus className="h-4 w-4" /> Adicionar exercício
         </button>
-        <AddBlockButton sessionId={session.id} dispatch={dispatch} size="sm" />
+        <AddBlockButton sessionId={session.id} dispatch={dispatch} size="lg" />
       </div>
+
     </div>
   );
 }
