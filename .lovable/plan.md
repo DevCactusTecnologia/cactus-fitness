@@ -1,81 +1,67 @@
-# Plano: substituir mocks por backend real (Lovable Cloud)
+## Objetivo
+Ao clicar em "Modelo de Plano" ou "Template de Treino" no menu de /treinos, abrir um editor completo (nova página) para criação, replicando o layout do welltrainer original.
 
-## Escopo confirmado
-- Personal e Aluno com login próprio (e-mail + senha)
-- Perfil completo do personal (nome, avatar, CREF, telefone, bio)
-- Remover TODOS os dados mockados, sem deixar rastros
+## Estrutura de rotas
+Criar duas novas rotas:
 
-## O que vai ser feito
+- `src/routes/_authenticated/dashboard.personal.treinos.novo-plano.tsx` → `/dashboard/personal/treinos/novo-plano`
+- `src/routes/_authenticated/dashboard.personal.treinos.novo-template.tsx` → `/dashboard/personal/treinos/novo-template`
 
-### 1. Autenticação real
-- Ativar auth por e-mail/senha na Lovable Cloud
-- Reescrever `/login` para usar login real (com validação zod)
-- Criar `/signup` (cadastro separado para personal e aluno via convite)
-- Criar `/reset-password` (recuperação de senha)
-- Adicionar layout protegido `_authenticated/` — todas as telas do dashboard passam a exigir login
-- Redirecionar sign-out para `/login` e limpar cache
+Ligar os dois `DropdownMenuItem` do `NovoModeloMenu` (em `dashboard.personal.treinos.tsx`) a essas rotas via `<Link>`.
 
-### 2. Papéis (roles)
-- Tabela `user_roles` com enum (`personal`, `aluno`) — separada do perfil, evita escalada de privilégio
-- Função `has_role()` (security definer) para checagens em RLS
-- Trigger que cria perfil + role automaticamente ao cadastrar
+## Layout comum (as duas páginas)
+Header fixo no topo (igual ao original):
+- Botão "Voltar" (ícone chevron-left) → volta para `/dashboard/personal/treinos`
+- Título: "Criar modelo de plano" ou "Criar modelo de treino"
+- Botão "Salvar" à direita (verde primary, disabled se nome vazio)
 
-### 3. Banco de dados
-Tabelas novas em `public` (todas com RLS, GRANTs corretos e timestamps):
-- `profiles` — nome, avatar, telefone, CREF, bio, especialidades (1-para-1 com auth.users)
-- `alunos` — vínculo personal↔aluno (personal_id, aluno_user_id, nome, telefone, objetivo, ativo)
-- `workout_templates` — modelos de treino do personal
-- `workout_template_exercises` — exercícios dentro de um modelo (séries, reps, carga, descanso)
-- `student_workouts` — treinos atribuídos a um aluno
-- `student_workout_sessions` — histórico de execução
-- `events` — a tabela já existe, mas vou refazer as políticas (hoje estão públicas) para escopar por personal_id
+Corpo principal em grid 2 colunas em desktop, stacked em mobile:
 
-Tabelas existentes (`exercises`, `exercise_groups`, `equipments`) — reescrever políticas: leitura pública das públicas, escrita apenas do dono (`owner_id = auth.uid()`).
+**Coluna esquerda — Estrutura do treino**
+- Campo Nome ("Nome do plano" / "Nome do treino")
+- Campo Descrição (textarea opcional)
+- Lista de sessões/blocos com drag-and-drop (@dnd-kit/core + @dnd-kit/sortable, já em uso em outras partes ou instalar):
+  - Modelo de Plano: várias **Sessões** (A, B, C…), cada uma contém **Blocos** que contêm **Exercícios**. Botão "Adicionar sessão".
+  - Modelo de Treino: apenas **Blocos** com **Exercícios** (sem nível de sessão). Botão "Adicionar bloco".
+- Dentro de cada bloco: linhas de exercício com nome, séries, reps, descanso, notas. Botões "Adicionar exercício" e "Adicionar bloco".
+- Reordenação por drag handle em sessões, blocos e exercícios.
 
-### 4. Server functions
-Tudo que hoje é mock vira `createServerFn` com `requireSupabaseAuth`:
-- `alunos.functions.ts` — listar/criar/editar/deletar aluno
-- `treinos.functions.ts` — modelos e atribuições
-- `exercicios.functions.ts` — CRUD (já parcialmente existe)
-- `agenda.functions.ts` — eventos escopados por usuário
-- `profile.functions.ts` — ler/atualizar perfil do personal
+**Coluna direita — Painel de configurações / seleção**
+- Aba "Selecionar exercícios": lista dos exercícios do usuário (query `exercises`), busca, filtro por grupo, clique adiciona ao bloco ativo.
+- Aba "Configurações": switch "Periodizar" (só no plano), tags/categoria, nível, objetivo, duração estimada.
+- Em mobile as abas viram um `Sheet` bottom-drawer com os mesmos conteúdos.
 
-### 5. Telas — remover todos os mocks
-Cada tela vira read via `useSuspenseQuery` + mutations via `useServerFn`:
-- `dashboard.personal.alunos.index.tsx` — hoje tem lista fake, passa a ler do banco (estado vazio quando não tem aluno)
-- `dashboard.personal.alunos.$alunoId.tsx` — remove dados fake do aluno
-- `dashboard.personal.treinos.tsx` — remove templates mockados
-- `dashboard.personal.agenda.tsx` — remove eventos fake
-- `dashboard.personal.exercicios.tsx` — já usa Supabase parcialmente; limpar `localStorage("personal_id")` e usar `auth.uid()`
-- `index.tsx` (home) — se tiver mock, limpar
-- `UserAvatarMenu.tsx` e `MobileBottomNav.tsx` — remover `localStorage.setItem/removeItem` de `personal_id`/`aluno_id`/`user_role`; usar sessão real
+## Persistência (Supabase)
+Usar tabelas existentes:
+- `workout_templates` — grava o modelo raiz. Adicionar campo `kind` ('plan' | 'template') via migration se não existir; senão usar `category` como discriminador.
+- `workout_template_exercises` — grava exercícios ordenados por `order_index`, com colunas `sets`, `reps`, `rest_seconds`, `notes`, `block_label`, `session_label` (verificar quais existem; migration se faltarem).
 
-### 6. Limpeza (sem deixar rastros)
-- Deletar todos os arrays constantes que servem como mock
-- Remover qualquer uso de `localStorage` para dados de negócio (fica só o que o Supabase gerencia internamente)
-- Remover comentários "// Mock", "// demo", "// fake"
-- Estados vazios elegantes ("Nenhum aluno cadastrado ainda")
+Ao clicar em "Salvar":
+1. `createServerFn` `saveWorkoutTemplate` (com `requireSupabaseAuth`) que faz insert em `workout_templates` e bulk-insert em `workout_template_exercises`.
+2. On success: `queryClient.invalidateQueries(["workout_templates"])` + `navigate({ to: "/dashboard/personal/treinos" })` + toast "Modelo salvo".
 
 ## Detalhes técnicos
+- Estado local do editor em um único `useReducer` com ações `ADD_SESSION`, `ADD_BLOCK`, `ADD_EXERCISE`, `REORDER`, `UPDATE_EXERCISE`, `REMOVE_*`, `SET_NAME`, etc.
+- Componentes reutilizáveis em `src/components/workout-editor/`:
+  - `EditorHeader.tsx`
+  - `SessionCard.tsx` (só plano)
+  - `BlockCard.tsx`
+  - `ExerciseRow.tsx`
+  - `ExercisePickerPanel.tsx`
+  - `SettingsPanel.tsx`
+- Reaproveitar tokens de design existentes (bg-card, border-border, primary). Sem cores hardcoded.
+- Manter `IconRail` + `MobileBottomNav` do dashboard.
 
-### Ordem de execução
-1. Migração 1: enum `app_role`, tabela `user_roles`, função `has_role`, trigger de signup
-2. Migração 2: tabela `profiles` + RLS
-3. Migração 3: tabelas de negócio (alunos, treinos, sessões) + RLS + GRANTs
-4. Migração 4: refazer políticas de `events`, `exercises`, `exercise_groups`, `equipments`
-5. Ativar auth email/senha
-6. Criar layout `_authenticated/route.tsx` (gate managed)
-7. Mover rotas do dashboard para `_authenticated/`
-8. Criar server functions
-9. Reescrever telas removendo mocks
-10. Reescrever `/login`, `/signup`, `/reset-password`
+## Escopo NÃO incluído nesta iteração
+- Duplicar/exportar modelo
+- Vídeos incorporados nos exercícios (só link se existir)
+- Superséries com animação complexa
+- Compartilhamento entre personais
 
-### O que NÃO faz parte
-- Google OAuth (você pediu só e-mail+senha)
-- Migração de dados existentes no banco (as tabelas atuais têm políticas públicas, vou limpar; se tiver algum dado real que queira preservar, me avise agora)
-- Convites por e-mail para aluno (será cadastro direto por enquanto — se quiser convite, é um passo extra)
-
-## Aviso importante
-As tabelas `events` e `exercises` hoje têm políticas totalmente públicas (`using: true`). Se houver dados nelas que você quer manter, me diga antes — vou reescrever as políticas para escopar por usuário e dados órfãos (sem dono) ficarão inacessíveis.
-
-Aprovando, começo pelas migrações.
+## Ordem de implementação
+1. Migration para colunas faltantes em `workout_templates` / `workout_template_exercises`.
+2. `saveWorkoutTemplate.functions.ts` + tipos.
+3. Componentes do editor.
+4. Rotas `novo-plano` e `novo-template`.
+5. Ligar `NovoModeloMenu` aos `<Link>`.
+6. Verificação: build, navegação, criação de exemplo end-to-end via Playwright.

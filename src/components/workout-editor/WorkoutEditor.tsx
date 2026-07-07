@@ -1,0 +1,801 @@
+import { useMemo, useReducer, useState } from "react";
+import { useNavigate } from "@tanstack/react-router";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  ArrowLeft, ChevronDown, ChevronUp, GripVertical, Loader2,
+  Plus, Search, Settings2, Trash2, X, Dumbbell, Layers,
+} from "lucide-react";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
+export type EditorKind = "plan" | "template";
+
+type ExerciseItem = {
+  id: string; // client id
+  exercise_id: number | null;
+  name: string;
+  sets: number | null;
+  reps: string;
+  rest_seconds: number | null;
+  load: string;
+  notes: string;
+};
+
+type Block = {
+  id: string;
+  label: string;
+  exercises: ExerciseItem[];
+};
+
+type Session = {
+  id: string;
+  label: string;
+  blocks: Block[];
+};
+
+type State = {
+  name: string;
+  description: string;
+  level: string;
+  goal: string;
+  periodize: boolean;
+  sessions: Session[]; // for template kind, always exactly one session
+};
+
+const uid = () => Math.random().toString(36).slice(2, 10);
+
+const emptyBlock = (idx: number): Block => ({
+  id: uid(),
+  label: `Bloco ${String.fromCharCode(65 + idx)}`,
+  exercises: [],
+});
+
+const emptySession = (idx: number): Session => ({
+  id: uid(),
+  label: String.fromCharCode(65 + idx),
+  blocks: [emptyBlock(0)],
+});
+
+type Action =
+  | { type: "SET_META"; patch: Partial<Omit<State, "sessions">> }
+  | { type: "ADD_SESSION" }
+  | { type: "REMOVE_SESSION"; sessionId: string }
+  | { type: "MOVE_SESSION"; sessionId: string; dir: -1 | 1 }
+  | { type: "RENAME_SESSION"; sessionId: string; label: string }
+  | { type: "ADD_BLOCK"; sessionId: string }
+  | { type: "REMOVE_BLOCK"; sessionId: string; blockId: string }
+  | { type: "MOVE_BLOCK"; sessionId: string; blockId: string; dir: -1 | 1 }
+  | { type: "RENAME_BLOCK"; sessionId: string; blockId: string; label: string }
+  | { type: "ADD_EXERCISE"; sessionId: string; blockId: string; exercise: { id: number | null; name: string } }
+  | { type: "REMOVE_EXERCISE"; sessionId: string; blockId: string; exerciseId: string }
+  | { type: "MOVE_EXERCISE"; sessionId: string; blockId: string; exerciseId: string; dir: -1 | 1 }
+  | { type: "UPDATE_EXERCISE"; sessionId: string; blockId: string; exerciseId: string; patch: Partial<ExerciseItem> };
+
+function move<T>(arr: T[], idx: number, dir: -1 | 1): T[] {
+  const j = idx + dir;
+  if (j < 0 || j >= arr.length) return arr;
+  const copy = arr.slice();
+  [copy[idx], copy[j]] = [copy[j], copy[idx]];
+  return copy;
+}
+
+function reducer(state: State, action: Action): State {
+  switch (action.type) {
+    case "SET_META":
+      return { ...state, ...action.patch };
+    case "ADD_SESSION":
+      return { ...state, sessions: [...state.sessions, emptySession(state.sessions.length)] };
+    case "REMOVE_SESSION":
+      return { ...state, sessions: state.sessions.filter(s => s.id !== action.sessionId) };
+    case "MOVE_SESSION": {
+      const idx = state.sessions.findIndex(s => s.id === action.sessionId);
+      return { ...state, sessions: move(state.sessions, idx, action.dir) };
+    }
+    case "RENAME_SESSION":
+      return { ...state, sessions: state.sessions.map(s => s.id === action.sessionId ? { ...s, label: action.label } : s) };
+    case "ADD_BLOCK":
+      return {
+        ...state,
+        sessions: state.sessions.map(s => s.id === action.sessionId
+          ? { ...s, blocks: [...s.blocks, emptyBlock(s.blocks.length)] }
+          : s),
+      };
+    case "REMOVE_BLOCK":
+      return {
+        ...state,
+        sessions: state.sessions.map(s => s.id === action.sessionId
+          ? { ...s, blocks: s.blocks.filter(b => b.id !== action.blockId) }
+          : s),
+      };
+    case "MOVE_BLOCK":
+      return {
+        ...state,
+        sessions: state.sessions.map(s => {
+          if (s.id !== action.sessionId) return s;
+          const idx = s.blocks.findIndex(b => b.id === action.blockId);
+          return { ...s, blocks: move(s.blocks, idx, action.dir) };
+        }),
+      };
+    case "RENAME_BLOCK":
+      return {
+        ...state,
+        sessions: state.sessions.map(s => s.id === action.sessionId
+          ? { ...s, blocks: s.blocks.map(b => b.id === action.blockId ? { ...b, label: action.label } : b) }
+          : s),
+      };
+    case "ADD_EXERCISE":
+      return {
+        ...state,
+        sessions: state.sessions.map(s => s.id === action.sessionId
+          ? {
+              ...s,
+              blocks: s.blocks.map(b => b.id === action.blockId
+                ? {
+                    ...b,
+                    exercises: [...b.exercises, {
+                      id: uid(),
+                      exercise_id: action.exercise.id,
+                      name: action.exercise.name,
+                      sets: 3, reps: "10", rest_seconds: 60, load: "", notes: "",
+                    }],
+                  }
+                : b),
+            }
+          : s),
+      };
+    case "REMOVE_EXERCISE":
+      return {
+        ...state,
+        sessions: state.sessions.map(s => s.id === action.sessionId
+          ? { ...s, blocks: s.blocks.map(b => b.id === action.blockId
+              ? { ...b, exercises: b.exercises.filter(e => e.id !== action.exerciseId) }
+              : b) }
+          : s),
+      };
+    case "MOVE_EXERCISE":
+      return {
+        ...state,
+        sessions: state.sessions.map(s => s.id === action.sessionId
+          ? { ...s, blocks: s.blocks.map(b => {
+              if (b.id !== action.blockId) return b;
+              const idx = b.exercises.findIndex(e => e.id === action.exerciseId);
+              return { ...b, exercises: move(b.exercises, idx, action.dir) };
+            }) }
+          : s),
+      };
+    case "UPDATE_EXERCISE":
+      return {
+        ...state,
+        sessions: state.sessions.map(s => s.id === action.sessionId
+          ? { ...s, blocks: s.blocks.map(b => b.id === action.blockId
+              ? { ...b, exercises: b.exercises.map(e => e.id === action.exerciseId ? { ...e, ...action.patch } : e) }
+              : b) }
+          : s),
+      };
+  }
+}
+
+export function WorkoutEditor({ kind }: { kind: EditorKind }) {
+  const navigate = useNavigate();
+  const qc = useQueryClient();
+
+  const initial: State = useMemo(() => ({
+    name: "",
+    description: "",
+    level: "",
+    goal: "",
+    periodize: false,
+    sessions: kind === "plan"
+      ? [emptySession(0)]
+      : [{ id: uid(), label: "__single__", blocks: [emptyBlock(0)] }],
+  }), [kind]);
+
+  const [state, dispatch] = useReducer(reducer, initial);
+  const [activeTarget, setActiveTarget] = useState<{ sessionId: string; blockId: string } | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [mobilePanelOpen, setMobilePanelOpen] = useState(false);
+
+  const title = kind === "plan" ? "Criar modelo de plano" : "Criar modelo de treino";
+  const nameLabel = kind === "plan" ? "Nome do plano" : "Nome do treino";
+
+  const canSave = state.name.trim().length > 0 && !saving;
+
+  async function handleSave() {
+    if (!canSave) return;
+    setSaving(true);
+    try {
+      const { data: userRes } = await supabase.auth.getUser();
+      if (!userRes.user) throw new Error("Sessão expirada");
+
+      const { data: tpl, error: tErr } = await supabase
+        .from("workout_templates")
+        .insert({
+          name: state.name.trim(),
+          description: state.description.trim() || null,
+          kind,
+          periodize: state.periodize,
+          level: state.level || null,
+          goal: state.goal || null,
+          personal_id: userRes.user.id,
+        })
+        .select("id")
+        .single();
+      if (tErr || !tpl) throw tErr ?? new Error("Falha ao criar modelo");
+
+      const rows: Array<{
+        template_id: string;
+        exercise_id: number | null;
+        sets: number | null;
+        reps: string | null;
+        rest_seconds: number | null;
+        load: string | null;
+        notes: string | null;
+        position: number;
+        block_position: number;
+        session_position: number;
+        block_label: string | null;
+        session_label: string | null;
+      }> = [];
+
+      let flat = 0;
+      state.sessions.forEach((s, si) => {
+        s.blocks.forEach((b, bi) => {
+          b.exercises.forEach((e) => {
+            rows.push({
+              template_id: tpl.id,
+              exercise_id: e.exercise_id,
+              sets: e.sets,
+              reps: e.reps || null,
+              rest_seconds: e.rest_seconds,
+              load: e.load || null,
+              notes: e.notes || null,
+              position: flat++,
+              block_position: bi,
+              session_position: si,
+              block_label: b.label,
+              session_label: kind === "plan" ? s.label : null,
+            });
+          });
+        });
+      });
+
+      if (rows.length > 0) {
+        const { error: exErr } = await supabase
+          .from("workout_template_exercises")
+          .insert(rows);
+        if (exErr) throw exErr;
+      }
+
+      await qc.invalidateQueries({ queryKey: ["workout_templates"] });
+      toast.success("Modelo salvo");
+      navigate({ to: "/dashboard/personal/treinos" });
+    } catch (err) {
+      console.error(err);
+      toast.error(err instanceof Error ? err.message : "Erro ao salvar");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  return (
+    <div className="min-h-screen bg-background text-foreground">
+      {/* Header */}
+      <header className="sticky top-0 z-30 border-b border-border bg-background/80 backdrop-blur-md">
+        <div className="mx-auto flex max-w-7xl items-center justify-between gap-3 px-4 py-3 md:px-8">
+          <div className="flex items-center gap-3 min-w-0">
+            <button
+              onClick={() => navigate({ to: "/dashboard/personal/treinos" })}
+              className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg text-muted-foreground hover:bg-muted"
+              aria-label="Voltar"
+            >
+              <ArrowLeft className="h-5 w-5" />
+            </button>
+            <h1 className="truncate text-base font-semibold md:text-xl">{title}</h1>
+          </div>
+          <div className="flex items-center gap-2">
+            <Sheet open={mobilePanelOpen} onOpenChange={setMobilePanelOpen}>
+              <SheetTrigger asChild>
+                <button className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border bg-card px-3 text-xs font-medium md:hidden">
+                  <Settings2 className="h-4 w-4" />
+                  Painel
+                </button>
+              </SheetTrigger>
+              <SheetContent side="bottom" className="h-[85vh] overflow-y-auto">
+                <SheetHeader>
+                  <SheetTitle>Painel</SheetTitle>
+                </SheetHeader>
+                <div className="mt-4">
+                  <SidePanel
+                    kind={kind}
+                    state={state}
+                    dispatch={dispatch}
+                    activeTarget={activeTarget}
+                    onPicked={() => setMobilePanelOpen(false)}
+                  />
+                </div>
+              </SheetContent>
+            </Sheet>
+            <button
+              onClick={handleSave}
+              disabled={!canSave}
+              className="inline-flex h-9 items-center gap-1.5 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.25)] hover:brightness-110 disabled:opacity-50"
+            >
+              {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+              Salvar
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <main className="mx-auto grid max-w-7xl gap-6 px-4 py-6 md:grid-cols-[minmax(0,1fr)_360px] md:px-8">
+        {/* Left column: structure */}
+        <section className="space-y-4">
+          <div className="rounded-2xl border border-border bg-card p-4 md:p-5">
+            <div className="space-y-3">
+              <div>
+                <Label htmlFor="wt-name">{nameLabel}</Label>
+                <Input
+                  id="wt-name"
+                  value={state.name}
+                  onChange={(e) => dispatch({ type: "SET_META", patch: { name: e.target.value } })}
+                  placeholder={kind === "plan" ? "Ex: Hipertrofia A/B/C" : "Ex: Peito e Tríceps"}
+                  className="mt-1.5"
+                />
+              </div>
+              <div>
+                <Label htmlFor="wt-desc">Descrição</Label>
+                <Textarea
+                  id="wt-desc"
+                  value={state.description}
+                  onChange={(e) => dispatch({ type: "SET_META", patch: { description: e.target.value } })}
+                  placeholder="Notas gerais, objetivo, público-alvo..."
+                  className="mt-1.5 min-h-[72px]"
+                />
+              </div>
+            </div>
+          </div>
+
+          {kind === "plan" ? (
+            <>
+              {state.sessions.map((s, i) => (
+                <SessionCard
+                  key={s.id}
+                  index={i}
+                  total={state.sessions.length}
+                  session={s}
+                  dispatch={dispatch}
+                  onPickTargetBlock={(blockId) => {
+                    setActiveTarget({ sessionId: s.id, blockId });
+                    setMobilePanelOpen(true);
+                  }}
+                  activeBlockId={activeTarget?.sessionId === s.id ? activeTarget.blockId : null}
+                />
+              ))}
+              <button
+                onClick={() => dispatch({ type: "ADD_SESSION" })}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-card/40 py-3 text-sm font-medium text-muted-foreground hover:bg-muted"
+              >
+                <Plus className="h-4 w-4" /> Adicionar sessão
+              </button>
+            </>
+          ) : (
+            <div className="space-y-3">
+              {state.sessions[0].blocks.map((b, bi) => (
+                <BlockCard
+                  key={b.id}
+                  sessionId={state.sessions[0].id}
+                  index={bi}
+                  total={state.sessions[0].blocks.length}
+                  block={b}
+                  dispatch={dispatch}
+                  onPickTarget={() => {
+                    setActiveTarget({ sessionId: state.sessions[0].id, blockId: b.id });
+                    setMobilePanelOpen(true);
+                  }}
+                  isActive={activeTarget?.blockId === b.id}
+                />
+              ))}
+              <button
+                onClick={() => dispatch({ type: "ADD_BLOCK", sessionId: state.sessions[0].id })}
+                className="inline-flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-border bg-card/40 py-3 text-sm font-medium text-muted-foreground hover:bg-muted"
+              >
+                <Plus className="h-4 w-4" /> Adicionar bloco
+              </button>
+            </div>
+          )}
+        </section>
+
+        {/* Right column: panel */}
+        <aside className="hidden md:block">
+          <div className="sticky top-[76px]">
+            <SidePanel kind={kind} state={state} dispatch={dispatch} activeTarget={activeTarget} />
+          </div>
+        </aside>
+      </main>
+    </div>
+  );
+}
+
+function SessionCard({
+  session, index, total, dispatch, onPickTargetBlock, activeBlockId,
+}: {
+  session: Session; index: number; total: number;
+  dispatch: React.Dispatch<Action>;
+  onPickTargetBlock: (blockId: string) => void;
+  activeBlockId: string | null;
+}) {
+  return (
+    <div className="rounded-2xl border border-border bg-card p-4">
+      <div className="flex items-center gap-2">
+        <span className="grid h-8 w-8 place-items-center rounded-lg bg-[oklch(0.55_0.22_300)]/15 text-[oklch(0.75_0.18_300)]">
+          <Layers className="h-4 w-4" />
+        </span>
+        <Input
+          value={session.label}
+          onChange={(e) => dispatch({ type: "RENAME_SESSION", sessionId: session.id, label: e.target.value })}
+          className="h-8 flex-1 border-0 bg-transparent px-1 text-base font-semibold focus-visible:ring-1"
+        />
+        <ReorderButtons
+          onUp={() => dispatch({ type: "MOVE_SESSION", sessionId: session.id, dir: -1 })}
+          onDown={() => dispatch({ type: "MOVE_SESSION", sessionId: session.id, dir: 1 })}
+          canUp={index > 0}
+          canDown={index < total - 1}
+        />
+        {total > 1 && (
+          <button
+            onClick={() => dispatch({ type: "REMOVE_SESSION", sessionId: session.id })}
+            className="grid h-8 w-8 place-items-center rounded-lg text-muted-foreground hover:bg-muted hover:text-destructive"
+            aria-label="Remover sessão"
+          >
+            <Trash2 className="h-4 w-4" />
+          </button>
+        )}
+      </div>
+
+      <div className="mt-3 space-y-3">
+        {session.blocks.map((b, bi) => (
+          <BlockCard
+            key={b.id}
+            sessionId={session.id}
+            index={bi}
+            total={session.blocks.length}
+            block={b}
+            dispatch={dispatch}
+            onPickTarget={() => onPickTargetBlock(b.id)}
+            isActive={activeBlockId === b.id}
+          />
+        ))}
+        <button
+          onClick={() => dispatch({ type: "ADD_BLOCK", sessionId: session.id })}
+          className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-border py-2 text-xs font-medium text-muted-foreground hover:bg-muted"
+        >
+          <Plus className="h-3.5 w-3.5" /> Adicionar bloco
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function BlockCard({
+  block, sessionId, index, total, dispatch, onPickTarget, isActive,
+}: {
+  block: Block; sessionId: string; index: number; total: number;
+  dispatch: React.Dispatch<Action>;
+  onPickTarget: () => void;
+  isActive: boolean;
+}) {
+  return (
+    <div className={`rounded-xl border ${isActive ? "border-primary/60 ring-1 ring-primary/40" : "border-border"} bg-background/40 p-3`}>
+      <div className="flex items-center gap-2">
+        <GripVertical className="h-4 w-4 shrink-0 text-muted-foreground/60" />
+        <Input
+          value={block.label}
+          onChange={(e) => dispatch({ type: "RENAME_BLOCK", sessionId, blockId: block.id, label: e.target.value })}
+          className="h-8 flex-1 border-0 bg-transparent px-1 text-sm font-semibold focus-visible:ring-1"
+        />
+        <ReorderButtons
+          onUp={() => dispatch({ type: "MOVE_BLOCK", sessionId, blockId: block.id, dir: -1 })}
+          onDown={() => dispatch({ type: "MOVE_BLOCK", sessionId, blockId: block.id, dir: 1 })}
+          canUp={index > 0}
+          canDown={index < total - 1}
+        />
+        {total > 1 && (
+          <button
+            onClick={() => dispatch({ type: "REMOVE_BLOCK", sessionId, blockId: block.id })}
+            className="grid h-7 w-7 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-destructive"
+            aria-label="Remover bloco"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </button>
+        )}
+      </div>
+
+      <div className="mt-2 space-y-2">
+        {block.exercises.length === 0 && (
+          <p className="rounded-lg border border-dashed border-border/70 px-3 py-4 text-center text-xs text-muted-foreground">
+            Nenhum exercício. Selecione no painel ao lado.
+          </p>
+        )}
+        {block.exercises.map((e, ei) => (
+          <ExerciseRow
+            key={e.id}
+            item={e}
+            index={ei}
+            total={block.exercises.length}
+            onChange={(patch) => dispatch({ type: "UPDATE_EXERCISE", sessionId, blockId: block.id, exerciseId: e.id, patch })}
+            onRemove={() => dispatch({ type: "REMOVE_EXERCISE", sessionId, blockId: block.id, exerciseId: e.id })}
+            onUp={() => dispatch({ type: "MOVE_EXERCISE", sessionId, blockId: block.id, exerciseId: e.id, dir: -1 })}
+            onDown={() => dispatch({ type: "MOVE_EXERCISE", sessionId, blockId: block.id, exerciseId: e.id, dir: 1 })}
+          />
+        ))}
+        <button
+          onClick={onPickTarget}
+          className="inline-flex w-full items-center justify-center gap-2 rounded-md border border-border/70 bg-card py-1.5 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+        >
+          <Plus className="h-3.5 w-3.5" /> Adicionar exercício
+        </button>
+      </div>
+    </div>
+  );
+}
+
+function ExerciseRow({
+  item, index, total, onChange, onRemove, onUp, onDown,
+}: {
+  item: ExerciseItem; index: number; total: number;
+  onChange: (patch: Partial<ExerciseItem>) => void;
+  onRemove: () => void;
+  onUp: () => void; onDown: () => void;
+}) {
+  return (
+    <div className="rounded-lg border border-border bg-card p-2.5">
+      <div className="flex items-center gap-2">
+        <span className="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-primary/15 text-primary">
+          <Dumbbell className="h-3.5 w-3.5" />
+        </span>
+        <span className="flex-1 truncate text-sm font-medium">{item.name}</span>
+        <ReorderButtons onUp={onUp} onDown={onDown} canUp={index > 0} canDown={index < total - 1} small />
+        <button
+          onClick={onRemove}
+          className="grid h-7 w-7 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-destructive"
+          aria-label="Remover exercício"
+        >
+          <X className="h-3.5 w-3.5" />
+        </button>
+      </div>
+      <div className="mt-2 grid grid-cols-2 gap-2 md:grid-cols-4">
+        <NumField label="Séries" value={item.sets} onChange={(v) => onChange({ sets: v })} />
+        <TextField label="Reps" value={item.reps} onChange={(v) => onChange({ reps: v })} placeholder="10" />
+        <NumField label="Descanso (s)" value={item.rest_seconds} onChange={(v) => onChange({ rest_seconds: v })} />
+        <TextField label="Carga" value={item.load} onChange={(v) => onChange({ load: v })} placeholder="—" />
+      </div>
+      <Textarea
+        value={item.notes}
+        onChange={(e) => onChange({ notes: e.target.value })}
+        placeholder="Observações (opcional)"
+        className="mt-2 min-h-[36px] text-xs"
+      />
+    </div>
+  );
+}
+
+function ReorderButtons({ onUp, onDown, canUp, canDown, small = false }: {
+  onUp: () => void; onDown: () => void; canUp: boolean; canDown: boolean; small?: boolean;
+}) {
+  const sz = small ? "h-6 w-6" : "h-7 w-7";
+  return (
+    <div className="flex items-center">
+      <button onClick={onUp} disabled={!canUp}
+        className={`grid ${sz} place-items-center rounded-md text-muted-foreground hover:bg-muted disabled:opacity-30`}
+        aria-label="Mover para cima">
+        <ChevronUp className="h-3.5 w-3.5" />
+      </button>
+      <button onClick={onDown} disabled={!canDown}
+        className={`grid ${sz} place-items-center rounded-md text-muted-foreground hover:bg-muted disabled:opacity-30`}
+        aria-label="Mover para baixo">
+        <ChevronDown className="h-3.5 w-3.5" />
+      </button>
+    </div>
+  );
+}
+
+function NumField({ label, value, onChange }: { label: string; value: number | null; onChange: (v: number | null) => void }) {
+  return (
+    <label className="flex flex-col gap-1 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+      {label}
+      <Input
+        type="number"
+        inputMode="numeric"
+        value={value ?? ""}
+        onChange={(e) => onChange(e.target.value === "" ? null : Number(e.target.value))}
+        className="h-8 text-sm"
+      />
+    </label>
+  );
+}
+function TextField({ label, value, onChange, placeholder }: { label: string; value: string; onChange: (v: string) => void; placeholder?: string }) {
+  return (
+    <label className="flex flex-col gap-1 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+      {label}
+      <Input value={value} onChange={(e) => onChange(e.target.value)} placeholder={placeholder} className="h-8 text-sm" />
+    </label>
+  );
+}
+
+/* ---------- Side panel ---------- */
+
+type ExerciseCatalog = { id: number; name: string; group: string | null };
+
+function SidePanel({
+  kind, state, dispatch, activeTarget, onPicked,
+}: {
+  kind: EditorKind;
+  state: State;
+  dispatch: React.Dispatch<Action>;
+  activeTarget: { sessionId: string; blockId: string } | null;
+  onPicked?: () => void;
+}) {
+  const [tab, setTab] = useState<"exercicios" | "config">("exercicios");
+  return (
+    <div className="rounded-2xl border border-border bg-card p-4">
+      <Tabs value={tab} onValueChange={(v) => setTab(v as "exercicios" | "config")}>
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="exercicios">Selecionar exercícios</TabsTrigger>
+          <TabsTrigger value="config">Configurações</TabsTrigger>
+        </TabsList>
+        <TabsContent value="exercicios" className="mt-3">
+          <ExercisePicker
+            state={state}
+            activeTarget={activeTarget}
+            onPick={(ex) => {
+              const target = resolveTarget(state, activeTarget);
+              if (!target) {
+                toast("Selecione um bloco antes de adicionar exercícios.");
+                return;
+              }
+              dispatch({ type: "ADD_EXERCISE", sessionId: target.sessionId, blockId: target.blockId, exercise: ex });
+              onPicked?.();
+            }}
+          />
+        </TabsContent>
+        <TabsContent value="config" className="mt-3 space-y-4">
+          {kind === "plan" && (
+            <div className="flex items-center justify-between rounded-lg border border-border p-3">
+              <div>
+                <div className="text-sm font-medium">Periodizar</div>
+                <div className="text-xs text-muted-foreground">Variação de estímulos por semana</div>
+              </div>
+              <Switch checked={state.periodize} onCheckedChange={(v) => dispatch({ type: "SET_META", patch: { periodize: v } })} />
+            </div>
+          )}
+          <div className="space-y-2">
+            <Label htmlFor="wt-level">Nível</Label>
+            <Input id="wt-level" value={state.level} onChange={(e) => dispatch({ type: "SET_META", patch: { level: e.target.value } })} placeholder="Iniciante, Intermediário, Avançado" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="wt-goal">Objetivo</Label>
+            <Input id="wt-goal" value={state.goal} onChange={(e) => dispatch({ type: "SET_META", patch: { goal: e.target.value } })} placeholder="Hipertrofia, força, resistência..." />
+          </div>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}
+
+function resolveTarget(state: State, active: { sessionId: string; blockId: string } | null) {
+  if (active) {
+    const s = state.sessions.find(x => x.id === active.sessionId);
+    const b = s?.blocks.find(x => x.id === active.blockId);
+    if (s && b) return { sessionId: s.id, blockId: b.id };
+  }
+  // fallback: first block of first session
+  const s = state.sessions[0];
+  const b = s?.blocks[0];
+  if (s && b) return { sessionId: s.id, blockId: b.id };
+  return null;
+}
+
+function ExercisePicker({
+  state, activeTarget, onPick,
+}: {
+  state: State;
+  activeTarget: { sessionId: string; blockId: string } | null;
+  onPick: (ex: { id: number | null; name: string }) => void;
+}) {
+  const [q, setQ] = useState("");
+  const { data: catalog = [], isLoading } = useQuery({
+    queryKey: ["exercises-catalog"],
+    queryFn: async (): Promise<ExerciseCatalog[]> => {
+      const { data, error } = await supabase
+        .from("exercises")
+        .select("id, name, exercise_groups(name)")
+        .order("name", { ascending: true })
+        .limit(500);
+      if (error) throw error;
+      return (data ?? []).map((r) => {
+        type GroupRef = { name: string | null } | { name: string | null }[] | null;
+        const g = r.exercise_groups as GroupRef;
+        const name = Array.isArray(g) ? (g[0]?.name ?? null) : (g?.name ?? null);
+        return { id: r.id as number, name: r.name as string, group: name };
+      });
+    },
+  });
+
+  const filtered = useMemo(() => {
+    const s = q.trim().toLowerCase();
+    if (!s) return catalog;
+    return catalog.filter(e => e.name.toLowerCase().includes(s) || (e.group ?? "").toLowerCase().includes(s));
+  }, [q, catalog]);
+
+  const target = resolveTarget(state, activeTarget);
+  const targetLabel = target
+    ? (() => {
+        const s = state.sessions.find(x => x.id === target.sessionId)!;
+        const b = s.blocks.find(x => x.id === target.blockId)!;
+        return s.label === "__single__" ? b.label : `${s.label} · ${b.label}`;
+      })()
+    : "—";
+
+  return (
+    <div className="flex flex-col">
+      <div className="mb-2 text-xs text-muted-foreground">
+        Adicionando em: <span className="font-medium text-foreground">{targetLabel}</span>
+      </div>
+      <div className="relative">
+        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+        <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Buscar exercício..." className="pl-9" />
+      </div>
+      <div className="mt-3 max-h-[52vh] space-y-1 overflow-y-auto pr-1">
+        {isLoading ? (
+          <div className="grid place-items-center py-8"><Loader2 className="h-4 w-4 animate-spin text-muted-foreground" /></div>
+        ) : filtered.length === 0 ? (
+          <p className="rounded-lg border border-dashed border-border p-6 text-center text-xs text-muted-foreground">
+            Nenhum exercício encontrado. Cadastre em Exercícios ou digite abaixo.
+          </p>
+        ) : (
+          filtered.map((e) => (
+            <button
+              key={e.id}
+              onClick={() => onPick({ id: e.id, name: e.name })}
+              className="flex w-full items-center gap-2 rounded-lg border border-transparent px-2 py-1.5 text-left text-sm hover:border-border hover:bg-muted"
+            >
+              <Dumbbell className="h-3.5 w-3.5 text-primary" />
+              <span className="flex-1 truncate">{e.name}</span>
+              {e.group && <span className="text-[10px] uppercase text-muted-foreground">{e.group}</span>}
+            </button>
+          ))
+        )}
+      </div>
+      <CustomExerciseInput onAdd={(name) => onPick({ id: null, name })} />
+    </div>
+  );
+}
+
+function CustomExerciseInput({ onAdd }: { onAdd: (name: string) => void }) {
+  const [name, setName] = useState("");
+  return (
+    <div className="mt-3 flex items-center gap-2 border-t border-border pt-3">
+      <Input
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+        placeholder="Adicionar exercício livre"
+        className="h-9"
+        onKeyDown={(e) => {
+          if (e.key === "Enter" && name.trim()) { onAdd(name.trim()); setName(""); }
+        }}
+      />
+      <button
+        onClick={() => { if (name.trim()) { onAdd(name.trim()); setName(""); } }}
+        className="inline-flex h-9 items-center gap-1 rounded-lg bg-primary px-3 text-xs font-semibold text-primary-foreground hover:brightness-110"
+      >
+        <Plus className="h-3.5 w-3.5" /> Add
+      </button>
+    </div>
+  );
+}

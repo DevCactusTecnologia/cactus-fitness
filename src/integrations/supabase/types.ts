@@ -342,6 +342,8 @@ export type Database = {
       }
       workout_template_exercises: {
         Row: {
+          block_label: string | null
+          block_position: number
           created_at: string
           exercise_id: number | null
           id: string
@@ -350,10 +352,14 @@ export type Database = {
           position: number
           reps: string | null
           rest_seconds: number | null
+          session_label: string | null
+          session_position: number
           sets: number | null
           template_id: string
         }
         Insert: {
+          block_label?: string | null
+          block_position?: number
           created_at?: string
           exercise_id?: number | null
           id?: string
@@ -362,10 +368,14 @@ export type Database = {
           position?: number
           reps?: string | null
           rest_seconds?: number | null
+          session_label?: string | null
+          session_position?: number
           sets?: number | null
           template_id: string
         }
         Update: {
+          block_label?: string | null
+          block_position?: number
           created_at?: string
           exercise_id?: number | null
           id?: string
@@ -374,6 +384,8 @@ export type Database = {
           position?: number
           reps?: string | null
           rest_seconds?: number | null
+          session_label?: string | null
+          session_position?: number
           sets?: number | null
           template_id?: string
         }
@@ -400,8 +412,12 @@ export type Database = {
           created_at: string
           description: string | null
           duration_min: number | null
+          goal: string | null
           id: string
+          kind: string
+          level: string | null
           name: string
+          periodize: boolean
           personal_id: string
           updated_at: string
         }
@@ -410,8 +426,12 @@ export type Database = {
           created_at?: string
           description?: string | null
           duration_min?: number | null
+          goal?: string | null
           id?: string
+          kind?: string
+          level?: string | null
           name: string
+          periodize?: boolean
           personal_id: string
           updated_at?: string
         }
@@ -420,8 +440,12 @@ export type Database = {
           created_at?: string
           description?: string | null
           duration_min?: number | null
+          goal?: string | null
           id?: string
+          kind?: string
+          level?: string | null
           name?: string
+          periodize?: boolean
           personal_id?: string
           updated_at?: string
         }
