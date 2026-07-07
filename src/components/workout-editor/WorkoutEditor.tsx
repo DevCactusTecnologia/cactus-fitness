@@ -1002,28 +1002,17 @@ function ExerciseDetailSheet({
                       onSelect={setType}
                       onRemoveSet={removeThisSet}
                     />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const v = window.prompt("Reps / alvo", item.reps || "12");
-                        if (v != null) onChange({ reps: v });
-                      }}
-                      className="flex h-10 items-center justify-center rounded-full border border-border bg-muted px-4 text-sm font-semibold transition-colors hover:border-foreground/30"
-                    >
-                      {item.reps ? `${item.reps} reps` : "— reps"}
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const v = window.prompt("Descanso (segundos)", String(item.rest_seconds ?? 60));
-                        if (v != null) onChange({ rest_seconds: v === "" ? null : Number(v) });
-                      }}
-                      aria-label="Descanso após esta série"
-                      className="flex h-10 min-w-[64px] items-center justify-center gap-1 rounded-full border border-border bg-muted px-3 text-xs font-semibold tabular-nums transition-colors hover:border-foreground/30"
-                    >
-                      <Clock className="h-3.5 w-3.5" />
-                      {item.rest_seconds ?? 60}s
-                    </button>
+                    <AlvoPickerButton
+                      index={i}
+                      value={item.reps}
+                      onSave={(v) => onChange({ reps: v })}
+                    />
+                    <DescansoPickerButton
+                      index={i}
+                      seconds={item.rest_seconds ?? 60}
+                      onSave={(s) => onChange({ rest_seconds: s })}
+                    />
+
                     <button
                       type="button"
                       onClick={removeThisSet}
