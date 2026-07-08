@@ -1,0 +1,91 @@
+import { Link, useRouterState } from "@tanstack/react-router";
+import { LayoutDashboard, Dumbbell, Trophy, HeartPulse } from "lucide-react";
+import { UserAvatarMenu } from "@/components/UserAvatarMenu";
+import logoUrl from "@/assets/cactus-logo.png";
+
+export const ALUNO_NAV = [
+  { icon: LayoutDashboard, label: "Início", to: "/meu-treino" as const },
+  { icon: Dumbbell, label: "Treinos", to: "/treinos" as const },
+  { icon: Trophy, label: "Desafios", to: "/desafios" as const },
+  { icon: HeartPulse, label: "Avaliações", to: "/avaliacoes" as const },
+];
+
+export function AlunoShell({ children }: { children: React.ReactNode }) {
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const isActive = (to: string) => pathname === to || (to === "/meu-treino" && pathname.startsWith("/meu-treino"));
+
+  return (
+    <div className="min-h-screen bg-background text-foreground">
+      {/* Rail lateral (desktop) */}
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-[72px] flex-col items-center gap-2 border-r border-border bg-sidebar py-4 md:flex">
+        <div className="mb-2 grid h-10 w-10 place-items-center rounded-xl">
+          <span
+            aria-label="CactusFitness"
+            role="img"
+            className="block h-8 w-8 bg-primary"
+            style={{
+              WebkitMaskImage: `url(${logoUrl})`,
+              maskImage: `url(${logoUrl})`,
+              WebkitMaskRepeat: "no-repeat",
+              maskRepeat: "no-repeat",
+              WebkitMaskPosition: "center",
+              maskPosition: "center",
+              WebkitMaskSize: "contain",
+              maskSize: "contain",
+            }}
+          />
+        </div>
+        {ALUNO_NAV.map(({ icon: Icon, label, to }) => {
+          const active = isActive(to);
+          return (
+            <Link
+              key={label}
+              to={to}
+              title={label}
+              className={`group relative grid h-11 w-11 place-items-center rounded-[10px] transition ${
+                active
+                  ? "bg-primary/20 text-primary"
+                  : "text-sidebar-foreground/70 hover:bg-white/5 hover:text-sidebar-foreground"
+              }`}
+            >
+              {active && (
+                <span className="absolute -left-3.5 top-1/2 h-7 w-1 -translate-y-1/2 rounded-r-full bg-primary" />
+              )}
+              <Icon className="h-5 w-5" strokeWidth={1.75} />
+              <span className="pointer-events-none absolute left-full ml-3 z-50 whitespace-nowrap rounded-md bg-popover px-2 py-1 text-xs font-medium text-popover-foreground shadow-md ring-1 ring-border opacity-0 group-hover:opacity-100 transition">
+                {label}
+              </span>
+            </Link>
+          );
+        })}
+        <div className="mt-auto flex flex-col items-center gap-2">
+          <UserAvatarMenu />
+        </div>
+      </aside>
+
+      {/* Conteúdo */}
+      <div className="md:ml-[72px] pb-24 md:pb-0">{children}</div>
+
+      {/* Bottom nav (mobile) */}
+      <nav className="fixed inset-x-0 bottom-0 z-40 md:hidden border-t border-border/60 bg-background/95 backdrop-blur-xl">
+        <div className="grid" style={{ gridTemplateColumns: `repeat(${ALUNO_NAV.length}, minmax(0, 1fr))` }}>
+          {ALUNO_NAV.map(({ icon: Icon, label, to }) => {
+            const active = isActive(to);
+            return (
+              <Link
+                key={label}
+                to={to}
+                className={`relative flex flex-col items-center gap-1 py-2.5 text-[10px] font-medium ${
+                  active ? "text-primary" : "text-muted-foreground"
+                }`}
+              >
+                <Icon className="h-5 w-5" strokeWidth={active ? 2.25 : 1.75} />
+                {label}
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
+    </div>
+  );
+}
