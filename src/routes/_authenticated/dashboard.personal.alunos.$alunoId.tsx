@@ -1151,13 +1151,7 @@ function CopyPlanPickerDialog({
                         </span>
                       </div>
                     </div>
-                    <span
-                      className={`shrink-0 rounded-full border px-2.5 py-0.5 text-[0.625rem] font-semibold uppercase tracking-wider ${
-                        isPlan
-                          ? "border-[oklch(0.55_0.22_300)]/40 bg-[oklch(0.55_0.22_300)]/10 text-[oklch(0.75_0.18_300)]"
-                          : "border-primary/40 bg-primary/10 text-primary"
-                      }`}
-                    >
+                    <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-green-500/30 bg-green-500/10 px-3 py-0.5 text-[0.625rem] font-semibold text-green-400">
                       {isPlan ? "Plano" : "Simples"}
                     </span>
                   </button>
