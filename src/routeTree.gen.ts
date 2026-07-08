@@ -32,6 +32,7 @@ import { Route as AuthenticatedDashboardPersonalAvaliacaoAvaliacaoIdRouteImport 
 import { Route as AuthenticatedDashboardPersonalAlunosAlunoIdRouteImport } from './routes/_authenticated/dashboard.personal.alunos.$alunoId'
 import { Route as AuthenticatedDashboardPersonalTreinosPlanoPlanoIdRouteImport } from './routes/_authenticated/dashboard.personal.treinos.plano.$planoId'
 import { Route as AuthenticatedDashboardPersonalTreinosModeloModeloIdRouteImport } from './routes/_authenticated/dashboard.personal.treinos.modelo.$modeloId'
+import { Route as AuthenticatedDashboardPersonalTreinosEditarSlugRouteImport } from './routes/_authenticated/dashboard.personal.treinos.editar.$slug'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
@@ -161,6 +162,12 @@ const AuthenticatedDashboardPersonalTreinosModeloModeloIdRoute =
     path: '/dashboard/personal/treinos/modelo/$modeloId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedDashboardPersonalTreinosEditarSlugRoute =
+  AuthenticatedDashboardPersonalTreinosEditarSlugRouteImport.update({
+    id: '/dashboard/personal/treinos/editar/$slug',
+    path: '/dashboard/personal/treinos/editar/$slug',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
@@ -183,6 +190,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/personal/alunos/': typeof AuthenticatedDashboardPersonalAlunosIndexRoute
   '/dashboard/personal/avaliacoes/': typeof AuthenticatedDashboardPersonalAvaliacoesIndexRoute
   '/dashboard/personal/treinos/': typeof AuthenticatedDashboardPersonalTreinosIndexRoute
+  '/dashboard/personal/treinos/editar/$slug': typeof AuthenticatedDashboardPersonalTreinosEditarSlugRoute
   '/dashboard/personal/treinos/modelo/$modeloId': typeof AuthenticatedDashboardPersonalTreinosModeloModeloIdRoute
   '/dashboard/personal/treinos/plano/$planoId': typeof AuthenticatedDashboardPersonalTreinosPlanoPlanoIdRoute
 }
@@ -207,6 +215,7 @@ export interface FileRoutesByTo {
   '/dashboard/personal/alunos': typeof AuthenticatedDashboardPersonalAlunosIndexRoute
   '/dashboard/personal/avaliacoes': typeof AuthenticatedDashboardPersonalAvaliacoesIndexRoute
   '/dashboard/personal/treinos': typeof AuthenticatedDashboardPersonalTreinosIndexRoute
+  '/dashboard/personal/treinos/editar/$slug': typeof AuthenticatedDashboardPersonalTreinosEditarSlugRoute
   '/dashboard/personal/treinos/modelo/$modeloId': typeof AuthenticatedDashboardPersonalTreinosModeloModeloIdRoute
   '/dashboard/personal/treinos/plano/$planoId': typeof AuthenticatedDashboardPersonalTreinosPlanoPlanoIdRoute
 }
@@ -233,6 +242,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/personal/alunos/': typeof AuthenticatedDashboardPersonalAlunosIndexRoute
   '/_authenticated/dashboard/personal/avaliacoes/': typeof AuthenticatedDashboardPersonalAvaliacoesIndexRoute
   '/_authenticated/dashboard/personal/treinos/': typeof AuthenticatedDashboardPersonalTreinosIndexRoute
+  '/_authenticated/dashboard/personal/treinos/editar/$slug': typeof AuthenticatedDashboardPersonalTreinosEditarSlugRoute
   '/_authenticated/dashboard/personal/treinos/modelo/$modeloId': typeof AuthenticatedDashboardPersonalTreinosModeloModeloIdRoute
   '/_authenticated/dashboard/personal/treinos/plano/$planoId': typeof AuthenticatedDashboardPersonalTreinosPlanoPlanoIdRoute
 }
@@ -259,6 +269,7 @@ export interface FileRouteTypes {
     | '/dashboard/personal/alunos/'
     | '/dashboard/personal/avaliacoes/'
     | '/dashboard/personal/treinos/'
+    | '/dashboard/personal/treinos/editar/$slug'
     | '/dashboard/personal/treinos/modelo/$modeloId'
     | '/dashboard/personal/treinos/plano/$planoId'
   fileRoutesByTo: FileRoutesByTo
@@ -283,6 +294,7 @@ export interface FileRouteTypes {
     | '/dashboard/personal/alunos'
     | '/dashboard/personal/avaliacoes'
     | '/dashboard/personal/treinos'
+    | '/dashboard/personal/treinos/editar/$slug'
     | '/dashboard/personal/treinos/modelo/$modeloId'
     | '/dashboard/personal/treinos/plano/$planoId'
   id:
@@ -308,6 +320,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/personal/alunos/'
     | '/_authenticated/dashboard/personal/avaliacoes/'
     | '/_authenticated/dashboard/personal/treinos/'
+    | '/_authenticated/dashboard/personal/treinos/editar/$slug'
     | '/_authenticated/dashboard/personal/treinos/modelo/$modeloId'
     | '/_authenticated/dashboard/personal/treinos/plano/$planoId'
   fileRoutesById: FileRoutesById
@@ -481,6 +494,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedDashboardPersonalTreinosModeloModeloIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/dashboard/personal/treinos/editar/$slug': {
+      id: '/_authenticated/dashboard/personal/treinos/editar/$slug'
+      path: '/dashboard/personal/treinos/editar/$slug'
+      fullPath: '/dashboard/personal/treinos/editar/$slug'
+      preLoaderRoute: typeof AuthenticatedDashboardPersonalTreinosEditarSlugRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
   }
 }
 
@@ -516,6 +536,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardPersonalAlunosIndexRoute: typeof AuthenticatedDashboardPersonalAlunosIndexRoute
   AuthenticatedDashboardPersonalAvaliacoesIndexRoute: typeof AuthenticatedDashboardPersonalAvaliacoesIndexRoute
   AuthenticatedDashboardPersonalTreinosIndexRoute: typeof AuthenticatedDashboardPersonalTreinosIndexRoute
+  AuthenticatedDashboardPersonalTreinosEditarSlugRoute: typeof AuthenticatedDashboardPersonalTreinosEditarSlugRoute
   AuthenticatedDashboardPersonalTreinosModeloModeloIdRoute: typeof AuthenticatedDashboardPersonalTreinosModeloModeloIdRoute
   AuthenticatedDashboardPersonalTreinosPlanoPlanoIdRoute: typeof AuthenticatedDashboardPersonalTreinosPlanoPlanoIdRoute
 }
@@ -549,6 +570,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedDashboardPersonalAvaliacoesIndexRoute,
   AuthenticatedDashboardPersonalTreinosIndexRoute:
     AuthenticatedDashboardPersonalTreinosIndexRoute,
+  AuthenticatedDashboardPersonalTreinosEditarSlugRoute:
+    AuthenticatedDashboardPersonalTreinosEditarSlugRoute,
   AuthenticatedDashboardPersonalTreinosModeloModeloIdRoute:
     AuthenticatedDashboardPersonalTreinosModeloModeloIdRoute,
   AuthenticatedDashboardPersonalTreinosPlanoPlanoIdRoute:
