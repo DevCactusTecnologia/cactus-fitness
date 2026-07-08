@@ -64,14 +64,13 @@ export const Route = createFileRoute("/_authenticated/dashboard/personal/treinos
 /* ---------- Page ---------- */
 type Modelo = {
   id: string;
+  slug: string;
   name: string;
   description: string | null;
-  kind: string; // "plan" | "template" | virtual "group"
+  kind: string; // "plan" | "template"
   created_at: string;
   sessionCount: number;
   exerciseCount: number;
-  childIds?: string[];
-  childNames?: string[];
 };
 
 type FilterKind = "todos" | "plan" | "template";
@@ -85,14 +84,15 @@ function TreinosPage() {
     queryFn: async (): Promise<Modelo[]> => {
       const { data, error } = await supabase
         .from("workout_templates")
-        .select("id, name, description, kind, created_at, workout_template_exercises ( session_position )")
+        .select("id, slug, name, description, kind, created_at, workout_template_exercises ( session_position )")
         .order("created_at", { ascending: false });
       if (error) throw error;
-      const raw: Modelo[] = (data ?? []).map((t: any) => {
+      return (data ?? []).map((t: any) => {
         const exs: { session_position: number }[] = t.workout_template_exercises ?? [];
         const sessions = new Set(exs.map((e) => e.session_position));
         return {
           id: t.id,
+          slug: t.slug ?? t.id,
           name: t.name,
           description: t.description,
           kind: t.kind ?? "template",
@@ -101,48 +101,11 @@ function TreinosPage() {
           exerciseCount: exs.length,
         };
       });
-
-      // Virtually group templates that share the same created_at second AND look
-      // like sessions of a weekly plan (e.g. "Treino A - Peito", "Treino B - Costas").
-      const weeklyRe = /^\s*Treino\s+[A-Z]\b/i;
-      const buckets = new Map<string, Modelo[]>();
-      const singles: Modelo[] = [];
-      for (const m of raw) {
-        if (m.kind === "template" && weeklyRe.test(m.name)) {
-          const key = new Date(m.created_at).toISOString().slice(0, 19); // per-second bucket
-          const arr = buckets.get(key) ?? [];
-          arr.push(m);
-          buckets.set(key, arr);
-        } else {
-          singles.push(m);
-        }
-      }
-      const grouped: Modelo[] = [];
-      for (const [key, arr] of buckets) {
-        if (arr.length >= 2) {
-          arr.sort((a, b) => a.name.localeCompare(b.name));
-          grouped.push({
-            id: `group:${key}`,
-            name: "Treino Semanal",
-            description: arr.map((a) => a.name.replace(/^\s*Treino\s+/i, "")).join(" · "),
-            kind: "group",
-            created_at: arr[0].created_at,
-            sessionCount: arr.length,
-            exerciseCount: arr.reduce((s, x) => s + x.exerciseCount, 0),
-            childIds: arr.map((a) => a.id),
-            childNames: arr.map((a) => a.name),
-          });
-        } else {
-          singles.push(...arr);
-        }
-      }
-      return [...grouped, ...singles].sort(
-        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
-      );
     },
   });
 
   const total = items.length;
+
   const totalPlans = items.filter((m) => m.kind === "plan" || m.kind === "group").length;
   const totalTemplates = items.filter((m) => m.kind === "template").length;
 
