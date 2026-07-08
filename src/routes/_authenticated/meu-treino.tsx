@@ -159,6 +159,7 @@ function MeuTreinoPage() {
         .from("student_workouts")
         .select("id, name, template_id, scheduled_for, status")
         .eq("aluno_id", link.id)
+        .is("archived_at", null)
         .neq("status", "concluido")
         .order("scheduled_for", { ascending: true, nullsFirst: false })
         .limit(1)
