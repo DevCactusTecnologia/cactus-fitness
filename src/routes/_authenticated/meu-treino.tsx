@@ -21,18 +21,11 @@ export const Route = createFileRoute("/_authenticated/meu-treino")({
 
 const RAIL_ICONS = [
   { icon: Home, label: "Início", active: true },
-  { icon: MessageSquare, label: "Anotações" },
-  { icon: MessageCircle, label: "Chat" },
-  { icon: TrendingUp, label: "Progresso" },
-  { icon: Trophy, label: "Ranking" },
-  { icon: Users, label: "Comunidade" },
-  { icon: Utensils, label: "Dieta" },
-  { icon: Calendar, label: "Agenda" },
-  { icon: Folder, label: "Arquivos" },
+  { icon: Dumbbell, label: "Treinos" },
+  { icon: Trophy, label: "Desafios" },
   { icon: ClipboardList, label: "Avaliações" },
-  { icon: FileText, label: "Formulários" },
-  { icon: UserIcon, label: "Perfil" },
 ];
+
 
 const MENU_ITEMS: { icon: any; label: string }[] = [
   { icon: Dumbbell, label: "Treinos" },
