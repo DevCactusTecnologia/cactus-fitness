@@ -85,6 +85,7 @@ function TreinosPage() {
       const { data, error } = await supabase
         .from("workout_templates")
         .select("id, slug, name, description, kind, created_at, workout_template_exercises ( session_position )")
+        .is("aluno_id", null)
         .order("created_at", { ascending: false });
       if (error) throw error;
       return (data ?? []).map((t: any) => {
