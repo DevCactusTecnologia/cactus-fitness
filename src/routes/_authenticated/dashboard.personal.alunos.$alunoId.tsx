@@ -810,7 +810,7 @@ function TreinosTab({ aluno, onNovoPlano, onCopiar }: { aluno: Aluno; onNovoPlan
     },
   });
 
-  const plano = buildPlano(aluno, treinos ?? []);
+  const planos = buildPlanos(aluno, treinos ?? []);
 
   return (
     <div className="space-y-4">
