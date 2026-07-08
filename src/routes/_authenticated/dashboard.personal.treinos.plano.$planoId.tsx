@@ -13,6 +13,10 @@ import {
   Trash2,
   Save,
   Dumbbell,
+  X,
+  Target,
+  Flame,
+  Wrench,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -27,6 +31,7 @@ import {
 } from "@/lib/plano";
 import { IconRail } from "@/components/IconRail";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
 export const Route = createFileRoute("/_authenticated/dashboard/personal/treinos/plano/$planoId")({
   head: () => ({
