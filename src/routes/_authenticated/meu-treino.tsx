@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Home, MessageSquare, MessageCircle, TrendingUp, Trophy, Users, Utensils, Calendar,
   Folder, ClipboardList, FileText, User as UserIcon, Settings, HeadphonesIcon,
