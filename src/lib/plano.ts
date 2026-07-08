@@ -26,7 +26,7 @@ export type StudentWorkoutRow = {
 };
 
 export const PLANO_SELECT =
-  "id, name, status, scheduled_for, created_at, template_id, workout_templates ( category, duration_min, level, goal, workout_template_exercises ( id, position, sets, reps, load, rest_seconds, notes, exercises ( id, name, image_path ) ) )";
+  "id, name, status, scheduled_for, created_at, template_id, workout_templates ( name, category, duration_min, level, goal, workout_template_exercises ( id, position, sets, reps, load, rest_seconds, notes, exercises ( id, name, image_path ) ) )";
 
 export const WEEKDAYS = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
 
