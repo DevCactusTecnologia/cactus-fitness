@@ -233,7 +233,7 @@ function AlunoDetailPage() {
             </div>
 
             <div className="p-5 md:p-6">
-              {activeTab === 0 && <TreinosTab aluno={aluno} onNovoPlano={() => setNovoPlanoOpen(true)} />}
+              {activeTab === 0 && <TreinosTab aluno={aluno} onNovoPlano={() => setNovoPlanoOpen(true)} onCopiar={() => setCopyPickerOpen(true)} />}
               {activeTab === 2 && (
                 <InformacoesTab
                   aluno={aluno}
