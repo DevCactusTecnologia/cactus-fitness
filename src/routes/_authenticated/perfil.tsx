@@ -1,12 +1,13 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
-import { BarChart3, FileText, Palette, Upload, Check } from "lucide-react";
+import { useEffect, useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { BarChart3, FileText, Palette, Upload, Check, Loader2 } from "lucide-react";
 import { IconRail } from "@/components/IconRail";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
-import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/perfil")({
@@ -33,12 +34,10 @@ const SECTIONS = [
   "Comunidade", "Anotações", "Formulários", "Produtos",
 ];
 
-const STORAGE_KEY = "cactus.customization.v1";
-
 type Customization = {
   brandTitle: string;
   showBrandTitle: boolean;
-  primaryColor: string; // hex
+  primaryColor: string;
   welcome: string;
   sections: Record<string, boolean>;
 };
@@ -97,33 +96,86 @@ export function applyPrimaryColor(hex: string) {
   root.style.setProperty("--primary-glow-strong", hexToRgba(hex, 0.3));
 }
 
-function loadCustomization(): Customization {
-  if (typeof window === "undefined") return DEFAULTS;
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return DEFAULTS;
-    return { ...DEFAULTS, ...JSON.parse(raw) };
-  } catch {
-    return DEFAULTS;
-  }
+function useCustomization() {
+  return useQuery({
+    queryKey: ["profile-customization"],
+    queryFn: async (): Promise<Customization> => {
+      const { data: userData } = await supabase.auth.getUser();
+      const userId = userData.user?.id;
+      if (!userId) return DEFAULTS;
+      const { data } = await supabase
+        .from("profiles")
+        .select("brand_title, show_brand_title, primary_color, welcome_message, visible_sections")
+        .eq("id", userId)
+        .maybeSingle();
+      const row = (data ?? {}) as {
+        brand_title?: string | null;
+        show_brand_title?: boolean | null;
+        primary_color?: string | null;
+        welcome_message?: string | null;
+        visible_sections?: Record<string, boolean> | null;
+      };
+      return {
+        brandTitle: row.brand_title ?? DEFAULTS.brandTitle,
+        showBrandTitle: row.show_brand_title ?? DEFAULTS.showBrandTitle,
+        primaryColor: row.primary_color ?? DEFAULTS.primaryColor,
+        welcome: row.welcome_message ?? DEFAULTS.welcome,
+        sections: { ...DEFAULTS.sections, ...(row.visible_sections ?? {}) },
+      };
+    },
+  });
 }
 
 function PerfilPage() {
-  const initial = useMemo(loadCustomization, []);
+  const qc = useQueryClient();
+  const { data: initial, isLoading } = useCustomization();
   const [tab, setTab] = useState<"metricas" | "pagina" | "customizar">("customizar");
-  const [brandTitle, setBrandTitle] = useState(initial.brandTitle);
-  const [showBrandTitle, setShowBrandTitle] = useState(initial.showBrandTitle);
-  const [primaryColor, setPrimaryColor] = useState(initial.primaryColor);
-  const [savedColor, setSavedColor] = useState(initial.primaryColor);
-  const [welcome, setWelcome] = useState(initial.welcome);
-  const [sections, setSections] = useState<Record<string, boolean>>(initial.sections);
+  const [brandTitle, setBrandTitle] = useState(DEFAULTS.brandTitle);
+  const [showBrandTitle, setShowBrandTitle] = useState(DEFAULTS.showBrandTitle);
+  const [primaryColor, setPrimaryColor] = useState(DEFAULTS.primaryColor);
+  const [savedColor, setSavedColor] = useState(DEFAULTS.primaryColor);
+  const [welcome, setWelcome] = useState(DEFAULTS.welcome);
+  const [sections, setSections] = useState<Record<string, boolean>>(DEFAULTS.sections);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
 
   const colorPending = primaryColor.toLowerCase() !== savedColor.toLowerCase();
 
   useEffect(() => {
+    if (!initial) return;
+    setBrandTitle(initial.brandTitle);
+    setShowBrandTitle(initial.showBrandTitle);
+    setPrimaryColor(initial.primaryColor);
+    setSavedColor(initial.primaryColor);
+    setWelcome(initial.welcome);
+    setSections(initial.sections);
+  }, [initial]);
+
+  useEffect(() => {
     applyPrimaryColor(primaryColor);
   }, [primaryColor]);
+
+  const saveMutation = useMutation({
+    mutationFn: async (payload: Customization) => {
+      const { data: userData } = await supabase.auth.getUser();
+      const userId = userData.user?.id;
+      if (!userId) throw new Error("Sessão expirada");
+      const { error } = await supabase
+        .from("profiles")
+        .update({
+          brand_title: payload.brandTitle,
+          show_brand_title: payload.showBrandTitle,
+          primary_color: payload.primaryColor,
+          welcome_message: payload.welcome,
+          visible_sections: payload.sections,
+        })
+        .eq("id", userId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["profile-customization"] });
+    },
+    onError: (e: any) => toast.error(e.message ?? "Erro ao salvar"),
+  });
 
   function onLogoChange(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
@@ -135,10 +187,8 @@ function PerfilPage() {
     setLogoPreview(URL.createObjectURL(f));
   }
 
-  function saveColor() {
-    const current = loadCustomization();
-    const payload: Customization = { ...current, primaryColor };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+  async function saveColor() {
+    await saveMutation.mutateAsync({ brandTitle, showBrandTitle, primaryColor, welcome, sections });
     applyPrimaryColor(primaryColor);
     setSavedColor(primaryColor);
   }
@@ -149,9 +199,8 @@ function PerfilPage() {
     applyPrimaryColor(savedColor);
   }
 
-  function onSave() {
-    const payload: Customization = { brandTitle, showBrandTitle, primaryColor, welcome, sections };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+  async function onSave() {
+    await saveMutation.mutateAsync({ brandTitle, showBrandTitle, primaryColor, welcome, sections });
     applyPrimaryColor(primaryColor);
     setSavedColor(primaryColor);
     toast("Customizações salvas", {
@@ -169,6 +218,15 @@ function PerfilPage() {
     { id: "pagina" as const, label: "Página", icon: FileText },
     { id: "customizar" as const, label: "Customizar", icon: Palette },
   ];
+
+  if (isLoading) {
+    return (
+      <div className="grid min-h-screen place-items-center bg-background text-foreground">
+        <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
 
   return (
     <div className="flex min-h-screen w-full max-w-full overflow-x-hidden bg-background text-foreground">
