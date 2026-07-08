@@ -26,10 +26,10 @@ export const Route = createFileRoute("/_authenticated/meu-treino")({
 });
 
 const RAIL_ITEMS = [
-  { icon: LayoutDashboard, label: "Início", active: true },
-  { icon: Dumbbell, label: "Treinos" },
-  { icon: Trophy, label: "Desafios" },
-  { icon: HeartPulse, label: "Avaliações" },
+  { icon: LayoutDashboard, label: "Início", to: "/meu-treino" as const },
+  { icon: Dumbbell, label: "Treinos", to: "/treinos" as const },
+  { icon: Trophy, label: "Desafios", to: "/desafios" as const },
+  { icon: HeartPulse, label: "Avaliações", to: "/avaliacoes" as const },
 ];
 
 
