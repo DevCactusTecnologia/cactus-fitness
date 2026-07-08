@@ -412,9 +412,228 @@ function ReferralBanner() {
 
 /* ---------- Dashboard ---------- */
 
+function useOwnerOverview() {
+  return useQuery({
+    queryKey: ["owner-overview"],
+    staleTime: 30_000,
+    queryFn: async () => {
+      const { data: u } = await supabase.auth.getUser();
+      const uid = u.user?.id;
+      if (!uid) return null;
+      const { data: mine } = await supabase
+        .from("organization_members")
+        .select("organization_id, role")
+        .eq("user_id", uid)
+        .order("created_at", { ascending: true })
+        .limit(1)
+        .maybeSingle();
+      if (!mine || mine.role !== "owner") return null;
+      const orgId = mine.organization_id;
+      const [orgRes, membersRes, alunosRes, invitesRes, sessionsRes] = await Promise.all([
+        supabase.from("organizations").select("id, name").eq("id", orgId).maybeSingle(),
+        supabase.from("organization_members").select("id, user_id, role").eq("organization_id", orgId),
+        supabase.from("alunos").select("id, personal_id, is_active, created_at").eq("organization_id", orgId),
+        supabase.from("organization_invites").select("id").eq("organization_id", orgId).is("accepted_at", null),
+        supabase.from("workout_sessions").select("id, status, started_at").gte("started_at", new Date(Date.now() - 7 * 864e5).toISOString()),
+      ]);
+      const members = membersRes.data ?? [];
+      const alunos = alunosRes.data ?? [];
+      const sessions = sessionsRes.data ?? [];
+      const personais = members.filter((m: any) => m.role === "owner" || m.role === "personal");
+      const equipe = members.filter((m: any) => m.role === "staff");
+      const ativos = alunos.filter((a: any) => a.is_active).length;
+      const inativos = alunos.length - ativos;
+      // Alunos por personal
+      const byPersonal: Record<string, number> = {};
+      alunos.forEach((a: any) => { byPersonal[a.personal_id] = (byPersonal[a.personal_id] ?? 0) + 1; });
+      const personalIds = personais.map((p: any) => p.user_id);
+      const { data: profs } = personalIds.length
+        ? await supabase.from("profiles").select("id, full_name").in("id", personalIds)
+        : { data: [] as any[] };
+      const profById = new Map((profs ?? []).map((p: any) => [p.id, p]));
+      const personaisList = personais.map((p: any) => ({
+        user_id: p.user_id,
+        full_name: profById.get(p.user_id)?.full_name ?? "Sem nome",
+        role: p.role,
+        alunos: byPersonal[p.user_id] ?? 0,
+      })).sort((a, b) => b.alunos - a.alunos);
+      const novosAlunos30d = alunos.filter((a: any) => new Date(a.created_at) > new Date(Date.now() - 30 * 864e5)).length;
+      return {
+        orgName: orgRes.data?.name ?? "Minha Academia",
+        totalPersonais: personais.length,
+        totalEquipe: equipe.length,
+        totalAlunos: alunos.length,
+        ativos,
+        inativos,
+        novosAlunos30d,
+        convitesPendentes: invitesRes.data?.length ?? 0,
+        sessoesSemana: sessions.length,
+        sessoesConcluidas: sessions.filter((s: any) => s.status === "completed").length,
+        personaisList,
+      };
+    },
+  });
+}
+
+function OwnerDashboard({ profile }: { profile: any }) {
+  const { data: o } = useOwnerOverview();
+  const name = firstName(profile?.full_name, profile?.email);
+  const greeting = greetingFor(new Date().getHours());
+  const today = new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" });
+
+  const stat = (label: string, value: number | string, hint?: string, Icon?: React.ElementType) => (
+    <div className="rounded-2xl border border-border bg-card p-4">
+      <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+        <span>{label}</span>
+        {Icon && <span className="grid h-6 w-6 place-items-center rounded-md bg-primary/10 text-primary"><Icon className="h-3.5 w-3.5" /></span>}
+      </div>
+      <div className="mt-2 font-display text-2xl font-extrabold tracking-tight">{value}</div>
+      {hint && <div className="mt-1 text-[11px] text-muted-foreground">{hint}</div>}
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen w-full overflow-x-hidden bg-background text-foreground">
+      <IconRail />
+      <MobileTopBar />
+      <main className="w-full pb-24 md:ml-[72px] md:w-[calc(100%-72px)] md:pb-8">
+        <div className="mx-auto max-w-[1180px] px-4 py-4 sm:px-6 md:py-8">
+          {/* Cabeçalho */}
+          <header className="flex flex-col gap-1 md:flex-row md:items-end md:justify-between">
+            <div>
+              <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-primary">
+                <Home className="h-3.5 w-3.5" /> Painel da Academia
+              </div>
+              <h1 className="mt-1 font-display text-2xl font-extrabold leading-tight tracking-tight md:text-3xl">
+                {o?.orgName ?? "Minha Academia"}
+              </h1>
+              <p className="mt-1 text-xs text-muted-foreground">{greeting}, {name} · {today}</p>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Link to="/dashboard/personal/academia" className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-4 py-2 text-xs font-semibold hover:border-primary/40">
+                <UsersIcon className="h-3.5 w-3.5" /> Gerenciar equipe
+              </Link>
+              <Link to="/dashboard/personal/alunos" className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-xs font-bold text-primary-foreground hover:brightness-110">
+                <UserPlus className="h-3.5 w-3.5" /> Novo aluno
+              </Link>
+            </div>
+          </header>
+
+          {/* KPIs de gestão */}
+          <div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-4">
+            {stat("Personais", o?.totalPersonais ?? 0, o?.totalEquipe ? `+ ${o.totalEquipe} equipe` : "sua equipe técnica", Users)}
+            {stat("Alunos", o?.totalAlunos ?? 0, `${o?.ativos ?? 0} ativos · ${o?.inativos ?? 0} inativos`, HeartPulse)}
+            {stat("Novos alunos", o?.novosAlunos30d ?? 0, "nos últimos 30 dias", TrendingUp)}
+            {stat("Convites pendentes", o?.convitesPendentes ?? 0, o?.convitesPendentes ? "aguardando aceite" : "nenhum aberto", Link2)}
+          </div>
+
+          {/* Engajamento da semana */}
+          <div className="mt-3 grid grid-cols-2 gap-3 md:grid-cols-4">
+            {stat("Sessões (7d)", o?.sessoesSemana ?? 0, `${o?.sessoesConcluidas ?? 0} concluídas`, Flame)}
+            {stat("Taxa de conclusão", o?.sessoesSemana ? `${Math.round(((o.sessoesConcluidas ?? 0) / o.sessoesSemana) * 100)}%` : "—", "treinos finalizados na semana", ClipboardCheck)}
+            {stat("Alunos por personal", o?.totalPersonais ? (o.totalAlunos / o.totalPersonais).toFixed(1) : "—", "média da academia", Users)}
+            {stat("Retenção ativa", o?.totalAlunos ? `${Math.round(((o.ativos ?? 0) / o.totalAlunos) * 100)}%` : "—", "alunos ativos vs total", Activity)}
+          </div>
+
+          <div className="mt-6 grid gap-3 lg:grid-cols-[1.4fr_1fr]">
+            {/* Personais da academia */}
+            <section className="rounded-2xl border border-border bg-card">
+              <div className="flex items-center justify-between border-b border-border px-4 py-3">
+                <div>
+                  <h2 className="font-display text-base font-bold">Personais da academia</h2>
+                  <p className="text-[11px] text-muted-foreground">Distribuição de alunos por profissional</p>
+                </div>
+                <Link to="/dashboard/personal/academia" className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline">
+                  Gerenciar <ArrowRight className="h-3 w-3" />
+                </Link>
+              </div>
+              {!o || o.personaisList.length === 0 ? (
+                <div className="px-4 py-8 text-center text-sm text-muted-foreground">Nenhum personal cadastrado ainda.</div>
+              ) : (
+                <ul className="divide-y divide-border">
+                  {o.personaisList.map((p) => {
+                    const max = Math.max(...o.personaisList.map((x) => x.alunos), 1);
+                    const pct = (p.alunos / max) * 100;
+                    return (
+                      <li key={p.user_id} className="px-4 py-3">
+                        <div className="flex items-center gap-3">
+                          <div className="grid h-9 w-9 place-items-center rounded-full bg-primary/15 text-xs font-bold text-primary">
+                            {(p.full_name).slice(0, 2).toUpperCase()}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2">
+                              <div className="truncate text-sm font-semibold">{p.full_name}</div>
+                              {p.role === "owner" && <span className="inline-flex items-center gap-1 rounded-full bg-primary/15 px-1.5 py-0.5 text-[10px] font-bold text-primary"><Crown className="h-2.5 w-2.5" /> Dono</span>}
+                            </div>
+                            <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                              <div className="h-full rounded-full bg-primary" style={{ width: `${pct}%` }} />
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="font-display text-lg font-extrabold leading-none">{p.alunos}</div>
+                            <div className="text-[10px] uppercase tracking-widest text-muted-foreground">alunos</div>
+                          </div>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </section>
+
+            {/* Atalhos gestão */}
+            <section className="rounded-2xl border border-border bg-card">
+              <div className="border-b border-border px-4 py-3">
+                <h2 className="font-display text-base font-bold">Gestão rápida</h2>
+                <p className="text-[11px] text-muted-foreground">Ações da administração</p>
+              </div>
+              <div className="grid gap-2 p-3">
+                <Link to="/dashboard/personal/academia" className="group flex items-center gap-3 rounded-lg border border-border bg-background/40 p-3 hover:border-primary/40">
+                  <div className="grid h-9 w-9 place-items-center rounded-md bg-primary/10 text-primary"><UsersIcon className="h-4 w-4" /></div>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-sm font-semibold">Equipe & convites</div>
+                    <div className="text-[11px] text-muted-foreground">Convidar personais e ajustar papéis</div>
+                  </div>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                </Link>
+                <Link to="/dashboard/personal/alunos" className="group flex items-center gap-3 rounded-lg border border-border bg-background/40 p-3 hover:border-primary/40">
+                  <div className="grid h-9 w-9 place-items-center rounded-md bg-primary/10 text-primary"><Users className="h-4 w-4" /></div>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-sm font-semibold">Todos os alunos</div>
+                    <div className="text-[11px] text-muted-foreground">Cadastros e contatos</div>
+                  </div>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                </Link>
+                <Link to="/dashboard/personal/treinos" className="group flex items-center gap-3 rounded-lg border border-border bg-background/40 p-3 hover:border-primary/40">
+                  <div className="grid h-9 w-9 place-items-center rounded-md bg-primary/10 text-primary"><Dumbbell className="h-4 w-4" /></div>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-sm font-semibold">Modelos de treino</div>
+                    <div className="text-[11px] text-muted-foreground">Biblioteca compartilhada</div>
+                  </div>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                </Link>
+                <Link to="/dashboard/personal/agenda" className="group flex items-center gap-3 rounded-lg border border-border bg-background/40 p-3 hover:border-primary/40">
+                  <div className="grid h-9 w-9 place-items-center rounded-md bg-primary/10 text-primary"><CalendarDays className="h-4 w-4" /></div>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-sm font-semibold">Agenda da academia</div>
+                    <div className="text-[11px] text-muted-foreground">Eventos e turmas</div>
+                  </div>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                </Link>
+              </div>
+            </section>
+          </div>
+        </div>
+      </main>
+      <MobileBottomNav />
+    </div>
+  );
+}
+
 function Dashboard() {
   const { profile, loading } = useCurrentUser();
   const { data: stats } = useDashboardStats();
+  const { data: ownerOverview, isLoading: ownerLoading } = useOwnerOverview();
   const navigate = useNavigate();
 
   // Aluno logado nunca vê o painel do personal — vai para /meu-treino
@@ -423,6 +642,11 @@ function Dashboard() {
       navigate({ to: "/meu-treino", replace: true });
     }
   }, [loading, profile, navigate]);
+
+  // Dono da academia vê painel de gestão
+  if (!loading && !ownerLoading && ownerOverview) {
+    return <OwnerDashboard profile={profile} />;
+  }
 
   const name = firstName(profile?.full_name, profile?.email);
   const greeting = greetingFor(new Date().getHours());
