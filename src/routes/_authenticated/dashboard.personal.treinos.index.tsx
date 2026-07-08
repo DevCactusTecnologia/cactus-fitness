@@ -365,16 +365,16 @@ function FilterSelect<T extends string>({
 }
 
 function ModeloRow({ modelo }: { modelo: Modelo }) {
-  const isPlan = modelo.kind === "plan" || modelo.kind === "group";
+  const isPlan = modelo.kind === "plan";
   const Icon = isPlan ? Layers : FileText;
-  const targetId = modelo.kind === "group" ? (modelo.childIds?.[0] ?? modelo.id) : modelo.id;
 
   return (
     <Link
       to="/dashboard/personal/treinos/modelo/$modeloId"
-      params={{ modeloId: targetId }}
+      params={{ modeloId: modelo.slug }}
       className="group flex cursor-pointer items-center gap-3 rounded-xl border border-border bg-card p-3 transition-all hover:border-primary/40 hover:bg-muted/50 lg:p-4"
     >
+
       <div
         className={`grid h-11 w-11 shrink-0 place-items-center rounded-lg ${
           isPlan
