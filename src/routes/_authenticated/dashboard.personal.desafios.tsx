@@ -347,10 +347,38 @@ function DesafioDialog({
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="desafio_data" className="text-xs font-semibold">Data de encerramento (opcional)</Label>
-            <Input id="desafio_data" type="date" value={dataEnc} onChange={(e) => setDataEnc(e.target.value)} className="h-9 text-sm" />
+            <Label className="text-xs font-semibold">Data de encerramento (opcional)</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <button
+                  type="button"
+                  className={cn(
+                    "flex h-9 w-full items-center justify-between rounded-md border border-input bg-background px-3 text-sm transition hover:bg-accent/40",
+                    !dataEnc && "text-muted-foreground"
+                  )}
+                >
+                  <span>
+                    {dataEnc
+                      ? format(parse(dataEnc, "yyyy-MM-dd", new Date()), "dd/MM/yyyy", { locale: ptBR })
+                      : "dd/mm/aaaa"}
+                  </span>
+                  <CalendarIcon className="h-4 w-4 opacity-70" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  locale={ptBR}
+                  selected={dataEnc ? parse(dataEnc, "yyyy-MM-dd", new Date()) : undefined}
+                  onSelect={(d) => setDataEnc(d ? format(d, "yyyy-MM-dd") : "")}
+                  initialFocus
+                  className={cn("p-3 pointer-events-auto")}
+                />
+              </PopoverContent>
+            </Popover>
             <p className="text-[11px] text-muted-foreground">Deixe vazio para encerrar manualmente.</p>
           </div>
+
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
