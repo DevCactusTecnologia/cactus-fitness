@@ -538,14 +538,6 @@ function ExerciseDetailDialog({
                 ) : null}
               </div>
             </div>
-            <button
-              type="button"
-              onClick={() => onOpenChange(false)}
-              className="grid h-8 w-8 place-items-center rounded-md text-fg-muted hover:bg-surface-2 hover:text-foreground"
-              aria-label="Fechar"
-            >
-              <X className="h-4 w-4" />
-            </button>
           </div>
         </DialogHeader>
 
