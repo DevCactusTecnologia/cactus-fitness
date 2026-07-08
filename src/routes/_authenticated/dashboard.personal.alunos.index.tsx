@@ -186,7 +186,17 @@ function AlunosPage() {
       <main className="pb-24 md:ml-[72px] md:pb-0">
         <div className="sticky top-0 z-30 border-b border-border/60 bg-background/70 backdrop-blur-xl">
           <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6 md:px-8">
-            <h1 className="text-xl font-bold tracking-tight font-display sm:text-2xl">Alunos</h1>
+            <div className="flex items-center gap-2">
+              <Link
+                to="/dashboard/personal"
+                className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                aria-label="Voltar"
+              >
+                <ChevronLeft className="h-5 w-5" />
+                <span>Voltar</span>
+              </Link>
+              <h1 className="text-xl font-bold tracking-tight font-display sm:text-2xl">Alunos</h1>
+            </div>
             <div className="flex flex-wrap items-center gap-2">
               <button
                 type="button"
