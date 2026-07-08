@@ -60,6 +60,28 @@ function MeuTreinoPage() {
     }
   }, [loading, profile, navigate]);
 
+  // Aplica a cor principal definida pelo personal do aluno
+  useEffect(() => {
+    if (!profile?.id || profile.role !== "aluno") return;
+    let cancelled = false;
+    (async () => {
+      const { data: link } = await supabase
+        .from("alunos")
+        .select("personal_id")
+        .eq("aluno_user_id", profile.id)
+        .maybeSingle();
+      if (cancelled || !link?.personal_id) return;
+      const { data: personal } = await supabase
+        .from("profiles")
+        .select("primary_color")
+        .eq("id", link.personal_id)
+        .maybeSingle();
+      if (cancelled) return;
+      if (personal?.primary_color) applyPrimaryColor(personal.primary_color);
+    })();
+    return () => { cancelled = true; };
+  }, [profile?.id, profile?.role]);
+
   const name = firstName(profile?.full_name, profile?.email);
   const initials = initialsFromName(profile?.full_name, profile?.email);
   const av = colorForId(profile?.id ?? "aluno");
