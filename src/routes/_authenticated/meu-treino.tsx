@@ -5,9 +5,12 @@ import {
   Folder, ClipboardList, FileText, User as UserIcon, Settings, HeadphonesIcon,
   Droplet, Sun, Camera, Check, Flame, Play, ChevronRight, Zap, Dumbbell, Activity,
   Edit3, StickyNote, Bell, Receipt, MessageSquareText, Menu as MenuIcon, ChevronDown, Shield,
+  LayoutDashboard, HeartPulse,
 } from "lucide-react";
 import { useCurrentUser, useSignOut, firstName, initialsFromName } from "@/lib/auth";
 import { colorForId } from "@/lib/avatar-color";
+import { UserAvatarMenu } from "@/components/UserAvatarMenu";
+import logoUrl from "@/assets/cactus-logo.png";
 
 export const Route = createFileRoute("/_authenticated/meu-treino")({
   head: () => ({
@@ -19,12 +22,13 @@ export const Route = createFileRoute("/_authenticated/meu-treino")({
   component: MeuTreinoPage,
 });
 
-const RAIL_ICONS = [
-  { icon: Home, label: "Início", active: true },
+const RAIL_ITEMS = [
+  { icon: LayoutDashboard, label: "Início", active: true },
   { icon: Dumbbell, label: "Treinos" },
   { icon: Trophy, label: "Desafios" },
-  { icon: ClipboardList, label: "Avaliações" },
+  { icon: HeartPulse, label: "Avaliações" },
 ];
+
 
 
 const MENU_ITEMS: { icon: any; label: string }[] = [
