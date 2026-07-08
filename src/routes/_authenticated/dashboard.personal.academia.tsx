@@ -1,7 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Building2, Mail, Copy, Trash2, UserPlus, Loader2, Check, Shield, Crown } from "lucide-react";
+import { Building2, Mail, Copy, Trash2, UserPlus, Loader2, Check, Shield, Crown, Users, Dumbbell, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { IconRail } from "@/components/IconRail";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
@@ -34,6 +34,21 @@ type InviteRow = {
   accepted_at: string | null;
 };
 
+function StatCard({ icon, label, value, hint }: { icon: React.ReactNode; label: string; value: number; hint?: string }) {
+  return (
+    <div className="rounded-2xl border border-border bg-card p-4">
+      <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+        <span className="grid h-6 w-6 place-items-center rounded-md bg-primary/10 text-primary">{icon}</span>
+        {label}
+      </div>
+      <div className="mt-2 flex items-baseline gap-2">
+        <div className="text-2xl font-bold tracking-tight">{value}</div>
+        {hint && <div className="text-[11px] text-muted-foreground">{hint}</div>}
+      </div>
+    </div>
+  );
+}
+
 function RoleBadge({ role }: { role: string }) {
   const map: Record<string, { label: string; icon: any; cls: string }> = {
     owner: { label: "Dono", icon: Crown, cls: "bg-primary/15 text-primary" },
@@ -55,6 +70,9 @@ function AcademiaPage() {
   const [members, setMembers] = useState<MemberRow[]>([]);
   const [invites, setInvites] = useState<InviteRow[]>([]);
   const [me, setMe] = useState<string | null>(null);
+  const [alunosByPersonal, setAlunosByPersonal] = useState<Record<string, number>>({});
+  const [totalAlunos, setTotalAlunos] = useState(0);
+  const [alunosAtivos, setAlunosAtivos] = useState(0);
 
   // Invite form
   const [email, setEmail] = useState("");
@@ -122,6 +140,21 @@ function AcademiaPage() {
       .eq("organization_id", mine.organization_id)
       .order("created_at", { ascending: false });
     setInvites((invs ?? []) as InviteRow[]);
+
+    // Alunos da academia
+    const { data: alunos } = await supabase
+      .from("alunos")
+      .select("id, personal_id, is_active")
+      .eq("organization_id", mine.organization_id);
+    const list = alunos ?? [];
+    setTotalAlunos(list.length);
+    setAlunosAtivos(list.filter((a: any) => a.is_active).length);
+    const counts: Record<string, number> = {};
+    list.forEach((a: any) => {
+      counts[a.personal_id] = (counts[a.personal_id] ?? 0) + 1;
+    });
+    setAlunosByPersonal(counts);
+
     setLoading(false);
   }
 
@@ -228,6 +261,51 @@ function AcademiaPage() {
                 </div>
               </section>
 
+              {/* Visão geral */}
+              <section className="mt-6 grid gap-3 sm:grid-cols-3">
+                <StatCard
+                  icon={<Shield className="h-4 w-4" />}
+                  label="Personais"
+                  value={members.filter((m) => m.role === "owner" || m.role === "personal").length}
+                />
+                <StatCard
+                  icon={<Users className="h-4 w-4" />}
+                  label="Alunos"
+                  value={totalAlunos}
+                  hint={`${alunosAtivos} ativos`}
+                />
+                <StatCard
+                  icon={<Dumbbell className="h-4 w-4" />}
+                  label="Equipe"
+                  value={members.filter((m) => m.role === "staff").length}
+                />
+              </section>
+
+              {/* Atalhos de gestão */}
+              <section className="mt-4 grid gap-2 sm:grid-cols-2">
+                <Link
+                  to="/dashboard/personal/alunos"
+                  className="group flex items-center justify-between rounded-xl border border-border bg-card px-4 py-3 hover:border-primary/40 hover:bg-accent/40"
+                >
+                  <div>
+                    <div className="text-sm font-semibold">Ver todos os alunos</div>
+                    <div className="text-[11px] text-muted-foreground">Cadastros, contatos e treinos</div>
+                  </div>
+                  <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary" />
+                </Link>
+                <Link
+                  to="/dashboard/personal/treinos"
+                  className="group flex items-center justify-between rounded-xl border border-border bg-card px-4 py-3 hover:border-primary/40 hover:bg-accent/40"
+                >
+                  <div>
+                    <div className="text-sm font-semibold">Modelos de treino</div>
+                    <div className="text-[11px] text-muted-foreground">Biblioteca da academia</div>
+                  </div>
+                  <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary" />
+                </Link>
+              </section>
+
+
               {/* Convidar */}
               {isOwner && (
                 <section className="mt-6 rounded-2xl border border-border bg-card p-5">
@@ -318,6 +396,11 @@ function AcademiaPage() {
                         </div>
                         <div className="text-[11px] text-muted-foreground">
                           entrou em {new Date(m.created_at).toLocaleDateString("pt-BR")}
+                          {(m.role === "owner" || m.role === "personal") && (
+                            <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 font-semibold text-primary">
+                              <Users className="h-3 w-3" /> {alunosByPersonal[m.user_id] ?? 0} aluno(s)
+                            </span>
+                          )}
                         </div>
                       </div>
                       <RoleBadge role={m.role} />
