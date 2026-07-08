@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useCurrentUser, useSignOut, initialsFromName, firstName } from "@/lib/auth";
+import { useAvatarUrl } from "@/hooks/useAvatarUrl";
 
 export function UserAvatarMenu() {
   const { profile } = useCurrentUser();
@@ -17,6 +18,7 @@ export function UserAvatarMenu() {
   const initials = initialsFromName(profile?.full_name, profile?.email);
   const displayName = firstName(profile?.full_name, profile?.email);
   const email = profile?.email ?? undefined;
+  const avatarUrl = useAvatarUrl(profile?.avatar_url);
 
   return (
     <DropdownMenu>
@@ -24,10 +26,14 @@ export function UserAvatarMenu() {
         <button
           type="button"
           aria-label="Abrir menu do usuário"
-          className="relative grid h-9 w-9 place-items-center rounded-full text-xs font-bold font-display cursor-pointer transition outline-none ring-2 ring-primary/70 hover:brightness-110 focus-visible:ring-2 focus-visible:ring-primary"
-          style={{ backgroundColor: "rgb(244, 63, 94)", color: "#fff" }}
+          className="relative grid h-9 w-9 place-items-center overflow-hidden rounded-full text-xs font-bold font-display cursor-pointer transition outline-none ring-2 ring-primary/70 hover:brightness-110 focus-visible:ring-2 focus-visible:ring-primary"
+          style={avatarUrl ? undefined : { backgroundColor: "rgb(244, 63, 94)", color: "#fff" }}
         >
-          <span className="pointer-events-none">{initials}</span>
+          {avatarUrl ? (
+            <img src={avatarUrl} alt={displayName} className="absolute inset-0 h-full w-full object-cover" />
+          ) : (
+            <span className="pointer-events-none">{initials}</span>
+          )}
           <span aria-hidden className="pointer-events-none absolute -bottom-0.5 -right-0.5 flex h-2.5 w-2.5">
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-500 opacity-75" />
             <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-green-500 ring-2 ring-sidebar" />
