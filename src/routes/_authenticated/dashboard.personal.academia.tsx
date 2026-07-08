@@ -246,6 +246,51 @@ function AcademiaPage() {
                 </div>
               </section>
 
+              {/* Visão geral */}
+              <section className="mt-6 grid gap-3 sm:grid-cols-3">
+                <StatCard
+                  icon={<Shield className="h-4 w-4" />}
+                  label="Personais"
+                  value={members.filter((m) => m.role === "owner" || m.role === "personal").length}
+                />
+                <StatCard
+                  icon={<Users className="h-4 w-4" />}
+                  label="Alunos"
+                  value={totalAlunos}
+                  hint={`${alunosAtivos} ativos`}
+                />
+                <StatCard
+                  icon={<Dumbbell className="h-4 w-4" />}
+                  label="Equipe"
+                  value={members.filter((m) => m.role === "staff").length}
+                />
+              </section>
+
+              {/* Atalhos de gestão */}
+              <section className="mt-4 grid gap-2 sm:grid-cols-2">
+                <Link
+                  to="/dashboard/personal/alunos"
+                  className="group flex items-center justify-between rounded-xl border border-border bg-card px-4 py-3 hover:border-primary/40 hover:bg-accent/40"
+                >
+                  <div>
+                    <div className="text-sm font-semibold">Ver todos os alunos</div>
+                    <div className="text-[11px] text-muted-foreground">Cadastros, contatos e treinos</div>
+                  </div>
+                  <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary" />
+                </Link>
+                <Link
+                  to="/dashboard/personal/treinos"
+                  className="group flex items-center justify-between rounded-xl border border-border bg-card px-4 py-3 hover:border-primary/40 hover:bg-accent/40"
+                >
+                  <div>
+                    <div className="text-sm font-semibold">Modelos de treino</div>
+                    <div className="text-[11px] text-muted-foreground">Biblioteca da academia</div>
+                  </div>
+                  <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary" />
+                </Link>
+              </section>
+
+
               {/* Convidar */}
               {isOwner && (
                 <section className="mt-6 rounded-2xl border border-border bg-card p-5">
