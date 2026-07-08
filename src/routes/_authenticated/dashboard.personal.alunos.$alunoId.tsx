@@ -734,7 +734,7 @@ function DeleteAlunoDialog({
 }
 
 import {
-  buildPlano,
+  buildPlanos,
   PLANO_SELECT,
   type Plano,
   type StudentWorkoutRow,
@@ -810,7 +810,7 @@ function TreinosTab({ aluno, onNovoPlano, onCopiar }: { aluno: Aluno; onNovoPlan
     },
   });
 
-  const plano = buildPlano(aluno, treinos ?? []);
+  const planos = buildPlanos(aluno, treinos ?? []);
 
   return (
     <div className="space-y-4">
@@ -843,7 +843,7 @@ function TreinosTab({ aluno, onNovoPlano, onCopiar }: { aluno: Aluno; onNovoPlan
         <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-6 text-sm text-destructive">
           Não foi possível carregar os treinos deste aluno.
         </div>
-      ) : !plano ? (
+      ) : planos.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border bg-surface-2/20 px-6 py-12 text-center">
           <div className="grid h-12 w-12 place-items-center rounded-2xl bg-surface-3 text-primary">
             <FileText className="h-6 w-6" />
@@ -855,7 +855,9 @@ function TreinosTab({ aluno, onNovoPlano, onCopiar }: { aluno: Aluno; onNovoPlan
         </div>
       ) : (
         <div className="space-y-3">
-          <PlanoCard plano={plano} />
+          {planos.map((p) => (
+            <PlanoCard key={p.id} plano={p} />
+          ))}
         </div>
       )}
     </div>
