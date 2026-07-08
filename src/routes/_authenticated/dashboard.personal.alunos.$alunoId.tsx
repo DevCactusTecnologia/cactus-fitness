@@ -236,6 +236,7 @@ function AlunoDetailPage() {
       <EditAlunoDialog aluno={aluno} open={editOpen} onOpenChange={setEditOpen} />
       <ToggleActiveDialog aluno={aluno} open={toggleOpen} onOpenChange={setToggleOpen} />
       <DeleteAlunoDialog aluno={aluno} open={deleteOpen} onOpenChange={setDeleteOpen} />
+      <ChangePasswordDialog aluno={aluno} open={passwordOpen} onOpenChange={setPasswordOpen} />
 
       <Dialog open={impersonateOpen} onOpenChange={setImpersonateOpen}>
         <DialogContent className="max-w-md gap-0 p-0">
