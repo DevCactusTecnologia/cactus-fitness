@@ -86,7 +86,7 @@ type AlunoRow = {
   updated_at: string;
 };
 
-type TabKey = "todos" | "ativos" | "convidados" | "desativados";
+type TabKey = "todos" | "ativos" | "desativados";
 
 function AlunosPage() {
   const [q, setQ] = useState("");
