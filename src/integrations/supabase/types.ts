@@ -609,6 +609,73 @@ export type Database = {
         }
         Relationships: []
       }
+      set_logs: {
+        Row: {
+          completed_at: string
+          created_at: string
+          exercise_id: number | null
+          id: string
+          load: number | null
+          notes: string | null
+          reps: number | null
+          rest_seconds: number | null
+          rpe: number | null
+          session_id: string
+          set_index: number
+          template_exercise_id: string | null
+        }
+        Insert: {
+          completed_at?: string
+          created_at?: string
+          exercise_id?: number | null
+          id?: string
+          load?: number | null
+          notes?: string | null
+          reps?: number | null
+          rest_seconds?: number | null
+          rpe?: number | null
+          session_id: string
+          set_index: number
+          template_exercise_id?: string | null
+        }
+        Update: {
+          completed_at?: string
+          created_at?: string
+          exercise_id?: number | null
+          id?: string
+          load?: number | null
+          notes?: string | null
+          reps?: number | null
+          rest_seconds?: number | null
+          rpe?: number | null
+          session_id?: string
+          set_index?: number
+          template_exercise_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "set_logs_exercise_id_fkey"
+            columns: ["exercise_id"]
+            isOneToOne: false
+            referencedRelation: "exercises"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "set_logs_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "workout_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "set_logs_template_exercise_id_fkey"
+            columns: ["template_exercise_id"]
+            isOneToOne: false
+            referencedRelation: "workout_template_exercises"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       student_workouts: {
         Row: {
           aluno_id: string
@@ -693,6 +760,56 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      workout_sessions: {
+        Row: {
+          aluno_user_id: string
+          created_at: string
+          duration_seconds: number | null
+          finished_at: string | null
+          id: string
+          notes: string | null
+          organization_id: string
+          started_at: string
+          status: string
+          student_workout_id: string
+          updated_at: string
+        }
+        Insert: {
+          aluno_user_id: string
+          created_at?: string
+          duration_seconds?: number | null
+          finished_at?: string | null
+          id?: string
+          notes?: string | null
+          organization_id?: string
+          started_at?: string
+          status?: string
+          student_workout_id: string
+          updated_at?: string
+        }
+        Update: {
+          aluno_user_id?: string
+          created_at?: string
+          duration_seconds?: number | null
+          finished_at?: string | null
+          id?: string
+          notes?: string | null
+          organization_id?: string
+          started_at?: string
+          status?: string
+          student_workout_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "workout_sessions_student_workout_id_fkey"
+            columns: ["student_workout_id"]
+            isOneToOne: false
+            referencedRelation: "student_workouts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       workout_template_exercises: {
         Row: {
@@ -834,6 +951,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_org_invite: { Args: { _token: string }; Returns: string }
       can_manage_org: {
         Args: { _org_id: string; _user_id: string }
         Returns: boolean
