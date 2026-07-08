@@ -520,7 +520,7 @@ function Dashboard() {
                 <p className="mt-1 text-sm text-muted-foreground">segunda-feira, 6 de julho</p>
               </div>
               <div className="flex items-center gap-2">
-                <button className="grid h-10 w-10 place-items-center rounded-full border border-border text-muted-foreground hover:bg-white/5">
+                <button className="grid h-10 w-10 place-items-center rounded-full border border-border text-muted-foreground hover:bg-white/5" hidden>
                   <Lightbulb className="h-4 w-4" />
                 </button>
                 <button className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm hover:bg-white/5">
