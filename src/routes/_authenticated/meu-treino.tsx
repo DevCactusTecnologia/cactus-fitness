@@ -107,25 +107,10 @@ function MeuTreinoPage() {
   const [checkIns, setCheckIns] = useState<Set<string>>(new Set());
   const [checkingIn, setCheckingIn] = useState(false);
   const [nextWorkout, setNextWorkout] = useState<{ id: string; name: string; exercises: number } | null>(null);
-  const [avatarPath, setAvatarPath] = useState<string | null>(null);
-  const [avatarDisplayUrl, setAvatarDisplayUrl] = useState<string | null>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
-
-  useEffect(() => {
-    setAvatarPath(profile?.avatar_url ?? null);
-  }, [profile?.avatar_url]);
-
-  useEffect(() => {
-    if (!avatarPath) { setAvatarDisplayUrl(null); return; }
-    if (/^https?:\/\//i.test(avatarPath)) { setAvatarDisplayUrl(avatarPath); return; }
-    let cancelled = false;
-    (async () => {
-      const { data } = await supabase.storage.from("avatars").createSignedUrl(avatarPath, 60 * 60);
-      if (!cancelled) setAvatarDisplayUrl(data?.signedUrl ?? null);
-    })();
-    return () => { cancelled = true; };
-  }, [avatarPath]);
+  const avatarDisplayUrl = useAvatarUrl(profile?.avatar_url);
+  const queryClient = useQueryClient();
 
   const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -144,7 +129,9 @@ function MeuTreinoPage() {
       .update({ avatar_url: path })
       .eq("id", profile.id);
     setUploadingAvatar(false);
-    if (!dbErr) setAvatarPath(path);
+    if (!dbErr) {
+      await queryClient.invalidateQueries({ queryKey: ["current-user-profile", profile.id] });
+    }
   };
 
   useEffect(() => {
