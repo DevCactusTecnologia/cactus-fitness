@@ -112,6 +112,7 @@ function AlunoDetailPage() {
   const [editOpen, setEditOpen] = useState(false);
   const [toggleOpen, setToggleOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [impersonateOpen, setImpersonateOpen] = useState(false);
 
   if (isLoading || !aluno) {
     return (
