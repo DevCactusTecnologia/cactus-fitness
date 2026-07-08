@@ -723,23 +723,43 @@ function ChangePasswordDialog({
   const [confirm, setConfirm] = useState("");
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [touched, setTouched] = useState<{ pass: boolean; confirm: boolean }>({ pass: false, confirm: false });
   const changePassword = useServerFn(changeAlunoPassword);
 
   useEffect(() => {
-    if (!open) { setPassword(""); setConfirm(""); setShow(false); }
+    if (!open) {
+      setPassword(""); setConfirm(""); setShow(false);
+      setTouched({ pass: false, confirm: false });
+    }
   }, [open]);
+
+  const passError = touched.pass && password.length > 0 && password.length < 6
+    ? "A senha deve ter no mínimo 6 caracteres"
+    : null;
+  const confirmError = touched.confirm && confirm.length > 0 && confirm !== password
+    ? "As senhas não conferem"
+    : null;
+  const canSubmit = password.length >= 6 && confirm === password && !loading;
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (password.length < 6) return toast.error("A senha deve ter no mínimo 6 caracteres");
-    if (password !== confirm) return toast.error("As senhas não conferem");
+    setTouched({ pass: true, confirm: true });
+    if (!canSubmit) return;
     setLoading(true);
+    const promise = changePassword({ data: { alunoId: aluno.id, newPassword: password } });
+    toast.promise(promise, {
+      loading: "Salvando nova senha…",
+      success: (res: any) =>
+        res?.created
+          ? `Conta criada e senha definida para ${aluno.email}`
+          : "Senha alterada com sucesso",
+      error: (err: any) => err?.message ?? "Erro ao alterar senha",
+    });
     try {
-      await changePassword({ data: { alunoId: aluno.id, newPassword: password } });
-      toast.success("Senha alterada com sucesso");
+      await promise;
       onOpenChange(false);
-    } catch (err: any) {
-      toast.error(err?.message ?? "Erro ao alterar senha");
+    } catch {
+      /* toast.promise já mostra o erro */
     } finally {
       setLoading(false);
     }
@@ -756,12 +776,14 @@ function ChangePasswordDialog({
             <DialogTitle className="font-display text-lg">Alterar senha</DialogTitle>
           </div>
           <DialogDescription className="pt-3 text-sm text-muted-foreground">
-            Defina uma nova senha de acesso para <span className="font-semibold text-foreground">{aluno.full_name}</span>. Compartilhe a nova senha com o aluno de forma segura.
+            O aluno poderá entrar com o e-mail{" "}
+            <span className="font-semibold text-foreground">{aluno.email ?? "não cadastrado"}</span>{" "}
+            e a senha definida abaixo.
           </DialogDescription>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4 px-5 pb-2">
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <Label htmlFor="new_pass" className="text-xs">Nova senha</Label>
             <div className="relative">
               <Input
@@ -769,9 +791,11 @@ function ChangePasswordDialog({
                 type={show ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                onBlur={() => setTouched((t) => ({ ...t, pass: true }))}
                 placeholder="Mínimo 6 caracteres"
                 autoComplete="new-password"
-                className="pr-10"
+                aria-invalid={!!passError}
+                className={`pr-10 transition ${passError ? "border-destructive focus-visible:ring-destructive/40" : ""}`}
               />
               <button
                 type="button"
@@ -782,17 +806,36 @@ function ChangePasswordDialog({
                 {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
+            <div className="min-h-[16px] text-[11px] leading-tight">
+              {passError ? (
+                <span className="inline-flex items-center gap-1 text-destructive animate-in fade-in slide-in-from-top-1 duration-200">
+                  <AlertTriangle className="h-3 w-3" /> {passError}
+                </span>
+              ) : (
+                <span className="text-muted-foreground/70">Use pelo menos 6 caracteres.</span>
+              )}
+            </div>
           </div>
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <Label htmlFor="confirm_pass" className="text-xs">Confirmar nova senha</Label>
             <Input
               id="confirm_pass"
               type={show ? "text" : "password"}
               value={confirm}
               onChange={(e) => setConfirm(e.target.value)}
+              onBlur={() => setTouched((t) => ({ ...t, confirm: true }))}
               placeholder="Digite a senha novamente"
               autoComplete="new-password"
+              aria-invalid={!!confirmError}
+              className={`transition ${confirmError ? "border-destructive focus-visible:ring-destructive/40" : ""}`}
             />
+            <div className="min-h-[16px] text-[11px] leading-tight">
+              {confirmError && (
+                <span className="inline-flex items-center gap-1 text-destructive animate-in fade-in slide-in-from-top-1 duration-200">
+                  <AlertTriangle className="h-3 w-3" /> {confirmError}
+                </span>
+              )}
+            </div>
           </div>
 
           <DialogFooter className="-mx-5 mt-4 flex-row justify-end gap-2 border-t border-border p-4">
@@ -805,11 +848,11 @@ function ChangePasswordDialog({
             </button>
             <button
               type="submit"
-              disabled={loading}
-              className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground hover:brightness-110 disabled:opacity-60"
+              disabled={!canSubmit}
+              className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground hover:brightness-110 disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-              <KeyRound className="h-4 w-4" /> Salvar nova senha
+              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <KeyRound className="h-4 w-4" />}
+              {loading ? "Salvando…" : "Salvar nova senha"}
             </button>
           </DialogFooter>
         </form>
