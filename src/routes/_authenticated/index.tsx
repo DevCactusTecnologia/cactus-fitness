@@ -192,23 +192,51 @@ function PlanBanner() {
   );
 }
 
+function monthBuckets(dates: (string | null | undefined)[], months = 6) {
+  const now = new Date();
+  const keys: string[] = [];
+  for (let i = months - 1; i >= 0; i--) {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    keys.push(`${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`);
+  }
+  const counts = Object.fromEntries(keys.map((k) => [k, 0])) as Record<string, number>;
+  for (const raw of dates) {
+    if (!raw) continue;
+    const d = new Date(raw);
+    const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+    if (key in counts) counts[key]! += 1;
+  }
+  const series = keys.map((k) => counts[k]!);
+  return { series, thisMonth: series[series.length - 1] ?? 0 };
+}
+
 function useDashboardStats() {
   return useQuery({
     queryKey: ["dashboard-stats"],
     staleTime: 30_000,
     queryFn: async () => {
       const [alunosRes, treinosRes] = await Promise.all([
-        supabase.from("alunos").select("id", { count: "exact", head: true }).eq("is_active", true),
-        supabase.from("workout_templates").select("id", { count: "exact", head: true }),
+        supabase.from("alunos").select("id, created_at, is_active"),
+        supabase.from("workout_templates").select("id, created_at"),
       ]);
+      const alunos = alunosRes.data ?? [];
+      const treinos = treinosRes.data ?? [];
+      const alunosActive = alunos.filter((a: any) => a.is_active);
+      const alunosBuckets = monthBuckets(alunosActive.map((a: any) => a.created_at));
+      const treinosBuckets = monthBuckets(treinos.map((t: any) => t.created_at));
       return {
-        alunosAtivos: alunosRes.count ?? 0,
-        treinosAtivos: treinosRes.count ?? 0,
+        alunosAtivos: alunosActive.length,
+        treinosAtivos: treinos.length,
         avaliacoes: 0,
+        alunosSpark: alunosBuckets.series,
+        alunosDelta: alunosBuckets.thisMonth,
+        treinosSpark: treinosBuckets.series,
+        treinosDelta: treinosBuckets.thisMonth,
       };
     },
   });
 }
+
 
 function greetingFor(hour: number) {
   if (hour < 12) return "Bom dia";
