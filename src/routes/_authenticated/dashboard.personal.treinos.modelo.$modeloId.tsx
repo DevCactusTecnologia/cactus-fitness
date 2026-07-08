@@ -11,11 +11,8 @@ import {
   Trash2,
   Dumbbell,
   Layers,
-  X,
-  Target,
-  Flame,
-  Wrench,
   Loader2,
+
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
