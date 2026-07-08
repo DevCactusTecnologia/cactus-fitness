@@ -14,6 +14,7 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
+import { Route as AuthenticatedMeuTreinoRouteImport } from './routes/_authenticated/meu-treino'
 import { Route as AuthenticatedDashboardPersonalExerciciosRouteImport } from './routes/_authenticated/dashboard.personal.exercicios'
 import { Route as AuthenticatedDashboardPersonalDesafiosRouteImport } from './routes/_authenticated/dashboard.personal.desafios'
 import { Route as AuthenticatedDashboardPersonalAgendaRouteImport } from './routes/_authenticated/dashboard.personal.agenda'
@@ -48,6 +49,11 @@ const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
 const AuthenticatedPerfilRoute = AuthenticatedPerfilRouteImport.update({
   id: '/perfil',
   path: '/perfil',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedMeuTreinoRoute = AuthenticatedMeuTreinoRouteImport.update({
+  id: '/meu-treino',
+  path: '/meu-treino',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedDashboardPersonalExerciciosRoute =
@@ -121,6 +127,7 @@ export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/login': typeof LoginRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/meu-treino': typeof AuthenticatedMeuTreinoRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/dashboard/personal/agenda': typeof AuthenticatedDashboardPersonalAgendaRoute
   '/dashboard/personal/desafios': typeof AuthenticatedDashboardPersonalDesafiosRoute
@@ -137,6 +144,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/meu-treino': typeof AuthenticatedMeuTreinoRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/': typeof AuthenticatedIndexRoute
   '/dashboard/personal/agenda': typeof AuthenticatedDashboardPersonalAgendaRoute
@@ -156,6 +164,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/login': typeof LoginRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/_authenticated/meu-treino': typeof AuthenticatedMeuTreinoRoute
   '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/dashboard/personal/agenda': typeof AuthenticatedDashboardPersonalAgendaRoute
@@ -176,6 +185,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/reset-password'
+    | '/meu-treino'
     | '/perfil'
     | '/dashboard/personal/agenda'
     | '/dashboard/personal/desafios'
@@ -192,6 +202,7 @@ export interface FileRouteTypes {
   to:
     | '/login'
     | '/reset-password'
+    | '/meu-treino'
     | '/perfil'
     | '/'
     | '/dashboard/personal/agenda'
@@ -210,6 +221,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/login'
     | '/reset-password'
+    | '/_authenticated/meu-treino'
     | '/_authenticated/perfil'
     | '/_authenticated/'
     | '/_authenticated/dashboard/personal/agenda'
@@ -266,6 +278,13 @@ declare module '@tanstack/react-router' {
       path: '/perfil'
       fullPath: '/perfil'
       preLoaderRoute: typeof AuthenticatedPerfilRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/meu-treino': {
+      id: '/_authenticated/meu-treino'
+      path: '/meu-treino'
+      fullPath: '/meu-treino'
+      preLoaderRoute: typeof AuthenticatedMeuTreinoRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/dashboard/personal/exercicios': {
@@ -349,6 +368,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedRouteRouteChildren {
+  AuthenticatedMeuTreinoRoute: typeof AuthenticatedMeuTreinoRoute
   AuthenticatedPerfilRoute: typeof AuthenticatedPerfilRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedDashboardPersonalAgendaRoute: typeof AuthenticatedDashboardPersonalAgendaRoute
@@ -365,6 +385,7 @@ interface AuthenticatedRouteRouteChildren {
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
+  AuthenticatedMeuTreinoRoute: AuthenticatedMeuTreinoRoute,
   AuthenticatedPerfilRoute: AuthenticatedPerfilRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedDashboardPersonalAgendaRoute:
