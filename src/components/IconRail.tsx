@@ -71,7 +71,7 @@ function SidebarIconBtn({
 export function IconRail() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   return (
-    <aside className="fixed inset-y-0 left-0 z-40 hidden w-[72px] flex-col items-center gap-2 border-r border-border bg-sidebar py-4 md:flex">
+    <aside className="fixed inset-y-0 left-0 z-50 hidden w-[72px] flex-col items-center gap-2 border-r border-border bg-sidebar py-4 md:flex">
       <div className="mb-2 grid h-10 w-10 place-items-center rounded-xl">
         <span
           aria-label="CactusFitness"
