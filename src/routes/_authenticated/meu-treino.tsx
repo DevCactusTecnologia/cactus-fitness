@@ -234,9 +234,28 @@ function MeuTreinoPage() {
         <header className="fixed top-0 right-0 left-0 md:left-[72px] z-30 bg-background/70 px-4 py-4 backdrop-blur-xl supports-[backdrop-filter]:bg-background/50 sm:px-6">
           <div className="mx-auto flex max-w-4xl items-center justify-between gap-3">
 
-            <div className="min-w-0">
+            <div className="min-w-0 md:hidden flex items-center gap-2">
+              <span
+                aria-label="CactusFitness"
+                role="img"
+                className="block h-7 w-7 bg-primary"
+                style={{
+                  WebkitMaskImage: `url(${logoUrl})`,
+                  maskImage: `url(${logoUrl})`,
+                  WebkitMaskRepeat: "no-repeat",
+                  maskRepeat: "no-repeat",
+                  WebkitMaskPosition: "center",
+                  maskPosition: "center",
+                  WebkitMaskSize: "contain",
+                  maskSize: "contain",
+                }}
+              />
+              <span className="font-display text-lg font-bold leading-none">
+                Cactus<span className="italic font-semibold">Fitness</span>
+              </span>
+            </div>
+            <div className="min-w-0 hidden md:block">
               <h1 className="font-display text-2xl font-bold leading-tight">Início</h1>
-
               <p className="text-sm text-muted-foreground first-letter:uppercase">{fullDate}</p>
             </div>
             <div className="flex items-center gap-2">
