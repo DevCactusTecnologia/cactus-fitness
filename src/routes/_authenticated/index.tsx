@@ -561,21 +561,15 @@ function Dashboard() {
               <NextEventCard />
               <MobilePulseCard />
 
-              <div className="flex justify-end">
-                <button className="inline-flex items-center gap-1.5 rounded-full border border-primary/40 px-4 py-1.5 text-sm text-primary hover:bg-primary/10">
-                  <Pencil className="h-3.5 w-3.5" /> Editar
-                </button>
-              </div>
               <div className="rounded-lg border border-border bg-card p-4 md:p-6">
                 <div className="grid min-w-0 grid-cols-4 gap-2 sm:gap-3 md:grid-cols-5">
-                  <QuickTile icon={Users} label="Alunos" />
+                  <QuickTile icon={Users} label="Alunos" to="/dashboard/personal/alunos" />
                   <QuickTile icon={HeartPulse} label="Avaliações" to="/dashboard/personal/avaliacoes" />
-                  <QuickTile icon={Dumbbell} label="Treinos" />
-                  <QuickTile icon={Dumbbell} label="Exercícios" />
-                  <QuickTile icon={Trophy} label="Desafios" />
+                  <QuickTile icon={Dumbbell} label="Treinos" to="/dashboard/personal/treinos" />
+                  <QuickTile icon={Dumbbell} label="Exercícios" to="/dashboard/personal/exercicios" />
+                  <QuickTile icon={Trophy} label="Desafios" to="/dashboard/personal/desafios" />
                 </div>
               </div>
-              <ReferralBanner />
             </div>
           </div>
         </div>
