@@ -110,6 +110,40 @@ function MeuTreinoPage() {
 
   const [checkIns, setCheckIns] = useState<Set<string>>(new Set());
   const [checkingIn, setCheckingIn] = useState(false);
+  const [nextWorkout, setNextWorkout] = useState<{ id: string; name: string; exercises: number } | null>(null);
+
+  useEffect(() => {
+    if (!profile?.id || profile.role !== "aluno") return;
+    let cancelled = false;
+    (async () => {
+      const { data: link } = await supabase
+        .from("alunos")
+        .select("id")
+        .eq("aluno_user_id", profile.id)
+        .maybeSingle();
+      if (cancelled || !link?.id) return;
+      const { data: sw } = await supabase
+        .from("student_workouts")
+        .select("id, name, template_id, scheduled_for, status")
+        .eq("aluno_id", link.id)
+        .neq("status", "concluido")
+        .order("scheduled_for", { ascending: true, nullsFirst: false })
+        .limit(1)
+        .maybeSingle();
+      if (cancelled || !sw) return;
+      let exercises = 0;
+      if (sw.template_id) {
+        const { count } = await supabase
+          .from("workout_template_exercises")
+          .select("id", { count: "exact", head: true })
+          .eq("template_id", sw.template_id);
+        exercises = count ?? 0;
+      }
+      if (!cancelled) setNextWorkout({ id: sw.id, name: sw.name ?? "Treino", exercises });
+    })();
+    return () => { cancelled = true; };
+  }, [profile?.id, profile?.role]);
+
 
   useEffect(() => {
     if (!profile?.id) return;
@@ -272,19 +306,31 @@ function MeuTreinoPage() {
           <section className="rounded-2xl border border-border bg-card p-5">
             <div className="mb-2 flex items-center justify-between">
               <p className="text-[11px] uppercase tracking-widest text-muted-foreground">próximo treino</p>
-              <p className="text-[11px] text-muted-foreground">seg · sem. 1/4</p>
+              <p className="text-[11px] text-muted-foreground">{WEEK_DAYS_PT[todayIdx]} · sem. 1/4</p>
             </div>
-            <h3 className="font-display text-2xl font-bold">Treino A</h3>
+            <h3 className="font-display text-2xl font-bold">{nextWorkout?.name ?? "Nenhum treino agendado"}</h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              3 exercícios · <span className="text-primary">Fase 1</span>
+              {nextWorkout ? <>{nextWorkout.exercises} exercícios · <span className="text-primary">Fase 1</span></> : "aguarde o seu personal atribuir um treino"}
             </p>
-            <button
-              type="button"
-              className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-primary py-3.5 font-display text-base font-bold text-primary-foreground shadow-[0_0_30px_rgba(215,242,5,0.35)] transition hover:brightness-110 active:scale-[0.98]"
-            >
-              <Play className="h-5 w-5" fill="currentColor" /> Iniciar treino
-            </button>
+            {nextWorkout ? (
+              <Link
+                to="/meu-treino/treino/$id"
+                params={{ id: nextWorkout.id }}
+                className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-primary py-3.5 font-display text-base font-bold text-primary-foreground shadow-[0_0_30px_rgba(215,242,5,0.35)] transition hover:brightness-110 active:scale-[0.98]"
+              >
+                <Play className="h-5 w-5" fill="currentColor" /> Iniciar treino
+              </Link>
+            ) : (
+              <button
+                type="button"
+                disabled
+                className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-muted py-3.5 font-display text-base font-bold text-muted-foreground opacity-60"
+              >
+                <Play className="h-5 w-5" fill="currentColor" /> Iniciar treino
+              </button>
+            )}
           </section>
+
 
           {/* Ranking + Check-in */}
           <section className="overflow-hidden rounded-2xl border border-border bg-card">
