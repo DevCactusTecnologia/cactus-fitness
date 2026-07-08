@@ -451,7 +451,7 @@ function Chip({ icon: Icon, label }: { icon: typeof Flame; label: string }) {
   );
 }
 
-function Section({ title, children }: { title: string; children: React.ReactNode }) {
+function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <div className="space-y-1.5">
       <h3 className="text-[0.625rem] font-bold uppercase tracking-wider text-fg-muted">{title}</h3>
