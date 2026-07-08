@@ -585,6 +585,20 @@ function ExerciseDetailDialog({
                   <span className="text-sm font-medium">Vídeo não cadastrado</span>
                 </div>
               )}
+
+              <button
+                type="button"
+                onClick={handleChangeVideo}
+                disabled={updateVideo.isPending}
+                className="absolute right-3 top-3 inline-flex items-center gap-2 rounded-lg border border-border bg-background/80 px-3 py-1.5 text-xs font-medium text-foreground shadow-sm backdrop-blur transition-colors hover:bg-background disabled:opacity-60"
+              >
+                {updateVideo.isPending ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Video className="h-3.5 w-3.5" />
+                )}
+                Trocar vídeo
+              </button>
             </div>
 
             {data.description ? (
