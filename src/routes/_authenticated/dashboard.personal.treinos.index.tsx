@@ -184,20 +184,6 @@ function TreinosPage() {
         </div>
 
         <div className="mx-auto max-w-4xl px-4 py-5 md:px-8 lg:max-w-7xl">
-          {/* Tutorial banner */}
-          <button
-            type="button"
-            className="mb-4 flex w-full items-center gap-3 rounded-xl border border-border bg-card p-3 text-left transition-all hover:border-primary/40 hover:bg-muted/50 active:scale-[0.99]"
-          >
-            <div className="relative grid h-12 w-20 shrink-0 place-items-center overflow-hidden rounded-lg bg-muted">
-              <PlayCircle className="h-6 w-6 text-foreground/90 drop-shadow" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-[0.6875rem] font-semibold uppercase tracking-wider text-primary">Tutorial em vídeo</p>
-              <p className="mt-0.5 truncate text-sm font-semibold">Como montar treino no CactusFitness</p>
-            </div>
-            <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
-          </button>
 
           {/* Info card */}
           <div className="mb-6 rounded-xl border border-border bg-card p-4">
