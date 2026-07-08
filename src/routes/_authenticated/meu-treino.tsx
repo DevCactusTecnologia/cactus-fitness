@@ -438,18 +438,21 @@ function MeuTreinoPage() {
       {/* Bottom nav (mobile) — mesmos itens do rail lateral */}
       <nav className="fixed inset-x-0 bottom-0 z-40 md:hidden border-t border-border/60 bg-background/95 backdrop-blur-xl">
         <div className={`grid`} style={{ gridTemplateColumns: `repeat(${RAIL_ITEMS.length}, minmax(0, 1fr))` }}>
-          {RAIL_ITEMS.map(({ icon: Icon, label, active }) => (
-            <button
-              key={label}
-              type="button"
-              className={`relative flex flex-col items-center gap-1 py-2.5 text-[10px] font-medium ${
-                active ? "text-primary" : "text-muted-foreground"
-              }`}
-            >
-              <Icon className="h-5 w-5" strokeWidth={active ? 2.25 : 1.75} />
-              {label}
-            </button>
-          ))}
+          {RAIL_ITEMS.map(({ icon: Icon, label, to }) => {
+            const active = to === "/meu-treino";
+            return (
+              <Link
+                key={label}
+                to={to}
+                className={`relative flex flex-col items-center gap-1 py-2.5 text-[10px] font-medium ${
+                  active ? "text-primary" : "text-muted-foreground"
+                }`}
+              >
+                <Icon className="h-5 w-5" strokeWidth={active ? 2.25 : 1.75} />
+                {label}
+              </Link>
+            );
+          })}
         </div>
       </nav>
     </div>
