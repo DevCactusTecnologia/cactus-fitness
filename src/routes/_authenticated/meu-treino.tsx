@@ -123,8 +123,8 @@ function MeuTreinoPage() {
       {/* Conteúdo */}
       <main className="md:ml-[72px] pt-[76px] pb-24 md:pb-8">
         {/* Header fixo no topo */}
-        <header className="fixed top-0 right-0 left-0 md:left-[72px] z-30 border-b border-border/60 bg-background/60 px-4 py-4 backdrop-blur-xl supports-[backdrop-filter]:bg-background/50 sm:px-6">
-          <div className="mx-auto flex max-w-5xl items-center justify-between gap-3">
+        <header className="fixed top-0 right-0 left-0 md:left-[72px] z-30 bg-background/70 px-4 py-4 backdrop-blur-xl supports-[backdrop-filter]:bg-background/50 sm:px-6">
+          <div className="mx-auto flex max-w-4xl items-center justify-between gap-3">
 
             <div className="min-w-0">
               <h1 className="font-display text-2xl font-bold leading-tight">Início</h1>
@@ -142,7 +142,7 @@ function MeuTreinoPage() {
           </div>
         </header>
 
-        <div className="mx-auto max-w-5xl space-y-4 p-4 sm:p-6">
+        <div className="mx-auto max-w-4xl space-y-4 p-4 sm:p-6">
           {/* Saudação + Bronze */}
           <div className="flex items-center gap-4">
             <div className="relative">
