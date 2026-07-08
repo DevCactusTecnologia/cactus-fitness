@@ -65,24 +65,6 @@ function AvaliacoesPage() {
 
         {/* Centered content column */}
         <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6 sm:py-10">
-          {/* Tutorial card */}
-          <button
-            type="button"
-            className="flex w-full items-center gap-3 rounded-2xl border border-border/60 bg-card/60 p-3 text-left transition hover:bg-card sm:gap-4 sm:p-4"
-          >
-            <div className="grid h-14 w-20 shrink-0 place-items-center overflow-hidden rounded-xl bg-black/60 sm:h-16 sm:w-24">
-              <Play className="h-5 w-5 fill-primary text-primary" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="text-[10px] font-bold uppercase tracking-wider text-primary sm:text-xs">
-                Tutorial em vídeo
-              </div>
-              <div className="mt-0.5 truncate text-sm font-semibold sm:text-base">
-                Como criar uma avaliação física no cactusfitness
-              </div>
-            </div>
-            <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground" />
-          </button>
 
           {/* Instruction */}
           <p className="mt-6 text-sm text-muted-foreground">
