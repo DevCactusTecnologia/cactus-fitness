@@ -749,64 +749,32 @@ function formatRest(seconds: number | null): string | null {
   return `${seconds}s`;
 }
 
-function TreinoCard({ t, defaultOpen }: { t: StudentWorkoutRow; defaultOpen: boolean }) {
+function SessionRow({ t, defaultOpen }: { t: StudentWorkoutRow; defaultOpen: boolean }) {
   const [open, setOpen] = useState(defaultOpen);
   const sched = formatScheduled(t.scheduled_for);
   const exercises = [...(t.workout_templates?.workout_template_exercises ?? [])].sort(
     (a, b) => a.position - b.position,
   );
-  const duration = t.workout_templates?.duration_min;
-  const goal = t.workout_templates?.goal ?? t.workout_templates?.category;
-  const statusClass = STATUS_STYLES[t.status] ?? STATUS_STYLES.pending;
-  const statusLabel = STATUS_LABELS[t.status] ?? t.status;
+  const weekday = sched?.weekday ?? t.name;
 
   return (
-    <li className="flex flex-col rounded-xl border border-border bg-background/40 transition-colors hover:border-primary/40">
+    <li className="overflow-hidden rounded-2xl border border-border bg-background/40 transition-colors">
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
-        className="flex flex-col gap-3 p-4 text-left"
+        className="flex w-full items-center gap-3 px-4 py-3.5 text-left"
         aria-expanded={open}
       >
-        <div className="flex items-start justify-between gap-3">
-          <div className="min-w-0 flex-1">
-            <p className="truncate font-display text-sm font-semibold">{t.name}</p>
-            {goal ? (
-              <p className="mt-0.5 truncate text-xs text-muted-foreground capitalize">{goal}</p>
-            ) : null}
-          </div>
-          <span
-            className={`shrink-0 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide ${statusClass}`}
-          >
-            {statusLabel}
-          </span>
+        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-primary/15 text-sm font-semibold text-primary">
+          {(exercises.length && sched ? sched.weekday[0] : t.name[0]) ?? "?"}
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="truncate font-display text-sm font-semibold">{weekday}</p>
+          <p className="mt-0.5 truncate text-xs text-muted-foreground">
+            {exercises.length} exercício{exercises.length === 1 ? "" : "s"}
+          </p>
         </div>
-
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-muted-foreground">
-          {sched ? (
-            <span className="inline-flex items-center gap-1.5">
-              <Calendar className="h-3.5 w-3.5" />
-              <span className="font-medium text-foreground">{sched.weekday}</span>
-              <span>· {sched.formatted}</span>
-            </span>
-          ) : (
-            <span className="inline-flex items-center gap-1.5">
-              <Calendar className="h-3.5 w-3.5" /> Sem data
-            </span>
-          )}
-          {duration ? (
-            <span className="inline-flex items-center gap-1.5">
-              <Clock className="h-3.5 w-3.5" /> {duration} min
-            </span>
-          ) : null}
-          <span className="inline-flex items-center gap-1.5">
-            <FileText className="h-3.5 w-3.5" /> {exercises.length} exercício{exercises.length === 1 ? "" : "s"}
-          </span>
-          <span className="ml-auto inline-flex items-center gap-1 text-primary">
-            {open ? "Ocultar" : "Ver exercícios"}
-            <ChevronDown className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`} />
-          </span>
-        </div>
+        <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
 
       {open ? (
@@ -826,14 +794,10 @@ function TreinoCard({ t, defaultOpen }: { t: StudentWorkoutRow; defaultOpen: boo
                     </p>
                     <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
                       {ex.sets ? (
-                        <span>
-                          <span className="font-semibold text-foreground">{ex.sets}</span> séries
-                        </span>
+                        <span><span className="font-semibold text-foreground">{ex.sets}</span> séries</span>
                       ) : null}
                       {ex.reps ? (
-                        <span>
-                          <span className="font-semibold text-foreground">{ex.reps}</span> reps
-                        </span>
+                        <span><span className="font-semibold text-foreground">{ex.reps}</span> reps</span>
                       ) : null}
                       <span className="inline-flex items-center gap-1">
                         <Dumbbell className="h-3 w-3" />
@@ -861,7 +825,182 @@ function TreinoCard({ t, defaultOpen }: { t: StudentWorkoutRow; defaultOpen: boo
   );
 }
 
+type Plano = {
+  id: string;
+  name: string;
+  firstName: string;
+  sessions: StudentWorkoutRow[];
+  sessionsCount: number;
+  perWeek: number;
+  weeks: number;
+  startDate: string | null;
+  goal: string | null;
+  isActive: boolean;
+  isSimple: boolean;
+};
+
+function buildPlano(firstName: string, sessions: StudentWorkoutRow[]): Plano | null {
+  if (sessions.length === 0) return null;
+  const sorted = [...sessions].sort((a, b) => (a.scheduled_for ?? "").localeCompare(b.scheduled_for ?? ""));
+  const dates = sorted.map((s) => s.scheduled_for).filter((d): d is string => !!d);
+  const start = dates[0] ?? null;
+  const end = dates[dates.length - 1] ?? null;
+  let weeks = 1;
+  if (start && end) {
+    const [sy, sm, sd] = start.split("-").map(Number);
+    const [ey, em, ed] = end.split("-").map(Number);
+    const diffDays = Math.round((new Date(ey, em - 1, ed).getTime() - new Date(sy, sm - 1, sd).getTime()) / 86400000);
+    weeks = Math.max(1, Math.ceil((diffDays + 1) / 7));
+  }
+  const weekdays = new Set(dates.map((d) => {
+    const [y, m, day] = d.split("-").map(Number);
+    return new Date(y, m - 1, day).getDay();
+  }));
+  const perWeek = Math.max(1, weekdays.size);
+  const goal = sorted.find((s) => s.workout_templates?.goal)?.workout_templates?.goal
+    ?? sorted.find((s) => s.workout_templates?.category)?.workout_templates?.category
+    ?? null;
+  return {
+    id: `plano-${firstName}`,
+    name: `Plano de ${firstName}`,
+    firstName,
+    sessions: sorted,
+    sessionsCount: sorted.length,
+    perWeek,
+    weeks,
+    startDate: start,
+    goal,
+    isActive: true,
+    isSimple: true,
+  };
+}
+
+function formatStartShort(date: string | null): string | null {
+  if (!date) return null;
+  const [, m, d] = date.split("-").map(Number);
+  if (!m || !d) return null;
+  const meses = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+  return `${String(d).padStart(2, "0")} de ${meses[m - 1]}.`;
+}
+
+function PlanoCard({ plano, onOpen }: { plano: Plano; onOpen: () => void }) {
+  const startShort = formatStartShort(plano.startDate);
+  return (
+    <button
+      type="button"
+      onClick={onOpen}
+      className="group flex w-full items-center gap-4 rounded-2xl border border-border bg-background/40 p-4 text-left transition-colors hover:border-primary/40"
+    >
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-2">
+          <p className="truncate font-display text-base font-semibold">{plano.name}</p>
+        </div>
+        <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-muted-foreground">
+          <span className="inline-flex items-center gap-1.5">
+            <Layers className="h-3.5 w-3.5" /> {plano.sessionsCount} sessões
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <Repeat className="h-3.5 w-3.5" /> {plano.perWeek}x/semana
+          </span>
+          <span className="inline-flex items-center gap-1.5">
+            <Clock className="h-3.5 w-3.5" /> {plano.weeks} {plano.weeks === 1 ? "semana" : "semanas"}
+          </span>
+          {startShort ? (
+            <span className="inline-flex items-center gap-1.5">
+              <Calendar className="h-3.5 w-3.5" /> Início {startShort}
+            </span>
+          ) : null}
+        </div>
+      </div>
+      <div className="flex shrink-0 items-center gap-2">
+        {plano.isActive ? (
+          <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+            Ativo
+          </span>
+        ) : null}
+        {plano.isSimple ? (
+          <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+            Simples
+          </span>
+        ) : null}
+        <ChevronDown className="h-4 w-4 -rotate-90 text-muted-foreground transition-transform group-hover:text-primary" />
+      </div>
+    </button>
+  );
+}
+
+function PlanoDetail({ plano, onBack }: { plano: Plano; onBack: () => void }) {
+  const startShort = formatStartShort(plano.startDate);
+  return (
+    <div className="grid gap-6 lg:grid-cols-[1fr_260px]">
+      <div>
+        <div className="mb-4 flex items-center gap-3">
+          <button
+            onClick={onBack}
+            className="grid h-8 w-8 place-items-center rounded-full border border-border bg-background text-muted-foreground hover:text-foreground"
+            aria-label="Voltar"
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </button>
+          <div className="min-w-0">
+            <div className="flex items-center gap-2">
+              <h3 className="truncate font-display text-lg font-semibold">{plano.name}</h3>
+              {plano.isActive ? (
+                <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
+                  Ativo
+                </span>
+              ) : null}
+            </div>
+            <p className="text-xs text-muted-foreground">Aluno: {plano.firstName}</p>
+          </div>
+        </div>
+
+        <div className="mb-4 grid grid-cols-2 gap-3">
+          <div className="rounded-2xl border border-border bg-background/40 px-4 py-3 text-center">
+            <p className="font-display text-2xl font-semibold">{plano.sessionsCount}</p>
+            <p className="mt-1 text-[11px] uppercase tracking-wide text-muted-foreground">Sessões</p>
+          </div>
+          <div className="rounded-2xl border border-border bg-background/40 px-4 py-3 text-center">
+            <p className="font-display text-2xl font-semibold">{startShort ?? "--"}</p>
+            <p className="mt-1 text-[11px] uppercase tracking-wide text-muted-foreground">Início</p>
+          </div>
+        </div>
+
+        <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Sessões de treino</p>
+        <ul className="space-y-2">
+          {plano.sessions.map((s, idx) => (
+            <SessionRow key={s.id} t={s} defaultOpen={idx === 0} />
+          ))}
+        </ul>
+      </div>
+
+      <aside>
+        <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Ações</p>
+        <div className="space-y-2">
+          {[
+            { icon: Pencil, label: "Editar", className: "" },
+            { icon: Copy, label: "Duplicar", className: "" },
+            { icon: FileText, label: "Salvar como Template", className: "" },
+            { icon: FileText, label: "Exportar PDF", className: "" },
+            { icon: Layers, label: "Arquivar", className: "" },
+            { icon: Trash2, label: "Excluir", className: "text-destructive hover:text-destructive" },
+          ].map(({ icon: Icon, label, className }) => (
+            <button
+              key={label}
+              type="button"
+              className={`flex w-full items-center gap-2 rounded-2xl border border-border bg-background/40 px-4 py-2.5 text-sm font-semibold hover:bg-accent ${className}`}
+            >
+              <Icon className="h-4 w-4" /> {label}
+            </button>
+          ))}
+        </div>
+      </aside>
+    </div>
+  );
+}
+
 function TreinosTab({ alunoId, firstName, onNovoPlano }: { alunoId: string; firstName: string; onNovoPlano: () => void }) {
+  const [openPlanoId, setOpenPlanoId] = useState<string | null>(null);
   const { data: treinos, isLoading, error } = useQuery({
     queryKey: ["aluno-student-workouts", alunoId],
     queryFn: async (): Promise<StudentWorkoutRow[]> => {
@@ -878,16 +1017,18 @@ function TreinosTab({ alunoId, firstName, onNovoPlano }: { alunoId: string; firs
     },
   });
 
+  const plano = buildPlano(firstName, treinos ?? []);
+  const openPlano = openPlanoId && plano && plano.id === openPlanoId ? plano : null;
+
+  if (openPlano) {
+    return <PlanoDetail plano={openPlano} onBack={() => setOpenPlanoId(null)} />;
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h3 className="font-display text-base font-semibold">Planos de Treino</h3>
-          <p className="text-xs text-muted-foreground">
-            {treinos && treinos.length > 0
-              ? `${treinos.length} treino${treinos.length === 1 ? "" : "s"} atribuído${treinos.length === 1 ? "" : "s"} a ${firstName}.`
-              : `Treinos atribuídos a ${firstName}.`}
-          </p>
+          <h3 className="font-display text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Planos de Treino</h3>
         </div>
         <div className="flex items-center gap-2">
           <button className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3.5 py-2 text-sm font-semibold hover:bg-accent">
@@ -910,7 +1051,7 @@ function TreinosTab({ alunoId, firstName, onNovoPlano }: { alunoId: string; firs
         <div className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-6 text-sm text-destructive">
           Não foi possível carregar os treinos deste aluno.
         </div>
-      ) : !treinos || treinos.length === 0 ? (
+      ) : !plano ? (
         <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border bg-background/40 px-6 py-12 text-center">
           <div className="grid h-12 w-12 place-items-center rounded-2xl bg-accent text-primary">
             <FileText className="h-6 w-6" />
@@ -921,15 +1062,15 @@ function TreinosTab({ alunoId, firstName, onNovoPlano }: { alunoId: string; firs
           </p>
         </div>
       ) : (
-        <ul className="grid gap-3 sm:grid-cols-2">
-          {treinos.map((t, idx) => (
-            <TreinoCard key={t.id} t={t} defaultOpen={idx === 0} />
-          ))}
-        </ul>
+        <div className="space-y-3">
+          <PlanoCard plano={plano} onOpen={() => setOpenPlanoId(plano.id)} />
+        </div>
       )}
     </div>
   );
 }
+
+
 
 
 
