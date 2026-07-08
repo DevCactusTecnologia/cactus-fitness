@@ -692,7 +692,7 @@ import {
   type Plano,
   type StudentWorkoutRow,
 } from "@/lib/plano";
-import { Link } from "@tanstack/react-router";
+
 
 function PlanoCard({ plano }: { plano: Plano }) {
   return (
