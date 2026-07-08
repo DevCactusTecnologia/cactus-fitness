@@ -490,7 +490,6 @@ const ACTIONS = [
   { icon: Copy, label: "Duplicar" },
   { icon: Save, label: "Salvar como Template" },
   { icon: FileDown, label: "Exportar PDF" },
-  { icon: Archive, label: "Arquivar" },
 ] as const;
 
 function ActionsSidebar({
@@ -498,21 +497,29 @@ function ActionsSidebar({
   templateId,
   planoName,
   onDeleted,
+  onArchived,
 }: {
   alunoId: string;
   templateId: string | null;
   planoName: string;
   onDeleted: () => void;
+  onArchived: () => void;
 }) {
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [archiveOpen, setArchiveOpen] = useState(false);
+  const [archiving, setArchiving] = useState(false);
+
+  const scopedQuery = <T extends { eq: (col: string, val: any) => T; is: (col: string, val: any) => T }>(q: T): T => {
+    let out = q.eq("aluno_id", alunoId);
+    out = templateId ? out.eq("template_id", templateId) : out.is("template_id", null);
+    return out;
+  };
 
   const handleDelete = async () => {
     setDeleting(true);
     try {
-      let query = supabase.from("student_workouts").delete().eq("aluno_id", alunoId);
-      query = templateId ? query.eq("template_id", templateId) : query.is("template_id", null);
-      const { error } = await query;
+      const { error } = await scopedQuery(supabase.from("student_workouts").delete() as any);
       if (error) throw error;
       toast.success("Plano excluído dos treinos do aluno");
       setConfirmOpen(false);
@@ -523,6 +530,27 @@ function ActionsSidebar({
       });
     } finally {
       setDeleting(false);
+    }
+  };
+
+  const handleArchive = async () => {
+    setArchiving(true);
+    try {
+      const { error } = await scopedQuery(
+        supabase.from("student_workouts").update({ archived_at: new Date().toISOString() }) as any,
+      );
+      if (error) throw error;
+      toast.success("Plano arquivado", {
+        description: "O plano não aparecerá mais no painel do aluno.",
+      });
+      setArchiveOpen(false);
+      onArchived();
+    } catch (err) {
+      toast.error("Não foi possível arquivar o plano", {
+        description: err instanceof Error ? err.message : undefined,
+      });
+    } finally {
+      setArchiving(false);
     }
   };
 
@@ -545,6 +573,14 @@ function ActionsSidebar({
         ))}
         <button
           type="button"
+          onClick={() => setArchiveOpen(true)}
+          className="inline-flex h-12 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border border-border bg-transparent px-6 py-2.5 text-sm font-semibold text-foreground transition-all hover:border-primary hover:text-primary active:scale-[0.97]"
+        >
+          <Archive className="h-4 w-4" />
+          Arquivar
+        </button>
+        <button
+          type="button"
           onClick={() => setConfirmOpen(true)}
           className="inline-flex h-12 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border border-border bg-transparent px-6 py-2.5 text-sm font-semibold text-destructive transition-all hover:border-destructive hover:text-destructive active:scale-[0.97]"
         >
@@ -552,6 +588,31 @@ function ActionsSidebar({
           Excluir
         </button>
       </div>
+
+      <AlertDialog open={archiveOpen} onOpenChange={setArchiveOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Arquivar plano?</AlertDialogTitle>
+            <AlertDialogDescription>
+              <span className="font-semibold text-foreground">{planoName}</span> será desativado e não
+              aparecerá mais no painel do aluno. Você pode restaurá-lo depois, se necessário.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={archiving}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={archiving}
+              onClick={(e) => {
+                e.preventDefault();
+                handleArchive();
+              }}
+            >
+              {archiving ? "Arquivando…" : "Arquivar plano"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
 
       <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         <AlertDialogContent>
