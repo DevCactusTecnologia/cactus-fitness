@@ -394,7 +394,7 @@ function ModeloRow({ modelo }: { modelo: Modelo }) {
                 : "border-primary/30 bg-primary/10 text-primary"
             }`}
           >
-            Simples
+            {isPlan ? "Plano" : "Simples"}
           </span>
         </div>
         <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
