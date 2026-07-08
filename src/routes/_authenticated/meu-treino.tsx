@@ -76,57 +76,59 @@ function MeuTreinoPage() {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
-      {/* Rail lateral (desktop) */}
-      <aside className="hidden md:flex fixed inset-y-0 left-0 z-30 w-[72px] flex-col border-r border-border/60 bg-surface-1">
-        <div className="flex h-16 items-center justify-center border-b border-border/60">
-          <div className="grid h-9 w-9 place-items-center rounded-lg bg-primary/15 text-primary font-display font-bold">
-            c
-          </div>
+      {/* Rail lateral (desktop) — mesmo estilo do painel do personal */}
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-[72px] flex-col items-center gap-2 border-r border-border bg-sidebar py-4 md:flex">
+        <div className="mb-2 grid h-10 w-10 place-items-center rounded-xl">
+          <span
+            aria-label="CactusFitness"
+            role="img"
+            className="block h-8 w-8 bg-primary"
+            style={{
+              WebkitMaskImage: `url(${logoUrl})`,
+              maskImage: `url(${logoUrl})`,
+              WebkitMaskRepeat: "no-repeat",
+              maskRepeat: "no-repeat",
+              WebkitMaskPosition: "center",
+              maskPosition: "center",
+              WebkitMaskSize: "contain",
+              maskSize: "contain",
+            }}
+          />
         </div>
-        <nav className="flex-1 overflow-y-auto py-2">
-          {RAIL_ICONS.map(({ icon: Icon, label, active }) => (
-            <button
-              key={label}
-              type="button"
-              title={label}
-              className={`flex h-12 w-full items-center justify-center transition ${
-                active
-                  ? "bg-primary/15 text-primary"
-                  : "text-muted-foreground hover:bg-accent hover:text-foreground"
-              }`}
-            >
-              <Icon className="h-5 w-5" strokeWidth={1.75} />
-            </button>
-          ))}
-        </nav>
-        <div className="flex flex-col items-center gap-2 border-t border-border/60 py-3">
-          <button className="grid h-9 w-9 place-items-center rounded-full text-muted-foreground hover:bg-accent" aria-label="Colapsar">
-            <ChevronDown className="h-4 w-4" />
-          </button>
-          <button className="relative grid h-9 w-9 place-items-center rounded-full text-muted-foreground hover:bg-accent" aria-label="Configurações">
-            <Settings className="h-4 w-4" />
-            <span className="absolute -bottom-0.5 -right-0.5 grid h-4 w-4 place-items-center rounded-full bg-destructive text-[10px] font-bold text-destructive-foreground">1</span>
-          </button>
+        {RAIL_ITEMS.map(({ icon: Icon, label, active }) => (
           <button
-            onClick={signOut}
-            className="grid h-9 w-9 place-items-center rounded-full text-xs font-bold font-display"
-            style={{ backgroundColor: "rgb(244, 63, 94)", color: "#fff" }}
-            title={name}
+            key={label}
+            type="button"
+            title={label}
+            className={`group relative grid h-11 w-11 place-items-center rounded-[10px] transition ${
+              active
+                ? "bg-primary/20 text-primary"
+                : "text-sidebar-foreground/70 hover:bg-white/5 hover:text-sidebar-foreground"
+            }`}
           >
-
-            {initials}
+            {active && (
+              <span className="absolute -left-3.5 top-1/2 h-7 w-1 -translate-y-1/2 rounded-r-full bg-primary" />
+            )}
+            <Icon className="h-5 w-5" strokeWidth={1.75} />
+            <span className="pointer-events-none absolute left-full ml-3 z-50 whitespace-nowrap rounded-md bg-popover px-2 py-1 text-xs font-medium text-popover-foreground shadow-md ring-1 ring-border opacity-0 group-hover:opacity-100 transition">
+              {label}
+            </span>
           </button>
+        ))}
+        <div className="mt-auto flex flex-col items-center gap-2">
+          <UserAvatarMenu />
         </div>
       </aside>
 
       {/* Conteúdo */}
-      <main className="md:ml-[72px] pb-24 md:pb-8">
-        {/* Header sticky */}
-        <header className="sticky top-0 z-20 border-b border-border/60 bg-background/60 px-4 py-4 backdrop-blur-xl supports-[backdrop-filter]:bg-background/50 sm:px-6">
+      <main className="md:ml-[72px] pt-[76px] pb-24 md:pb-8">
+        {/* Header fixo no topo */}
+        <header className="fixed top-0 right-0 left-0 md:left-[72px] z-30 border-b border-border/60 bg-background/60 px-4 py-4 backdrop-blur-xl supports-[backdrop-filter]:bg-background/50 sm:px-6">
           <div className="mx-auto flex max-w-5xl items-center justify-between gap-3">
 
             <div className="min-w-0">
               <h1 className="font-display text-2xl font-bold leading-tight">Início</h1>
+
               <p className="text-sm text-muted-foreground first-letter:uppercase">{fullDate}</p>
             </div>
             <div className="flex items-center gap-2">
