@@ -1,0 +1,2 @@
+ALTER TABLE public.workout_templates ADD COLUMN IF NOT EXISTS aluno_id uuid NULL REFERENCES public.alunos(id) ON DELETE CASCADE;
+CREATE INDEX IF NOT EXISTS workout_templates_aluno_idx ON public.workout_templates(aluno_id);
