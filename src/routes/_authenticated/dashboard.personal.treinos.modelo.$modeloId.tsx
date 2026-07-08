@@ -12,7 +12,7 @@ import {
   Dumbbell,
   Layers,
   Loader2,
-
+  Video,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
