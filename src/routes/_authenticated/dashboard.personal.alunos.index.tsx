@@ -234,7 +234,7 @@ function AlunosPage() {
               <div className="flex flex-wrap items-center gap-1 rounded-full border border-border bg-card p-1">
                 <TabBtn label="Todos" count={counts.todos} active={tab === "todos"} onClick={() => setTab("todos")} />
                 <TabBtn label="Ativos" count={counts.ativos} active={tab === "ativos"} onClick={() => setTab("ativos")} />
-                <TabBtn label="Convidados" count={counts.convidados} active={tab === "convidados"} onClick={() => setTab("convidados")} />
+                
                 <TabBtn label="Desativados" count={counts.desativados} active={tab === "desativados"} onClick={() => setTab("desativados")} />
               </div>
               <button className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-sm hover:bg-accent">
