@@ -227,7 +227,7 @@ function AlunoDetailPage() {
                   onDelete={() => setDeleteOpen(true)}
                 />
               )}
-              {activeTab === 1 && <TreinosTab alunoId={aluno.id} firstName={aluno.full_name.split(" ")[0]} onNovoPlano={() => setNovoPlanoOpen(true)} />}
+              {activeTab === 1 && <TreinosTab aluno={aluno} onNovoPlano={() => setNovoPlanoOpen(true)} />}
             </div>
           </div>
         </div>
