@@ -295,74 +295,76 @@ function DesafioDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md gap-0 p-0 max-h-[96vh] min-h-[600px] overflow-hidden flex flex-col">
+      <DialogContent className="max-w-md gap-0 p-0 max-h-[96vh] min-h-[640px] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between px-4 pt-3.5 pb-2 pr-10">
+        <div className="flex items-center justify-between px-5 pt-4 pb-3 pr-10">
           <div className="flex items-center gap-2">
-            <Trophy className="h-4 w-4 text-primary" strokeWidth={2} />
-            <h2 className="font-display text-sm font-bold">{isEdit ? "Editar Desafio" : "Novo Desafio"}</h2>
+            <Trophy className="h-5 w-5 text-primary" strokeWidth={2} />
+            <h2 className="font-display text-base font-bold">{isEdit ? "Editar Desafio" : "Novo Desafio"}</h2>
           </div>
         </div>
 
 
         {/* Body (scroll only if needed) */}
-        <div className="flex-1 min-h-0 overflow-y-auto px-4 py-2 space-y-2.5">
-          <div className="space-y-1">
-            <Label htmlFor="desafio_nome" className="text-[11px] font-semibold">Nome do desafio</Label>
-            <Input id="desafio_nome" value={nome} onChange={(e) => setNome(e.target.value)} maxLength={100} placeholder="Ex: Desafio de Consistência" className="h-8 text-sm" />
-          </div>
-
-          <div className="space-y-1">
-            <Label htmlFor="desafio_desc" className="text-[11px] font-semibold">Descrição (opcional)</Label>
-            <Textarea id="desafio_desc" value={descricao} onChange={(e) => setDescricao(e.target.value)} maxLength={500} rows={2} placeholder="Descreva as regras do desafio..." className="text-sm min-h-[52px]" />
-          </div>
-
-          <div className="space-y-1">
-            <Label className="text-[11px] font-semibold">Tipo de desafio</Label>
-            <button
-              type="button"
-              onClick={() => setTipo("treino_realizado")}
-              className={`flex w-full items-center gap-2.5 rounded-lg border p-2 text-left transition ${
-                tipo === "treino_realizado" ? "border-primary bg-primary/5" : "border-border bg-background/40"
-              }`}
-            >
-              <span className="grid h-3.5 w-3.5 shrink-0 place-items-center rounded-full border border-primary">
-                {tipo === "treino_realizado" && <span className="h-1.5 w-1.5 rounded-full bg-primary" />}
-              </span>
-              <div className="min-w-0 flex-1">
-                <p className="text-xs font-semibold leading-tight">Treino Realizado</p>
-                <p className="text-[10px] text-muted-foreground">Cada treino concluído = <span className="text-primary">1 ponto</span></p>
-              </div>
-            </button>
-            <div className="flex items-center gap-1.5 rounded-lg border border-border/60 bg-background/30 px-2 py-1.5 text-[10px] text-muted-foreground">
-              <Info className="h-3 w-3 shrink-0" /> Novos tipos em breve (volume, frequência, carga...)
-            </div>
-          </div>
-
-          <div className="space-y-1">
-            <Label htmlFor="desafio_data" className="text-[11px] font-semibold">Data de encerramento (opcional)</Label>
-            <Input id="desafio_data" type="date" value={dataEnc} onChange={(e) => setDataEnc(e.target.value)} className="h-8 text-sm" />
+        <div className="flex-1 min-h-0 overflow-y-auto px-5 py-2 space-y-3.5">
+          <div className="space-y-1.5">
+            <Label htmlFor="desafio_nome" className="text-xs font-semibold">Nome do desafio</Label>
+            <Input id="desafio_nome" value={nome} onChange={(e) => setNome(e.target.value)} maxLength={100} placeholder="Ex: Desafio de Consistência" className="h-9 text-sm" />
           </div>
 
           <div className="space-y-1.5">
+            <Label htmlFor="desafio_desc" className="text-xs font-semibold">Descrição (opcional)</Label>
+            <Textarea id="desafio_desc" value={descricao} onChange={(e) => setDescricao(e.target.value)} maxLength={500} rows={2} placeholder="Descreva as regras do desafio..." className="text-sm min-h-[60px]" />
+          </div>
+
+          <div className="space-y-1.5">
+            <Label className="text-xs font-semibold">Tipo de desafio</Label>
+            <button
+              type="button"
+              onClick={() => setTipo("treino_realizado")}
+              className={`flex w-full items-center gap-3 rounded-lg border p-2.5 text-left transition ${
+                tipo === "treino_realizado" ? "border-primary bg-primary/5" : "border-border bg-background/40"
+              }`}
+            >
+              <span className="grid h-4 w-4 shrink-0 place-items-center rounded-full border border-primary">
+                {tipo === "treino_realizado" && <span className="h-2 w-2 rounded-full bg-primary" />}
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="text-sm font-semibold leading-tight">Treino Realizado</p>
+                <p className="text-xs text-muted-foreground">Cada treino concluído = <span className="text-primary">1 ponto</span></p>
+              </div>
+            </button>
+            <div className="flex items-center gap-2 rounded-lg border border-border/60 bg-background/30 px-2.5 py-2 text-xs text-muted-foreground">
+              <Info className="h-3.5 w-3.5 shrink-0" /> Novos tipos em breve (volume, frequência, carga...)
+            </div>
+          </div>
+
+          <div className="space-y-1.5">
+            <Label htmlFor="desafio_data" className="text-xs font-semibold">Data de encerramento (opcional)</Label>
+            <Input id="desafio_data" type="date" value={dataEnc} onChange={(e) => setDataEnc(e.target.value)} className="h-9 text-sm" />
+            <p className="text-[11px] text-muted-foreground">Deixe vazio para encerrar manualmente.</p>
+          </div>
+
+          <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <Label className="text-[11px] font-semibold">
+              <Label className="text-xs font-semibold">
                 Participantes ({selected.size} {selected.size === 1 ? "selecionado" : "selecionados"})
               </Label>
               {enoughAlunos && (
-                <button type="button" onClick={toggleAll} className="text-[10px] font-semibold text-primary hover:underline">
+                <button type="button" onClick={toggleAll} className="text-xs font-semibold text-primary hover:underline">
                   {allSelected ? "Limpar" : "Selecionar todos"}
                 </button>
               )}
             </div>
 
             {!enoughAlunos && (
-              <div className="rounded-lg border border-amber-500/40 bg-amber-500/10 px-2 py-1.5 text-[10px] text-amber-200/90">
-                É necessário selecionar <strong>no mínimo 2 alunos</strong>. Cadastre mais alunos para liberar.
+              <div className="flex items-start gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 px-2.5 py-2 text-xs text-amber-200/90">
+                <Info className="h-3.5 w-3.5 shrink-0 mt-0.5" />
+                <span>É necessário selecionar <strong>no mínimo 2 alunos</strong> para criar um desafio. Cadastre mais alunos para liberar esta funcionalidade.</span>
               </div>
             )}
 
-            <div className="max-h-32 space-y-1 overflow-y-auto pr-1">
+            <div className="max-h-40 space-y-1.5 overflow-y-auto pr-1">
               {alunos.map((a) => {
                 const on = selected.has(a.id);
                 return (
@@ -370,19 +372,19 @@ function DesafioDialog({
                     key={a.id}
                     type="button"
                     onClick={() => toggle(a.id)}
-                    className={`flex w-full items-center gap-2 rounded-lg border px-2.5 py-1.5 text-left transition ${
+                    className={`flex w-full items-center gap-2.5 rounded-lg border px-3 py-2 text-left transition ${
                       on ? "border-primary bg-primary/5" : "border-border bg-background/40 hover:border-border-strong"
                     }`}
                   >
-                    <span className={`grid h-3.5 w-3.5 shrink-0 place-items-center rounded-full border ${on ? "border-primary bg-primary" : "border-border"}`}>
-                      {on && <span className="h-1.5 w-1.5 rounded-full bg-primary-foreground" />}
+                    <span className={`grid h-4 w-4 shrink-0 place-items-center rounded-full border ${on ? "border-primary bg-primary" : "border-border"}`}>
+                      {on && <span className="h-2 w-2 rounded-full bg-primary-foreground" />}
                     </span>
-                    <span className="truncate text-xs">{a.full_name}</span>
+                    <span className="truncate text-sm">{a.full_name}</span>
                   </button>
                 );
               })}
               {alunos.length === 0 && (
-                <div className="rounded-lg border border-border/60 bg-background/30 px-2 py-2 text-center text-[10px] text-muted-foreground">
+                <div className="rounded-lg border border-border/60 bg-background/30 px-2 py-2 text-center text-xs text-muted-foreground">
                   Nenhum aluno ativo encontrado.
                 </div>
               )}
@@ -391,11 +393,11 @@ function DesafioDialog({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-2 border-t border-border/60 px-4 py-2.5">
+        <div className="flex items-center justify-end gap-2 border-t border-border/60 px-5 py-3">
           <button
             type="button"
             onClick={() => onOpenChange(false)}
-            className="rounded-full border border-border bg-background px-3.5 py-1.5 text-xs font-semibold hover:bg-accent"
+            className="rounded-full border border-border bg-background px-4 py-2 text-sm font-semibold hover:bg-accent"
           >
             Cancelar
           </button>
@@ -403,12 +405,13 @@ function DesafioDialog({
             type="button"
             onClick={() => save.mutate()}
             disabled={!canSave || save.isPending}
-            className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-1.5 text-xs font-semibold text-primary-foreground transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
           >
-            {save.isPending && <Loader2 className="h-3 w-3 animate-spin" />}
+            {save.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
             {isEdit ? "Salvar" : "Criar Desafio"}
           </button>
         </div>
+
       </DialogContent>
     </Dialog>
   );
