@@ -7,6 +7,7 @@ import {
   HeartPulse,
   Trophy,
   CalendarDays,
+  Building2,
   Bell,
 } from "lucide-react";
 import { UserAvatarMenu } from "@/components/UserAvatarMenu";
@@ -27,6 +28,7 @@ const NAV_ITEMS: NavItem[] = [
   { icon: HeartPulse, label: "Avaliações", to: "/dashboard/personal/avaliacoes", match: (p) => p.startsWith("/dashboard/personal/avaliacoes") },
   { icon: Trophy, label: "Desafios", to: "/dashboard/personal/desafios", match: (p) => p.startsWith("/dashboard/personal/desafios") },
   { icon: CalendarDays, label: "Agenda", to: "/dashboard/personal/agenda", match: (p) => p.startsWith("/dashboard/personal/agenda") },
+  { icon: Building2, label: "Academia", to: "/dashboard/personal/academia", match: (p) => p.startsWith("/dashboard/personal/academia") },
 ];
 
 function SidebarIconBtn({
