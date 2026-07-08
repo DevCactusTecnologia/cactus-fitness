@@ -113,28 +113,37 @@ function MeuTreinoPage() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const avatarDisplayUrl = useAvatarUrl(profile?.avatar_url);
   const queryClient = useQueryClient();
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
 
-  const handleAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     e.target.value = "";
-    if (!file || !profile?.id) return;
+    if (!file) return;
     if (!file.type.startsWith("image/")) return;
+    const reader = new FileReader();
+    reader.onload = () => setCropSrc(typeof reader.result === "string" ? reader.result : null);
+    reader.readAsDataURL(file);
+  };
+
+  const handleCropConfirm = async (blob: Blob) => {
+    if (!profile?.id) return;
     setUploadingAvatar(true);
-    const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
-    const path = `${profile.id}/avatar-${Date.now()}.${ext}`;
+    const path = `${profile.id}/avatar-${Date.now()}.jpg`;
     const { error: upErr } = await supabase.storage
       .from("avatars")
-      .upload(path, file, { upsert: true, contentType: file.type });
+      .upload(path, blob, { upsert: true, contentType: "image/jpeg" });
     if (upErr) { setUploadingAvatar(false); return; }
     const { error: dbErr } = await supabase
       .from("profiles")
       .update({ avatar_url: path })
       .eq("id", profile.id);
     setUploadingAvatar(false);
+    setCropSrc(null);
     if (!dbErr) {
       await queryClient.invalidateQueries({ queryKey: ["current-user-profile", profile.id] });
     }
   };
+
 
   useEffect(() => {
     if (!profile?.id || profile.role !== "aluno") return;
