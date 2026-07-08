@@ -231,9 +231,27 @@ function AuthForm({
     }
   }
 
-  function navigateAfterAuth() {
-    const target = redirectTo && redirectTo.startsWith("/") ? redirectTo : "/";
-    navigate({ to: target });
+  async function navigateAfterAuth() {
+    // Se veio de uma URL bloqueada, respeita
+    if (redirectTo && redirectTo.startsWith("/") && redirectTo !== "/") {
+      navigate({ to: redirectTo });
+      return;
+    }
+    // Descobre o papel do usuário para escolher a home certa
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+      const uid = userData.user?.id;
+      if (uid) {
+        const { data: roles } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", uid);
+        const isAluno = roles?.some((r) => r.role === "aluno");
+        navigate({ to: isAluno ? "/meu-treino" : "/" });
+        return;
+      }
+    } catch { /* fallback abaixo */ }
+    navigate({ to: "/" });
   }
 
   async function handleForgotPassword() {

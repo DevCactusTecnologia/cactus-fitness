@@ -413,9 +413,17 @@ function ReferralBanner() {
 /* ---------- Dashboard ---------- */
 
 function Dashboard() {
-  const { profile } = useCurrentUser();
+  const { profile, loading } = useCurrentUser();
   const { data: stats } = useDashboardStats();
   const navigate = useNavigate();
+
+  // Aluno logado nunca vê o painel do personal — vai para /meu-treino
+  useEffect(() => {
+    if (!loading && profile?.role === "aluno") {
+      navigate({ to: "/meu-treino", replace: true });
+    }
+  }, [loading, profile, navigate]);
+
   const name = firstName(profile?.full_name, profile?.email);
   const greeting = greetingFor(new Date().getHours());
   const today = new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" });
