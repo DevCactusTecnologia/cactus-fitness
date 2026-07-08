@@ -141,7 +141,7 @@ function MeuTreinoPage() {
             <div className="relative">
               <div
                 className="grid h-14 w-14 shrink-0 place-items-center rounded-full font-display text-lg font-bold ring-2 ring-primary/60 shadow-md"
-                style={{ backgroundColor: av.bg, color: av.fg }}
+                style={{ backgroundColor: "rgb(244, 63, 94)", color: "#fff" }}
               >
                 {initials}
               </div>
