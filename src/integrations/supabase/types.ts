@@ -63,7 +63,7 @@ export type Database = {
           is_active?: boolean
           notes?: string | null
           objective?: string | null
-          organization_id: string
+          organization_id?: string
           personal_id: string
           phone?: string | null
           updated_at?: string
@@ -130,7 +130,7 @@ export type Database = {
           id?: string
           mode?: string
           neuromotora?: Json
-          organization_id: string
+          organization_id?: string
           perimetros?: Json
           personal_id: string
           peso_osseo?: Json
@@ -233,7 +233,7 @@ export type Database = {
           descricao?: string | null
           id?: string
           nome: string
-          organization_id: string
+          organization_id?: string
           personal_id: string
           status?: string
           tipo?: Database["public"]["Enums"]["desafio_tipo"]
@@ -313,7 +313,7 @@ export type Database = {
           is_public?: boolean
           location?: string | null
           multi_day?: boolean
-          organization_id: string
+          organization_id?: string
           personal_id?: string | null
           recurring?: boolean
           student?: string | null
@@ -629,7 +629,7 @@ export type Database = {
           created_at?: string
           id?: string
           name: string
-          organization_id: string
+          organization_id?: string
           personal_id: string
           scheduled_for?: string | null
           status?: string
@@ -789,7 +789,7 @@ export type Database = {
           kind?: string
           level?: string | null
           name: string
-          organization_id: string
+          organization_id?: string
           periodize?: boolean
           personal_id: string
           slug?: string | null
@@ -838,6 +838,7 @@ export type Database = {
         Args: { _org_id: string; _user_id: string }
         Returns: boolean
       }
+      current_user_org_id: { Args: never; Returns: string }
       gen_workout_template_slug: { Args: { _kind: string }; Returns: string }
       has_org_role: {
         Args: {
