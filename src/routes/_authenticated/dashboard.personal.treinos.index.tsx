@@ -401,8 +401,9 @@ function FilterSelect<T extends string>({
 }
 
 function ModeloRow({ modelo }: { modelo: Modelo }) {
-  const isPlan = modelo.kind === "plan";
+  const isPlan = modelo.kind === "plan" || modelo.kind === "group";
   const Icon = isPlan ? Layers : FileText;
+
   
 
   return (
