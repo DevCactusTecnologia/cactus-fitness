@@ -295,22 +295,15 @@ function DesafioDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md gap-0 p-0 max-h-[92vh] overflow-hidden flex flex-col">
+      <DialogContent className="max-w-md gap-0 p-0 max-h-[96vh] min-h-[600px] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between px-4 pt-3.5 pb-2">
+        <div className="flex items-center justify-between px-4 pt-3.5 pb-2 pr-10">
           <div className="flex items-center gap-2">
             <Trophy className="h-4 w-4 text-primary" strokeWidth={2} />
             <h2 className="font-display text-sm font-bold">{isEdit ? "Editar Desafio" : "Novo Desafio"}</h2>
           </div>
-          <button
-            type="button"
-            onClick={() => onOpenChange(false)}
-            className="grid h-6 w-6 place-items-center rounded-full text-muted-foreground hover:bg-accent"
-            aria-label="Fechar"
-          >
-            <X className="h-3.5 w-3.5" />
-          </button>
         </div>
+
 
         {/* Body (scroll only if needed) */}
         <div className="flex-1 min-h-0 overflow-y-auto px-4 py-2 space-y-2.5">
