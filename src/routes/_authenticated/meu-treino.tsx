@@ -291,7 +291,7 @@ function MeuTreinoPage() {
             >
               {checkedToday ? (
                 <>
-                  <CheckCircle2 className="h-4 w-4" fill="currentColor" strokeWidth={0} />
+                  <CheckCircle2 className="h-4 w-4" />
                   <span className="text-emerald-500">check-in de hoje feito</span>
                 </>
               ) : checkingIn ? (
