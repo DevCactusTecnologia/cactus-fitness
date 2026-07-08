@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ChevronRight, Play, Trophy, Plus, X, Info, Loader2, Pencil, Trash2, CalendarDays, Calendar as CalendarIcon } from "lucide-react";
+import { ChevronRight, Trophy, Plus, X, Info, Loader2, Pencil, Trash2, CalendarDays, Calendar as CalendarIcon } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -83,19 +83,6 @@ function DesafiosPage() {
         </div>
 
         <div className="mx-auto max-w-3xl px-4 pt-6 sm:px-6">
-          <button
-            type="button"
-            className="flex w-full items-center gap-3 rounded-2xl border border-border/60 bg-card/60 p-2.5 text-left transition hover:bg-card sm:p-3"
-          >
-            <div className="grid h-12 w-16 shrink-0 place-items-center overflow-hidden rounded-lg bg-black/60 sm:h-14 sm:w-20">
-              <Play className="h-4 w-4 fill-primary text-primary" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="text-[10px] font-semibold uppercase tracking-wider text-primary">Tutorial em vídeo</div>
-              <div className="mt-0.5 truncate text-xs font-semibold sm:text-sm">Como criar um desafio no cactusfitness</div>
-            </div>
-            <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
-          </button>
 
           {isLoading ? (
             <div className="mt-16 grid place-items-center">
