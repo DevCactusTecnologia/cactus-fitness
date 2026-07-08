@@ -424,18 +424,6 @@ function AgendaPage() {
           </div>
         </div>
 
-        <button className="mt-6 flex w-full items-center justify-between gap-4 rounded-xl border border-border bg-card px-4 py-3 text-left hover:border-border-strong">
-          <div className="flex items-center gap-3">
-            <div className="grid h-9 w-9 place-items-center rounded-full bg-primary/15 text-primary">
-              <Play className="h-4 w-4 fill-current" />
-            </div>
-            <div>
-              <div className="text-[10px] font-semibold uppercase tracking-wider text-primary">Tutorial em vídeo</div>
-              <div className="text-sm font-semibold">Como usar agenda na cactusfitness</div>
-            </div>
-          </div>
-          <ChevronRight className="h-5 w-5 text-muted-foreground" />
-        </button>
 
         <div className="mt-4 flex flex-wrap gap-2">
           {CATEGORIES.map((c) => <CategoryChip key={c.label} icon={c.icon} label={c.label} color={c.color} />)}
