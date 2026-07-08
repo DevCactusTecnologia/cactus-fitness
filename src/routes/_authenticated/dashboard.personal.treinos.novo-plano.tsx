@@ -1,12 +1,23 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { z } from "zod";
 import { WorkoutEditor } from "@/components/workout-editor/WorkoutEditor";
 
+const searchSchema = z.object({
+  alunoId: z.string().uuid().optional(),
+});
+
 export const Route = createFileRoute("/_authenticated/dashboard/personal/treinos/novo-plano")({
+  validateSearch: searchSchema,
   head: () => ({
     meta: [
-      { title: "Criar modelo de plano · cactusfitness" },
-      { name: "description", content: "Monte uma rotina semanal agrupando vários treinos em sessões." },
+      { title: "Criar plano · cactusfitness" },
+      { name: "description", content: "Monte um plano de treino." },
     ],
   }),
-  component: () => <WorkoutEditor kind="plan" />,
+  component: NovoPlanoPage,
 });
+
+function NovoPlanoPage() {
+  const { alunoId } = Route.useSearch();
+  return <WorkoutEditor kind="plan" alunoId={alunoId ?? null} />;
+}
