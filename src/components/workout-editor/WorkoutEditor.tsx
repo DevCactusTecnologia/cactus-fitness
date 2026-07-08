@@ -550,6 +550,12 @@ export function WorkoutEditor({
               <h1 className="truncate text-sm font-semibold md:text-base">{title}</h1>
             </div>
             <div className="flex items-center gap-2">
+              {!state.name.trim() && !isEdit && (
+                <span className="hidden sm:inline-flex items-center gap-1.5 text-xs font-medium text-[oklch(0.75_0.18_60)]">
+                  <AlertCircle className="h-3.5 w-3.5" />
+                  Adicione um nome
+                </span>
+              )}
               <button
                 onClick={handleSave}
                 disabled={!canSave}
@@ -587,11 +593,19 @@ export function WorkoutEditor({
                     />
                   </div>
                 </SheetContent>
-
               </Sheet>
-              <button className="grid h-9 w-9 place-items-center rounded-full border border-border text-muted-foreground hover:bg-muted" aria-label="Mais">
-                <MoreHorizontal className="h-4 w-4" />
-              </button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <button className="grid h-9 w-9 place-items-center rounded-full border border-border text-muted-foreground hover:bg-muted" aria-label="Mais opções">
+                    <MoreHorizontal className="h-4 w-4" />
+                  </button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuItem onClick={() => setConfigOpen(true)}>
+                    <Settings className="mr-2 h-4 w-4" /> Configurações
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </header>
