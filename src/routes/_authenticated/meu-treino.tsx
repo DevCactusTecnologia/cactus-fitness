@@ -313,30 +313,31 @@ function MeuTreinoPage() {
           </section>
 
           {/* Próximo treino */}
-          <section className="rounded-2xl border border-border bg-gradient-to-br from-card via-card to-card/40 p-5">
-            <div className="mb-2 flex items-center justify-between">
-              <p className="text-[11px] uppercase tracking-widest text-muted-foreground">próximo treino</p>
-              <p className="text-[11px] text-muted-foreground">{WEEK_DAYS_PT[todayIdx]} · sem. 1/4</p>
+          <section className="relative overflow-hidden rounded-xl border border-border bg-card p-5 space-y-3">
+            <div className="pointer-events-none absolute -left-10 -top-10 h-36 w-36 rounded-full bg-primary/[0.06] blur-2xl" />
+            <div className="relative flex items-center justify-between">
+              <span className="text-[0.6875rem] font-display font-bold uppercase tracking-wider text-muted-foreground">próximo treino</span>
+              <span className="text-xs font-semibold text-muted-foreground">{WEEK_DAYS_PT[todayIdx]} · sem. 1/4</span>
             </div>
-            <h3 className="font-display text-2xl font-bold">{nextWorkout?.name ?? "Nenhum treino agendado"}</h3>
-            <p className="mt-1 text-sm text-muted-foreground">
-              {nextWorkout ? <>{nextWorkout.exercises} exercícios · <span className="text-primary">Fase 1</span></> : "aguarde o seu personal atribuir um treino"}
+            <h3 className="relative font-display text-xl font-extrabold text-foreground">{nextWorkout?.name ?? "Nenhum treino agendado"}</h3>
+            <p className="relative text-xs text-muted-foreground">
+              {nextWorkout ? <>{nextWorkout.exercises} exercícios<span style={{ color: "rgb(59, 130, 246)" }}> · Fase 1</span></> : "aguarde o seu personal atribuir um treino"}
             </p>
             {nextWorkout ? (
               <Link
                 to="/meu-treino/treino/$id"
                 params={{ id: nextWorkout.id }}
-                className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-primary py-3.5 font-display text-base font-bold text-primary-foreground transition hover:brightness-110 active:scale-[0.98]"
+                className="relative flex h-11 w-full items-center justify-center gap-2 rounded-full bg-primary px-6 text-sm font-bold text-primary-foreground transition hover:brightness-110 active:scale-[0.97]"
               >
-                <Play className="h-5 w-5" fill="currentColor" /> Iniciar treino
+                <Play className="h-4 w-4" fill="currentColor" /> Iniciar treino
               </Link>
             ) : (
               <button
                 type="button"
                 disabled
-                className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-muted py-3.5 font-display text-base font-bold text-muted-foreground opacity-60"
+                className="relative flex h-11 w-full items-center justify-center gap-2 rounded-full bg-muted px-6 text-sm font-bold text-muted-foreground opacity-60"
               >
-                <Play className="h-5 w-5" fill="currentColor" /> Iniciar treino
+                <Play className="h-4 w-4" fill="currentColor" /> Iniciar treino
               </button>
             )}
           </section>
