@@ -715,3 +715,105 @@ function TreinosTab({ firstName, onNovoPlano }: { firstName: string; onNovoPlano
     </div>
   );
 }
+
+function ChangePasswordDialog({
+  aluno, open, onOpenChange,
+}: { aluno: Aluno; open: boolean; onOpenChange: (o: boolean) => void }) {
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [show, setShow] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const changePassword = useServerFn(changeAlunoPassword);
+
+  useEffect(() => {
+    if (!open) { setPassword(""); setConfirm(""); setShow(false); }
+  }, [open]);
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault();
+    if (password.length < 6) return toast.error("A senha deve ter no mínimo 6 caracteres");
+    if (password !== confirm) return toast.error("As senhas não conferem");
+    setLoading(true);
+    try {
+      await changePassword({ data: { alunoId: aluno.id, newPassword: password } });
+      toast.success("Senha alterada com sucesso");
+      onOpenChange(false);
+    } catch (err: any) {
+      toast.error(err?.message ?? "Erro ao alterar senha");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-md gap-0 p-0">
+        <DialogHeader className="p-5">
+          <div className="flex items-center gap-3">
+            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary/15">
+              <KeyRound className="h-5 w-5 text-primary" />
+            </div>
+            <DialogTitle className="font-display text-lg">Alterar senha</DialogTitle>
+          </div>
+          <DialogDescription className="pt-3 text-sm text-muted-foreground">
+            Defina uma nova senha de acesso para <span className="font-semibold text-foreground">{aluno.full_name}</span>. Compartilhe a nova senha com o aluno de forma segura.
+          </DialogDescription>
+        </DialogHeader>
+
+        <form onSubmit={handleSubmit} className="space-y-4 px-5 pb-2">
+          <div className="space-y-2">
+            <Label htmlFor="new_pass" className="text-xs">Nova senha</Label>
+            <div className="relative">
+              <Input
+                id="new_pass"
+                type={show ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="Mínimo 6 caracteres"
+                autoComplete="new-password"
+                className="pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShow((s) => !s)}
+                className="absolute inset-y-0 right-0 grid w-10 place-items-center text-muted-foreground hover:text-foreground"
+                aria-label={show ? "Ocultar senha" : "Mostrar senha"}
+              >
+                {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="confirm_pass" className="text-xs">Confirmar nova senha</Label>
+            <Input
+              id="confirm_pass"
+              type={show ? "text" : "password"}
+              value={confirm}
+              onChange={(e) => setConfirm(e.target.value)}
+              placeholder="Digite a senha novamente"
+              autoComplete="new-password"
+            />
+          </div>
+
+          <DialogFooter className="-mx-5 mt-4 flex-row justify-end gap-2 border-t border-border p-4">
+            <button
+              type="button"
+              onClick={() => onOpenChange(false)}
+              className="rounded-full border border-border bg-background px-5 py-2 text-sm font-semibold hover:bg-accent"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              disabled={loading}
+              className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground hover:brightness-110 disabled:opacity-60"
+            >
+              {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+              <KeyRound className="h-4 w-4" /> Salvar nova senha
+            </button>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
