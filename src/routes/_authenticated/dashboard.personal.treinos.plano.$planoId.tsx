@@ -148,7 +148,12 @@ function PlanoDetailPage() {
               )}
             </div>
 
-            <ActionsSidebar />
+            <ActionsSidebar
+              alunoId={alunoId}
+              templateId={templateId}
+              planoName={data?.plano?.name ?? "este plano"}
+              onDeleted={backToAluno}
+            />
           </div>
         </main>
       </div>
