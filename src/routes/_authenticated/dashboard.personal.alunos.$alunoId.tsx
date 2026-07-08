@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Plus,
   LogIn, Mail, Phone, ShieldAlert, Calendar, User,
-  Clock, Trophy, Pencil, Trash2, Tag, Copy, FileText, Sparkles, Loader2, Lock, AlertTriangle, KeyRound, Eye, EyeOff,
+  Clock, Trophy, Pencil, Trash2, Tag, Copy, FileText, Sparkles, Loader2, Lock, AlertTriangle, KeyRound, Eye, EyeOff, X, CheckCircle2,
 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { changeAlunoPassword } from "@/lib/aluno-password.functions";
@@ -746,20 +746,67 @@ function ChangePasswordDialog({
     setTouched({ pass: true, confirm: true });
     if (!canSubmit) return;
     setLoading(true);
-    const promise = changePassword({ data: { alunoId: aluno.id, newPassword: password } });
-    toast.promise(promise, {
-      loading: "Salvando nova senha…",
-      success: (res: any) =>
-        res?.created
-          ? `Conta criada e senha definida para ${aluno.email}`
-          : "Senha alterada com sucesso",
-      error: (err: any) => err?.message ?? "Erro ao alterar senha",
-    });
+
+    const title = aluno.full_name;
+    const renderToast = (
+      id: string | number,
+      pct: number,
+      status: "uploading" | "done" | "error",
+      subtitle: string,
+    ) => (
+      <div className="pointer-events-auto flex w-[340px] items-center gap-3 overflow-hidden rounded-2xl border border-border/60 bg-card/95 p-3 shadow-[0_20px_50px_-15px_rgba(0,0,0,0.6),0_0_40px_-10px_hsl(var(--primary)/0.35)] backdrop-blur-xl">
+        <div className="relative grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary/10">
+          {status === "uploading" ? (
+            <Loader2 className="h-4 w-4 animate-spin text-primary" />
+          ) : status === "done" ? (
+            <CheckCircle2 className="h-4 w-4 text-primary" />
+          ) : (
+            <X className="h-4 w-4 text-destructive" />
+          )}
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="truncate text-sm font-semibold text-foreground">{title}</p>
+          <p className="mt-0.5 truncate text-xs text-muted-foreground">{subtitle}</p>
+          <div className="mt-2 h-1 w-full overflow-hidden rounded-full bg-border/60">
+            <div
+              className={`h-full rounded-full transition-all duration-200 ${status === "error" ? "bg-destructive" : "bg-primary"}`}
+              style={{ width: `${status === "done" ? 100 : pct}%` }}
+            />
+          </div>
+        </div>
+        <button
+          type="button"
+          onClick={() => toast.dismiss(id)}
+          className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-muted-foreground hover:bg-accent hover:text-foreground"
+          aria-label="Fechar"
+        >
+          <X className="h-4 w-4" />
+        </button>
+      </div>
+    );
+
+    let pct = 0;
+    const id = toast.custom(() => renderToast("tmp", pct, "uploading", "Salvando nova senha…"), { duration: Infinity });
+    const update = (p: number, status: "uploading" | "done" | "error", subtitle: string) =>
+      toast.custom(() => renderToast(id, p, status, subtitle), {
+        id,
+        duration: status === "uploading" ? Infinity : 3500,
+      });
+    const timer = setInterval(() => {
+      pct = Math.min(pct + Math.random() * 18, 90);
+      update(pct, "uploading", "Salvando nova senha…");
+    }, 220);
+
     try {
-      await promise;
+      const res: any = await changePassword({ data: { alunoId: aluno.id, newPassword: password } });
+      clearInterval(timer);
+      update(100, "done", res?.created
+        ? `Conta criada · ${aluno.email}`
+        : "Senha alterada com sucesso");
       onOpenChange(false);
-    } catch {
-      /* toast.promise já mostra o erro */
+    } catch (err: any) {
+      clearInterval(timer);
+      update(100, "error", err?.message ?? "Erro ao alterar senha");
     } finally {
       setLoading(false);
     }
