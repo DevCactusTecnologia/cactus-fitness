@@ -15,6 +15,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
 import { Route as AuthenticatedDashboardPersonalExerciciosRouteImport } from './routes/_authenticated/dashboard.personal.exercicios'
+import { Route as AuthenticatedDashboardPersonalDesafiosRouteImport } from './routes/_authenticated/dashboard.personal.desafios'
 import { Route as AuthenticatedDashboardPersonalAgendaRouteImport } from './routes/_authenticated/dashboard.personal.agenda'
 import { Route as AuthenticatedDashboardPersonalTreinosIndexRouteImport } from './routes/_authenticated/dashboard.personal.treinos.index'
 import { Route as AuthenticatedDashboardPersonalAvaliacoesIndexRouteImport } from './routes/_authenticated/dashboard.personal.avaliacoes.index'
@@ -53,6 +54,12 @@ const AuthenticatedDashboardPersonalExerciciosRoute =
   AuthenticatedDashboardPersonalExerciciosRouteImport.update({
     id: '/dashboard/personal/exercicios',
     path: '/dashboard/personal/exercicios',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedDashboardPersonalDesafiosRoute =
+  AuthenticatedDashboardPersonalDesafiosRouteImport.update({
+    id: '/dashboard/personal/desafios',
+    path: '/dashboard/personal/desafios',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedDashboardPersonalAgendaRoute =
@@ -116,6 +123,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/dashboard/personal/agenda': typeof AuthenticatedDashboardPersonalAgendaRoute
+  '/dashboard/personal/desafios': typeof AuthenticatedDashboardPersonalDesafiosRoute
   '/dashboard/personal/exercicios': typeof AuthenticatedDashboardPersonalExerciciosRoute
   '/dashboard/personal/alunos/$alunoId': typeof AuthenticatedDashboardPersonalAlunosAlunoIdRoute
   '/dashboard/personal/avaliacao/$avaliacaoId': typeof AuthenticatedDashboardPersonalAvaliacaoAvaliacaoIdRoute
@@ -132,6 +140,7 @@ export interface FileRoutesByTo {
   '/perfil': typeof AuthenticatedPerfilRoute
   '/': typeof AuthenticatedIndexRoute
   '/dashboard/personal/agenda': typeof AuthenticatedDashboardPersonalAgendaRoute
+  '/dashboard/personal/desafios': typeof AuthenticatedDashboardPersonalDesafiosRoute
   '/dashboard/personal/exercicios': typeof AuthenticatedDashboardPersonalExerciciosRoute
   '/dashboard/personal/alunos/$alunoId': typeof AuthenticatedDashboardPersonalAlunosAlunoIdRoute
   '/dashboard/personal/avaliacao/$avaliacaoId': typeof AuthenticatedDashboardPersonalAvaliacaoAvaliacaoIdRoute
@@ -150,6 +159,7 @@ export interface FileRoutesById {
   '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/dashboard/personal/agenda': typeof AuthenticatedDashboardPersonalAgendaRoute
+  '/_authenticated/dashboard/personal/desafios': typeof AuthenticatedDashboardPersonalDesafiosRoute
   '/_authenticated/dashboard/personal/exercicios': typeof AuthenticatedDashboardPersonalExerciciosRoute
   '/_authenticated/dashboard/personal/alunos/$alunoId': typeof AuthenticatedDashboardPersonalAlunosAlunoIdRoute
   '/_authenticated/dashboard/personal/avaliacao/$avaliacaoId': typeof AuthenticatedDashboardPersonalAvaliacaoAvaliacaoIdRoute
@@ -168,6 +178,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/perfil'
     | '/dashboard/personal/agenda'
+    | '/dashboard/personal/desafios'
     | '/dashboard/personal/exercicios'
     | '/dashboard/personal/alunos/$alunoId'
     | '/dashboard/personal/avaliacao/$avaliacaoId'
@@ -184,6 +195,7 @@ export interface FileRouteTypes {
     | '/perfil'
     | '/'
     | '/dashboard/personal/agenda'
+    | '/dashboard/personal/desafios'
     | '/dashboard/personal/exercicios'
     | '/dashboard/personal/alunos/$alunoId'
     | '/dashboard/personal/avaliacao/$avaliacaoId'
@@ -201,6 +213,7 @@ export interface FileRouteTypes {
     | '/_authenticated/perfil'
     | '/_authenticated/'
     | '/_authenticated/dashboard/personal/agenda'
+    | '/_authenticated/dashboard/personal/desafios'
     | '/_authenticated/dashboard/personal/exercicios'
     | '/_authenticated/dashboard/personal/alunos/$alunoId'
     | '/_authenticated/dashboard/personal/avaliacao/$avaliacaoId'
@@ -260,6 +273,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard/personal/exercicios'
       fullPath: '/dashboard/personal/exercicios'
       preLoaderRoute: typeof AuthenticatedDashboardPersonalExerciciosRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/dashboard/personal/desafios': {
+      id: '/_authenticated/dashboard/personal/desafios'
+      path: '/dashboard/personal/desafios'
+      fullPath: '/dashboard/personal/desafios'
+      preLoaderRoute: typeof AuthenticatedDashboardPersonalDesafiosRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/dashboard/personal/agenda': {
@@ -332,6 +352,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedPerfilRoute: typeof AuthenticatedPerfilRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedDashboardPersonalAgendaRoute: typeof AuthenticatedDashboardPersonalAgendaRoute
+  AuthenticatedDashboardPersonalDesafiosRoute: typeof AuthenticatedDashboardPersonalDesafiosRoute
   AuthenticatedDashboardPersonalExerciciosRoute: typeof AuthenticatedDashboardPersonalExerciciosRoute
   AuthenticatedDashboardPersonalAlunosAlunoIdRoute: typeof AuthenticatedDashboardPersonalAlunosAlunoIdRoute
   AuthenticatedDashboardPersonalAvaliacaoAvaliacaoIdRoute: typeof AuthenticatedDashboardPersonalAvaliacaoAvaliacaoIdRoute
@@ -348,6 +369,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
   AuthenticatedDashboardPersonalAgendaRoute:
     AuthenticatedDashboardPersonalAgendaRoute,
+  AuthenticatedDashboardPersonalDesafiosRoute:
+    AuthenticatedDashboardPersonalDesafiosRoute,
   AuthenticatedDashboardPersonalExerciciosRoute:
     AuthenticatedDashboardPersonalExerciciosRoute,
   AuthenticatedDashboardPersonalAlunosAlunoIdRoute:
