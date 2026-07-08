@@ -75,7 +75,7 @@ function Row({
   );
 }
 
-const TABS = ["Informações", "Treinos", "Avaliações"];
+const TABS = ["Treinos", "Avaliações", "Informações"];
 
 function PermissionRow({
   title, description, defaultChecked,
