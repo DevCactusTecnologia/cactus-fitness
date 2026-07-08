@@ -1,16 +1,18 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Home, MessageSquare, MessageCircle, TrendingUp, Trophy, Users, Utensils, Calendar,
   Folder, ClipboardList, FileText, User as UserIcon, Settings, HeadphonesIcon,
-  Droplet, Sun, Camera, Check, Flame, Play, ChevronRight, Zap, Dumbbell, Activity,
+  Droplet, Sun, Camera, Check, CheckCircle2, Flame, Play, ChevronRight, Zap, Dumbbell, Activity,
   Edit3, StickyNote, Bell, Receipt, MessageSquareText, Menu as MenuIcon, ChevronDown, Shield,
-  LayoutDashboard, HeartPulse,
+  LayoutDashboard, HeartPulse, Loader2,
 } from "lucide-react";
 import { useCurrentUser, useSignOut, firstName, initialsFromName } from "@/lib/auth";
 import { colorForId } from "@/lib/avatar-color";
 import { UserAvatarMenu } from "@/components/UserAvatarMenu";
+import { supabase } from "@/integrations/supabase/client";
 import logoUrl from "@/assets/cactus-logo.png";
+
 
 export const Route = createFileRoute("/_authenticated/meu-treino")({
   head: () => ({
