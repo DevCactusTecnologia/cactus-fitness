@@ -212,9 +212,10 @@ function useDashboardStats() {
     queryKey: ["dashboard-stats"],
     staleTime: 30_000,
     queryFn: async () => {
-      const [alunosRes, treinosRes] = await Promise.all([
+      const [alunosRes, treinosRes, avaliacoesRes] = await Promise.all([
         supabase.from("alunos").select("id, created_at, is_active"),
         supabase.from("workout_templates").select("id, created_at"),
+        supabase.from("avaliacoes").select("id", { count: "exact", head: true }),
       ]);
       const alunos = alunosRes.data ?? [];
       const treinos = treinosRes.data ?? [];
@@ -224,7 +225,7 @@ function useDashboardStats() {
       return {
         alunosAtivos: alunosActive.length,
         treinosAtivos: treinos.length,
-        avaliacoes: 0,
+        avaliacoes: avaliacoesRes.count ?? 0,
         alunosSpark: alunosBuckets.series,
         alunosDelta: alunosBuckets.thisMonth,
         treinosSpark: treinosBuckets.series,
@@ -517,7 +518,7 @@ function Dashboard() {
             <div className="mb-6 hidden items-start justify-between gap-4 md:flex">
               <div>
                 <h1 className="text-3xl font-bold tracking-tight font-display">Início</h1>
-                <p className="mt-1 text-sm text-muted-foreground">segunda-feira, 6 de julho</p>
+                <p className="mt-1 text-sm text-muted-foreground">{new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" })}</p>
               </div>
               <div className="flex items-center gap-2">
                 <button className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm hover:bg-white/5">

@@ -108,6 +108,7 @@ function formatPhone(value: string) {
 
 function AlunoDetailPage() {
   const { alunoId } = Route.useParams();
+  const navigate = useNavigate();
   const { data: aluno, isLoading } = useAluno(alunoId);
   const [activeTab, setActiveTab] = useState(0);
   const [novoPlanoOpen, setNovoPlanoOpen] = useState(false);
@@ -185,7 +186,13 @@ function AlunoDetailPage() {
                 {TABS.map((t, i) => (
                   <button
                     key={t}
-                    onClick={() => setActiveTab(i)}
+                    onClick={() => {
+                      if (t === "Avaliações") {
+                        navigate({ to: "/dashboard/personal/avaliacoes/$alunoId", params: { alunoId } });
+                        return;
+                      }
+                      setActiveTab(i);
+                    }}
                     className={`whitespace-nowrap px-4 py-3 text-sm font-medium transition-colors ${
                       i === activeTab
                         ? "border-b-2 border-primary text-primary"

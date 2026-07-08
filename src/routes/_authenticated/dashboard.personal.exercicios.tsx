@@ -126,7 +126,7 @@ function ExerciciosPage() {
   const loadData = async () => {
     const [g, eq, e] = await Promise.all([
       supabase.from("exercise_groups").select("*").order("sort_order"),
-      supabase.from("equipments" as never).select("*").order("sort_order") as unknown as Promise<{ data: Equipment[] | null }>,
+      supabase.from("equipments").select("*").order("sort_order"),
       fetchAll(),
     ]);
     setGroups((g.data ?? []) as Group[]);
@@ -387,7 +387,7 @@ function ExerciseDetailModal({
         <div className="overflow-y-auto px-5 py-4 space-y-5">
           {ex.video_url ? (
             <div className="aspect-video w-full rounded-xl overflow-hidden bg-black">
-              <iframe src={ex.video_url} className="w-full h-full" allowFullScreen title={ex.name} />
+              <iframe src={toEmbedUrl(ex.video_url)} className="w-full h-full" allowFullScreen title={ex.name} />
             </div>
           ) : (
             <div className="aspect-video w-full rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border border-border">
