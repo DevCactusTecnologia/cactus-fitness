@@ -47,17 +47,26 @@ function PlanoDetailPage() {
   const { planoId } = Route.useParams();
   const navigate = useNavigate();
 
+  // planoId is either an aluno.id (solo plan) or `${alunoId}__tpl_${templateId}`
+  const [alunoId, templateId] = planoId.includes("__tpl_")
+    ? (planoId.split("__tpl_") as [string, string])
+    : [planoId, null];
+
   const { data, isLoading, error } = useQuery({
     queryKey: ["plano-detail", planoId],
     queryFn: async () => {
+      let query = supabase
+        .from("student_workouts")
+        .select(PLANO_SELECT)
+        .eq("aluno_id", alunoId)
+        .order("scheduled_for", { ascending: true, nullsFirst: false })
+        .order("created_at", { ascending: false });
+      query = templateId
+        ? query.eq("template_id", templateId)
+        : query.is("template_id", null);
       const [alunoRes, workoutsRes] = await Promise.all([
-        supabase.from("alunos").select("id, full_name").eq("id", planoId).maybeSingle(),
-        supabase
-          .from("student_workouts")
-          .select(PLANO_SELECT)
-          .eq("aluno_id", planoId)
-          .order("scheduled_for", { ascending: true, nullsFirst: false })
-          .order("created_at", { ascending: false }),
+        supabase.from("alunos").select("id, full_name").eq("id", alunoId).maybeSingle(),
+        query,
       ]);
       if (alunoRes.error) throw alunoRes.error;
       if (workoutsRes.error) throw workoutsRes.error;
@@ -69,7 +78,7 @@ function PlanoDetailPage() {
 
   const backToAluno = () => navigate({
     to: "/dashboard/personal/alunos/$alunoId",
-    params: { alunoId: planoId },
+    params: { alunoId },
   });
 
   return (
