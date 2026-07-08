@@ -306,19 +306,31 @@ function MeuTreinoPage() {
           <section className="rounded-2xl border border-border bg-card p-5">
             <div className="mb-2 flex items-center justify-between">
               <p className="text-[11px] uppercase tracking-widest text-muted-foreground">próximo treino</p>
-              <p className="text-[11px] text-muted-foreground">seg · sem. 1/4</p>
+              <p className="text-[11px] text-muted-foreground">{WEEK_DAYS_PT[todayIdx]} · sem. 1/4</p>
             </div>
-            <h3 className="font-display text-2xl font-bold">Treino A</h3>
+            <h3 className="font-display text-2xl font-bold">{nextWorkout?.name ?? "Nenhum treino agendado"}</h3>
             <p className="mt-1 text-sm text-muted-foreground">
-              3 exercícios · <span className="text-primary">Fase 1</span>
+              {nextWorkout ? <>{nextWorkout.exercises} exercícios · <span className="text-primary">Fase 1</span></> : "aguarde o seu personal atribuir um treino"}
             </p>
-            <button
-              type="button"
-              className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-primary py-3.5 font-display text-base font-bold text-primary-foreground shadow-[0_0_30px_rgba(215,242,5,0.35)] transition hover:brightness-110 active:scale-[0.98]"
-            >
-              <Play className="h-5 w-5" fill="currentColor" /> Iniciar treino
-            </button>
+            {nextWorkout ? (
+              <Link
+                to="/meu-treino/treino/$id"
+                params={{ id: nextWorkout.id }}
+                className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-primary py-3.5 font-display text-base font-bold text-primary-foreground shadow-[0_0_30px_rgba(215,242,5,0.35)] transition hover:brightness-110 active:scale-[0.98]"
+              >
+                <Play className="h-5 w-5" fill="currentColor" /> Iniciar treino
+              </Link>
+            ) : (
+              <button
+                type="button"
+                disabled
+                className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-muted py-3.5 font-display text-base font-bold text-muted-foreground opacity-60"
+              >
+                <Play className="h-5 w-5" fill="currentColor" /> Iniciar treino
+              </button>
+            )}
           </section>
+
 
           {/* Ranking + Check-in */}
           <section className="overflow-hidden rounded-2xl border border-border bg-card">
