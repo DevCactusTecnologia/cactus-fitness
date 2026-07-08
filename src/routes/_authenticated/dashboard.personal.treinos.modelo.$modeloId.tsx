@@ -493,8 +493,35 @@ function ExerciseDetailDialog({
     },
   });
 
+  const queryClient = useQueryClient();
+  const updateVideo = useMutation({
+    mutationFn: async (url: string) => {
+      const value = url.trim() || null;
+      const { error } = await supabase
+        .from("exercises")
+        .update({ video_url: value })
+        .eq("id", exerciseId);
+      if (error) throw error;
+      return value;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["exercise-detail", exerciseId] });
+      toast.success("Vídeo atualizado");
+    },
+    onError: (err: unknown) => {
+      toast.error(err instanceof Error ? err.message : "Erro ao atualizar vídeo");
+    },
+  });
 
-
+  const handleChangeVideo = () => {
+    const current = data?.video_url ?? data?.video_path ?? "";
+    const input = window.prompt(
+      "Cole a URL do novo vídeo (YouTube ou link direto). Deixe em branco para remover:",
+      current ?? "",
+    );
+    if (input === null) return;
+    updateVideo.mutate(input);
+  };
 
   const videoSrc = data?.video_url ?? data?.video_path ?? null;
   const isYouTube = videoSrc ? /youtu\.?be/.test(videoSrc) : false;
