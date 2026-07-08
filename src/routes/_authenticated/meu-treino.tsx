@@ -15,6 +15,8 @@ import { applyPrimaryColor } from "@/routes/_authenticated/perfil";
 import logoUrl from "@/assets/cactus-logo.png";
 import { useAvatarUrl } from "@/hooks/useAvatarUrl";
 import { useQueryClient } from "@tanstack/react-query";
+import { AvatarCropDialog } from "@/components/AvatarCropDialog";
+
 
 
 export const Route = createFileRoute("/_authenticated/meu-treino")({
