@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Plus,
-  LogIn, Mail, Phone, ShieldAlert, Calendar, User,
+  LogIn, Mail, Phone, ShieldAlert, Calendar, User, ArrowLeft, Layers, Repeat,
   Clock, Trophy, Pencil, Trash2, Tag, Copy, FileText, Sparkles, Loader2, Lock, AlertTriangle, KeyRound, Eye, EyeOff, X, CheckCircle2, ChevronDown, Dumbbell,
 } from "lucide-react";
 
