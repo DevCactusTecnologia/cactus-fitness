@@ -129,6 +129,8 @@ const emptySession = (idx: number): Session => ({
 
 type Action =
   | { type: "SET_META"; patch: Partial<Omit<State, "sessions">> }
+  | { type: "REPLACE_SESSIONS"; sessions: Session[] }
+
   | { type: "ADD_SESSION" }
   | { type: "REMOVE_SESSION"; sessionId: string }
   | { type: "MOVE_SESSION"; sessionId: string; dir: -1 | 1 }
