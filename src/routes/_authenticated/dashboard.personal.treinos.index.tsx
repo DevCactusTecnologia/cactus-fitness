@@ -361,20 +361,53 @@ function FilterSelect<T extends string>({
 }
 
 function ModeloRow({ modelo }: { modelo: Modelo }) {
+  const isPlan = modelo.kind === "plan";
+  const Icon = isPlan ? Layers : FileText;
+  const sessionsLabel = `${modelo.sessionCount} sessão${modelo.sessionCount === 1 ? "" : modelo.sessionCount > 1 ? "es" : ""}`;
+
   return (
-    <div className="flex items-center justify-between gap-3 rounded-xl border border-border bg-card p-4 hover:bg-muted/50">
-      <div className="flex items-center gap-3">
-        <div className="grid h-10 w-10 place-items-center rounded-lg bg-primary/15 text-primary">
-          <FileText className="h-5 w-5" />
+    <div className="group flex cursor-pointer items-center gap-3 rounded-xl border border-border bg-card p-3 transition-all hover:border-primary/40 hover:bg-muted/50 lg:p-4">
+      <div
+        className={`grid h-11 w-11 shrink-0 place-items-center rounded-lg ${
+          isPlan
+            ? "bg-[oklch(0.55_0.22_300)]/15 text-[oklch(0.75_0.18_300)]"
+            : "bg-primary/15 text-primary"
+        }`}
+      >
+        <Icon className="h-5 w-5" />
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="flex flex-wrap items-center gap-2">
+          <p className="truncate text-sm font-semibold text-foreground">{modelo.name}</p>
+          <span
+            className={`shrink-0 rounded-full border px-2 py-0 text-[0.625rem] font-semibold uppercase tracking-wider ${
+              isPlan
+                ? "border-[oklch(0.55_0.22_300)]/30 bg-[oklch(0.55_0.22_300)]/10 text-[oklch(0.75_0.18_300)]"
+                : "border-primary/30 bg-primary/10 text-primary"
+            }`}
+          >
+            {isPlan ? "Plano" : "Simples"}
+          </span>
         </div>
-        <div>
-          <div className="font-semibold">{modelo.name}</div>
-          <div className="mt-0.5 flex items-center gap-2 text-xs text-muted-foreground">
-            <span>Template de Treino</span>
-            {modelo.description && <><span>•</span><span className="truncate max-w-xs">{modelo.description}</span></>}
-          </div>
+        <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
+          <span className="inline-flex items-center gap-1 tabular-nums">
+            <Layers className="h-3 w-3" />
+            <span className="font-semibold text-foreground/80">{modelo.sessionCount}</span>
+            <span>{modelo.sessionCount === 1 ? "sessão" : "sessões"}</span>
+          </span>
+          {modelo.exerciseCount > 0 ? (
+            <span className="inline-flex items-center gap-1 tabular-nums">
+              <Dumbbell className="h-3 w-3" />
+              <span className="font-semibold text-foreground/80">{modelo.exerciseCount}</span>
+              <span>{modelo.exerciseCount === 1 ? "exercício" : "exercícios"}</span>
+            </span>
+          ) : null}
+          {modelo.description ? (
+            <span className="max-w-xs truncate">{modelo.description}</span>
+          ) : null}
         </div>
       </div>
+      <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground/60" aria-hidden />
     </div>
   );
 }
