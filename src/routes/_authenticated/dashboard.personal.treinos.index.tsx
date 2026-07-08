@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query";
 import {
   Dumbbell, FolderPlus, Plus,
   ChevronDown, Layers, FileText,
-  ArrowLeft, Search, ChevronRight, PlayCircle,
+  ArrowLeft, Search, ChevronRight,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import logoUrl from "@/assets/cactus-logo.png";
