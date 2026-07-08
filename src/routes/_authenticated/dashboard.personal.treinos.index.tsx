@@ -1,10 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   Dumbbell, FolderPlus, Plus,
-  ChevronDown, Layers, FileText, MoreHorizontal,
-  ArrowLeft, Search,
+  ChevronDown, Layers, FileText,
+  ArrowLeft, Search, ChevronRight, PlayCircle,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import logoUrl from "@/assets/cactus-logo.png";
