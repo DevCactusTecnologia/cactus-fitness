@@ -105,6 +105,14 @@ function formatPhone(value: string) {
   if (digits.length <= 10) return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
   return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
 }
+type CopyableTemplate = {
+  id: string;
+  name: string;
+  kind: string;
+  sessionCount: number;
+  exerciseCount: number;
+};
+
 
 function AlunoDetailPage() {
   const { alunoId } = Route.useParams();
