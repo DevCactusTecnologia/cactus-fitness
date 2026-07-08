@@ -1,0 +1,6 @@
+ALTER TABLE public.profiles
+  ADD COLUMN IF NOT EXISTS brand_title TEXT,
+  ADD COLUMN IF NOT EXISTS show_brand_title BOOLEAN NOT NULL DEFAULT false,
+  ADD COLUMN IF NOT EXISTS primary_color TEXT,
+  ADD COLUMN IF NOT EXISTS welcome_message TEXT,
+  ADD COLUMN IF NOT EXISTS visible_sections JSONB;

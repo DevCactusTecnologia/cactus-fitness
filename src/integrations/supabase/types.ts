@@ -382,35 +382,50 @@ export type Database = {
         Row: {
           avatar_url: string | null
           bio: string | null
+          brand_title: string | null
           created_at: string
           cref: string | null
           full_name: string | null
           id: string
           phone: string | null
+          primary_color: string | null
+          show_brand_title: boolean
           specialties: string[]
           updated_at: string
+          visible_sections: Json | null
+          welcome_message: string | null
         }
         Insert: {
           avatar_url?: string | null
           bio?: string | null
+          brand_title?: string | null
           created_at?: string
           cref?: string | null
           full_name?: string | null
           id: string
           phone?: string | null
+          primary_color?: string | null
+          show_brand_title?: boolean
           specialties?: string[]
           updated_at?: string
+          visible_sections?: Json | null
+          welcome_message?: string | null
         }
         Update: {
           avatar_url?: string | null
           bio?: string | null
+          brand_title?: string | null
           created_at?: string
           cref?: string | null
           full_name?: string | null
           id?: string
           phone?: string | null
+          primary_color?: string | null
+          show_brand_title?: boolean
           specialties?: string[]
           updated_at?: string
+          visible_sections?: Json | null
+          welcome_message?: string | null
         }
         Relationships: []
       }

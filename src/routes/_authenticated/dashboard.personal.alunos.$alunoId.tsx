@@ -71,11 +71,7 @@ function Row({
   );
 }
 
-const TABS = [
-  "Informações", "Treinos", "Corrida", "Avaliações",
-  "Dieta", "Anamnese", "Anotações", "Histórico",
-  "Progresso", "Cargas", "Financeiro",
-];
+const TABS = ["Informações", "Treinos", "Avaliações"];
 
 function PermissionRow({
   title, description, defaultChecked,
@@ -215,11 +211,6 @@ function AlunoDetailPage() {
                 />
               )}
               {activeTab === 1 && <TreinosTab firstName={aluno.full_name.split(" ")[0]} onNovoPlano={() => setNovoPlanoOpen(true)} />}
-              {activeTab > 1 && (
-                <div className="py-12 text-center text-sm text-muted-foreground">
-                  Em breve.
-                </div>
-              )}
             </div>
           </div>
         </div>
