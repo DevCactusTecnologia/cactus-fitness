@@ -5,7 +5,7 @@ import {
   Folder, ClipboardList, FileText, User as UserIcon, Settings, HeadphonesIcon,
   Droplet, Sun, Camera, Check, CheckCircle2, Flame, Play, ChevronRight, Zap, Dumbbell, Activity,
   Edit3, StickyNote, Bell, Receipt, MessageSquareText, Menu as MenuIcon, ChevronDown, Shield,
-  LayoutDashboard, HeartPulse, Loader2,
+  LayoutDashboard, HeartPulse, Loader2, Undo2,
 } from "lucide-react";
 import { useCurrentUser, useSignOut, firstName, initialsFromName } from "@/lib/auth";
 import { colorForId } from "@/lib/avatar-color";
@@ -39,12 +39,6 @@ const MENU_ITEMS: { icon: any; label: string }[] = [
   { icon: Activity, label: "Atividades" },
   { icon: TrendingUp, label: "Progresso" },
   { icon: ClipboardList, label: "Avaliações" },
-  { icon: Edit3, label: "Formulários" },
-  { icon: StickyNote, label: "Anotações" },
-  { icon: Users, label: "Comunidade" },
-  { icon: Trophy, label: "Desafios" },
-  { icon: Utensils, label: "Dieta" },
-  { icon: Folder, label: "Arquivos" },
 ];
 
 const WEEK_DAYS_PT = ["seg", "ter", "qua", "qui", "sex", "sáb", "dom"];
@@ -170,6 +164,22 @@ function MeuTreinoPage() {
       .insert({ user_id: profile.id, check_in_date: todayIso });
     setCheckingIn(false);
     if (!error) setCheckIns((prev) => new Set(prev).add(todayIso));
+  };
+
+  const handleUndoCheckIn = async () => {
+    if (!profile?.id || !checkedToday || checkingIn) return;
+    setCheckingIn(true);
+    const { error } = await supabase
+      .from("aluno_check_ins")
+      .delete()
+      .eq("user_id", profile.id)
+      .eq("check_in_date", todayIso);
+    setCheckingIn(false);
+    if (!error) setCheckIns((prev) => {
+      const next = new Set(prev);
+      next.delete(todayIso);
+      return next;
+    });
   };
 
   return (
@@ -303,7 +313,7 @@ function MeuTreinoPage() {
           </section>
 
           {/* Próximo treino */}
-          <section className="rounded-2xl border border-border bg-card p-5">
+          <section className="rounded-2xl border border-border bg-gradient-to-br from-card via-card to-card/40 p-5">
             <div className="mb-2 flex items-center justify-between">
               <p className="text-[11px] uppercase tracking-widest text-muted-foreground">próximo treino</p>
               <p className="text-[11px] text-muted-foreground">{WEEK_DAYS_PT[todayIdx]} · sem. 1/4</p>
@@ -316,7 +326,7 @@ function MeuTreinoPage() {
               <Link
                 to="/meu-treino/treino/$id"
                 params={{ id: nextWorkout.id }}
-                className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-primary py-3.5 font-display text-base font-bold text-primary-foreground shadow-[0_0_30px_rgba(215,242,5,0.35)] transition hover:brightness-110 active:scale-[0.98]"
+                className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-primary py-3.5 font-display text-base font-bold text-primary-foreground transition hover:brightness-110 active:scale-[0.98]"
               >
                 <Play className="h-5 w-5" fill="currentColor" /> Iniciar treino
               </Link>
@@ -348,31 +358,39 @@ function MeuTreinoPage() {
                 ver ranking <ChevronRight className="h-4 w-4" />
               </span>
             </button>
-            <button
-              type="button"
-              onClick={handleCheckIn}
-              disabled={checkedToday || checkingIn}
-              className={`flex w-full items-center justify-center gap-2 border-t border-border/60 py-3 text-sm font-semibold transition ${
-                checkedToday
-                  ? "text-emerald-500 cursor-default"
-                  : "text-primary hover:bg-primary/5 disabled:opacity-60"
-              }`}
-            >
-              {checkedToday ? (
-                <>
-                  <CheckCircle2 className="h-4 w-4" />
-                  <span className="text-emerald-500">check-in de hoje feito</span>
-                </>
-              ) : checkingIn ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" /> registrando check-in...
-                </>
-              ) : (
-                <>
-                  <Zap className="h-4 w-4" fill="currentColor" /> fazer check-in de hoje (+5 pts)
-                </>
-              )}
-            </button>
+            {checkedToday ? (
+              <div className="flex w-full items-center justify-center gap-2 border-t border-border/60 py-3 text-sm font-semibold">
+                <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                <span className="text-emerald-500">check-in de hoje feito</span>
+                <button
+                  type="button"
+                  onClick={handleUndoCheckIn}
+                  disabled={checkingIn}
+                  aria-label="Desfazer check-in"
+                  title="Desfazer check-in"
+                  className="ml-1 grid h-6 w-6 place-items-center rounded-full text-muted-foreground/70 transition hover:bg-accent hover:text-foreground disabled:opacity-50"
+                >
+                  {checkingIn ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Undo2 className="h-3.5 w-3.5" />}
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={handleCheckIn}
+                disabled={checkingIn}
+                className="flex w-full items-center justify-center gap-2 border-t border-border/60 py-3 text-sm font-semibold text-primary transition hover:bg-primary/5 disabled:opacity-60"
+              >
+                {checkingIn ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" /> registrando check-in...
+                  </>
+                ) : (
+                  <>
+                    <Zap className="h-4 w-4" fill="currentColor" /> fazer check-in de hoje (+5 pts)
+                  </>
+                )}
+              </button>
+            )}
           </section>
 
           {/* Grid de menu */}
