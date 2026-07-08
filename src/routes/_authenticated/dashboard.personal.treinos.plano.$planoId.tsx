@@ -68,9 +68,9 @@ function PlanoDetailPage() {
   });
 
   return (
-    <div className="flex min-h-screen">
+    <div className="relative flex min-h-screen bg-background [background-image:none]">
       <IconRail />
-      <div className="flex-1 min-w-0 pb-20 md:pb-0 md:pl-[72px]">
+      <div className="flex-1 min-w-0 pb-20 md:pb-0 md:pl-[72px] bg-background">
         <header className="sticky top-0 z-40 border-b border-border bg-background/95 p-4 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:p-6">
           <div className="mx-auto max-w-6xl">
             <div className="mb-2 flex items-center gap-3">
