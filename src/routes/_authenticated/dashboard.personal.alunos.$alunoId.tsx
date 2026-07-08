@@ -786,7 +786,11 @@ function TreinosTab({ aluno, onNovoPlano, onCopiar }: { aluno: Aluno; onNovoPlan
           Planos de Treino
         </h3>
         <div className="flex items-center gap-2">
-          <button className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3.5 py-2 text-sm font-semibold hover:bg-surface-2">
+          <button
+            type="button"
+            onClick={onCopiar}
+            className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3.5 py-2 text-sm font-semibold hover:bg-surface-2"
+          >
             <Copy className="h-4 w-4" /> Copiar existente
           </button>
           <button
