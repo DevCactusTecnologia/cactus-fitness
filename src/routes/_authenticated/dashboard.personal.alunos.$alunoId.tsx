@@ -848,11 +848,11 @@ function ChangePasswordDialog({
             </button>
             <button
               type="submit"
-              disabled={loading}
-              className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground hover:brightness-110 disabled:opacity-60"
+              disabled={!canSubmit}
+              className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground hover:brightness-110 disabled:opacity-60 disabled:cursor-not-allowed"
             >
-              {loading && <Loader2 className="h-4 w-4 animate-spin" />}
-              <KeyRound className="h-4 w-4" /> Salvar nova senha
+              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <KeyRound className="h-4 w-4" />}
+              {loading ? "Salvando…" : "Salvar nova senha"}
             </button>
           </DialogFooter>
         </form>
