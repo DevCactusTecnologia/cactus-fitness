@@ -279,8 +279,30 @@ function MeuTreinoPage() {
                 ver ranking <ChevronRight className="h-4 w-4" />
               </span>
             </button>
-            <button className="flex w-full items-center justify-center gap-2 border-t border-border/60 py-3 text-sm font-semibold text-primary hover:bg-primary/5">
-              <Zap className="h-4 w-4" fill="currentColor" /> fazer check-in de hoje (+5 pts)
+            <button
+              type="button"
+              onClick={handleCheckIn}
+              disabled={checkedToday || checkingIn}
+              className={`flex w-full items-center justify-center gap-2 border-t border-border/60 py-3 text-sm font-semibold transition ${
+                checkedToday
+                  ? "text-emerald-500 cursor-default"
+                  : "text-primary hover:bg-primary/5 disabled:opacity-60"
+              }`}
+            >
+              {checkedToday ? (
+                <>
+                  <CheckCircle2 className="h-4 w-4" fill="currentColor" strokeWidth={0} />
+                  <span className="text-emerald-500">check-in de hoje feito</span>
+                </>
+              ) : checkingIn ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" /> registrando check-in...
+                </>
+              ) : (
+                <>
+                  <Zap className="h-4 w-4" fill="currentColor" /> fazer check-in de hoje (+5 pts)
+                </>
+              )}
             </button>
           </section>
 
