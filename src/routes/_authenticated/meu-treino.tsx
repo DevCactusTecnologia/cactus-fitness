@@ -1,16 +1,18 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   Home, MessageSquare, MessageCircle, TrendingUp, Trophy, Users, Utensils, Calendar,
   Folder, ClipboardList, FileText, User as UserIcon, Settings, HeadphonesIcon,
-  Droplet, Sun, Camera, Check, Flame, Play, ChevronRight, Zap, Dumbbell, Activity,
+  Droplet, Sun, Camera, Check, CheckCircle2, Flame, Play, ChevronRight, Zap, Dumbbell, Activity,
   Edit3, StickyNote, Bell, Receipt, MessageSquareText, Menu as MenuIcon, ChevronDown, Shield,
-  LayoutDashboard, HeartPulse,
+  LayoutDashboard, HeartPulse, Loader2,
 } from "lucide-react";
 import { useCurrentUser, useSignOut, firstName, initialsFromName } from "@/lib/auth";
 import { colorForId } from "@/lib/avatar-color";
 import { UserAvatarMenu } from "@/components/UserAvatarMenu";
+import { supabase } from "@/integrations/supabase/client";
 import logoUrl from "@/assets/cactus-logo.png";
+
 
 export const Route = createFileRoute("/_authenticated/meu-treino")({
   head: () => ({
@@ -62,9 +64,8 @@ function MeuTreinoPage() {
   const av = colorForId(profile?.id ?? "aluno");
 
   const now = new Date();
-  const jsDay = now.getDay(); // 0=dom .. 6=sab
-  const todayIdx = (jsDay + 6) % 7; // 0=seg .. 6=dom
-  // segunda desta semana
+  const jsDay = now.getDay();
+  const todayIdx = (jsDay + 6) % 7;
   const monday = new Date(now);
   monday.setDate(now.getDate() - todayIdx);
   const weekDates = Array.from({ length: 7 }, (_, i) => {
@@ -73,6 +74,46 @@ function MeuTreinoPage() {
     return d;
   });
   const fullDate = now.toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" });
+
+  const isoDate = (d: Date) => {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${dd}`;
+  };
+  const todayIso = isoDate(now);
+  const weekStart = isoDate(weekDates[0]);
+  const weekEnd = isoDate(weekDates[6]);
+
+  const [checkIns, setCheckIns] = useState<Set<string>>(new Set());
+  const [checkingIn, setCheckingIn] = useState(false);
+
+  useEffect(() => {
+    if (!profile?.id) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("aluno_check_ins")
+        .select("check_in_date")
+        .eq("user_id", profile.id)
+        .gte("check_in_date", weekStart)
+        .lte("check_in_date", weekEnd);
+      if (!cancelled && data) setCheckIns(new Set(data.map((r: any) => r.check_in_date)));
+    })();
+    return () => { cancelled = true; };
+  }, [profile?.id, weekStart, weekEnd]);
+
+  const checkedToday = checkIns.has(todayIso);
+
+  const handleCheckIn = async () => {
+    if (!profile?.id || checkedToday || checkingIn) return;
+    setCheckingIn(true);
+    const { error } = await supabase
+      .from("aluno_check_ins")
+      .insert({ user_id: profile.id, check_in_date: todayIso });
+    setCheckingIn(false);
+    if (!error) setCheckIns((prev) => new Set(prev).add(todayIso));
+  };
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -173,8 +214,9 @@ function MeuTreinoPage() {
             <p className="mb-4 text-[11px] uppercase tracking-widest text-muted-foreground">calendário da semana</p>
             <div className="grid grid-cols-7 gap-1 sm:gap-2">
               {weekDates.map((d, i) => {
+                const iso = isoDate(d);
                 const isToday = i === todayIdx;
-                const isPast = i < todayIdx;
+                const checked = checkIns.has(iso);
                 return (
                   <div key={i} className="flex flex-col items-center gap-2">
                     <span className={`text-[11px] uppercase tracking-wider ${isToday ? "font-bold text-primary" : "text-muted-foreground"}`}>
@@ -182,14 +224,14 @@ function MeuTreinoPage() {
                     </span>
                     <div
                       className={`grid h-10 w-10 place-items-center rounded-full border text-sm font-semibold transition ${
-                        isToday
+                        checked
+                          ? "border-primary bg-primary text-primary-foreground shadow-[0_0_18px_rgba(215,242,5,0.35)]"
+                          : isToday
                           ? "border-primary bg-primary/10 text-primary shadow-[0_0_18px_rgba(215,242,5,0.35)]"
-                          : isPast
-                          ? "border-primary/60 bg-primary/5 text-primary"
                           : "border-border/60 bg-background/40 text-muted-foreground"
                       }`}
                     >
-                      {isPast ? <Check className="h-4 w-4" strokeWidth={3} /> : d.getDate()}
+                      {checked ? <Check className="h-4 w-4" strokeWidth={3} /> : d.getDate()}
                     </div>
                   </div>
                 );
@@ -237,8 +279,30 @@ function MeuTreinoPage() {
                 ver ranking <ChevronRight className="h-4 w-4" />
               </span>
             </button>
-            <button className="flex w-full items-center justify-center gap-2 border-t border-border/60 py-3 text-sm font-semibold text-primary hover:bg-primary/5">
-              <Zap className="h-4 w-4" fill="currentColor" /> fazer check-in de hoje (+5 pts)
+            <button
+              type="button"
+              onClick={handleCheckIn}
+              disabled={checkedToday || checkingIn}
+              className={`flex w-full items-center justify-center gap-2 border-t border-border/60 py-3 text-sm font-semibold transition ${
+                checkedToday
+                  ? "text-emerald-500 cursor-default"
+                  : "text-primary hover:bg-primary/5 disabled:opacity-60"
+              }`}
+            >
+              {checkedToday ? (
+                <>
+                  <CheckCircle2 className="h-4 w-4" />
+                  <span className="text-emerald-500">check-in de hoje feito</span>
+                </>
+              ) : checkingIn ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" /> registrando check-in...
+                </>
+              ) : (
+                <>
+                  <Zap className="h-4 w-4" fill="currentColor" /> fazer check-in de hoje (+5 pts)
+                </>
+              )}
             </button>
           </section>
 
