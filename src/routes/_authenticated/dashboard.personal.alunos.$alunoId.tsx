@@ -396,6 +396,31 @@ function AlunoDetailPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <CopyPlanPickerDialog
+        open={copyPickerOpen}
+        onOpenChange={setCopyPickerOpen}
+        onSelect={(tpl) => {
+          setSelectedCopyTemplate(tpl);
+          setCopyPickerOpen(false);
+          setCopyConfigOpen(true);
+        }}
+      />
+
+      <CopyPlanConfigDialog
+        open={copyConfigOpen}
+        onOpenChange={setCopyConfigOpen}
+        template={selectedCopyTemplate}
+        aluno={aluno}
+        onBack={() => {
+          setCopyConfigOpen(false);
+          setCopyPickerOpen(true);
+        }}
+        onDone={() => {
+          setCopyConfigOpen(false);
+          setSelectedCopyTemplate(null);
+        }}
+      />
     </div>
   );
 }
