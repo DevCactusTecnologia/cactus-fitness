@@ -23,48 +23,47 @@ export const Route = createFileRoute("/_authenticated/")({
 
 /* ---------- Desktop KPI helpers ---------- */
 
-function Sparkline({ magnitude = 0 }: { magnitude?: number }) {
-  // magnitude: 0 = flat line at zero; 1 = full rise.
-  const m = Math.max(0, Math.min(1, magnitude));
-  const baseY = 20;
-  const points = [
-    [0, baseY],
-    [10, baseY - 1 * m],
-    [20, baseY - 1 * m],
-    [30, baseY - 2 * m],
-    [40, baseY - 3 * m],
-    [50, baseY - 5 * m],
-    [60, baseY - 9 * m],
-    [72, baseY - 18 * m],
-  ];
-  const d = points.map(([x, y], i) => `${i === 0 ? "M" : "L"} ${x} ${y}`).join(" ");
+function Sparkline({ data = [] }: { data?: number[] }) {
+  // Draws a normalized polyline based on real monthly counts.
+  const width = 72;
+  const height = 22;
+  const pad = 2;
+  const series = data.length > 0 ? data : [0];
+  const max = Math.max(...series, 1);
+  const min = Math.min(...series, 0);
+  const range = Math.max(max - min, 1);
+  const stepX = series.length > 1 ? (width - pad * 2) / (series.length - 1) : 0;
+  const points = series.map((v, i) => {
+    const x = pad + i * stepX;
+    const y = height - pad - ((v - min) / range) * (height - pad * 2);
+    return [x, y] as const;
+  });
+  const d = points.map(([x, y], i) => `${i === 0 ? "M" : "L"} ${x.toFixed(2)} ${y.toFixed(2)}`).join(" ");
   const stroke = "hsl(var(--primary))";
   return (
-    <svg viewBox="0 0 72 22" className="h-[22px] w-[72px] overflow-visible">
+    <svg viewBox={`0 0 ${width} ${height}`} className="h-[22px] w-[72px] overflow-visible">
       <path d={d} fill="none" stroke={stroke} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
 
 function KpiCard({
-  label, value, sub, trend,
-}: { label: string; value: string; sub: string; trend?: string }) {
-  const numeric = Number(String(value).replace(/[^\d.-]/g, "")) || 0;
-  // Scale: small counts stay subtle, larger counts approach a full rise.
-  const magnitude = numeric <= 0 ? 0 : Math.min(1, Math.log10(numeric + 1) / 2);
+  label, value, sub, trend, spark,
+}: { label: string; value: string; sub: string; trend?: number; spark?: number[] }) {
+  const showTrend = typeof trend === "number" && trend > 0;
   return (
     <div className="rounded-lg border border-border bg-bg-elevated p-4 transition-colors hover:border-border-strong">
       <div className="flex items-center justify-between">
         <span className="text-[0.6875rem] font-semibold text-fg-secondary">{label}</span>
-        {trend && numeric > 0 && (
-          <span className="rounded-full bg-primary/15 px-1.5 py-0.5 font-display text-[0.625rem] font-bold leading-none text-primary">
-            {trend}
+        {showTrend && (
+          <span className="inline-flex items-center gap-0.5 rounded-full bg-primary/15 px-1.5 py-0.5 font-display text-[0.625rem] font-bold leading-none text-primary">
+            ↑{trend}
           </span>
         )}
       </div>
       <div className="mt-2 flex items-end justify-between gap-3">
         <div className="font-display text-[1.625rem] font-extrabold leading-none tracking-tight">{value}</div>
-        <Sparkline magnitude={magnitude} />
+        <Sparkline data={spark} />
       </div>
       <div className="mt-1.5 truncate text-[0.6875rem] text-fg-muted">{sub}</div>
     </div>
