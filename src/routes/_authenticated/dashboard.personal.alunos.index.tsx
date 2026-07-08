@@ -95,6 +95,14 @@ function AlunosPage() {
   const [form, setForm] = useState({ full_name: "", email: "", phone: "", objective: "", notes: "" });
   const [formError, setFormError] = useState<string | null>(null);
   const queryClient = useQueryClient();
+  const search = Route.useSearch();
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (search.new) {
+      setOpenNew(true);
+      navigate({ to: ".", search: {}, replace: true });
+    }
+  }, [search.new, navigate]);
 
   const createAluno = useMutation({
     mutationFn: async (payload: typeof form) => {
