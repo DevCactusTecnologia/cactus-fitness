@@ -118,8 +118,9 @@ function MeuTreinoPage() {
       {/* Conteúdo */}
       <main className="md:ml-[72px] pb-24 md:pb-8">
         {/* Header sticky */}
-        <header className="sticky top-0 z-20 border-b border-border/60 bg-background/90 px-4 py-4 backdrop-blur-xl sm:px-6">
-          <div className="mx-auto flex max-w-3xl items-center justify-between gap-3">
+        <header className="sticky top-0 z-20 border-b border-border/60 bg-background/60 px-4 py-4 backdrop-blur-xl supports-[backdrop-filter]:bg-background/50 sm:px-6">
+          <div className="mx-auto flex max-w-5xl items-center justify-between gap-3">
+
             <div className="min-w-0">
               <h1 className="font-display text-2xl font-bold leading-tight">Início</h1>
               <p className="text-sm text-muted-foreground first-letter:uppercase">{fullDate}</p>
@@ -135,7 +136,7 @@ function MeuTreinoPage() {
           </div>
         </header>
 
-        <div className="mx-auto max-w-3xl space-y-4 p-4 sm:p-6">
+        <div className="mx-auto max-w-5xl space-y-4 p-4 sm:p-6">
           {/* Saudação + Bronze */}
           <div className="flex items-center gap-4">
             <div className="relative">
