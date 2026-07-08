@@ -125,6 +125,21 @@ function AcademiaPage() {
       .eq("organization_id", mine.organization_id)
       .order("created_at", { ascending: false });
     setInvites((invs ?? []) as InviteRow[]);
+
+    // Alunos da academia
+    const { data: alunos } = await supabase
+      .from("alunos")
+      .select("id, personal_id, is_active")
+      .eq("organization_id", mine.organization_id);
+    const list = alunos ?? [];
+    setTotalAlunos(list.length);
+    setAlunosAtivos(list.filter((a: any) => a.is_active).length);
+    const counts: Record<string, number> = {};
+    list.forEach((a: any) => {
+      counts[a.personal_id] = (counts[a.personal_id] ?? 0) + 1;
+    });
+    setAlunosByPersonal(counts);
+
     setLoading(false);
   }
 
