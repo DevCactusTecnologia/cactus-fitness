@@ -136,7 +136,7 @@ function MeuTreinoPage() {
           </div>
         </header>
 
-        <div className="mx-auto max-w-3xl space-y-4 p-4 sm:p-6">
+        <div className="mx-auto max-w-5xl space-y-4 p-4 sm:p-6">
           {/* Saudação + Bronze */}
           <div className="flex items-center gap-4">
             <div className="relative">
