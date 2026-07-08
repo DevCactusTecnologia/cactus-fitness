@@ -1,5 +1,6 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { HeartPulse, ArrowLeft } from "lucide-react";
+import { createFileRoute } from "@tanstack/react-router";
+import { HeartPulse } from "lucide-react";
+import { AlunoShell } from "@/components/AlunoShell";
 
 export const Route = createFileRoute("/_authenticated/avaliacoes")({
   head: () => ({ meta: [{ title: "Avaliações · cactusfitness" }] }),
@@ -8,12 +9,9 @@ export const Route = createFileRoute("/_authenticated/avaliacoes")({
 
 function AvaliacoesPage() {
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <AlunoShell>
       <main className="mx-auto max-w-4xl p-6">
-        <Link to="/meu-treino" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground">
-          <ArrowLeft className="h-4 w-4" /> voltar
-        </Link>
-        <div className="mt-6 rounded-2xl border border-border bg-card p-8 text-center">
+        <div className="rounded-2xl border border-border bg-card p-8 text-center">
           <div className="mx-auto mb-4 grid h-12 w-12 place-items-center rounded-xl bg-primary/10 text-primary">
             <HeartPulse className="h-6 w-6" />
           </div>
@@ -21,6 +19,6 @@ function AvaliacoesPage() {
           <p className="mt-2 text-sm text-muted-foreground">Em breve você verá suas avaliações físicas aqui.</p>
         </div>
       </main>
-    </div>
+    </AlunoShell>
   );
 }
