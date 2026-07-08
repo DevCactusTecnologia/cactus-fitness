@@ -266,9 +266,16 @@ function reducer(state: State, action: Action): State {
   }
 }
 
-export function WorkoutEditor({ kind }: { kind: EditorKind }) {
+export function WorkoutEditor({
+  kind,
+  editSlug,
+}: {
+  kind: EditorKind;
+  editSlug?: string;
+}) {
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const isEdit = Boolean(editSlug);
 
   const initial: State = useMemo(() => ({
     name: "",
@@ -285,11 +292,115 @@ export function WorkoutEditor({ kind }: { kind: EditorKind }) {
   const [activeTarget, setActiveTarget] = useState<{ sessionId: string; blockId: string } | null>(null);
   const [saving, setSaving] = useState(false);
   const [mobilePanelOpen, setMobilePanelOpen] = useState(false);
+  const [templateId, setTemplateId] = useState<string | null>(null);
+  const [loadingEdit, setLoadingEdit] = useState(isEdit);
+  const hydratedRef = useRef(false);
 
-  const title = kind === "plan" ? "Criar modelo de plano" : "Criar modelo de treino";
+  useEffect(() => {
+    if (!editSlug || hydratedRef.current) return;
+    let cancelled = false;
+    (async () => {
+      setLoadingEdit(true);
+      try {
+        const { data: tpl, error } = await supabase
+          .from("workout_templates")
+          .select(
+            "id, name, description, kind, level, goal, periodize, workout_template_exercises ( id, exercise_id, sets, reps, load, rest_seconds, notes, position, block_position, session_position, block_label, session_label, exercises ( name ) )",
+          )
+          .eq("slug", editSlug)
+          .maybeSingle();
+        if (error) throw error;
+        if (!tpl || cancelled) return;
+
+        const exs = [...((tpl as any).workout_template_exercises ?? [])].sort(
+          (a: any, b: any) => a.position - b.position,
+        );
+        const sessionMap = new Map<number, Map<number, { label: string; exercises: ExerciseItem[] }>>();
+        const sessionLabels = new Map<number, string>();
+        for (const e of exs) {
+          const sPos = e.session_position ?? 0;
+          const bPos = e.block_position ?? 0;
+          if (!sessionMap.has(sPos)) sessionMap.set(sPos, new Map());
+          const blocks = sessionMap.get(sPos)!;
+          if (!blocks.has(bPos)) blocks.set(bPos, { label: e.block_label ?? "", exercises: [] });
+          const blk = blocks.get(bPos)!;
+          blk.exercises.push({
+            id: uid(),
+            exercise_id: e.exercise_id,
+            name: (e as any).exercises?.name ?? "Exercício",
+            sets: e.sets,
+            reps: e.reps ?? "",
+            rest_seconds: e.rest_seconds,
+            load: e.load ?? "",
+            notes: e.notes ?? "",
+          });
+          if (e.session_label) sessionLabels.set(sPos, e.session_label);
+        }
+
+        const sessions: Session[] = [];
+        const sKeys = [...sessionMap.keys()].sort((a, b) => a - b);
+        if (sKeys.length === 0) {
+          sessions.push(
+            kind === "plan"
+              ? emptySession(0)
+              : { id: uid(), label: "__single__", blocks: [emptyBlock(0)] },
+          );
+        } else {
+          for (const sPos of sKeys) {
+            const bMap = sessionMap.get(sPos)!;
+            const bKeys = [...bMap.keys()].sort((a, b) => a - b);
+            sessions.push({
+              id: uid(),
+              label:
+                tpl.kind === "plan"
+                  ? sessionLabels.get(sPos) ?? `Treino ${String.fromCharCode(65 + sPos)}`
+                  : "__single__",
+              blocks: bKeys.map((bPos) => {
+                const b = bMap.get(bPos)!;
+                return { id: uid(), label: b.label, exercises: b.exercises };
+              }),
+            });
+          }
+        }
+
+        dispatch({
+          type: "SET_META",
+          patch: {
+            name: tpl.name ?? "",
+            description: tpl.description ?? "",
+            level: tpl.level ?? "",
+            goal: tpl.goal ?? "",
+            periodize: Boolean(tpl.periodize),
+          },
+        });
+        // Replace sessions by dispatching a full swap: use dispatch pattern below
+        // Since reducer doesn't have SET_SESSIONS, do it via a hack: we set state via
+        // multiple actions. Easier: use a dedicated action.
+        dispatch({ type: "REPLACE_SESSIONS", sessions } as unknown as Action);
+        setTemplateId(tpl.id);
+        hydratedRef.current = true;
+      } catch (err) {
+        console.error(err);
+        toast.error("Não foi possível carregar o modelo para edição");
+      } finally {
+        if (!cancelled) setLoadingEdit(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [editSlug, kind]);
+
+  const title = isEdit
+    ? kind === "plan"
+      ? "Editar modelo de plano"
+      : "Editar modelo de treino"
+    : kind === "plan"
+      ? "Criar modelo de plano"
+      : "Criar modelo de treino";
   const nameLabel = kind === "plan" ? "Nome do plano" : "Nome do treino";
 
-  const canSave = state.name.trim().length > 0 && !saving;
+  const canSave = state.name.trim().length > 0 && !saving && !loadingEdit;
 
   async function handleSave() {
     if (!canSave) return;
@@ -298,20 +409,42 @@ export function WorkoutEditor({ kind }: { kind: EditorKind }) {
       const { data: userRes } = await supabase.auth.getUser();
       if (!userRes.user) throw new Error("Sessão expirada");
 
-      const { data: tpl, error: tErr } = await supabase
-        .from("workout_templates")
-        .insert({
-          name: state.name.trim(),
-          description: state.description.trim() || null,
-          kind,
-          periodize: state.periodize,
-          level: state.level || null,
-          goal: state.goal || null,
-          personal_id: userRes.user.id,
-        })
-        .select("id")
-        .single();
-      if (tErr || !tpl) throw tErr ?? new Error("Falha ao criar modelo");
+      let workingTemplateId = templateId;
+
+      if (isEdit && workingTemplateId) {
+        const { error: uErr } = await supabase
+          .from("workout_templates")
+          .update({
+            name: state.name.trim(),
+            description: state.description.trim() || null,
+            periodize: state.periodize,
+            level: state.level || null,
+            goal: state.goal || null,
+          })
+          .eq("id", workingTemplateId);
+        if (uErr) throw uErr;
+        const { error: dErr } = await supabase
+          .from("workout_template_exercises")
+          .delete()
+          .eq("template_id", workingTemplateId);
+        if (dErr) throw dErr;
+      } else {
+        const { data: tpl, error: tErr } = await supabase
+          .from("workout_templates")
+          .insert({
+            name: state.name.trim(),
+            description: state.description.trim() || null,
+            kind,
+            periodize: state.periodize,
+            level: state.level || null,
+            goal: state.goal || null,
+            personal_id: userRes.user.id,
+          } as never)
+          .select("id")
+          .single();
+        if (tErr || !tpl) throw tErr ?? new Error("Falha ao criar modelo");
+        workingTemplateId = tpl.id;
+      }
 
       const rows: Array<{
         template_id: string;
@@ -333,7 +466,7 @@ export function WorkoutEditor({ kind }: { kind: EditorKind }) {
         s.blocks.forEach((b, bi) => {
           b.exercises.forEach((e) => {
             rows.push({
-              template_id: tpl.id,
+              template_id: workingTemplateId!,
               exercise_id: e.exercise_id,
               sets: e.sets,
               reps: e.reps || null,
@@ -358,7 +491,8 @@ export function WorkoutEditor({ kind }: { kind: EditorKind }) {
       }
 
       await qc.invalidateQueries({ queryKey: ["workout_templates"] });
-      toast.success("Modelo salvo");
+      await qc.invalidateQueries({ queryKey: ["modelo-detail"] });
+      toast.success(isEdit ? "Modelo atualizado" : "Modelo salvo");
       navigate({ to: "/dashboard/personal/treinos" });
     } catch (err) {
       console.error(err);
@@ -367,6 +501,8 @@ export function WorkoutEditor({ kind }: { kind: EditorKind }) {
       setSaving(false);
     }
   }
+
+
 
   const [pickerOpen, setPickerOpen] = useState(false);
   const [configOpen, setConfigOpen] = useState(false);
