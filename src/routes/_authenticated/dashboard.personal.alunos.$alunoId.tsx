@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Plus,
-  LogIn, Mail, Phone, ShieldAlert, Calendar, User, ArrowLeft, ChevronLeft, Layers, Repeat,
+  LogIn, Mail, Phone, ShieldAlert, Calendar, User, ArrowLeft, ChevronLeft, Layers, Repeat, Search,
   Clock, Trophy, Pencil, Trash2, Tag, Copy, FileText, Sparkles, Loader2, Lock, AlertTriangle, KeyRound, Eye, EyeOff, X, CheckCircle2, ChevronDown, Dumbbell,
 } from "lucide-react";
 
@@ -105,6 +105,14 @@ function formatPhone(value: string) {
   if (digits.length <= 10) return `(${digits.slice(0, 2)}) ${digits.slice(2, 6)}-${digits.slice(6)}`;
   return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
 }
+type CopyableTemplate = {
+  id: string;
+  name: string;
+  kind: string;
+  sessionCount: number;
+  exerciseCount: number;
+};
+
 
 function AlunoDetailPage() {
   const { alunoId } = Route.useParams();
@@ -118,6 +126,9 @@ function AlunoDetailPage() {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [impersonateOpen, setImpersonateOpen] = useState(false);
   const [passwordOpen, setPasswordOpen] = useState(false);
+  const [copyPickerOpen, setCopyPickerOpen] = useState(false);
+  const [copyConfigOpen, setCopyConfigOpen] = useState(false);
+  const [selectedCopyTemplate, setSelectedCopyTemplate] = useState<CopyableTemplate | null>(null);
 
   if (isLoading || !aluno) {
     return (
@@ -230,7 +241,7 @@ function AlunoDetailPage() {
             </div>
 
             <div className="p-5 md:p-6">
-              {activeTab === 0 && <TreinosTab aluno={aluno} onNovoPlano={() => setNovoPlanoOpen(true)} />}
+              {activeTab === 0 && <TreinosTab aluno={aluno} onNovoPlano={() => setNovoPlanoOpen(true)} onCopiar={() => setCopyPickerOpen(true)} />}
               {activeTab === 2 && (
                 <InformacoesTab
                   aluno={aluno}
@@ -385,6 +396,31 @@ function AlunoDetailPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <CopyPlanPickerDialog
+        open={copyPickerOpen}
+        onOpenChange={setCopyPickerOpen}
+        onSelect={(tpl) => {
+          setSelectedCopyTemplate(tpl);
+          setCopyPickerOpen(false);
+          setCopyConfigOpen(true);
+        }}
+      />
+
+      <CopyPlanConfigDialog
+        open={copyConfigOpen}
+        onOpenChange={setCopyConfigOpen}
+        template={selectedCopyTemplate}
+        aluno={aluno}
+        onBack={() => {
+          setCopyConfigOpen(false);
+          setCopyPickerOpen(true);
+        }}
+        onDone={() => {
+          setCopyConfigOpen(false);
+          setSelectedCopyTemplate(null);
+        }}
+      />
     </div>
   );
 }
@@ -758,7 +794,7 @@ function PlanoCard({ plano }: { plano: Plano }) {
   );
 }
 
-function TreinosTab({ aluno, onNovoPlano }: { aluno: Aluno; onNovoPlano: () => void }) {
+function TreinosTab({ aluno, onNovoPlano, onCopiar }: { aluno: Aluno; onNovoPlano: () => void; onCopiar: () => void }) {
   const firstName = aluno.full_name.split(" ")[0];
   const { data: treinos, isLoading, error } = useQuery({
     queryKey: ["aluno-student-workouts", aluno.id],
@@ -783,7 +819,11 @@ function TreinosTab({ aluno, onNovoPlano }: { aluno: Aluno; onNovoPlano: () => v
           Planos de Treino
         </h3>
         <div className="flex items-center gap-2">
-          <button className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3.5 py-2 text-sm font-semibold hover:bg-surface-2">
+          <button
+            type="button"
+            onClick={onCopiar}
+            className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3.5 py-2 text-sm font-semibold hover:bg-surface-2"
+          >
             <Copy className="h-4 w-4" /> Copiar existente
           </button>
           <button
@@ -1014,6 +1054,282 @@ function ChangePasswordDialog({
             </button>
           </DialogFooter>
         </form>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function CopyPlanPickerDialog({
+  open,
+  onOpenChange,
+  onSelect,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  onSelect: (tpl: CopyableTemplate) => void;
+}) {
+  const [q, setQ] = useState("");
+
+  const { data: templates, isLoading } = useQuery({
+    enabled: open,
+    queryKey: ["copyable-plans"],
+    queryFn: async (): Promise<CopyableTemplate[]> => {
+      const { data, error } = await supabase
+        .from("workout_templates")
+        .select("id, name, kind, workout_template_exercises ( session_position )")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data ?? []).map((t: any) => {
+        const exs: { session_position: number }[] = t.workout_template_exercises ?? [];
+        const sessions = new Set(exs.map((e) => e.session_position ?? 0));
+        return {
+          id: t.id,
+          name: t.name,
+          kind: t.kind ?? "template",
+          sessionCount: sessions.size || 1,
+          exerciseCount: exs.length,
+        };
+      });
+    },
+  });
+
+  const filtered = (templates ?? []).filter((t) =>
+    t.name.toLowerCase().includes(q.trim().toLowerCase()),
+  );
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-lg gap-0 p-0">
+        <DialogHeader className="p-5 pb-3">
+          <DialogTitle className="flex items-center gap-2 font-display text-lg">
+            <Copy className="h-5 w-5 text-primary" /> Selecionar plano
+          </DialogTitle>
+          <DialogDescription className="text-xs text-muted-foreground">
+            Escolha o plano que deseja copiar.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="space-y-3 px-5 pb-5">
+          <div className="relative">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <Input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Buscar planos..."
+              className="pl-9"
+            />
+          </div>
+
+          <div className="max-h-[50vh] space-y-2 overflow-y-auto pr-1">
+            {isLoading ? (
+              <div className="flex items-center justify-center gap-2 py-8 text-sm text-muted-foreground">
+                <Loader2 className="h-4 w-4 animate-spin" /> Carregando...
+              </div>
+            ) : filtered.length === 0 ? (
+              <div className="rounded-xl border border-dashed border-border p-6 text-center text-xs text-muted-foreground">
+                Nenhum plano encontrado.
+              </div>
+            ) : (
+              filtered.map((tpl) => {
+                const isPlan = tpl.kind === "plan";
+                return (
+                  <button
+                    key={tpl.id}
+                    type="button"
+                    onClick={() => onSelect(tpl)}
+                    className="group flex w-full items-center justify-between gap-3 rounded-xl border border-border bg-background/40 p-4 text-left transition hover:border-primary/60 hover:bg-primary/5"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-semibold">{tpl.name}</p>
+                      <div className="mt-1.5 flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
+                        <span className="inline-flex items-center gap-1">
+                          <Layers className="h-3.5 w-3.5" />
+                          {tpl.sessionCount} {tpl.sessionCount === 1 ? "sessão" : "sessões"}
+                        </span>
+                        <span className="inline-flex items-center gap-1">
+                          <Dumbbell className="h-3.5 w-3.5" />
+                          {tpl.exerciseCount} {tpl.exerciseCount === 1 ? "exercício" : "exercícios"}
+                        </span>
+                      </div>
+                    </div>
+                    <span
+                      className={`shrink-0 rounded-full border px-2.5 py-0.5 text-[0.625rem] font-semibold uppercase tracking-wider ${
+                        isPlan
+                          ? "border-[oklch(0.55_0.22_300)]/40 bg-[oklch(0.55_0.22_300)]/10 text-[oklch(0.75_0.18_300)]"
+                          : "border-primary/40 bg-primary/10 text-primary"
+                      }`}
+                    >
+                      {isPlan ? "Plano" : "Simples"}
+                    </span>
+                  </button>
+                );
+              })
+            )}
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function CopyPlanConfigDialog({
+  open,
+  onOpenChange,
+  template,
+  aluno,
+  onBack,
+  onDone,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  template: CopyableTemplate | null;
+  aluno: Aluno;
+  onBack: () => void;
+  onDone: () => void;
+}) {
+  const queryClient = useQueryClient();
+  const [name, setName] = useState("");
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+
+  useEffect(() => {
+    if (template && open) {
+      setName(`${template.name} (copia)`);
+      setStartDate("");
+      setEndDate("");
+    }
+  }, [template, open]);
+
+  const copyMutation = useMutation({
+    mutationFn: async () => {
+      if (!template) throw new Error("Nenhum plano selecionado");
+      const { data: userData, error: userErr } = await supabase.auth.getUser();
+      if (userErr || !userData.user) throw new Error("Sessão expirada");
+      const personalId = userData.user.id;
+
+      // 1. Duplicar workout_template (metadata)
+      const { data: srcTpl, error: srcErr } = await supabase
+        .from("workout_templates")
+        .select("description, category, duration_min, kind, periodize, level, goal")
+        .eq("id", template.id)
+        .maybeSingle();
+      if (srcErr) throw srcErr;
+
+      const { data: newTpl, error: insTplErr } = await supabase
+        .from("workout_templates")
+        .insert({
+          personal_id: personalId,
+          name: name.trim() || `${template.name} (copia)`,
+          description: srcTpl?.description ?? null,
+          category: srcTpl?.category ?? null,
+          duration_min: srcTpl?.duration_min ?? null,
+          kind: srcTpl?.kind ?? "plan",
+          periodize: srcTpl?.periodize ?? false,
+          level: srcTpl?.level ?? null,
+          goal: srcTpl?.goal ?? null,
+        })
+        .select("id")
+        .single();
+      if (insTplErr) throw insTplErr;
+
+      // 2. Duplicar exercícios
+      const { data: srcExs, error: exsErr } = await supabase
+        .from("workout_template_exercises")
+        .select("exercise_id, position, sets, reps, load, rest_seconds, notes, session_label, block_label, block_position, session_position")
+        .eq("template_id", template.id);
+      if (exsErr) throw exsErr;
+
+      if (srcExs && srcExs.length > 0) {
+        const rows = srcExs.map((e) => ({ ...e, template_id: newTpl.id }));
+        const { error: insExsErr } = await supabase.from("workout_template_exercises").insert(rows);
+        if (insExsErr) throw insExsErr;
+      }
+
+      // 3. Criar student_workouts para o aluno
+      const { error: swErr } = await supabase.from("student_workouts").insert({
+        personal_id: personalId,
+        aluno_id: aluno.id,
+        template_id: newTpl.id,
+        name: name.trim() || `${template.name} (copia)`,
+        scheduled_for: startDate || null,
+      });
+      if (swErr) throw swErr;
+
+      return newTpl.id;
+    },
+    onSuccess: () => {
+      toast.success("Plano copiado com sucesso");
+      queryClient.invalidateQueries({ queryKey: ["aluno-student-workouts", aluno.id] });
+      queryClient.invalidateQueries({ queryKey: ["workout_templates", "list"] });
+      queryClient.invalidateQueries({ queryKey: ["copyable-plans"] });
+      onDone();
+    },
+    onError: (err: unknown) => {
+      toast.error(err instanceof Error ? err.message : "Erro ao copiar plano");
+    },
+  });
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-lg gap-0 p-0">
+        <DialogHeader className="p-5 pb-3">
+          <DialogTitle className="flex items-center gap-2 font-display text-lg">
+            <Copy className="h-5 w-5 text-primary" /> Configurar cópia
+          </DialogTitle>
+          <DialogDescription className="text-xs text-muted-foreground">
+            Ajuste o nome e a data de início do novo plano.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="space-y-4 px-5 pb-2">
+          <div className="rounded-xl border border-border bg-background/40 p-3">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <FileText className="h-3.5 w-3.5" /> Plano de origem
+            </div>
+            <p className="mt-0.5 text-sm font-semibold">{template?.name ?? "—"}</p>
+          </div>
+          <div className="rounded-xl border border-border bg-background/40 p-3">
+            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <User className="h-3.5 w-3.5" /> Aluno destino
+            </div>
+            <p className="mt-0.5 text-sm font-semibold">{aluno.full_name}</p>
+          </div>
+
+          <div>
+            <Label className="text-xs font-semibold">Nome do novo plano</Label>
+            <Input className="mt-1.5" value={name} onChange={(e) => setName(e.target.value)} />
+          </div>
+
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+            <div>
+              <Label className="text-xs font-semibold">Data de início (opcional)</Label>
+              <Input className="mt-1.5" type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+            </div>
+            <div>
+              <Label className="text-xs font-semibold">Data de término (opcional)</Label>
+              <Input className="mt-1.5" type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+            </div>
+          </div>
+        </div>
+
+        <DialogFooter className="gap-2 p-4">
+          <button
+            type="button"
+            onClick={onBack}
+            disabled={copyMutation.isPending}
+            className="rounded-full border border-border bg-background px-5 py-2 text-sm font-semibold hover:bg-accent disabled:opacity-60"
+          >
+            Voltar
+          </button>
+          <button
+            type="button"
+            onClick={() => copyMutation.mutate()}
+            disabled={copyMutation.isPending || !template}
+            className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground hover:brightness-110 disabled:opacity-60"
+          >
+            {copyMutation.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Copy className="h-4 w-4" />}
+            Copiar plano
+          </button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
