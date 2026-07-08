@@ -453,6 +453,7 @@ export type Database = {
       student_workouts: {
         Row: {
           aluno_id: string
+          archived_at: string | null
           created_at: string
           id: string
           name: string
@@ -464,6 +465,7 @@ export type Database = {
         }
         Insert: {
           aluno_id: string
+          archived_at?: string | null
           created_at?: string
           id?: string
           name: string
@@ -475,6 +477,7 @@ export type Database = {
         }
         Update: {
           aluno_id?: string
+          archived_at?: string | null
           created_at?: string
           id?: string
           name?: string
