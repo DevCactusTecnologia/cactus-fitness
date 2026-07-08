@@ -403,11 +403,14 @@ function FilterSelect<T extends string>({
 function ModeloRow({ modelo }: { modelo: Modelo }) {
   const isPlan = modelo.kind === "plan" || modelo.kind === "group";
   const Icon = isPlan ? Layers : FileText;
-
-  
+  const targetId = modelo.kind === "group" ? (modelo.childIds?.[0] ?? modelo.id) : modelo.id;
 
   return (
-    <div className="group flex cursor-pointer items-center gap-3 rounded-xl border border-border bg-card p-3 transition-all hover:border-primary/40 hover:bg-muted/50 lg:p-4">
+    <Link
+      to="/dashboard/personal/treinos/modelo/$modeloId"
+      params={{ modeloId: targetId }}
+      className="group flex cursor-pointer items-center gap-3 rounded-xl border border-border bg-card p-3 transition-all hover:border-primary/40 hover:bg-muted/50 lg:p-4"
+    >
       <div
         className={`grid h-11 w-11 shrink-0 place-items-center rounded-lg ${
           isPlan
@@ -427,7 +430,7 @@ function ModeloRow({ modelo }: { modelo: Modelo }) {
                 : "border-primary/30 bg-primary/10 text-primary"
             }`}
           >
-            {isPlan ? "Plano" : "Simples"}
+            Simples
           </span>
         </div>
         <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
@@ -449,6 +452,7 @@ function ModeloRow({ modelo }: { modelo: Modelo }) {
         </div>
       </div>
       <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground/60" aria-hidden />
-    </div>
+    </Link>
   );
 }
+
