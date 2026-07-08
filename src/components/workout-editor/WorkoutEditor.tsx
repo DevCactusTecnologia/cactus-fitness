@@ -498,10 +498,27 @@ export function WorkoutEditor({
         if (exErr) throw exErr;
       }
 
+      if (alunoId && !isEdit && workingTemplateId) {
+        const { error: swErr } = await supabase.from("student_workouts").insert({
+          personal_id: userRes.user.id,
+          aluno_id: alunoId,
+          template_id: workingTemplateId,
+          name: state.name.trim(),
+        } as never);
+        if (swErr) throw swErr;
+      }
+
       await qc.invalidateQueries({ queryKey: ["workout_templates"] });
       await qc.invalidateQueries({ queryKey: ["modelo-detail"] });
-      toast.success(isEdit ? "Modelo atualizado" : "Modelo salvo");
-      navigate({ to: "/dashboard/personal/treinos" });
+      if (alunoId) {
+        await qc.invalidateQueries({ queryKey: ["aluno-student-workouts", alunoId] });
+      }
+      toast.success(isEdit ? "Modelo atualizado" : alunoId ? "Plano criado para o aluno" : "Modelo salvo");
+      if (alunoId && !isEdit) {
+        navigate({ to: "/dashboard/personal/alunos/$alunoId", params: { alunoId } });
+      } else {
+        navigate({ to: "/dashboard/personal/treinos" });
+      }
     } catch (err) {
       console.error(err);
       toast.error(err instanceof Error ? err.message : "Erro ao salvar");
