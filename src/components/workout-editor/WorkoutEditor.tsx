@@ -614,34 +614,37 @@ export function WorkoutEditor({
           {/* Name / description / Configurações */}
           <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-start">
 
-            <div className="flex-1 space-y-1">
-              <div className="group relative rounded-lg border border-border/50 bg-card/40 px-4 py-3 transition hover:border-border">
-                <Input
-                  value={state.name}
-                  onChange={(e) => dispatch({ type: "SET_META", patch: { name: e.target.value } })}
-                  placeholder={nameLabel}
-                  className="h-auto border-0 bg-transparent p-0 text-xl font-semibold tracking-tight text-foreground placeholder:text-foreground/60 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
+        <main className="px-3 py-4 sm:px-4 sm:py-5 md:px-8">
+          {/* Name / description */}
+          {kind === "plan" ? (
+            <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-start">
+              <div className="flex-1 space-y-1">
+                <div className="group relative rounded-lg border border-border/50 bg-card/40 px-4 py-3 transition hover:border-border">
+                  <Input
+                    value={state.name}
+                    onChange={(e) => dispatch({ type: "SET_META", patch: { name: e.target.value } })}
+                    placeholder={nameLabel}
+                    className="h-auto border-0 bg-transparent p-0 text-xl font-semibold tracking-tight text-foreground placeholder:text-foreground/60 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                  />
+                  <Pencil className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60 opacity-0 transition group-hover:opacity-100" />
+                </div>
+                <Textarea
+                  value={state.description}
+                  onChange={(e) => dispatch({ type: "SET_META", patch: { description: e.target.value } })}
+                  placeholder="Adicionar descrição"
+                  className="min-h-[36px] resize-none border-0 bg-transparent px-4 py-1 text-base text-muted-foreground placeholder:text-muted-foreground/70 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
                 />
-                <Pencil className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60 opacity-0 transition group-hover:opacity-100" />
               </div>
-              <Textarea
-                value={state.description}
-                onChange={(e) => dispatch({ type: "SET_META", patch: { description: e.target.value } })}
-                placeholder="Adicionar descrição"
-                className="min-h-[36px] resize-none border-0 bg-transparent px-4 py-1 text-base text-muted-foreground placeholder:text-muted-foreground/70 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
-              />
-            </div>
-            <Sheet open={configOpen} onOpenChange={setConfigOpen}>
-              <SheetTrigger asChild>
-                <button className="mt-1 inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border border-border bg-card px-4 text-sm font-medium text-foreground hover:bg-muted">
-                  <Settings className="h-4 w-4" />
-                  Configurações
-                </button>
-              </SheetTrigger>
-              <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
-                <SheetHeader><SheetTitle>Configurações</SheetTitle></SheetHeader>
-                <div className="mt-4 space-y-4">
-                  {kind === "plan" && (
+              <Sheet open={configOpen} onOpenChange={setConfigOpen}>
+                <SheetTrigger asChild>
+                  <button className="mt-1 inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border border-border bg-card px-4 text-sm font-medium text-foreground hover:bg-muted">
+                    <Settings className="h-4 w-4" />
+                    Configurações
+                  </button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
+                  <SheetHeader><SheetTitle>Configurações</SheetTitle></SheetHeader>
+                  <div className="mt-4 space-y-4">
                     <div className="flex items-center justify-between rounded-lg border border-border p-3">
                       <div>
                         <div className="text-sm font-medium">Periodizar</div>
@@ -649,19 +652,51 @@ export function WorkoutEditor({
                       </div>
                       <Switch checked={state.periodize} onCheckedChange={(v) => dispatch({ type: "SET_META", patch: { periodize: v } })} />
                     </div>
-                  )}
-                  <div className="space-y-2">
-                    <Label htmlFor="wt-level">Nível</Label>
-                    <Input id="wt-level" value={state.level} onChange={(e) => dispatch({ type: "SET_META", patch: { level: e.target.value } })} placeholder="Iniciante, Intermediário, Avançado" />
+                    <div className="space-y-2">
+                      <Label htmlFor="wt-level">Nível</Label>
+                      <Input id="wt-level" value={state.level} onChange={(e) => dispatch({ type: "SET_META", patch: { level: e.target.value } })} placeholder="Iniciante, Intermediário, Avançado" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="wt-goal">Objetivo</Label>
+                      <Input id="wt-goal" value={state.goal} onChange={(e) => dispatch({ type: "SET_META", patch: { goal: e.target.value } })} placeholder="Hipertrofia, força, resistência..." />
+                    </div>
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="wt-goal">Objetivo</Label>
-                    <Input id="wt-goal" value={state.goal} onChange={(e) => dispatch({ type: "SET_META", patch: { goal: e.target.value } })} placeholder="Hipertrofia, força, resistência..." />
+                </SheetContent>
+              </Sheet>
+            </div>
+          ) : (
+            <>
+              <div className="space-y-1">
+                <Input
+                  value={state.name}
+                  onChange={(e) => dispatch({ type: "SET_META", patch: { name: e.target.value } })}
+                  placeholder="Nome do modelo (ex: Peito e Triceps — Hipertrofia)"
+                  className="h-auto border-0 bg-transparent p-0 text-xl font-semibold tracking-tight text-foreground placeholder:text-muted-foreground/70 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                />
+                <Textarea
+                  value={state.description}
+                  onChange={(e) => dispatch({ type: "SET_META", patch: { description: e.target.value } })}
+                  placeholder="Adicionar descrição"
+                  className="min-h-[32px] resize-none border-0 bg-transparent p-0 text-base text-muted-foreground placeholder:text-muted-foreground/70 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                />
+              </div>
+              <Sheet open={configOpen} onOpenChange={setConfigOpen}>
+                <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
+                  <SheetHeader><SheetTitle>Configurações</SheetTitle></SheetHeader>
+                  <div className="mt-4 space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="wt-level">Nível</Label>
+                      <Input id="wt-level" value={state.level} onChange={(e) => dispatch({ type: "SET_META", patch: { level: e.target.value } })} placeholder="Iniciante, Intermediário, Avançado" />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="wt-goal">Objetivo</Label>
+                      <Input id="wt-goal" value={state.goal} onChange={(e) => dispatch({ type: "SET_META", patch: { goal: e.target.value } })} placeholder="Hipertrofia, força, resistência..." />
+                    </div>
                   </div>
-                </div>
-              </SheetContent>
-            </Sheet>
-          </div>
+                </SheetContent>
+              </Sheet>
+            </>
+          )}
 
           {/* Periodizar chip */}
           {kind === "plan" && (
@@ -700,32 +735,73 @@ export function WorkoutEditor({
               </button>
             </div>
           ) : (
-            <div className="mt-4 max-w-md space-y-3">
-              {state.sessions[0].blocks.map((b, bi) => (
-                <BlockCard
-                  key={b.id}
-                  sessionId={state.sessions[0].id}
-                  index={bi}
-                  total={state.sessions[0].blocks.length}
-                  block={b}
-                  dispatch={dispatch}
-                  onPickTarget={() => {
-                    setActiveTarget({ sessionId: state.sessions[0].id, blockId: b.id });
-                    setPickerOpen(true);
-                  }}
-                  isActive={activeTarget?.blockId === b.id}
-                />
-              ))}
-              <AddBlockButton
+            <div className="mt-5 max-w-md">
+              <TemplateBlocksCard
                 sessionId={state.sessions[0].id}
+                blocks={state.sessions[0].blocks}
                 dispatch={dispatch}
-                size="lg"
+                onPickTarget={(blockId) => {
+                  setActiveTarget({ sessionId: state.sessions[0].id, blockId });
+                  setPickerOpen(true);
+                }}
+                activeBlockId={activeTarget?.blockId ?? null}
               />
             </div>
           )}
         </main>
       </div>
       <MobileBottomNav />
+    </div>
+  );
+}
+
+function TemplateBlocksCard({
+  sessionId, blocks, dispatch, onPickTarget, activeBlockId,
+}: {
+  sessionId: string;
+  blocks: Block[];
+  dispatch: React.Dispatch<Action>;
+  onPickTarget: (blockId: string) => void;
+  activeBlockId: string | null;
+}) {
+  const soleBlock = blocks[0];
+  const isEmptyDefault =
+    blocks.length === 1 &&
+    !soleBlock?.color &&
+    !soleBlock?.description &&
+    soleBlock?.exercises.length === 0;
+
+  if (isEmptyDefault && soleBlock) {
+    return (
+      <div className="rounded-2xl border border-border/60 bg-card/40 p-2.5">
+        <button
+          onClick={() => onPickTarget(soleBlock.id)}
+          className="flex w-full items-center gap-2 rounded-xl border border-dashed border-border/70 px-4 py-3 text-sm font-medium text-muted-foreground hover:bg-muted"
+        >
+          <Plus className="h-4 w-4" /> Adicionar exercício
+        </button>
+        <div className="mt-1.5">
+          <AddBlockButton sessionId={sessionId} dispatch={dispatch} size="lg" />
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      {blocks.map((b, bi) => (
+        <BlockCard
+          key={b.id}
+          sessionId={sessionId}
+          index={bi}
+          total={blocks.length}
+          block={b}
+          dispatch={dispatch}
+          onPickTarget={() => onPickTarget(b.id)}
+          isActive={activeBlockId === b.id}
+        />
+      ))}
+      <AddBlockButton sessionId={sessionId} dispatch={dispatch} size="lg" />
     </div>
   );
 }
