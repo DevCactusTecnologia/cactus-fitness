@@ -493,10 +493,8 @@ function ExerciseDetailDialog({
     },
   });
 
-  const rest = formatRest(templateEx.rest_seconds);
-  const setsReps = [templateEx.sets ? String(templateEx.sets) : null, templateEx.reps ?? null]
-    .filter(Boolean)
-    .join("×");
+
+
 
   const videoSrc = data?.video_url ?? data?.video_path ?? null;
   const isYouTube = videoSrc ? /youtu\.?be/.test(videoSrc) : false;
