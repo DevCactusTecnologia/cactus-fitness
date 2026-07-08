@@ -162,7 +162,11 @@ function AlunoDetailPage() {
           </div>
 
 
-          <button className="flex w-full items-center justify-between rounded-xl border border-border bg-card p-4 transition hover:bg-accent active:scale-[0.99]">
+          <button
+            type="button"
+            onClick={() => setImpersonateOpen(true)}
+            className="flex w-full items-center justify-between rounded-xl border border-border bg-card p-4 transition hover:bg-accent active:scale-[0.99]"
+          >
             <div className="flex min-w-0 items-center gap-3">
               <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary/15">
                 <LogIn className="h-5 w-5 text-primary" />
