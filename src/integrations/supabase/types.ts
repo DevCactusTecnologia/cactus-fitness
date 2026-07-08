@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      aluno_check_ins: {
+        Row: {
+          check_in_date: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          check_in_date?: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          check_in_date?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       alunos: {
         Row: {
           aluno_user_id: string | null
