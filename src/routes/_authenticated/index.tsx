@@ -155,13 +155,7 @@ function MobileTopBar() {
           Cactus<span className="italic font-normal">Fitness</span>
         </span>
       </div>
-      <div className="flex shrink-0 items-center gap-2">
-        <button className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-sm">
-          <Sparkles className="h-4 w-4 text-primary" />
-          <span>IA</span>
-          <span className="ml-0.5 h-1.5 w-1.5 rounded-full bg-primary" />
-        </button>
-      </div>
+      <div className="flex shrink-0 items-center gap-2" />
     </header>
   );
 }
@@ -444,17 +438,7 @@ function Dashboard() {
                 </h1>
                 <p className="mt-1 text-[0.8125rem] text-fg-muted">{today}</p>
               </div>
-              <div className="flex items-center gap-2">
-                <div className="hidden h-9 min-w-[280px] items-center gap-2 rounded-full border border-border bg-surface-1 px-3.5 text-sm text-fg-muted transition-colors hover:border-border-strong hover:text-fg md:inline-flex">
-                  <Search className="h-3.5 w-3.5" />
-                  <span className="flex-1 truncate">Buscar aluno, plano, exercício…</span>
-                  <kbd className="rounded border border-border bg-surface-3 px-1.5 py-0.5 font-mono text-[0.625rem] text-fg-secondary">⌘K</kbd>
-                </div>
-                <button className="inline-flex h-9 items-center gap-2 rounded-full border border-primary/30 px-4 text-sm font-bold text-primary transition-colors hover:bg-primary/10">
-                  <Sparkles className="h-3.5 w-3.5" /> IA
-                  <span className="h-1.5 w-1.5 rounded-full bg-primary shadow-[0_0_6px_var(--primary-glow-strong)]" />
-                </button>
-              </div>
+              <div />
             </div>
 
             {/* KPIs */}
@@ -520,13 +504,6 @@ function Dashboard() {
                 <h1 className="text-3xl font-bold tracking-tight font-display">Início</h1>
                 <p className="mt-1 text-sm text-muted-foreground">{new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" })}</p>
               </div>
-              <div className="flex items-center gap-2">
-                <button className="inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm hover:bg-white/5">
-                  <Sparkles className="h-4 w-4 text-primary" />
-                  <span>IA</span>
-                  <span className="ml-0.5 h-2 w-2 rounded-full bg-primary" />
-                </button>
-              </div>
             </div>
 
             <div data-mobile-fit="true" className="space-y-4">
@@ -553,14 +530,13 @@ function Dashboard() {
               </div>
 
 
-              <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-3">
+              <div className="grid min-w-0 grid-cols-1 gap-3">
 
                 <ActionButton
-                  icon={Lock}
+                  icon={UserPlus}
                   label="Adicionar Aluno"
                   onClick={() => navigate({ to: "/dashboard/personal/alunos", search: { new: true } })}
                 />
-                <ActionButton icon={Lock} label="Link de Cadastro" />
               </div>
               <NextEventCard />
               <MobilePulseCard />

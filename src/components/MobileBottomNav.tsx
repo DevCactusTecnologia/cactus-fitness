@@ -31,7 +31,6 @@ const ITEMS: Item[] = [
   { icon: LayoutDashboard, label: "Início", to: "/", match: (p) => p === "/" },
   { icon: Users, label: "Alunos", to: "/dashboard/personal/alunos", match: (p) => p.startsWith("/dashboard/personal/alunos") },
   { icon: Dumbbell, label: "Treinos", to: "/dashboard/personal/treinos", match: (p) => p.startsWith("/dashboard/personal/treinos") },
-  { icon: Bell, label: "Notificações", to: "/" },
 ];
 
 type MenuLink = {
@@ -43,7 +42,6 @@ type MenuLink = {
 
 const MENU_LINKS: MenuLink[] = [
   { icon: UserCircle2, label: "Perfil", description: "Gerencie suas informações pessoais", to: "/perfil" },
-  { icon: Settings, label: "Configurações", description: "Assinatura, integrações e notificações", to: "/" },
 ];
 
 export function MobileBottomNav() {

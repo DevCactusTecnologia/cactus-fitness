@@ -93,7 +93,6 @@ export function IconRail() {
         <SidebarIconBtn key={n.label} icon={n.icon} to={n.to} label={n.label} active={n.match(pathname)} />
       ))}
       <div className="mt-auto flex flex-col items-center gap-2">
-        <SidebarIconBtn icon={Bell} label="Notificações" badge="2" />
         <UserAvatarMenu />
       </div>
     </aside>

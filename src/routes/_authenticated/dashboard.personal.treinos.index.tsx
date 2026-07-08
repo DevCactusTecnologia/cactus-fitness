@@ -315,9 +315,6 @@ function ModeloRow({ modelo }: { modelo: Modelo }) {
           </div>
         </div>
       </div>
-      <button className="grid h-9 w-9 place-items-center rounded-lg text-muted-foreground hover:bg-muted hover:text-foreground">
-        <MoreHorizontal className="h-4 w-4" />
-      </button>
     </div>
   );
 }

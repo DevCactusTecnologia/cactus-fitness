@@ -188,9 +188,6 @@ function AlunosPage() {
           <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6 md:px-8">
             <h1 className="text-xl font-bold tracking-tight font-display sm:text-2xl">Alunos</h1>
             <div className="flex flex-wrap items-center gap-2">
-              <button className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card/60 px-3 py-2 text-sm hover:bg-accent">
-                <Link2 className="h-4 w-4" /> <span className="hidden sm:inline">Link de cadastro</span><span className="sm:hidden">Link</span>
-              </button>
               <button
                 type="button"
                 onClick={() => setOpenNew(true)}
@@ -214,16 +211,8 @@ function AlunosPage() {
                   className="w-full bg-transparent placeholder:text-muted-foreground focus:outline-none"
                 />
               </div>
-              <button className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3.5 py-2 text-sm hover:bg-accent">
-                <LayoutGrid className="h-4 w-4" /> Gerenciar Categorias
-              </button>
             </div>
 
-            <div className="mt-3">
-              <button className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs text-muted-foreground hover:bg-accent">
-                <Filter className="h-3.5 w-3.5" /> Filtrar por categoria
-              </button>
-            </div>
 
             <div className="mt-4 flex flex-col gap-3">
               <InfoCard icon={Activity} title="Rotinas de treino" desc="Veja quem treinou e quantas vezes em qualquer período." />
