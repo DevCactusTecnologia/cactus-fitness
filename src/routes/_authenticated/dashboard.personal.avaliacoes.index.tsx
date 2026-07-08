@@ -87,12 +87,7 @@ function AvaliacoesPage() {
 
           {/* Student list */}
           <ul className="mt-4 space-y-2">
-            {isLoading && (
-              <li className="rounded-2xl border border-border/60 bg-card/40 px-4 py-6 text-center text-xs text-muted-foreground">
-                Carregando…
-              </li>
-            )}
-            {!isLoading && filtered.length === 0 && (
+            {filtered.length === 0 && (
               <li className="rounded-2xl border border-border/60 bg-card/40 px-4 py-6 text-center text-xs text-muted-foreground">
                 Nenhum aluno encontrado.
               </li>
