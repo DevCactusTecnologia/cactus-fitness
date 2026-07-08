@@ -21,18 +21,11 @@ export const Route = createFileRoute("/_authenticated/meu-treino")({
 
 const RAIL_ICONS = [
   { icon: Home, label: "Início", active: true },
-  { icon: MessageSquare, label: "Anotações" },
-  { icon: MessageCircle, label: "Chat" },
-  { icon: TrendingUp, label: "Progresso" },
-  { icon: Trophy, label: "Ranking" },
-  { icon: Users, label: "Comunidade" },
-  { icon: Utensils, label: "Dieta" },
-  { icon: Calendar, label: "Agenda" },
-  { icon: Folder, label: "Arquivos" },
+  { icon: Dumbbell, label: "Treinos" },
+  { icon: Trophy, label: "Desafios" },
   { icon: ClipboardList, label: "Avaliações" },
-  { icon: FileText, label: "Formulários" },
-  { icon: UserIcon, label: "Perfil" },
 ];
+
 
 const MENU_ITEMS: { icon: any; label: string }[] = [
   { icon: Dumbbell, label: "Treinos" },
@@ -112,10 +105,11 @@ function MeuTreinoPage() {
           </button>
           <button
             onClick={signOut}
-            className="grid h-9 w-9 place-items-center rounded-full text-xs font-bold font-display text-white"
-            style={{ backgroundColor: av.bg, color: av.fg }}
+            className="grid h-9 w-9 place-items-center rounded-full text-xs font-bold font-display"
+            style={{ backgroundColor: "rgb(244, 63, 94)", color: "#fff" }}
             title={name}
           >
+
             {initials}
           </button>
         </div>
@@ -147,7 +141,7 @@ function MeuTreinoPage() {
             <div className="relative">
               <div
                 className="grid h-14 w-14 shrink-0 place-items-center rounded-full font-display text-lg font-bold ring-2 ring-primary/60 shadow-md"
-                style={{ backgroundColor: av.bg, color: av.fg }}
+                style={{ backgroundColor: "rgb(244, 63, 94)", color: "#fff" }}
               >
                 {initials}
               </div>
