@@ -75,7 +75,7 @@ function Row({
   );
 }
 
-const TABS = ["Informações", "Treinos", "Avaliações"];
+const TABS = ["Treinos", "Avaliações", "Informações"];
 
 function PermissionRow({
   title, description, defaultChecked,
@@ -230,7 +230,8 @@ function AlunoDetailPage() {
             </div>
 
             <div className="p-5 md:p-6">
-              {activeTab === 0 && (
+              {activeTab === 0 && <TreinosTab aluno={aluno} onNovoPlano={() => setNovoPlanoOpen(true)} />}
+              {activeTab === 2 && (
                 <InformacoesTab
                   aluno={aluno}
                   onEdit={() => setEditOpen(true)}
@@ -238,7 +239,6 @@ function AlunoDetailPage() {
                   onDelete={() => setDeleteOpen(true)}
                 />
               )}
-              {activeTab === 1 && <TreinosTab aluno={aluno} onNovoPlano={() => setNovoPlanoOpen(true)} />}
             </div>
           </div>
         </div>
