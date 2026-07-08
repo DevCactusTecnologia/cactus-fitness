@@ -381,6 +381,11 @@ function AcademiaPage() {
                         </div>
                         <div className="text-[11px] text-muted-foreground">
                           entrou em {new Date(m.created_at).toLocaleDateString("pt-BR")}
+                          {(m.role === "owner" || m.role === "personal") && (
+                            <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 font-semibold text-primary">
+                              <Users className="h-3 w-3" /> {alunosByPersonal[m.user_id] ?? 0} aluno(s)
+                            </span>
+                          )}
                         </div>
                       </div>
                       <RoleBadge role={m.role} />
