@@ -297,9 +297,13 @@ function WalletCard() {
 }
 
 
-function ActionButton({ icon: Icon, label }: { icon: React.ElementType; label: string }) {
+function ActionButton({ icon: Icon, label, onClick }: { icon: React.ElementType; label: string; onClick?: () => void }) {
   return (
-    <button className="flex w-full min-w-0 items-center gap-3 overflow-hidden rounded-[1.25rem] border border-border bg-card px-4 py-4 text-left shadow-[var(--shadow-mobile-card)] transition hover:border-primary/40 sm:gap-4 sm:px-5">
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex w-full min-w-0 items-center gap-3 overflow-hidden rounded-[1.25rem] border border-border bg-card px-4 py-4 text-left shadow-[var(--shadow-mobile-card)] transition hover:border-primary/40 sm:gap-4 sm:px-5"
+    >
       <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
         <Icon className="h-5 w-5" strokeWidth={1.75} />
       </div>
