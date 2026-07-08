@@ -7,6 +7,7 @@ import {
   HeartPulse,
   Trophy,
   CalendarDays,
+  Building2,
   Bell,
 } from "lucide-react";
 import { UserAvatarMenu } from "@/components/UserAvatarMenu";
