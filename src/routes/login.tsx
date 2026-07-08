@@ -114,14 +114,15 @@ function LoginPage() {
 function RoleSelect({ onSelect }: { onSelect: (r: Role) => void }) {
   return (
     <div>
-      <div className="mb-8">
-        <h1 className="text-[1.75rem] md:text-3xl font-bold font-display text-primary leading-tight">
+      <div className="mb-6 sm:mb-8">
+        <h1 className="text-2xl sm:text-[1.75rem] lg:text-3xl font-bold font-display text-primary leading-tight tracking-tight">
           Como você quer entrar?
         </h1>
         <p className="text-fg-muted mt-2 text-sm font-body">
           Selecione seu perfil para continuar
         </p>
       </div>
+
       <div className="space-y-3">
         <RoleCard
           icon={<Barbell weight="fill" className="h-6 w-6 text-primary transition-colors" />}
