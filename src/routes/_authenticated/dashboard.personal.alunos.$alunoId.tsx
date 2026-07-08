@@ -160,6 +160,13 @@ function AlunoDetailPage() {
                   <button className="inline-flex items-center gap-1 rounded-full border border-dashed border-muted-foreground/40 px-2.5 py-1 text-xs font-medium text-muted-foreground hover:text-foreground">
                     <Tag className="h-3 w-3" /> Adicionar categorias
                   </button>
+                  <button
+                    type="button"
+                    onClick={() => setPasswordOpen(true)}
+                    className="inline-flex items-center gap-1 rounded-full border border-dashed border-muted-foreground/40 px-2.5 py-1 text-xs font-medium text-muted-foreground hover:text-foreground"
+                  >
+                    <KeyRound className="h-3 w-3" /> Alterar senha
+                  </button>
                 </div>
               </div>
             </div>
