@@ -5,7 +5,7 @@ import {
   LayoutDashboard, Users, CalendarDays,
   Bell, Crown, Lock, Activity,
   ChevronDown, ChevronRight, Pencil, HeartPulse, Dumbbell, Trophy, Gift, ClipboardCheck, Flame,
-  Lightbulb, Sparkles, ArrowRight, Search,
+  Sparkles, ArrowRight, Search,
   UserPlus, FileText, Link2, TrendingUp, AlertTriangle, Clock, MapPin, Home, Users as UsersIcon,
   Wallet, Eye,
 } from "lucide-react";
