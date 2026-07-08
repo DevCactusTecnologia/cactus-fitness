@@ -136,6 +136,78 @@ export type Database = {
           },
         ]
       }
+      desafio_participantes: {
+        Row: {
+          aluno_id: string
+          created_at: string
+          desafio_id: string
+          pontos: number
+        }
+        Insert: {
+          aluno_id: string
+          created_at?: string
+          desafio_id: string
+          pontos?: number
+        }
+        Update: {
+          aluno_id?: string
+          created_at?: string
+          desafio_id?: string
+          pontos?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "desafio_participantes_aluno_id_fkey"
+            columns: ["aluno_id"]
+            isOneToOne: false
+            referencedRelation: "alunos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "desafio_participantes_desafio_id_fkey"
+            columns: ["desafio_id"]
+            isOneToOne: false
+            referencedRelation: "desafios"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      desafios: {
+        Row: {
+          created_at: string
+          data_encerramento: string | null
+          descricao: string | null
+          id: string
+          nome: string
+          personal_id: string
+          status: string
+          tipo: Database["public"]["Enums"]["desafio_tipo"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          data_encerramento?: string | null
+          descricao?: string | null
+          id?: string
+          nome: string
+          personal_id: string
+          status?: string
+          tipo?: Database["public"]["Enums"]["desafio_tipo"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          data_encerramento?: string | null
+          descricao?: string | null
+          id?: string
+          nome?: string
+          personal_id?: string
+          status?: string
+          tipo?: Database["public"]["Enums"]["desafio_tipo"]
+          updated_at?: string
+        }
+        Relationships: []
+      }
       equipments: {
         Row: {
           created_at: string
@@ -540,6 +612,7 @@ export type Database = {
     }
     Enums: {
       app_role: "personal" | "aluno"
+      desafio_tipo: "treino_realizado"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -668,6 +741,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["personal", "aluno"],
+      desafio_tipo: ["treino_realizado"],
     },
   },
 } as const
