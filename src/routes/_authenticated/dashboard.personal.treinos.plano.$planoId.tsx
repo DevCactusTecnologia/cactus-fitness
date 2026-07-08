@@ -1,6 +1,17 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState, type ReactNode } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { toast } from "sonner";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import {
   ArrowLeft,
   ChevronDown,
@@ -137,7 +148,12 @@ function PlanoDetailPage() {
               )}
             </div>
 
-            <ActionsSidebar />
+            <ActionsSidebar
+              alunoId={alunoId}
+              templateId={templateId}
+              planoName={data?.plano?.name ?? "este plano"}
+              onDeleted={backToAluno}
+            />
           </div>
         </main>
       </div>
@@ -475,10 +491,41 @@ const ACTIONS = [
   { icon: Save, label: "Salvar como Template" },
   { icon: FileDown, label: "Exportar PDF" },
   { icon: Archive, label: "Arquivar" },
-  { icon: Trash2, label: "Excluir", destructive: true },
-];
+] as const;
 
-function ActionsSidebar() {
+function ActionsSidebar({
+  alunoId,
+  templateId,
+  planoName,
+  onDeleted,
+}: {
+  alunoId: string;
+  templateId: string | null;
+  planoName: string;
+  onDeleted: () => void;
+}) {
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDelete = async () => {
+    setDeleting(true);
+    try {
+      let query = supabase.from("student_workouts").delete().eq("aluno_id", alunoId);
+      query = templateId ? query.eq("template_id", templateId) : query.is("template_id", null);
+      const { error } = await query;
+      if (error) throw error;
+      toast.success("Plano excluído dos treinos do aluno");
+      setConfirmOpen(false);
+      onDeleted();
+    } catch (err) {
+      toast.error("Não foi possível excluir o plano", {
+        description: err instanceof Error ? err.message : undefined,
+      });
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   return (
     <aside className="lg:sticky lg:top-24 lg:self-start">
       <div className="h-px w-full bg-border lg:hidden" />
@@ -486,17 +533,51 @@ function ActionsSidebar() {
         Ações
       </h2>
       <div className="flex flex-col gap-2">
-        {ACTIONS.map(({ icon: Icon, label, destructive }) => (
+        {ACTIONS.map(({ icon: Icon, label }) => (
           <button
             key={label}
             type="button"
-            className={`inline-flex h-12 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border border-border bg-transparent px-6 py-2.5 text-sm font-semibold transition-all hover:border-primary hover:shadow-[0_0_20px_var(--primary-glow,transparent)] hover:text-primary active:scale-[0.97] ${destructive ? "text-destructive hover:border-destructive hover:text-destructive" : "text-foreground"}`}
+            className="inline-flex h-12 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border border-border bg-transparent px-6 py-2.5 text-sm font-semibold text-foreground transition-all hover:border-primary hover:text-primary active:scale-[0.97]"
           >
             <Icon className="h-4 w-4" />
             {label}
           </button>
         ))}
+        <button
+          type="button"
+          onClick={() => setConfirmOpen(true)}
+          className="inline-flex h-12 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border border-border bg-transparent px-6 py-2.5 text-sm font-semibold text-destructive transition-all hover:border-destructive hover:text-destructive active:scale-[0.97]"
+        >
+          <Trash2 className="h-4 w-4" />
+          Excluir
+        </button>
       </div>
+
+      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir definitivamente?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta ação removerá <span className="font-semibold text-foreground">{planoName}</span> dos
+              planos de treino do aluno de forma definitiva. Todas as sessões vinculadas a este plano
+              serão excluídas e não poderão ser recuperadas.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction
+              disabled={deleting}
+              onClick={(e) => {
+                e.preventDefault();
+                handleDelete();
+              }}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {deleting ? "Excluindo…" : "Excluir definitivamente"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </aside>
   );
 }
