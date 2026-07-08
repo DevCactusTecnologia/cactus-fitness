@@ -165,7 +165,6 @@ function AlunosPage() {
   const counts = useMemo(() => ({
     todos: alunos.length,
     ativos: alunos.filter((a) => a.is_active).length,
-    convidados: 0,
     desativados: alunos.filter((a) => !a.is_active).length,
   }), [alunos]);
 
