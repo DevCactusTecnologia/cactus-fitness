@@ -148,7 +148,7 @@ function RoleCard({
     <button
       type="button"
       onClick={onClick}
-      className="w-full group relative bg-surface-2 border border-border rounded-xl p-5 flex items-center gap-4 transition-all duration-200 active:scale-[0.98] text-left hover:border-primary hover:shadow-glow"
+      className="w-full group relative bg-surface-2 border border-border rounded-xl p-4 sm:p-5 flex items-center gap-3 sm:gap-4 transition-all duration-200 active:scale-[0.98] text-left hover:border-primary hover:shadow-glow"
     >
       <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/20 transition-colors">
         {icon}
