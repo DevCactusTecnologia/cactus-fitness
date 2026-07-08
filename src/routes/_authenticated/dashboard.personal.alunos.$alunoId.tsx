@@ -320,7 +320,13 @@ function AlunoDetailPage() {
               </p>
             </div>
             <button
-              onClick={() => { setNovoPlanoOpen(false); setConfigOpen(true); }}
+              onClick={() => {
+                setNovoPlanoOpen(false);
+                navigate({
+                  to: "/dashboard/personal/treinos/novo-plano",
+                  search: { alunoId: aluno.id },
+                });
+              }}
               className="group flex w-full items-start gap-3 rounded-xl border border-border bg-background/40 p-4 text-left transition hover:border-primary/60 hover:bg-primary/5"
             >
               <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-primary/15 text-primary">
@@ -329,7 +335,7 @@ function AlunoDetailPage() {
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-semibold">Começar do zero</p>
                 <p className="mt-0.5 text-xs text-muted-foreground">
-                  Plano simples em branco, 4 semanas, 3x por semana — você ajusta tudo no builder.
+                  Monte um plano do zero exclusivo para {aluno.full_name.split(" ")[0]} no builder.
                 </p>
               </div>
             </button>
