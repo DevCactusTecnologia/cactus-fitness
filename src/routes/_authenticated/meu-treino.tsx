@@ -64,9 +64,8 @@ function MeuTreinoPage() {
   const av = colorForId(profile?.id ?? "aluno");
 
   const now = new Date();
-  const jsDay = now.getDay(); // 0=dom .. 6=sab
-  const todayIdx = (jsDay + 6) % 7; // 0=seg .. 6=dom
-  // segunda desta semana
+  const jsDay = now.getDay();
+  const todayIdx = (jsDay + 6) % 7;
   const monday = new Date(now);
   monday.setDate(now.getDate() - todayIdx);
   const weekDates = Array.from({ length: 7 }, (_, i) => {
@@ -75,6 +74,46 @@ function MeuTreinoPage() {
     return d;
   });
   const fullDate = now.toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" });
+
+  const isoDate = (d: Date) => {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, "0");
+    const dd = String(d.getDate()).padStart(2, "0");
+    return `${y}-${m}-${dd}`;
+  };
+  const todayIso = isoDate(now);
+  const weekStart = isoDate(weekDates[0]);
+  const weekEnd = isoDate(weekDates[6]);
+
+  const [checkIns, setCheckIns] = useState<Set<string>>(new Set());
+  const [checkingIn, setCheckingIn] = useState(false);
+
+  useEffect(() => {
+    if (!profile?.id) return;
+    let cancelled = false;
+    (async () => {
+      const { data } = await supabase
+        .from("aluno_check_ins")
+        .select("check_in_date")
+        .eq("user_id", profile.id)
+        .gte("check_in_date", weekStart)
+        .lte("check_in_date", weekEnd);
+      if (!cancelled && data) setCheckIns(new Set(data.map((r: any) => r.check_in_date)));
+    })();
+    return () => { cancelled = true; };
+  }, [profile?.id, weekStart, weekEnd]);
+
+  const checkedToday = checkIns.has(todayIso);
+
+  const handleCheckIn = async () => {
+    if (!profile?.id || checkedToday || checkingIn) return;
+    setCheckingIn(true);
+    const { error } = await supabase
+      .from("aluno_check_ins")
+      .insert({ user_id: profile.id, check_in_date: todayIso });
+    setCheckingIn(false);
+    if (!error) setCheckIns((prev) => new Set(prev).add(todayIso));
+  };
 
   return (
     <div className="min-h-screen bg-background text-foreground">
