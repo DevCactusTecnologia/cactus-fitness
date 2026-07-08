@@ -611,10 +611,6 @@ export function WorkoutEditor({
         </header>
 
         <main className="px-3 py-4 sm:px-4 sm:py-5 md:px-8">
-          {/* Name / description / Configurações */}
-          <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-start">
-
-        <main className="px-3 py-4 sm:px-4 sm:py-5 md:px-8">
           {/* Name / description */}
           {kind === "plan" ? (
             <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-start">
