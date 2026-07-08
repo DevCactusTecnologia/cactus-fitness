@@ -535,6 +535,24 @@ function Dashboard() {
                 <GreetingCard />
               </div>
 
+              <div className="grid grid-cols-2 gap-3">
+                <KpiCard
+                  label="Alunos ativos"
+                  value={String(stats?.alunosAtivos ?? 0)}
+                  sub={stats?.alunosDelta ? `+${stats.alunosDelta} este mês` : "nenhum novo este mês"}
+                  trend={stats?.alunosDelta}
+                  spark={stats?.alunosSpark}
+                />
+                <KpiCard
+                  label="Treinos ativos"
+                  value={String(stats?.treinosAtivos ?? 0)}
+                  sub={stats?.treinosDelta ? `+${stats.treinosDelta} este mês` : "0 periodizados"}
+                  trend={stats?.treinosDelta}
+                  spark={stats?.treinosSpark}
+                />
+              </div>
+
+
               <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-3">
 
                 <ActionButton icon={Lock} label="Adicionar Aluno" />
