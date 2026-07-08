@@ -593,6 +593,7 @@ export type Database = {
       }
       workout_templates: {
         Row: {
+          aluno_id: string | null
           category: string | null
           created_at: string
           description: string | null
@@ -608,6 +609,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          aluno_id?: string | null
           category?: string | null
           created_at?: string
           description?: string | null
@@ -623,6 +625,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          aluno_id?: string | null
           category?: string | null
           created_at?: string
           description?: string | null
@@ -637,7 +640,15 @@ export type Database = {
           slug?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "workout_templates_aluno_id_fkey"
+            columns: ["aluno_id"]
+            isOneToOne: false
+            referencedRelation: "alunos"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
