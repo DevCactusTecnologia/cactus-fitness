@@ -118,6 +118,9 @@ function AlunoDetailPage() {
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [impersonateOpen, setImpersonateOpen] = useState(false);
   const [passwordOpen, setPasswordOpen] = useState(false);
+  const [copyPickerOpen, setCopyPickerOpen] = useState(false);
+  const [copyConfigOpen, setCopyConfigOpen] = useState(false);
+  const [selectedCopyTemplate, setSelectedCopyTemplate] = useState<CopyableTemplate | null>(null);
 
   if (isLoading || !aluno) {
     return (
