@@ -166,6 +166,22 @@ function MeuTreinoPage() {
     if (!error) setCheckIns((prev) => new Set(prev).add(todayIso));
   };
 
+  const handleUndoCheckIn = async () => {
+    if (!profile?.id || !checkedToday || checkingIn) return;
+    setCheckingIn(true);
+    const { error } = await supabase
+      .from("aluno_check_ins")
+      .delete()
+      .eq("user_id", profile.id)
+      .eq("check_in_date", todayIso);
+    setCheckingIn(false);
+    if (!error) setCheckIns((prev) => {
+      const next = new Set(prev);
+      next.delete(todayIso);
+      return next;
+    });
+  };
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Rail lateral (desktop) — mesmo estilo do painel do personal */}
