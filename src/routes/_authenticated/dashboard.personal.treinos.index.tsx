@@ -106,17 +106,18 @@ function TreinosPage() {
 
   const total = items.length;
 
-  const totalPlans = items.filter((m) => m.kind === "plan" || m.kind === "group").length;
+  const totalPlans = items.filter((m) => m.kind === "plan").length;
   const totalTemplates = items.filter((m) => m.kind === "template").length;
 
   const visible = useMemo(() => {
     return items.filter((m) => {
-      if (filter === "plan" && !(m.kind === "plan" || m.kind === "group")) return false;
+      if (filter === "plan" && m.kind !== "plan") return false;
       if (filter === "template" && m.kind !== "template") return false;
       if (query.trim() && !m.name.toLowerCase().includes(query.trim().toLowerCase())) return false;
       return true;
     });
   }, [items, filter, query]);
+
 
   return (
     <div className="min-h-screen bg-background text-foreground">
