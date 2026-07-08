@@ -313,7 +313,7 @@ function MeuTreinoPage() {
           </section>
 
           {/* Próximo treino */}
-          <section className="rounded-2xl border border-border bg-card p-5">
+          <section className="rounded-2xl border border-border bg-gradient-to-br from-card via-card to-card/40 p-5">
             <div className="mb-2 flex items-center justify-between">
               <p className="text-[11px] uppercase tracking-widest text-muted-foreground">próximo treino</p>
               <p className="text-[11px] text-muted-foreground">{WEEK_DAYS_PT[todayIdx]} · sem. 1/4</p>
@@ -326,7 +326,7 @@ function MeuTreinoPage() {
               <Link
                 to="/meu-treino/treino/$id"
                 params={{ id: nextWorkout.id }}
-                className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-primary py-3.5 font-display text-base font-bold text-primary-foreground shadow-[0_0_30px_rgba(215,242,5,0.35)] transition hover:brightness-110 active:scale-[0.98]"
+                className="mt-4 flex w-full items-center justify-center gap-2 rounded-full bg-primary py-3.5 font-display text-base font-bold text-primary-foreground transition hover:brightness-110 active:scale-[0.98]"
               >
                 <Play className="h-5 w-5" fill="currentColor" /> Iniciar treino
               </Link>
