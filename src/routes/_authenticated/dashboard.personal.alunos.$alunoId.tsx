@@ -226,6 +226,51 @@ function AlunoDetailPage() {
       <ToggleActiveDialog aluno={aluno} open={toggleOpen} onOpenChange={setToggleOpen} />
       <DeleteAlunoDialog aluno={aluno} open={deleteOpen} onOpenChange={setDeleteOpen} />
 
+      <Dialog open={impersonateOpen} onOpenChange={setImpersonateOpen}>
+        <DialogContent className="max-w-md gap-0 p-0">
+          <DialogHeader className="p-5">
+            <div className="flex items-center gap-3">
+              <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary/15">
+                <LogIn className="h-5 w-5 text-primary" />
+              </div>
+              <DialogTitle className="font-display text-lg">Atuar como aluno</DialogTitle>
+            </div>
+            <DialogDescription className="pt-3 text-sm text-muted-foreground">
+              Você vai entrar no app como <span className="font-semibold text-foreground">{aluno.full_name}</span> e poderá iniciar treinos, registrar séries e usar o app no lugar do aluno.
+            </DialogDescription>
+            <p className="pt-2 text-sm text-muted-foreground">
+              Útil para atendimento presencial. A qualquer momento você volta para o seu acesso pelo banner amarelo no topo.
+            </p>
+          </DialogHeader>
+
+          <div className="mx-5 mb-5 rounded-xl border border-border bg-background/50 p-4">
+            <p className="text-sm font-semibold">Algumas ações ficam bloqueadas neste modo:</p>
+            <ul className="mt-2 space-y-1 text-xs text-muted-foreground">
+              <li className="flex items-center gap-2"><span className="h-1 w-1 rounded-full bg-muted-foreground" /> Excluir conta do aluno</li>
+              <li className="flex items-center gap-2"><span className="h-1 w-1 rounded-full bg-muted-foreground" /> Alterar dados pessoais (nome, email)</li>
+              <li className="flex items-center gap-2"><span className="h-1 w-1 rounded-full bg-muted-foreground" /> Trocar foto de perfil</li>
+            </ul>
+          </div>
+
+          <DialogFooter className="flex-row justify-end gap-2 border-t border-border p-4">
+            <button
+              type="button"
+              onClick={() => setImpersonateOpen(false)}
+              className="rounded-full border border-border bg-background px-5 py-2 text-sm font-semibold hover:bg-accent"
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              onClick={() => setImpersonateOpen(false)}
+              className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground hover:brightness-110"
+            >
+              <LogIn className="h-4 w-4" /> Entrar como aluno
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <Dialog open={novoPlanoOpen} onOpenChange={setNovoPlanoOpen}>
         <DialogContent className="max-w-lg gap-0 p-0">
           <DialogHeader className="border-b border-border p-5">
