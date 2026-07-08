@@ -467,7 +467,7 @@ function AgendaPage() {
 
         <div className="mt-4 grid grid-cols-1 gap-4 lg:grid-cols-[minmax(320px,380px)_1fr]">
           <div className="space-y-4">
-            <MiniCalendar selected={6} />
+            <MiniCalendar />
             <div className="rounded-xl border border-border bg-card p-4">
               <div className="mb-2 flex items-center justify-between">
                 <div className="text-sm font-semibold">06 de julho</div>
