@@ -48,24 +48,24 @@ function LoginPage() {
   const [mode, setMode] = useState<Mode>(search.mode ?? "signin");
 
   return (
-    <div className="min-h-screen bg-background flex font-body">
-      {/* Left panel - hero */}
-      <div className="hidden md:flex md:w-1/2 relative overflow-hidden">
+    <div className="min-h-screen bg-background flex flex-col lg:flex-row font-body">
+      {/* Left panel - hero (desktop only) */}
+      <div className="hidden lg:flex lg:w-1/2 xl:w-[55%] relative overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-center"
           style={{ backgroundImage: `url(${gymBg.url})`, filter: "brightness(0.5) contrast(1.1)" }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-background via-background/70 to-transparent" />
-        <div className="relative z-10 flex flex-col justify-between h-full w-full p-10">
-          <div className="relative">
+        <div className="relative z-10 flex flex-col justify-between h-full w-full p-8 xl:p-12">
+          <div className="relative w-fit">
             <div className="absolute -inset-4 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(215,242,5,0.12)_0%,transparent_70%)]" />
             <BrandMark className="size-14 text-foreground relative" />
           </div>
-          <div className="mb-10">
-            <h2 className="text-4xl font-bold font-display text-foreground mb-4 leading-tight">
+          <div className="mb-6 xl:mb-10 max-w-xl">
+            <h2 className="text-3xl xl:text-5xl font-bold font-display text-foreground mb-4 leading-[1.1] tracking-tight">
               Transforme sua forma de treinar
             </h2>
-            <p className="text-fg-muted text-lg font-body">
+            <p className="text-fg-muted text-base xl:text-lg font-body">
               A plataforma completa para personal trainers gerenciarem seus alunos e evoluírem seus negócios.
             </p>
           </div>
@@ -73,23 +73,24 @@ function LoginPage() {
       </div>
 
       {/* Right panel - content */}
-      <div className="w-full md:w-1/2 flex flex-col bg-background relative">
+      <div className="flex-1 w-full lg:w-1/2 xl:w-[45%] flex flex-col bg-background relative">
+        {/* Mobile / tablet backdrop */}
         <div
-          className="absolute inset-0 md:hidden bg-cover bg-center"
+          className="absolute inset-0 lg:hidden bg-cover bg-center"
           style={{ backgroundImage: `url(${gymBg.url})`, filter: "brightness(0.2) contrast(1.1)" }}
         />
-        <div className="absolute inset-0 md:hidden bg-gradient-to-t from-background via-background/80 to-background/40" />
+        <div className="absolute inset-0 lg:hidden bg-gradient-to-t from-background via-background/85 to-background/50" />
 
-        {/* Mobile brand */}
-        <div className="flex md:hidden items-center justify-center pt-16 pb-4 relative z-10">
+        {/* Mobile/tablet brand */}
+        <div className="flex lg:hidden items-center justify-center pt-[max(2rem,env(safe-area-inset-top))] pb-2 sm:pt-12 sm:pb-4 relative z-10">
           <div className="relative">
-            <div className="absolute -inset-6 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(215,242,5,0.12)_0%,transparent_70%)]" />
-            <BrandMark className="size-12 text-foreground relative" />
+            <div className="absolute -inset-6 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(215,242,5,0.14)_0%,transparent_70%)]" />
+            <BrandMark className="size-12 sm:size-14 text-foreground relative" />
           </div>
         </div>
 
-        <div className="flex-1 flex items-center justify-center px-6 md:px-10 relative z-10">
-          <div className="w-full max-w-[420px] bg-surface-1 border border-border rounded-xl p-6 shadow-lg">
+        <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-10 py-6 sm:py-8 relative z-10">
+          <div className="w-full max-w-[440px] bg-surface-1/95 backdrop-blur-sm border border-border rounded-2xl p-5 sm:p-7 lg:p-8 shadow-2xl shadow-black/20">
             {role ? (
               <AuthForm
                 role={role}
@@ -103,11 +104,12 @@ function LoginPage() {
             )}
           </div>
         </div>
-        <div className="h-8 md:hidden" />
+        <div className="h-[max(1.5rem,env(safe-area-inset-bottom))] lg:hidden" />
       </div>
     </div>
   );
 }
+
 
 function RoleSelect({ onSelect }: { onSelect: (r: Role) => void }) {
   return (
