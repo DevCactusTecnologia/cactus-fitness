@@ -140,3 +140,30 @@ export function buildPlano(
     isSimple: true,
   };
 }
+
+export function buildPlanos(
+  aluno: { id: string; full_name: string },
+  sessions: StudentWorkoutRow[],
+): Plano[] {
+  if (sessions.length === 0) return [];
+  // Group by template_id (fallback to session id when null)
+  const groups = new Map<string, StudentWorkoutRow[]>();
+  for (const s of sessions) {
+    const key = s.template_id ?? `_solo_${s.id}`;
+    const arr = groups.get(key) ?? [];
+    arr.push(s);
+    groups.set(key, arr);
+  }
+  const planos: Plano[] = [];
+  for (const [key, group] of groups.entries()) {
+    const base = buildPlano(aluno, group);
+    if (!base) continue;
+    // Use the workout_templates.name (or first student_workouts.name) as the card title
+    const displayName =
+      group[0]?.workout_templates?.name ?? group[0]?.name ?? base.name;
+    planos.push({ ...base, id: key, name: displayName });
+  }
+  // Newest first (by earliest scheduled_for desc, fallback created_at)
+  planos.sort((a, b) => (b.startDate ?? "").localeCompare(a.startDate ?? ""));
+  return planos;
+}
