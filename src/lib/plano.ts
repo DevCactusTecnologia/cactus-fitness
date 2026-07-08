@@ -17,6 +17,7 @@ export type StudentWorkoutRow = {
   created_at: string;
   template_id: string | null;
   workout_templates: {
+    name?: string | null;
     category: string | null;
     duration_min: number | null;
     level: string | null;
