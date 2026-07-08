@@ -116,6 +116,7 @@ function AlunoDetailPage() {
   const [toggleOpen, setToggleOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [impersonateOpen, setImpersonateOpen] = useState(false);
+  const [passwordOpen, setPasswordOpen] = useState(false);
 
   if (isLoading || !aluno) {
     return (
