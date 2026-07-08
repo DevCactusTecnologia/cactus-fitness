@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -297,9 +297,13 @@ function WalletCard() {
 }
 
 
-function ActionButton({ icon: Icon, label }: { icon: React.ElementType; label: string }) {
+function ActionButton({ icon: Icon, label, onClick }: { icon: React.ElementType; label: string; onClick?: () => void }) {
   return (
-    <button className="flex w-full min-w-0 items-center gap-3 overflow-hidden rounded-[1.25rem] border border-border bg-card px-4 py-4 text-left shadow-[var(--shadow-mobile-card)] transition hover:border-primary/40 sm:gap-4 sm:px-5">
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex w-full min-w-0 items-center gap-3 overflow-hidden rounded-[1.25rem] border border-border bg-card px-4 py-4 text-left shadow-[var(--shadow-mobile-card)] transition hover:border-primary/40 sm:gap-4 sm:px-5"
+    >
       <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
         <Icon className="h-5 w-5" strokeWidth={1.75} />
       </div>
@@ -419,6 +423,7 @@ function ReferralBanner() {
 function Dashboard() {
   const { profile } = useCurrentUser();
   const { data: stats } = useDashboardStats();
+  const navigate = useNavigate();
   const name = firstName(profile?.full_name, profile?.email);
   const greeting = greetingFor(new Date().getHours());
   const today = new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" });
@@ -555,7 +560,11 @@ function Dashboard() {
 
               <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-3">
 
-                <ActionButton icon={Lock} label="Adicionar Aluno" />
+                <ActionButton
+                  icon={Lock}
+                  label="Adicionar Aluno"
+                  onClick={() => navigate({ to: "/dashboard/personal/alunos", search: { new: true } })}
+                />
                 <ActionButton icon={Lock} label="Link de Cadastro" />
               </div>
               <NextEventCard />

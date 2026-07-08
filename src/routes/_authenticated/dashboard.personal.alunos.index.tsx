@@ -1,5 +1,5 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Plus, Users,
@@ -25,6 +25,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
 export const Route = createFileRoute("/_authenticated/dashboard/personal/alunos/")({
+  validateSearch: (search: Record<string, unknown>): { new?: boolean } => ({
+    new: search.new === true || search.new === "1" || search.new === "true",
+  }),
   head: () => ({
     meta: [
       { title: "Alunos · cactusfitness" },
@@ -92,6 +95,14 @@ function AlunosPage() {
   const [form, setForm] = useState({ full_name: "", email: "", phone: "", objective: "", notes: "" });
   const [formError, setFormError] = useState<string | null>(null);
   const queryClient = useQueryClient();
+  const search = Route.useSearch();
+  const navigate = useNavigate();
+  useEffect(() => {
+    if (search.new) {
+      setOpenNew(true);
+      navigate({ to: ".", search: {}, replace: true });
+    }
+  }, [search.new, navigate]);
 
   const createAluno = useMutation({
     mutationFn: async (payload: typeof form) => {
