@@ -40,29 +40,65 @@ type EventRow = {
 /* ---------- Calendar ---------- */
 
 const WEEKDAYS = ["dom", "seg", "ter", "qua", "qui", "sex", "sab"];
+const MONTH_NAMES = [
+  "janeiro", "fevereiro", "março", "abril", "maio", "junho",
+  "julho", "agosto", "setembro", "outubro", "novembro", "dezembro",
+];
 
-type Cell = { day: number; muted?: boolean };
+type Cell = { day: number; muted?: boolean; date: Date };
 
-function buildJuly2026(): Cell[] {
+function buildMonth(year: number, month: number): Cell[] {
   const cells: Cell[] = [];
-  cells.push({ day: 28, muted: true }, { day: 29, muted: true }, { day: 30, muted: true });
-  for (let d = 1; d <= 31; d++) cells.push({ day: d });
-  let a = 1;
-  while (cells.length < 42) cells.push({ day: a++, muted: true });
+  const first = new Date(year, month, 1);
+  const startWeekday = first.getDay(); // 0=dom
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const prevMonthDays = new Date(year, month, 0).getDate();
+
+  // leading days from previous month
+  for (let i = startWeekday - 1; i >= 0; i--) {
+    const day = prevMonthDays - i;
+    cells.push({ day, muted: true, date: new Date(year, month - 1, day) });
+  }
+  // current month
+  for (let d = 1; d <= daysInMonth; d++) {
+    cells.push({ day: d, date: new Date(year, month, d) });
+  }
+  // trailing days from next month
+  let next = 1;
+  while (cells.length < 42) {
+    cells.push({ day: next, muted: true, date: new Date(year, month + 1, next) });
+    next++;
+  }
   return cells;
 }
 
-function MiniCalendar({ selected = 6 }: { selected?: number }) {
-  const cells = buildJuly2026();
+function MiniCalendar() {
+  const now = new Date();
+  const [year, setYear] = useState(now.getFullYear());
+  const [month, setMonth] = useState(now.getMonth());
+  const cells = buildMonth(year, month);
+  const todayY = now.getFullYear();
+  const todayM = now.getMonth();
+  const todayD = now.getDate();
+
+  const goPrev = () => {
+    if (month === 0) { setMonth(11); setYear((y) => y - 1); }
+    else setMonth((m) => m - 1);
+  };
+  const goNext = () => {
+    if (month === 11) { setMonth(0); setYear((y) => y + 1); }
+    else setMonth((m) => m + 1);
+  };
+
   return (
     <div className="rounded-xl border border-border bg-card p-4">
       <div className="mb-3 flex items-center justify-between">
-        <div className="text-sm font-semibold">julho 2026</div>
+        <div className="text-sm font-semibold capitalize">{MONTH_NAMES[month]} {year}</div>
         <div className="flex items-center gap-1">
-          <button className="grid h-7 w-7 place-items-center rounded-md text-muted-foreground hover:bg-accent">
+          <button onClick={goPrev} aria-label="Mês anterior" className="grid h-7 w-7 place-items-center rounded-md text-muted-foreground hover:bg-accent">
             <ChevronLeft className="h-4 w-4" />
           </button>
-          <button className="grid h-7 w-7 place-items-center rounded-md text-muted-foreground hover:bg-accent">
+          <button onClick={goNext} aria-label="Próximo mês" className="grid h-7 w-7 place-items-center rounded-md text-muted-foreground hover:bg-accent">
             <ChevronRight className="h-4 w-4" />
           </button>
         </div>
@@ -72,12 +108,12 @@ function MiniCalendar({ selected = 6 }: { selected?: number }) {
       </div>
       <div className="mt-1 grid grid-cols-7 gap-1 text-center text-sm">
         {cells.map((c, i) => {
-          const isSelected = !c.muted && c.day === selected;
+          const isToday = !c.muted && c.day === todayD && month === todayM && year === todayY;
           return (
             <button key={i}
               className={`grid aspect-square place-items-center rounded-md transition ${
                 c.muted ? "text-muted-foreground/40"
-                  : isSelected ? "bg-accent font-semibold text-foreground ring-1 ring-border"
+                  : isToday ? "bg-accent font-semibold text-foreground ring-1 ring-primary"
                   : "text-foreground/80 hover:bg-accent"
               }`}>
               {c.day}
