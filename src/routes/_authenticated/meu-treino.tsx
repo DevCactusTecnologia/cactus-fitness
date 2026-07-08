@@ -39,12 +39,6 @@ const MENU_ITEMS: { icon: any; label: string }[] = [
   { icon: Activity, label: "Atividades" },
   { icon: TrendingUp, label: "Progresso" },
   { icon: ClipboardList, label: "Avaliações" },
-  { icon: Edit3, label: "Formulários" },
-  { icon: StickyNote, label: "Anotações" },
-  { icon: Users, label: "Comunidade" },
-  { icon: Trophy, label: "Desafios" },
-  { icon: Utensils, label: "Dieta" },
-  { icon: Folder, label: "Arquivos" },
 ];
 
 const WEEK_DAYS_PT = ["seg", "ter", "qua", "qui", "sex", "sáb", "dom"];
