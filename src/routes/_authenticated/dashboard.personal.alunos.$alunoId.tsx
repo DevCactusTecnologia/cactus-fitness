@@ -4,8 +4,9 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Plus,
   LogIn, Mail, Phone, ShieldAlert, Calendar, User,
-  Clock, Trophy, Pencil, Trash2, Tag, Copy, FileText, Sparkles, Loader2, Lock, AlertTriangle, KeyRound, Eye, EyeOff, X, CheckCircle2,
+  Clock, Trophy, Pencil, Trash2, Tag, Copy, FileText, Sparkles, Loader2, Lock, AlertTriangle, KeyRound, Eye, EyeOff, X, CheckCircle2, ChevronDown, Dumbbell,
 } from "lucide-react";
+
 import { useServerFn } from "@tanstack/react-start";
 import { changeAlunoPassword } from "@/lib/aluno-password.functions";
 import { toast } from "sonner";
@@ -685,6 +686,17 @@ function DeleteAlunoDialog({
   );
 }
 
+type TemplateExerciseRow = {
+  id: string;
+  position: number;
+  sets: number | null;
+  reps: string | null;
+  load: string | null;
+  rest_seconds: number | null;
+  notes: string | null;
+  exercises: { id: number; name: string } | null;
+};
+
 type StudentWorkoutRow = {
   id: string;
   name: string;
@@ -697,7 +709,7 @@ type StudentWorkoutRow = {
     duration_min: number | null;
     level: string | null;
     goal: string | null;
-    workout_template_exercises: { id: string }[];
+    workout_template_exercises: TemplateExerciseRow[];
   } | null;
 };
 
@@ -726,6 +738,129 @@ function formatScheduled(date: string | null): { weekday: string; formatted: str
   };
 }
 
+function formatRest(seconds: number | null): string | null {
+  if (!seconds) return null;
+  if (seconds >= 60 && seconds % 60 === 0) return `${seconds / 60} min`;
+  if (seconds >= 60) {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m}m${s}s`;
+  }
+  return `${seconds}s`;
+}
+
+function TreinoCard({ t, defaultOpen }: { t: StudentWorkoutRow; defaultOpen: boolean }) {
+  const [open, setOpen] = useState(defaultOpen);
+  const sched = formatScheduled(t.scheduled_for);
+  const exercises = [...(t.workout_templates?.workout_template_exercises ?? [])].sort(
+    (a, b) => a.position - b.position,
+  );
+  const duration = t.workout_templates?.duration_min;
+  const goal = t.workout_templates?.goal ?? t.workout_templates?.category;
+  const statusClass = STATUS_STYLES[t.status] ?? STATUS_STYLES.pending;
+  const statusLabel = STATUS_LABELS[t.status] ?? t.status;
+
+  return (
+    <li className="flex flex-col rounded-xl border border-border bg-background/40 transition-colors hover:border-primary/40">
+      <button
+        type="button"
+        onClick={() => setOpen((v) => !v)}
+        className="flex flex-col gap-3 p-4 text-left"
+        aria-expanded={open}
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div className="min-w-0 flex-1">
+            <p className="truncate font-display text-sm font-semibold">{t.name}</p>
+            {goal ? (
+              <p className="mt-0.5 truncate text-xs text-muted-foreground capitalize">{goal}</p>
+            ) : null}
+          </div>
+          <span
+            className={`shrink-0 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide ${statusClass}`}
+          >
+            {statusLabel}
+          </span>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-muted-foreground">
+          {sched ? (
+            <span className="inline-flex items-center gap-1.5">
+              <Calendar className="h-3.5 w-3.5" />
+              <span className="font-medium text-foreground">{sched.weekday}</span>
+              <span>· {sched.formatted}</span>
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1.5">
+              <Calendar className="h-3.5 w-3.5" /> Sem data
+            </span>
+          )}
+          {duration ? (
+            <span className="inline-flex items-center gap-1.5">
+              <Clock className="h-3.5 w-3.5" /> {duration} min
+            </span>
+          ) : null}
+          <span className="inline-flex items-center gap-1.5">
+            <FileText className="h-3.5 w-3.5" /> {exercises.length} exercício{exercises.length === 1 ? "" : "s"}
+          </span>
+          <span className="ml-auto inline-flex items-center gap-1 text-primary">
+            {open ? "Ocultar" : "Ver exercícios"}
+            <ChevronDown className={`h-3.5 w-3.5 transition-transform ${open ? "rotate-180" : ""}`} />
+          </span>
+        </div>
+      </button>
+
+      {open ? (
+        <div className="border-t border-border px-4 py-3">
+          {exercises.length === 0 ? (
+            <p className="py-2 text-xs text-muted-foreground">Nenhum exercício cadastrado.</p>
+          ) : (
+            <ol className="divide-y divide-border/60">
+              {exercises.map((ex, idx) => (
+                <li key={ex.id} className="flex items-start gap-3 py-2.5">
+                  <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-primary/10 text-[11px] font-semibold text-primary">
+                    {idx + 1}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium leading-tight">
+                      {ex.exercises?.name ?? "Exercício removido"}
+                    </p>
+                    <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
+                      {ex.sets ? (
+                        <span>
+                          <span className="font-semibold text-foreground">{ex.sets}</span> séries
+                        </span>
+                      ) : null}
+                      {ex.reps ? (
+                        <span>
+                          <span className="font-semibold text-foreground">{ex.reps}</span> reps
+                        </span>
+                      ) : null}
+                      <span className="inline-flex items-center gap-1">
+                        <Dumbbell className="h-3 w-3" />
+                        <span className="font-semibold text-foreground">
+                          {ex.load && ex.load.trim() ? ex.load : "A definir"}
+                        </span>
+                      </span>
+                      {formatRest(ex.rest_seconds) ? (
+                        <span className="inline-flex items-center gap-1">
+                          <Clock className="h-3 w-3" /> Descanso {formatRest(ex.rest_seconds)}
+                        </span>
+                      ) : null}
+                    </div>
+                    {ex.notes ? (
+                      <p className="mt-1 text-[11px] italic text-muted-foreground">{ex.notes}</p>
+                    ) : null}
+                  </div>
+                </li>
+              ))}
+            </ol>
+          )}
+        </div>
+      ) : null}
+    </li>
+  );
+}
+
 function TreinosTab({ alunoId, firstName, onNovoPlano }: { alunoId: string; firstName: string; onNovoPlano: () => void }) {
   const { data: treinos, isLoading, error } = useQuery({
     queryKey: ["aluno-student-workouts", alunoId],
@@ -733,7 +868,7 @@ function TreinosTab({ alunoId, firstName, onNovoPlano }: { alunoId: string; firs
       const { data, error } = await supabase
         .from("student_workouts")
         .select(
-          "id, name, status, scheduled_for, created_at, template_id, workout_templates ( category, duration_min, level, goal, workout_template_exercises ( id ) )",
+          "id, name, status, scheduled_for, created_at, template_id, workout_templates ( category, duration_min, level, goal, workout_template_exercises ( id, position, sets, reps, load, rest_seconds, notes, exercises ( id, name ) ) )",
         )
         .eq("aluno_id", alunoId)
         .order("scheduled_for", { ascending: true, nullsFirst: false })
@@ -787,59 +922,15 @@ function TreinosTab({ alunoId, firstName, onNovoPlano }: { alunoId: string; firs
         </div>
       ) : (
         <ul className="grid gap-3 sm:grid-cols-2">
-          {treinos.map((t) => {
-            const sched = formatScheduled(t.scheduled_for);
-            const exercisesCount = t.workout_templates?.workout_template_exercises?.length ?? 0;
-            const duration = t.workout_templates?.duration_min;
-            const goal = t.workout_templates?.goal ?? t.workout_templates?.category;
-            const statusClass = STATUS_STYLES[t.status] ?? STATUS_STYLES.pending;
-            const statusLabel = STATUS_LABELS[t.status] ?? t.status;
-            return (
-              <li
-                key={t.id}
-                className="group flex flex-col gap-3 rounded-xl border border-border bg-background/40 p-4 transition-colors hover:border-primary/40"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate font-display text-sm font-semibold">{t.name}</p>
-                    {goal ? (
-                      <p className="mt-0.5 truncate text-xs text-muted-foreground capitalize">{goal}</p>
-                    ) : null}
-                  </div>
-                  <span className={`shrink-0 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide ${statusClass}`}>
-                    {statusLabel}
-                  </span>
-                </div>
-
-                <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-muted-foreground">
-                  {sched ? (
-                    <span className="inline-flex items-center gap-1.5">
-                      <Calendar className="h-3.5 w-3.5" />
-                      <span className="font-medium text-foreground">{sched.weekday}</span>
-                      <span>· {sched.formatted}</span>
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1.5">
-                      <Calendar className="h-3.5 w-3.5" /> Sem data
-                    </span>
-                  )}
-                  {duration ? (
-                    <span className="inline-flex items-center gap-1.5">
-                      <Clock className="h-3.5 w-3.5" /> {duration} min
-                    </span>
-                  ) : null}
-                  <span className="inline-flex items-center gap-1.5">
-                    <FileText className="h-3.5 w-3.5" /> {exercisesCount} exercício{exercisesCount === 1 ? "" : "s"}
-                  </span>
-                </div>
-              </li>
-            );
-          })}
+          {treinos.map((t, idx) => (
+            <TreinoCard key={t.id} t={t} defaultOpen={idx === 0} />
+          ))}
         </ul>
       )}
     </div>
   );
 }
+
 
 
 function ChangePasswordDialog({
