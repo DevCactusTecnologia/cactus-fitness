@@ -1138,7 +1138,7 @@ function ExerciseDetailSheet({
 
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="flex w-full flex-col gap-0 p-0 sm:max-w-md">
+      <SheetContent side="right" className="flex w-full flex-col gap-0 p-0 sm:max-w-md [&>button.absolute]:hidden">
         <SheetHeader className="shrink-0 space-y-0 border-b border-border px-3 pb-3 pt-3 text-left">
           <div className="flex items-center gap-2">
             <button
