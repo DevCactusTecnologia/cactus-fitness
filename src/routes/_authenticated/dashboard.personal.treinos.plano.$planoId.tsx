@@ -251,37 +251,211 @@ function SessionCard({
 }
 
 function ExerciseRow({ ex, idx }: { ex: TemplateExerciseRow; idx: number }) {
+  const [open, setOpen] = useState(false);
   const rest = formatRest(ex.rest_seconds);
   const setsReps = [ex.sets ? String(ex.sets) : null, ex.reps ?? null].filter(Boolean).join("×");
   return (
-    <div className="flex h-[72px] cursor-pointer items-center gap-2.5 rounded-lg bg-surface-2/20 p-3 transition-all active:scale-[0.98] active:bg-surface-2/40">
-      <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10">
-        <span className="text-[0.625rem] font-bold text-primary">{idx + 1}</span>
-      </div>
-      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-surface-3 text-fg-muted">
-        <Dumbbell className="h-4 w-4" />
-      </div>
-      <div className="flex min-w-0 flex-1 flex-col justify-center gap-0.5 overflow-hidden">
-        <p className="truncate text-sm font-medium">{ex.exercises?.name ?? "Exercício removido"}</p>
-        <div className="flex items-center gap-1.5 text-xs text-fg-muted">
-          {setsReps ? <span className="tabular-nums">{setsReps}</span> : null}
-          {ex.load && ex.load.trim() ? (
-            <>
-              <span className="text-fg-muted/40">·</span>
-              <span className="tabular-nums">{ex.load}</span>
-            </>
-          ) : null}
-          {rest ? (
-            <>
-              <span className="text-fg-muted/40">·</span>
-              <span className="inline-flex items-center gap-1 tabular-nums">
-                <Clock className="h-3 w-3" />
-                {rest}
-              </span>
-            </>
-          ) : null}
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="flex h-[72px] w-full cursor-pointer items-center gap-2.5 rounded-lg bg-surface-2/20 p-3 text-left transition-all hover:bg-surface-2/40 active:scale-[0.98]"
+      >
+        <div className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-primary/10">
+          <span className="text-[0.625rem] font-bold text-primary">{idx + 1}</span>
         </div>
-      </div>
+        <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-surface-3 text-fg-muted">
+          <Dumbbell className="h-4 w-4" />
+        </div>
+        <div className="flex min-w-0 flex-1 flex-col justify-center gap-0.5 overflow-hidden">
+          <p className="truncate text-sm font-medium">{ex.exercises?.name ?? "Exercício removido"}</p>
+          <div className="flex items-center gap-1.5 text-xs text-fg-muted">
+            {setsReps ? <span className="tabular-nums">{setsReps}</span> : null}
+            {ex.load && ex.load.trim() ? (
+              <>
+                <span className="text-fg-muted/40">·</span>
+                <span className="tabular-nums">{ex.load}</span>
+              </>
+            ) : null}
+            {rest ? (
+              <>
+                <span className="text-fg-muted/40">·</span>
+                <span className="inline-flex items-center gap-1 tabular-nums">
+                  <Clock className="h-3 w-3" />
+                  {rest}
+                </span>
+              </>
+            ) : null}
+          </div>
+        </div>
+      </button>
+      {ex.exercises?.id ? (
+        <ExerciseDetailDialog
+          exerciseId={ex.exercises.id}
+          templateEx={ex}
+          open={open}
+          onOpenChange={setOpen}
+        />
+      ) : null}
+    </>
+  );
+}
+
+function ExerciseDetailDialog({
+  exerciseId,
+  templateEx,
+  open,
+  onOpenChange,
+}: {
+  exerciseId: number;
+  templateEx: TemplateExerciseRow;
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+}) {
+  const { data, isLoading } = useQuery({
+    enabled: open,
+    queryKey: ["exercise-detail", exerciseId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("exercises")
+        .select("id, name, description, instructions, difficulty, equipment, objective, muscles_primary, muscles_secondary, image_path, video_url")
+        .eq("id", exerciseId)
+        .maybeSingle();
+      if (error) throw error;
+      return data;
+    },
+  });
+
+  const rest = formatRest(templateEx.rest_seconds);
+  const setsReps = [templateEx.sets ? String(templateEx.sets) : null, templateEx.reps ?? null].filter(Boolean).join("×");
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-lg gap-0 overflow-hidden border-border bg-surface-1 p-0">
+        <DialogHeader className="border-b border-border bg-surface-2/40 p-4">
+          <div className="flex items-start gap-3">
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <Dumbbell className="h-5 w-5" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <DialogTitle className="truncate text-left font-display text-base font-bold md:text-lg">
+                {data?.name ?? templateEx.exercises?.name ?? "Exercício"}
+              </DialogTitle>
+              <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-fg-muted">
+                {setsReps ? <span className="tabular-nums">{setsReps}</span> : null}
+                {templateEx.load?.trim() ? (
+                  <>
+                    <span className="text-fg-muted/40">·</span>
+                    <span className="tabular-nums">{templateEx.load}</span>
+                  </>
+                ) : null}
+                {rest ? (
+                  <>
+                    <span className="text-fg-muted/40">·</span>
+                    <span className="inline-flex items-center gap-1 tabular-nums">
+                      <Clock className="h-3 w-3" />
+                      {rest}
+                    </span>
+                  </>
+                ) : null}
+              </div>
+            </div>
+          </div>
+        </DialogHeader>
+
+        <div className="max-h-[70vh] overflow-y-auto p-4">
+          {isLoading ? (
+            <p className="text-sm text-fg-muted">Carregando…</p>
+          ) : !data ? (
+            <p className="text-sm text-fg-muted">Detalhes não disponíveis.</p>
+          ) : (
+            <div className="space-y-4 text-sm">
+              {data.image_path ? (
+                <div className="overflow-hidden rounded-lg border border-border bg-surface-2">
+                  <img src={data.image_path} alt={data.name} className="h-auto w-full object-cover" />
+                </div>
+              ) : null}
+
+              <div className="flex flex-wrap gap-2">
+                {data.difficulty ? <Chip icon={Flame} label={data.difficulty} /> : null}
+                {data.equipment ? <Chip icon={Wrench} label={data.equipment} /> : null}
+                {data.objective ? <Chip icon={Target} label={data.objective} /> : null}
+              </div>
+
+              {data.muscles_primary?.length ? (
+                <Section title="Músculos primários">
+                  <div className="flex flex-wrap gap-1.5">
+                    {data.muscles_primary.map((m) => (
+                      <span key={m} className="rounded-full bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary">
+                        {m}
+                      </span>
+                    ))}
+                  </div>
+                </Section>
+              ) : null}
+
+              {data.muscles_secondary?.length ? (
+                <Section title="Músculos secundários">
+                  <div className="flex flex-wrap gap-1.5">
+                    {data.muscles_secondary.map((m) => (
+                      <span key={m} className="rounded-full bg-surface-2 px-2.5 py-1 text-xs text-fg-muted">
+                        {m}
+                      </span>
+                    ))}
+                  </div>
+                </Section>
+              ) : null}
+
+              {data.description ? (
+                <Section title="Descrição">
+                  <p className="whitespace-pre-line leading-relaxed text-foreground/90">{data.description}</p>
+                </Section>
+              ) : null}
+
+              {data.instructions ? (
+                <Section title="Instruções">
+                  <p className="whitespace-pre-line leading-relaxed text-foreground/90">{data.instructions}</p>
+                </Section>
+              ) : null}
+
+              {templateEx.notes ? (
+                <Section title="Notas do treino">
+                  <p className="whitespace-pre-line leading-relaxed text-foreground/90">{templateEx.notes}</p>
+                </Section>
+              ) : null}
+
+              {data.video_url ? (
+                <a
+                  href={data.video_url}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex h-10 items-center justify-center gap-2 rounded-full border border-primary/40 bg-primary/10 px-4 text-xs font-semibold text-primary hover:bg-primary/20"
+                >
+                  Ver vídeo demonstrativo
+                </a>
+              ) : null}
+            </div>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function Chip({ icon: Icon, label }: { icon: typeof Flame; label: string }) {
+  return (
+    <span className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface-2/60 px-2.5 py-1 text-xs text-foreground/80">
+      <Icon className="h-3 w-3 text-fg-muted" />
+      {label}
+    </span>
+  );
+}
+
+function Section({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="space-y-1.5">
+      <h3 className="text-[0.625rem] font-bold uppercase tracking-wider text-fg-muted">{title}</h3>
+      {children}
     </div>
   );
 }
