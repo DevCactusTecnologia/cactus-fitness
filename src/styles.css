@@ -203,11 +203,21 @@
   .font-display { font-family: var(--font-display), system-ui, sans-serif; }
 
   /* Hide scrollbars visually without disabling mouse/touch scrolling. */
+  html, body {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar {
+    width: 0 !important;
+    height: 0 !important;
+    display: none !important;
+    -webkit-appearance: none !important;
+  }
   * {
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
-
   *::-webkit-scrollbar {
     width: 0;
     height: 0;
