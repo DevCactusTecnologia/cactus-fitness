@@ -12,7 +12,7 @@ import {
   Dumbbell,
   Layers,
   Loader2,
-
+  Video,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -493,8 +493,35 @@ function ExerciseDetailDialog({
     },
   });
 
+  const queryClient = useQueryClient();
+  const updateVideo = useMutation({
+    mutationFn: async (url: string) => {
+      const value = url.trim() || null;
+      const { error } = await supabase
+        .from("exercises")
+        .update({ video_url: value })
+        .eq("id", exerciseId);
+      if (error) throw error;
+      return value;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["exercise-detail", exerciseId] });
+      toast.success("Vídeo atualizado");
+    },
+    onError: (err: unknown) => {
+      toast.error(err instanceof Error ? err.message : "Erro ao atualizar vídeo");
+    },
+  });
 
-
+  const handleChangeVideo = () => {
+    const current = data?.video_url ?? data?.video_path ?? "";
+    const input = window.prompt(
+      "Cole a URL do novo vídeo (YouTube ou link direto). Deixe em branco para remover:",
+      current ?? "",
+    );
+    if (input === null) return;
+    updateVideo.mutate(input);
+  };
 
   const videoSrc = data?.video_url ?? data?.video_path ?? null;
   const isYouTube = videoSrc ? /youtu\.?be/.test(videoSrc) : false;
@@ -558,6 +585,20 @@ function ExerciseDetailDialog({
                   <span className="text-sm font-medium">Vídeo não cadastrado</span>
                 </div>
               )}
+
+              <button
+                type="button"
+                onClick={handleChangeVideo}
+                disabled={updateVideo.isPending}
+                className="absolute right-3 top-3 inline-flex items-center gap-2 rounded-lg border border-border bg-background/80 px-3 py-1.5 text-xs font-medium text-foreground shadow-sm backdrop-blur transition-colors hover:bg-background disabled:opacity-60"
+              >
+                {updateVideo.isPending ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Video className="h-3.5 w-3.5" />
+                )}
+                Trocar vídeo
+              </button>
             </div>
 
             {data.description ? (
