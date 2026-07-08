@@ -153,6 +153,7 @@ function PlanoDetailPage() {
               templateId={templateId}
               planoName={data?.plano?.name ?? "este plano"}
               onDeleted={backToAluno}
+              onArchived={backToAluno}
             />
           </div>
         </main>
