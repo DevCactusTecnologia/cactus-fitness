@@ -274,9 +274,11 @@ function reducer(state: State, action: Action): State {
 export function WorkoutEditor({
   kind,
   editSlug,
+  alunoId,
 }: {
   kind: EditorKind;
   editSlug?: string;
+  alunoId?: string | null;
 }) {
   const navigate = useNavigate();
   const qc = useQueryClient();
