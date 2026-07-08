@@ -157,6 +157,9 @@ function reducer(state: State, action: Action): State {
   switch (action.type) {
     case "SET_META":
       return { ...state, ...action.patch };
+    case "REPLACE_SESSIONS":
+      return { ...state, sessions: action.sessions };
+
     case "ADD_SESSION":
       return { ...state, sessions: [...state.sessions, emptySession(state.sessions.length)] };
     case "REMOVE_SESSION":
