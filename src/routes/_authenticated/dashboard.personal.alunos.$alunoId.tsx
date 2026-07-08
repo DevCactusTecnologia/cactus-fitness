@@ -137,7 +137,17 @@ function AlunoDetailPage() {
       <main className="pb-24 md:ml-[72px] md:pb-10">
         <div className="sticky top-0 z-30 border-b border-border/60 bg-background/90 backdrop-blur-xl">
           <div className="px-4 py-4 sm:px-6 md:px-8">
-            <h1 className="text-xl font-bold tracking-tight font-display sm:text-2xl">Perfil do Aluno</h1>
+            <div className="flex items-center gap-2">
+              <Link
+                to="/dashboard/personal/alunos"
+                className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                aria-label="Voltar"
+              >
+                <ChevronLeft className="h-5 w-5" />
+                <span>Voltar</span>
+              </Link>
+              <h1 className="text-xl font-bold tracking-tight font-display sm:text-2xl">Perfil do Aluno</h1>
+            </div>
           </div>
         </div>
 
