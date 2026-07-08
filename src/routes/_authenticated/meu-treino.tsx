@@ -110,6 +110,40 @@ function MeuTreinoPage() {
 
   const [checkIns, setCheckIns] = useState<Set<string>>(new Set());
   const [checkingIn, setCheckingIn] = useState(false);
+  const [nextWorkout, setNextWorkout] = useState<{ id: string; name: string; exercises: number } | null>(null);
+
+  useEffect(() => {
+    if (!profile?.id || profile.role !== "aluno") return;
+    let cancelled = false;
+    (async () => {
+      const { data: link } = await supabase
+        .from("alunos")
+        .select("id")
+        .eq("aluno_user_id", profile.id)
+        .maybeSingle();
+      if (cancelled || !link?.id) return;
+      const { data: sw } = await supabase
+        .from("student_workouts")
+        .select("id, name, template_id, scheduled_for, status")
+        .eq("aluno_id", link.id)
+        .neq("status", "concluido")
+        .order("scheduled_for", { ascending: true, nullsFirst: false })
+        .limit(1)
+        .maybeSingle();
+      if (cancelled || !sw) return;
+      let exercises = 0;
+      if (sw.template_id) {
+        const { count } = await supabase
+          .from("workout_template_exercises")
+          .select("id", { count: "exact", head: true })
+          .eq("template_id", sw.template_id);
+        exercises = count ?? 0;
+      }
+      if (!cancelled) setNextWorkout({ id: sw.id, name: sw.name ?? "Treino", exercises });
+    })();
+    return () => { cancelled = true; };
+  }, [profile?.id, profile?.role]);
+
 
   useEffect(() => {
     if (!profile?.id) return;
