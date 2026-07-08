@@ -734,7 +734,7 @@ function DeleteAlunoDialog({
 }
 
 import {
-  buildPlano,
+  buildPlanos,
   PLANO_SELECT,
   type Plano,
   type StudentWorkoutRow,
