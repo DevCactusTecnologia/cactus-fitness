@@ -315,17 +315,35 @@ function MeuTreinoPage() {
           {/* Saudação + Bronze */}
           <div className="flex items-center gap-4">
             <div className="relative">
-              <div
-                className="grid h-14 w-14 shrink-0 place-items-center rounded-full font-display text-lg font-bold ring-2 ring-primary/60 shadow-md"
-                style={{ backgroundColor: "rgb(244, 63, 94)", color: "#fff" }}
-              >
-                {initials}
-              </div>
+              {avatarDisplayUrl ? (
+                <img
+                  src={avatarDisplayUrl}
+                  alt={name}
+                  className="h-14 w-14 shrink-0 rounded-full object-cover ring-2 ring-primary/60 shadow-md"
+                />
+              ) : (
+                <div
+                  className="grid h-14 w-14 shrink-0 place-items-center rounded-full font-display text-lg font-bold ring-2 ring-primary/60 shadow-md"
+                  style={{ backgroundColor: "rgb(244, 63, 94)", color: "#fff" }}
+                >
+                  {initials}
+                </div>
+              )}
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleAvatarChange}
+              />
               <button
-                className="absolute -bottom-1 -right-1 grid h-6 w-6 place-items-center rounded-full border-2 border-background bg-primary text-primary-foreground"
+                type="button"
+                onClick={() => fileInputRef.current?.click()}
+                disabled={uploadingAvatar}
+                className="absolute -bottom-1 -right-1 grid h-6 w-6 place-items-center rounded-full border-2 border-background bg-primary text-primary-foreground disabled:opacity-70"
                 aria-label="Trocar foto"
               >
-                <Camera className="h-3 w-3" />
+                {uploadingAvatar ? <Loader2 className="h-3 w-3 animate-spin" /> : <Camera className="h-3 w-3" />}
               </button>
             </div>
             <div className="min-w-0 flex-1">
