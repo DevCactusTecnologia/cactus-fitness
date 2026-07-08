@@ -456,10 +456,27 @@ function Dashboard() {
 
             {/* KPIs */}
             <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
-              <KpiCard label="Alunos ativos" value={String(stats?.alunosAtivos ?? 0)} sub="ativos agora" />
-              <KpiCard label="Treinos ativos" value={String(stats?.treinosAtivos ?? 0)} sub="modelos criados" />
-              <KpiCard label="Avaliações" value={String(stats?.avaliacoes ?? 0)} sub="em dia" />
+              <KpiCard
+                label="Alunos ativos"
+                value={String(stats?.alunosAtivos ?? 0)}
+                sub={stats?.alunosDelta ? `+${stats.alunosDelta} este mês` : "nenhum novo este mês"}
+                trend={stats?.alunosDelta}
+                spark={stats?.alunosSpark}
+              />
+              <KpiCard
+                label="Treinos ativos"
+                value={String(stats?.treinosAtivos ?? 0)}
+                sub={stats?.treinosDelta ? `+${stats.treinosDelta} este mês` : "0 periodizados"}
+                trend={stats?.treinosDelta}
+                spark={stats?.treinosSpark}
+              />
+              <KpiCard
+                label="Avaliações"
+                value={String(stats?.avaliacoes ?? 0)}
+                sub="em dia"
+              />
             </div>
+
 
             <div className="grid grid-cols-1 gap-3 lg:grid-cols-[1.4fr_1fr]">
               {/* Atalhos rápidos */}
