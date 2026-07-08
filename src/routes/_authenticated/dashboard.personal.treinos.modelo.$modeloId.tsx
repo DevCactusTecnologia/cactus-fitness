@@ -523,48 +523,42 @@ function ExerciseDetailDialog({
           <p className="text-sm text-fg-muted">Detalhes não disponíveis.</p>
         ) : (
           <div className="mt-4 space-y-6">
-            {/* Media */}
-            {youtubeEmbed ? (
-              <div className="flex w-full justify-center">
-                <div className="relative w-full max-w-full overflow-hidden rounded-xl bg-surface-1">
-                  <div className="aspect-video">
-                    <iframe
-                      src={youtubeEmbed}
-                      className="h-full w-full"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                      title={data.name}
-                    />
+            <div className="relative flex aspect-video w-full items-center justify-center overflow-hidden rounded-xl border border-border bg-surface-1">
+              {youtubeEmbed ? (
+                <iframe
+                  src={youtubeEmbed}
+                  className="h-full w-full"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  title={data.name}
+                />
+              ) : videoSrc ? (
+                <video
+                  src={videoSrc}
+                  className="h-full w-full object-contain"
+                  autoPlay
+                  loop
+                  muted
+                  playsInline
+                  controls
+                  preload="metadata"
+                  poster={data.image_path ?? undefined}
+                />
+              ) : data.image_path ? (
+                <img
+                  src={data.image_path}
+                  alt={data.name}
+                  className="h-full w-full object-contain"
+                />
+              ) : (
+                <div className="flex flex-col items-center gap-3 text-fg-muted">
+                  <div className="flex h-14 w-14 items-center justify-center rounded-full bg-surface-2">
+                    <Dumbbell className="h-7 w-7" />
                   </div>
+                  <span className="text-sm font-medium">Vídeo não cadastrado</span>
                 </div>
-              </div>
-            ) : videoSrc ? (
-              <div className="flex w-full justify-center">
-                <div className="relative max-h-[60vh] max-w-full overflow-hidden rounded-xl bg-surface-1">
-                  <video
-                    src={videoSrc}
-                    className="block h-auto max-h-[60vh] max-w-full rounded-xl"
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    controls
-                    preload="metadata"
-                    poster={data.image_path ?? undefined}
-                  />
-                </div>
-              </div>
-            ) : data.image_path ? (
-              <div className="flex w-full justify-center">
-                <div className="overflow-hidden rounded-xl bg-surface-1">
-                  <img
-                    src={data.image_path}
-                    alt={data.name}
-                    className="block h-auto max-h-[60vh] w-auto max-w-full object-contain"
-                  />
-                </div>
-              </div>
-            ) : null}
+              )}
+            </div>
 
             {data.description ? (
               <div>
