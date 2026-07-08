@@ -11,11 +11,8 @@ import {
   Trash2,
   Dumbbell,
   Layers,
-  X,
-  Target,
-  Flame,
-  Wrench,
   Loader2,
+
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -496,10 +493,8 @@ function ExerciseDetailDialog({
     },
   });
 
-  const rest = formatRest(templateEx.rest_seconds);
-  const setsReps = [templateEx.sets ? String(templateEx.sets) : null, templateEx.reps ?? null]
-    .filter(Boolean)
-    .join("×");
+
+
 
   const videoSrc = data?.video_url ?? data?.video_path ?? null;
   const isYouTube = videoSrc ? /youtu\.?be/.test(videoSrc) : false;
@@ -507,121 +502,133 @@ function ExerciseDetailDialog({
     ? videoSrc.replace(/watch\?v=/, "embed/").replace(/youtu\.be\//, "youtube.com/embed/")
     : null;
 
+  const equipmentList: string[] = Array.isArray((data as any)?.equipment)
+    ? ((data as any).equipment as string[])
+    : typeof (data as any)?.equipment === "string" && (data as any).equipment
+      ? String((data as any).equipment).split(",").map((s) => s.trim()).filter(Boolean)
+      : [];
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[90vh] gap-0 overflow-hidden border-border bg-background p-0">
-        <DialogHeader className="border-b border-border bg-surface-2/40 p-4">
-          <div className="flex items-start gap-3">
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
-              <Dumbbell className="h-5 w-5" />
-            </div>
-            <div className="min-w-0 flex-1">
-              <DialogTitle className="truncate text-left font-display text-base font-bold md:text-lg">
-                {data?.name ?? templateEx.exercises?.name ?? "Exercício"}
-              </DialogTitle>
-              <div className="mt-1 flex flex-wrap items-center gap-1.5 text-xs text-fg-muted">
-                {setsReps ? <span className="tabular-nums">{setsReps}</span> : null}
-                {templateEx.load?.trim() ? (
-                  <>
-                    <span className="text-fg-muted/40">·</span>
-                    <span className="tabular-nums">{templateEx.load}</span>
-                  </>
-                ) : null}
-                {rest ? (
-                  <>
-                    <span className="text-fg-muted/40">·</span>
-                    <span className="inline-flex items-center gap-1 tabular-nums">
-                      <Clock className="h-3 w-3" />
-                      {rest}
-                    </span>
-                  </>
-                ) : null}
-              </div>
-            </div>
-          </div>
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto border-border bg-background text-foreground">
+        <DialogHeader className="pr-8 text-left">
+          <DialogTitle className="text-xl font-bold tracking-tight">
+            {data?.name ?? templateEx.exercises?.name ?? "Exercício"}
+          </DialogTitle>
         </DialogHeader>
 
-        <div className="max-h-[calc(90vh-90px)] overflow-y-auto p-4">
-          {isLoading ? (
-            <p className="text-sm text-fg-muted">Carregando…</p>
-          ) : !data ? (
-            <p className="text-sm text-fg-muted">Detalhes não disponíveis.</p>
-          ) : (
-            <div className="space-y-5 text-sm">
-              {/* Media */}
-              {youtubeEmbed ? (
-                <div className="aspect-video overflow-hidden rounded-lg border border-border bg-black">
-                  <iframe
-                    src={youtubeEmbed}
-                    className="h-full w-full"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    title={data.name}
-                  />
+        {isLoading ? (
+          <p className="text-sm text-fg-muted">Carregando…</p>
+        ) : !data ? (
+          <p className="text-sm text-fg-muted">Detalhes não disponíveis.</p>
+        ) : (
+          <div className="mt-4 space-y-6">
+            {/* Media */}
+            {youtubeEmbed ? (
+              <div className="flex w-full justify-center">
+                <div className="relative w-full max-w-full overflow-hidden rounded-xl bg-surface-1">
+                  <div className="aspect-video">
+                    <iframe
+                      src={youtubeEmbed}
+                      className="h-full w-full"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                      title={data.name}
+                    />
+                  </div>
                 </div>
-              ) : videoSrc ? (
-                <div className="aspect-video overflow-hidden rounded-lg border border-border bg-black">
+              </div>
+            ) : videoSrc ? (
+              <div className="flex w-full justify-center">
+                <div className="relative max-h-[60vh] max-w-full overflow-hidden rounded-xl bg-surface-1">
                   <video
                     src={videoSrc}
-                    controls
+                    className="block h-auto max-h-[60vh] max-w-full rounded-xl"
+                    autoPlay
+                    loop
+                    muted
                     playsInline
-                    className="h-full w-full object-contain"
+                    controls
+                    preload="metadata"
+                    poster={data.image_path ?? undefined}
                   />
                 </div>
-              ) : data.image_path ? (
-                <div className="overflow-hidden rounded-lg border border-border bg-surface-2">
+              </div>
+            ) : data.image_path ? (
+              <div className="flex w-full justify-center">
+                <div className="overflow-hidden rounded-xl bg-surface-1">
                   <img
                     src={data.image_path}
                     alt={data.name}
-                    className="h-auto w-full object-cover"
+                    className="block h-auto max-h-[60vh] w-auto max-w-full object-contain"
                   />
                 </div>
-              ) : null}
+              </div>
+            ) : null}
 
-              {data.description ? (
-                <Section title="Descrição">
-                  <p className="whitespace-pre-line leading-relaxed text-foreground/90">
-                    {data.description}
-                  </p>
-                </Section>
-              ) : null}
+            {data.description ? (
+              <div>
+                <h3 className="mb-2 text-lg font-medium">Descrição</h3>
+                <p className="text-fg-muted">{data.description}</p>
+              </div>
+            ) : null}
 
-              {data.instructions ? (
-                <Section title="Instruções">
-                  <p className="whitespace-pre-line leading-relaxed text-foreground/90">
+            {data.instructions ? (
+              <div>
+                <h3 className="mb-2 text-lg font-medium">Instruções</h3>
+                <div className="rounded-lg bg-surface-1 p-4">
+                  <pre className="whitespace-pre-wrap font-sans text-fg-muted">
                     {data.instructions}
-                  </p>
-                </Section>
-              ) : null}
+                  </pre>
+                </div>
+              </div>
+            ) : null}
 
-              {(data.difficulty || data.objective || data.equipment) ? (
-                <Section title="Detalhes">
-                  <div className="grid gap-2 sm:grid-cols-2">
-                    {data.difficulty ? (
-                      <DetailRow icon={Flame} label="Nível" value={data.difficulty} />
-                    ) : null}
-                    {data.objective ? (
-                      <DetailRow icon={Target} label="Objetivo" value={data.objective} />
-                    ) : null}
-                    {data.equipment ? (
-                      <DetailRow icon={Wrench} label="Equipamentos" value={data.equipment} />
-                    ) : null}
-                  </div>
-                </Section>
-              ) : null}
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div>
+                <h3 className="mb-2 text-lg font-medium">Detalhes</h3>
+                <div className="space-y-3 rounded-lg bg-surface-1 p-4">
+                  {data.difficulty ? (
+                    <div>
+                      <span className="text-sm text-fg-muted">Nível de Dificuldade:</span>
+                      <p>{data.difficulty}</p>
+                    </div>
+                  ) : null}
+                  {data.objective ? (
+                    <div>
+                      <span className="text-sm text-fg-muted">Objetivo:</span>
+                      <p>{data.objective}</p>
+                    </div>
+                  ) : null}
+                  {equipmentList.length ? (
+                    <div>
+                      <span className="text-sm text-fg-muted">Equipamentos:</span>
+                      <div className="mt-1 flex flex-wrap gap-1">
+                        {equipmentList.map((e) => (
+                          <span
+                            key={e}
+                            className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-surface-3 px-3 py-0.5 text-[11px] font-semibold text-foreground"
+                          >
+                            {e}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
+              </div>
 
-              {(data.muscles_primary?.length || data.muscles_secondary?.length) ? (
-                <Section title="Grupos Musculares">
+              <div>
+                <h3 className="mb-2 text-lg font-medium">Grupos Musculares</h3>
+                <div className="space-y-3 rounded-lg bg-surface-1 p-4">
                   {data.muscles_primary?.length ? (
-                    <div className="mb-2">
-                      <p className="mb-1.5 text-[0.625rem] font-semibold uppercase tracking-wider text-fg-muted">
-                        Primários
-                      </p>
-                      <div className="flex flex-wrap gap-1.5">
+                    <div>
+                      <span className="text-sm text-fg-muted">Primários:</span>
+                      <div className="mt-1 flex flex-wrap gap-2">
                         {data.muscles_primary.map((m) => (
                           <span
                             key={m}
-                            className="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-1 text-xs font-medium text-primary"
+                            className="inline-flex items-center gap-1.5 rounded-full border border-primary/20 bg-primary px-3 py-0.5 text-[11px] font-semibold text-primary-foreground"
                           >
                             {m}
                           </span>
@@ -631,14 +638,12 @@ function ExerciseDetailDialog({
                   ) : null}
                   {data.muscles_secondary?.length ? (
                     <div>
-                      <p className="mb-1.5 text-[0.625rem] font-semibold uppercase tracking-wider text-fg-muted">
-                        Secundários
-                      </p>
-                      <div className="flex flex-wrap gap-1.5">
+                      <span className="text-sm text-fg-muted">Secundários:</span>
+                      <div className="mt-1 flex flex-wrap gap-2">
                         {data.muscles_secondary.map((m) => (
                           <span
                             key={m}
-                            className="rounded-full border border-border bg-surface-2/60 px-2.5 py-1 text-xs text-foreground/80"
+                            className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-0.5 text-[11px] font-semibold text-foreground"
                           >
                             {m}
                           </span>
@@ -646,54 +651,25 @@ function ExerciseDetailDialog({
                       </div>
                     </div>
                   ) : null}
-                </Section>
-              ) : null}
-
-              {templateEx.notes ? (
-                <Section title="Notas do treino">
-                  <p className="whitespace-pre-line leading-relaxed text-foreground/90">
-                    {templateEx.notes}
-                  </p>
-                </Section>
-              ) : null}
+                </div>
+              </div>
             </div>
-          )}
-        </div>
+
+            {templateEx.notes ? (
+              <div>
+                <h3 className="mb-2 text-lg font-medium">Notas do treino</h3>
+                <div className="rounded-lg bg-surface-1 p-4">
+                  <p className="whitespace-pre-line text-fg-muted">{templateEx.notes}</p>
+                </div>
+              </div>
+            ) : null}
+          </div>
+        )}
       </DialogContent>
     </Dialog>
   );
 }
 
-function DetailRow({
-  icon: Icon,
-  label,
-  value,
-}: {
-  icon: typeof Flame;
-  label: string;
-  value: string;
-}) {
-  return (
-    <div className="flex items-center gap-2 rounded-lg border border-border bg-surface-2/40 px-3 py-2">
-      <Icon className="h-4 w-4 shrink-0 text-fg-muted" />
-      <div className="min-w-0">
-        <p className="text-[0.625rem] font-semibold uppercase tracking-wider text-fg-muted">
-          {label}
-        </p>
-        <p className="truncate text-sm text-foreground/90">{value}</p>
-      </div>
-    </div>
-  );
-}
-
-function Section({ title, children }: { title: string; children: ReactNode }) {
-  return (
-    <div className="space-y-1.5">
-      <h3 className="text-[0.625rem] font-bold uppercase tracking-wider text-fg-muted">{title}</h3>
-      {children}
-    </div>
-  );
-}
 
 function ActionsSidebar({
   onEdit,
