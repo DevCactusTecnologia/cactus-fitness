@@ -298,22 +298,23 @@ function AuthForm({
         <span className="text-sm font-body">Trocar perfil</span>
       </button>
 
-      <div className="mb-8">
+      <div className="mb-6 sm:mb-8">
         <div className="flex items-center gap-3 mb-3">
-          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
             {RoleIcon}
           </div>
-          <span className="text-primary/70 text-sm font-medium uppercase tracking-wider font-body">
+          <span className="text-primary/70 text-xs sm:text-sm font-medium uppercase tracking-wider font-body truncate">
             {roleLabel}
           </span>
         </div>
-        <h1 className="text-[1.75rem] md:text-3xl font-bold font-display text-foreground leading-tight">
+        <h1 className="text-2xl sm:text-[1.75rem] lg:text-3xl font-bold font-display text-foreground leading-tight tracking-tight">
           {mode === "signin" ? roleTitle : `Criar conta de ${roleLabel}`}
         </h1>
         <p className="text-fg-muted mt-2 text-sm font-body">
           {mode === "signin" ? roleSubtitle : "Preencha seus dados para começar"}
         </p>
       </div>
+
 
       <form onSubmit={handleSubmit} className="space-y-4">
         {mode === "signup" && (
