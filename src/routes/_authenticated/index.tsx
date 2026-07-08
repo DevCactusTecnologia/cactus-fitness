@@ -156,9 +156,6 @@ function MobileTopBar() {
         </span>
       </div>
       <div className="flex shrink-0 items-center gap-2">
-        <button className="grid h-9 w-9 place-items-center rounded-full border border-border text-muted-foreground">
-          <Lightbulb className="h-4 w-4" />
-        </button>
         <button className="inline-flex items-center gap-1.5 rounded-full border border-border px-3 py-1.5 text-sm">
           <Sparkles className="h-4 w-4 text-primary" />
           <span>IA</span>
