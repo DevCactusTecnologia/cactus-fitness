@@ -1,22 +1,12 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { queryOptions, useSuspenseQuery } from "@tanstack/react-query";
 import { Search, ChevronRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { IconRail } from "@/components/IconRail";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { initialsFromName } from "@/lib/auth";
 import { colorForId } from "@/lib/avatar-color";
-
-export const Route = createFileRoute("/_authenticated/dashboard/personal/avaliacoes/")({
-  head: () => ({
-    meta: [
-      { title: "Avaliações Físicas · cactusfitness" },
-      { name: "description", content: "Crie e acompanhe as avaliações físicas dos seus alunos." },
-    ],
-  }),
-  component: AvaliacoesPage,
-});
 
 type AlunoRow = {
   id: string;
@@ -25,21 +15,34 @@ type AlunoRow = {
   is_active: boolean;
 };
 
+const alunosAvaliacoesQuery = queryOptions({
+  queryKey: ["alunos", "avaliacoes"],
+  queryFn: async (): Promise<AlunoRow[]> => {
+    const { data, error } = await supabase
+      .from("alunos")
+      .select("id, full_name, email, is_active")
+      .order("full_name", { ascending: true });
+    if (error) throw error;
+    return (data ?? []) as AlunoRow[];
+  },
+  staleTime: 60_000,
+});
+
+export const Route = createFileRoute("/_authenticated/dashboard/personal/avaliacoes/")({
+  head: () => ({
+    meta: [
+      { title: "Avaliações Físicas · cactusfitness" },
+      { name: "description", content: "Crie e acompanhe as avaliações físicas dos seus alunos." },
+    ],
+  }),
+  loader: ({ context }) => context.queryClient.ensureQueryData(alunosAvaliacoesQuery),
+  component: AvaliacoesPage,
+});
 
 function AvaliacoesPage() {
   const [q, setQ] = useState("");
+  const { data: alunos } = useSuspenseQuery(alunosAvaliacoesQuery);
 
-  const { data: alunos = [], isLoading } = useQuery({
-    queryKey: ["alunos", "avaliacoes"],
-    queryFn: async (): Promise<AlunoRow[]> => {
-      const { data, error } = await supabase
-        .from("alunos")
-        .select("id, full_name, email, is_active")
-        .order("full_name", { ascending: true });
-      if (error) throw error;
-      return (data ?? []) as AlunoRow[];
-    },
-  });
 
   const filtered = useMemo(() => {
     const term = q.trim().toLowerCase();
@@ -84,12 +87,7 @@ function AvaliacoesPage() {
 
           {/* Student list */}
           <ul className="mt-4 space-y-2">
-            {isLoading && (
-              <li className="rounded-2xl border border-border/60 bg-card/40 px-4 py-6 text-center text-xs text-muted-foreground">
-                Carregando…
-              </li>
-            )}
-            {!isLoading && filtered.length === 0 && (
+            {filtered.length === 0 && (
               <li className="rounded-2xl border border-border/60 bg-card/40 px-4 py-6 text-center text-xs text-muted-foreground">
                 Nenhum aluno encontrado.
               </li>
