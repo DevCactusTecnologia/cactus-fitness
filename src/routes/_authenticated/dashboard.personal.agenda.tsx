@@ -470,7 +470,7 @@ function AgendaPage() {
             <MiniCalendar />
             <div className="rounded-xl border border-border bg-card p-4">
               <div className="mb-2 flex items-center justify-between">
-                <div className="text-sm font-semibold">06 de julho</div>
+                <div className="text-sm font-semibold capitalize">{new Date().toLocaleDateString("pt-BR", { day: "2-digit", month: "long" })}</div>
                 <div className="flex items-center gap-1">
                   <button className="grid h-7 w-7 place-items-center rounded-md text-muted-foreground hover:bg-accent">
                     <ChevronLeft className="h-4 w-4" />
