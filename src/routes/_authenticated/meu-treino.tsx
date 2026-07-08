@@ -432,16 +432,10 @@ function MeuTreinoPage() {
         </div>
       </main>
 
-      {/* Bottom nav (mobile) */}
+      {/* Bottom nav (mobile) — mesmos itens do rail lateral */}
       <nav className="fixed inset-x-0 bottom-0 z-40 md:hidden border-t border-border/60 bg-background/95 backdrop-blur-xl">
-        <div className="grid grid-cols-5">
-          {[
-            { icon: Home, label: "Início", active: true },
-            { icon: Bell, label: "Notificações", badge: 1 },
-            { icon: Receipt, label: "Faturas" },
-            { icon: MessageSquareText, label: "Chat" },
-            { icon: MenuIcon, label: "Menu" },
-          ].map(({ icon: Icon, label, active, badge }) => (
+        <div className={`grid`} style={{ gridTemplateColumns: `repeat(${RAIL_ITEMS.length}, minmax(0, 1fr))` }}>
+          {RAIL_ITEMS.map(({ icon: Icon, label, active }) => (
             <button
               key={label}
               type="button"
@@ -451,11 +445,6 @@ function MeuTreinoPage() {
             >
               <Icon className="h-5 w-5" strokeWidth={active ? 2.25 : 1.75} />
               {label}
-              {badge && (
-                <span className="absolute right-1/2 top-1 translate-x-3 grid h-4 w-4 place-items-center rounded-full bg-destructive text-[9px] font-bold text-destructive-foreground">
-                  {badge}
-                </span>
-              )}
             </button>
           ))}
         </div>
