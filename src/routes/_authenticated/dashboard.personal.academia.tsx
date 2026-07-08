@@ -55,6 +55,9 @@ function AcademiaPage() {
   const [members, setMembers] = useState<MemberRow[]>([]);
   const [invites, setInvites] = useState<InviteRow[]>([]);
   const [me, setMe] = useState<string | null>(null);
+  const [alunosByPersonal, setAlunosByPersonal] = useState<Record<string, number>>({});
+  const [totalAlunos, setTotalAlunos] = useState(0);
+  const [alunosAtivos, setAlunosAtivos] = useState(0);
 
   // Invite form
   const [email, setEmail] = useState("");
