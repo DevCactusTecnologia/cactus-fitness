@@ -761,7 +761,7 @@ function PlanoCard({ plano }: { plano: Plano }) {
   );
 }
 
-function TreinosTab({ aluno, onNovoPlano }: { aluno: Aluno; onNovoPlano: () => void }) {
+function TreinosTab({ aluno, onNovoPlano, onCopiar }: { aluno: Aluno; onNovoPlano: () => void; onCopiar: () => void }) {
   const firstName = aluno.full_name.split(" ")[0];
   const { data: treinos, isLoading, error } = useQuery({
     queryKey: ["aluno-student-workouts", aluno.id],
