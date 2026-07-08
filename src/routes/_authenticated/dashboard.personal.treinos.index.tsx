@@ -363,7 +363,7 @@ function FilterSelect<T extends string>({
 function ModeloRow({ modelo }: { modelo: Modelo }) {
   const isPlan = modelo.kind === "plan";
   const Icon = isPlan ? Layers : FileText;
-  const sessionsLabel = `${modelo.sessionCount} sessão${modelo.sessionCount === 1 ? "" : modelo.sessionCount > 1 ? "es" : ""}`;
+  
 
   return (
     <div className="group flex cursor-pointer items-center gap-3 rounded-xl border border-border bg-card p-3 transition-all hover:border-primary/40 hover:bg-muted/50 lg:p-4">
