@@ -203,26 +203,29 @@ function MeuTreinoPage() {
             }}
           />
         </div>
-        {RAIL_ITEMS.map(({ icon: Icon, label, active }) => (
-          <button
-            key={label}
-            type="button"
-            title={label}
-            className={`group relative grid h-11 w-11 place-items-center rounded-[10px] transition ${
-              active
-                ? "bg-primary/20 text-primary"
-                : "text-sidebar-foreground/70 hover:bg-white/5 hover:text-sidebar-foreground"
-            }`}
-          >
-            {active && (
-              <span className="absolute -left-3.5 top-1/2 h-7 w-1 -translate-y-1/2 rounded-r-full bg-primary" />
-            )}
-            <Icon className="h-5 w-5" strokeWidth={1.75} />
-            <span className="pointer-events-none absolute left-full ml-3 z-50 whitespace-nowrap rounded-md bg-popover px-2 py-1 text-xs font-medium text-popover-foreground shadow-md ring-1 ring-border opacity-0 group-hover:opacity-100 transition">
-              {label}
-            </span>
-          </button>
-        ))}
+        {RAIL_ITEMS.map(({ icon: Icon, label, to }) => {
+          const active = to === "/meu-treino";
+          return (
+            <Link
+              key={label}
+              to={to}
+              title={label}
+              className={`group relative grid h-11 w-11 place-items-center rounded-[10px] transition ${
+                active
+                  ? "bg-primary/20 text-primary"
+                  : "text-sidebar-foreground/70 hover:bg-white/5 hover:text-sidebar-foreground"
+              }`}
+            >
+              {active && (
+                <span className="absolute -left-3.5 top-1/2 h-7 w-1 -translate-y-1/2 rounded-r-full bg-primary" />
+              )}
+              <Icon className="h-5 w-5" strokeWidth={1.75} />
+              <span className="pointer-events-none absolute left-full ml-3 z-50 whitespace-nowrap rounded-md bg-popover px-2 py-1 text-xs font-medium text-popover-foreground shadow-md ring-1 ring-border opacity-0 group-hover:opacity-100 transition">
+                {label}
+              </span>
+            </Link>
+          );
+        })}
         <div className="mt-auto flex flex-col items-center gap-2">
           <UserAvatarMenu />
         </div>
