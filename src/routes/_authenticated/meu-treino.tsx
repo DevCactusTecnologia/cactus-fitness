@@ -512,6 +512,14 @@ function MeuTreinoPage() {
           })}
         </div>
       </nav>
+
+      <AvatarCropDialog
+        open={!!cropSrc}
+        imageSrc={cropSrc}
+        onCancel={() => setCropSrc(null)}
+        onConfirm={handleCropConfirm}
+        saving={uploadingAvatar}
+      />
     </div>
   );
 }
