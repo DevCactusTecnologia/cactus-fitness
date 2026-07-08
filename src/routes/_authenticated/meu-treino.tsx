@@ -105,10 +105,11 @@ function MeuTreinoPage() {
           </button>
           <button
             onClick={signOut}
-            className="grid h-9 w-9 place-items-center rounded-full text-xs font-bold font-display text-white"
-            style={{ backgroundColor: av.bg, color: av.fg }}
+            className="grid h-9 w-9 place-items-center rounded-full text-xs font-bold font-display"
+            style={{ backgroundColor: "rgb(244, 63, 94)", color: "#fff" }}
             title={name}
           >
+
             {initials}
           </button>
         </div>
