@@ -390,27 +390,28 @@ function DesafioDialog({
               )}
             </div>
           </div>
+
+          {/* Footer (scrolls with content, sem divisória) */}
+          <div className="flex items-center justify-end gap-2 pt-2 pb-1">
+            <button
+              type="button"
+              onClick={() => onOpenChange(false)}
+              className="rounded-full border border-border bg-background px-4 py-2 text-sm font-semibold hover:bg-accent"
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              onClick={() => save.mutate()}
+              disabled={!canSave || save.isPending}
+              className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              {save.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
+              {isEdit ? "Salvar" : "Criar Desafio"}
+            </button>
+          </div>
         </div>
 
-        {/* Footer */}
-        <div className="flex items-center justify-end gap-2 border-t border-border/60 px-5 py-3">
-          <button
-            type="button"
-            onClick={() => onOpenChange(false)}
-            className="rounded-full border border-border bg-background px-4 py-2 text-sm font-semibold hover:bg-accent"
-          >
-            Cancelar
-          </button>
-          <button
-            type="button"
-            onClick={() => save.mutate()}
-            disabled={!canSave || save.isPending}
-            className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            {save.isPending && <Loader2 className="h-3.5 w-3.5 animate-spin" />}
-            {isEdit ? "Salvar" : "Criar Desafio"}
-          </button>
-        </div>
 
       </DialogContent>
     </Dialog>
