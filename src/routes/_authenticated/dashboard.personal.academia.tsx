@@ -1,7 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Building2, Mail, Copy, Trash2, UserPlus, Loader2, Check, Shield, Crown } from "lucide-react";
+import { Building2, Mail, Copy, Trash2, UserPlus, Loader2, Check, Shield, Crown, Users, Dumbbell, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 import { IconRail } from "@/components/IconRail";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
