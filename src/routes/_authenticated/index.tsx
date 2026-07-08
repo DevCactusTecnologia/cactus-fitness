@@ -560,7 +560,11 @@ function Dashboard() {
 
               <div className="grid min-w-0 grid-cols-[minmax(0,1fr)_minmax(0,1fr)] gap-3">
 
-                <ActionButton icon={Lock} label="Adicionar Aluno" />
+                <ActionButton
+                  icon={Lock}
+                  label="Adicionar Aluno"
+                  onClick={() => navigate({ to: "/dashboard/personal/alunos", search: { new: true } })}
+                />
                 <ActionButton icon={Lock} label="Link de Cadastro" />
               </div>
               <NextEventCard />
