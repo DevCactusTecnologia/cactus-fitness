@@ -323,7 +323,7 @@ function DesafioDialog({
               type="button"
               onClick={() => setTipo("treino_realizado")}
               className={`flex w-full items-center gap-3 rounded-lg border p-2.5 text-left transition ${
-                tipo === "treino_realizado" ? "border-primary bg-primary/5" : "border-border bg-background/40"
+                tipo === "treino_realizado" ? "border-primary/40 bg-primary/5" : "border-border/60 bg-background/40"
               }`}
             >
               <span className="grid h-4 w-4 shrink-0 place-items-center rounded-full border border-primary">
@@ -334,9 +334,10 @@ function DesafioDialog({
                 <p className="text-xs text-muted-foreground">Cada treino concluído = <span className="text-primary">1 ponto</span></p>
               </div>
             </button>
-            <div className="flex items-center gap-2 rounded-lg border border-border/60 bg-background/30 px-2.5 py-2 text-xs text-muted-foreground">
-              <Info className="h-3.5 w-3.5 shrink-0" /> Novos tipos em breve (volume, frequência, carga...)
+            <div className="flex items-center gap-2 rounded-lg border border-border/30 bg-muted/20 px-2.5 py-2 text-xs text-muted-foreground/60">
+              <Info className="h-3.5 w-3.5 shrink-0" /> Novos tipos de desafio em breve (volume, frequência, carga...)
             </div>
+
           </div>
 
           <div className="space-y-1.5">
