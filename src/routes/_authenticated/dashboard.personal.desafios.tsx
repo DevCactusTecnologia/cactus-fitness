@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { ChevronRight, Play } from "lucide-react";
+import { ChevronRight, Play, Trophy, Plus } from "lucide-react";
 import { IconRail } from "@/components/IconRail";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 
@@ -19,13 +19,21 @@ function DesafiosPage() {
       <IconRail />
 
       <main className="pb-24 md:ml-[72px] md:pb-0">
-        <div className="px-4 pt-5 sm:px-8 sm:pt-6">
+        {/* Header: title left, "+ Novo Desafio" right */}
+        <div className="flex items-center justify-between gap-3 px-4 pt-5 sm:px-8 sm:pt-6">
           <h1 className="font-display text-lg font-bold tracking-tight sm:text-xl">
             Desafios
           </h1>
+          <button
+            type="button"
+            className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground transition hover:brightness-110"
+          >
+            <Plus className="h-3.5 w-3.5" /> Novo Desafio
+          </button>
         </div>
 
-        <div className="mx-auto max-w-3xl px-4 py-5 sm:px-6 sm:py-6">
+        <div className="mx-auto max-w-3xl px-4 pt-6 sm:px-6">
+          {/* Tutorial card */}
           <button
             type="button"
             className="flex w-full items-center gap-3 rounded-2xl border border-border/60 bg-card/60 p-2.5 text-left transition hover:bg-card sm:p-3"
@@ -43,6 +51,23 @@ function DesafiosPage() {
             </div>
             <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" />
           </button>
+
+          {/* Empty state — no card border, centered */}
+          <div className="mt-20 flex flex-col items-center text-center">
+            <div className="mb-4 grid h-14 w-14 place-items-center rounded-full bg-primary/10 text-primary">
+              <Trophy className="h-6 w-6" strokeWidth={2} />
+            </div>
+            <h3 className="mb-1.5 font-display text-base font-bold">Nenhum desafio criado</h3>
+            <p className="mb-5 max-w-sm text-xs text-muted-foreground">
+              Crie um desafio para motivar seus alunos a competirem entre si!
+            </p>
+            <button
+              type="button"
+              className="inline-flex h-10 items-center justify-center gap-2 rounded-full bg-primary px-5 text-xs font-semibold text-primary-foreground transition hover:brightness-110 active:scale-[0.97]"
+            >
+              <Plus className="h-4 w-4" /> Criar primeiro desafio
+            </button>
+          </div>
         </div>
       </main>
 
