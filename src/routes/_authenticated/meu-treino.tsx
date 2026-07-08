@@ -358,31 +358,39 @@ function MeuTreinoPage() {
                 ver ranking <ChevronRight className="h-4 w-4" />
               </span>
             </button>
-            <button
-              type="button"
-              onClick={handleCheckIn}
-              disabled={checkedToday || checkingIn}
-              className={`flex w-full items-center justify-center gap-2 border-t border-border/60 py-3 text-sm font-semibold transition ${
-                checkedToday
-                  ? "text-emerald-500 cursor-default"
-                  : "text-primary hover:bg-primary/5 disabled:opacity-60"
-              }`}
-            >
-              {checkedToday ? (
-                <>
-                  <CheckCircle2 className="h-4 w-4" />
-                  <span className="text-emerald-500">check-in de hoje feito</span>
-                </>
-              ) : checkingIn ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" /> registrando check-in...
-                </>
-              ) : (
-                <>
-                  <Zap className="h-4 w-4" fill="currentColor" /> fazer check-in de hoje (+5 pts)
-                </>
-              )}
-            </button>
+            {checkedToday ? (
+              <div className="flex w-full items-center justify-center gap-2 border-t border-border/60 py-3 text-sm font-semibold">
+                <CheckCircle2 className="h-4 w-4 text-emerald-500" />
+                <span className="text-emerald-500">check-in de hoje feito</span>
+                <button
+                  type="button"
+                  onClick={handleUndoCheckIn}
+                  disabled={checkingIn}
+                  aria-label="Desfazer check-in"
+                  title="Desfazer check-in"
+                  className="ml-1 grid h-6 w-6 place-items-center rounded-full text-muted-foreground/70 transition hover:bg-accent hover:text-foreground disabled:opacity-50"
+                >
+                  {checkingIn ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Undo2 className="h-3.5 w-3.5" />}
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={handleCheckIn}
+                disabled={checkingIn}
+                className="flex w-full items-center justify-center gap-2 border-t border-border/60 py-3 text-sm font-semibold text-primary transition hover:bg-primary/5 disabled:opacity-60"
+              >
+                {checkingIn ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" /> registrando check-in...
+                  </>
+                ) : (
+                  <>
+                    <Zap className="h-4 w-4" fill="currentColor" /> fazer check-in de hoje (+5 pts)
+                  </>
+                )}
+              </button>
+            )}
           </section>
 
           {/* Grid de menu */}
