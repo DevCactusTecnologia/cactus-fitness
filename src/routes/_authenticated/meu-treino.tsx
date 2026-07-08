@@ -214,8 +214,9 @@ function MeuTreinoPage() {
             <p className="mb-4 text-[11px] uppercase tracking-widest text-muted-foreground">calendário da semana</p>
             <div className="grid grid-cols-7 gap-1 sm:gap-2">
               {weekDates.map((d, i) => {
+                const iso = isoDate(d);
                 const isToday = i === todayIdx;
-                const isPast = i < todayIdx;
+                const checked = checkIns.has(iso);
                 return (
                   <div key={i} className="flex flex-col items-center gap-2">
                     <span className={`text-[11px] uppercase tracking-wider ${isToday ? "font-bold text-primary" : "text-muted-foreground"}`}>
@@ -223,14 +224,14 @@ function MeuTreinoPage() {
                     </span>
                     <div
                       className={`grid h-10 w-10 place-items-center rounded-full border text-sm font-semibold transition ${
-                        isToday
+                        checked
+                          ? "border-primary bg-primary text-primary-foreground shadow-[0_0_18px_rgba(215,242,5,0.35)]"
+                          : isToday
                           ? "border-primary bg-primary/10 text-primary shadow-[0_0_18px_rgba(215,242,5,0.35)]"
-                          : isPast
-                          ? "border-primary/60 bg-primary/5 text-primary"
                           : "border-border/60 bg-background/40 text-muted-foreground"
                       }`}
                     >
-                      {isPast ? <Check className="h-4 w-4" strokeWidth={3} /> : d.getDate()}
+                      {checked ? <Check className="h-4 w-4" strokeWidth={3} /> : d.getDate()}
                     </div>
                   </div>
                 );
