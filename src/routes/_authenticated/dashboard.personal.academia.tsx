@@ -34,6 +34,21 @@ type InviteRow = {
   accepted_at: string | null;
 };
 
+function StatCard({ icon, label, value, hint }: { icon: React.ReactNode; label: string; value: number; hint?: string }) {
+  return (
+    <div className="rounded-2xl border border-border bg-card p-4">
+      <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+        <span className="grid h-6 w-6 place-items-center rounded-md bg-primary/10 text-primary">{icon}</span>
+        {label}
+      </div>
+      <div className="mt-2 flex items-baseline gap-2">
+        <div className="text-2xl font-bold tracking-tight">{value}</div>
+        {hint && <div className="text-[11px] text-muted-foreground">{hint}</div>}
+      </div>
+    </div>
+  );
+}
+
 function RoleBadge({ role }: { role: string }) {
   const map: Record<string, { label: string; icon: any; cls: string }> = {
     owner: { label: "Dono", icon: Crown, cls: "bg-primary/15 text-primary" },
