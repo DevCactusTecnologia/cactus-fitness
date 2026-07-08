@@ -277,37 +277,38 @@ function MeuTreinoPage() {
           </div>
 
           {/* Calendário da semana */}
-          <section className="rounded-2xl border border-border bg-card p-5">
-            <p className="mb-4 text-[11px] uppercase tracking-widest text-muted-foreground">calendário da semana</p>
-            <div className="grid grid-cols-7 gap-1 sm:gap-2">
+          <section className="rounded-xl border border-border bg-card p-4 space-y-3">
+            <p className="text-[0.6875rem] font-display font-bold uppercase tracking-wider text-muted-foreground">calendário da semana</p>
+            <div className="grid grid-cols-7 gap-1 select-none">
               {weekDates.map((d, i) => {
                 const isToday = i === todayIdx;
                 // TODO: marcar como concluído somente quando o aluno finalizar o treino do dia
                 const workoutDone = false;
                 return (
-                  <div key={i} className="flex flex-col items-center gap-2">
-                    <span className={`text-[11px] uppercase tracking-wider ${isToday ? "font-bold text-primary" : "text-muted-foreground"}`}>
+                  <div key={i} className="flex flex-col items-center gap-1">
+                    <span className={`text-[0.625rem] font-semibold uppercase tracking-wider ${isToday ? "text-primary" : "text-muted-foreground/60"}`}>
                       {WEEK_DAYS_PT[i]}
                     </span>
                     <div
-                      className={`grid h-10 w-10 place-items-center rounded-full border text-sm font-semibold transition ${
+                      className={`flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full border-2 text-xs font-bold transition-all ${
                         workoutDone
-                          ? "border-primary bg-primary text-primary-foreground shadow-[0_0_18px_rgba(215,242,5,0.35)]"
+                          ? "border-primary bg-primary text-primary-foreground"
                           : isToday
-                          ? "border-primary bg-transparent text-primary shadow-[0_0_18px_rgba(215,242,5,0.25)]"
-                          : "border-border/60 bg-background/40 text-muted-foreground"
+                          ? "border-primary bg-primary/10 text-primary ring-1 ring-primary/30 ring-offset-1 ring-offset-background"
+                          : "border-muted-foreground/15 bg-transparent text-muted-foreground/50"
                       }`}
                     >
-                      {workoutDone ? <Check className="h-4 w-4" strokeWidth={3} /> : d.getDate()}
+                      {workoutDone ? <Check className="h-4 w-4" strokeWidth={3} /> : <span className="tabular-nums">{d.getDate()}</span>}
                     </div>
                   </div>
                 );
               })}
             </div>
-            <div className="mt-4 border-t border-border/60 pt-3">
-              <p className="inline-flex items-center gap-2 text-sm text-muted-foreground">
-                <Flame className="h-4 w-4 text-orange-500" fill="currentColor" />
-                <span><span className="font-semibold text-foreground">1 semana</span> de ofensiva</span>
+            <div className="h-px bg-border" />
+            <div className="flex items-center gap-2">
+              <Flame className="h-4 w-4 shrink-0 text-amber-500" fill="currentColor" />
+              <p className="text-xs">
+                <span className="font-display font-bold text-amber-500">1 semana de ofensiva</span>
               </p>
             </div>
           </section>
