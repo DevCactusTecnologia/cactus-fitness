@@ -146,10 +146,12 @@ export function buildPlanos(
   sessions: StudentWorkoutRow[],
 ): Plano[] {
   if (sessions.length === 0) return [];
-  // Group by template_id (fallback to session id when null)
+  // Group by template_id. All sessions without a template_id are merged
+  // into a single "solo" group representing the aluno's base plan.
   const groups = new Map<string, StudentWorkoutRow[]>();
+  const SOLO_KEY = "__solo__";
   for (const s of sessions) {
-    const key = s.template_id ?? `_solo_${s.id}`;
+    const key = s.template_id ?? SOLO_KEY;
     const arr = groups.get(key) ?? [];
     arr.push(s);
     groups.set(key, arr);
@@ -158,12 +160,20 @@ export function buildPlanos(
   for (const [key, group] of groups.entries()) {
     const base = buildPlano(aluno, group);
     if (!base) continue;
-    // Use the workout_templates.name (or first student_workouts.name) as the card title
-    const displayName =
-      group[0]?.workout_templates?.name ?? group[0]?.name ?? base.name;
-    planos.push({ ...base, id: key, name: displayName });
+    if (key === SOLO_KEY) {
+      // Keep aluno.id so the existing plano detail route continues to work
+      planos.push(base);
+    } else {
+      const displayName =
+        group[0]?.workout_templates?.name ?? group[0]?.name ?? base.name;
+      planos.push({
+        ...base,
+        id: `${aluno.id}__tpl_${key}`,
+        name: displayName,
+        isSimple: false,
+      });
+    }
   }
-  // Newest first (by earliest scheduled_for desc, fallback created_at)
   planos.sort((a, b) => (b.startDate ?? "").localeCompare(a.startDate ?? ""));
   return planos;
 }
