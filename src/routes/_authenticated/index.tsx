@@ -423,6 +423,7 @@ function ReferralBanner() {
 function Dashboard() {
   const { profile } = useCurrentUser();
   const { data: stats } = useDashboardStats();
+  const navigate = useNavigate();
   const name = firstName(profile?.full_name, profile?.email);
   const greeting = greetingFor(new Date().getHours());
   const today = new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" });
