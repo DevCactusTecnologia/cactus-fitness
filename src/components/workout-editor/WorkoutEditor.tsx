@@ -446,6 +446,7 @@ export function WorkoutEditor({
             level: state.level || null,
             goal: state.goal || null,
             personal_id: userRes.user.id,
+            aluno_id: alunoId ?? null,
           } as never)
           .select("id")
           .single();
