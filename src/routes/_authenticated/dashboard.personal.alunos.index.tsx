@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Plus, Users,
-  Link2, Search, LayoutGrid, ChevronRight, ChevronDown, Filter,
+  Link2, Search, LayoutGrid, ChevronRight, ChevronDown, ChevronLeft, Filter,
   Activity, CalendarDays, ArrowUpDown,
   Loader2,
 } from "lucide-react";
