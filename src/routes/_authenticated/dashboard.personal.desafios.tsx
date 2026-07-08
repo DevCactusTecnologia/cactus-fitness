@@ -1,13 +1,19 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { ChevronRight, Play, Trophy, Plus, X, Info, Loader2, Pencil, Trash2, CalendarDays } from "lucide-react";
+import { ChevronRight, Play, Trophy, Plus, X, Info, Loader2, Pencil, Trash2, CalendarDays, Calendar as CalendarIcon } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { format, parse } from "date-fns";
+import { ptBR } from "date-fns/locale";
+import { cn } from "@/lib/utils";
 import { IconRail } from "@/components/IconRail";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
+
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -341,10 +347,38 @@ function DesafioDialog({
           </div>
 
           <div className="space-y-1.5">
-            <Label htmlFor="desafio_data" className="text-xs font-semibold">Data de encerramento (opcional)</Label>
-            <Input id="desafio_data" type="date" value={dataEnc} onChange={(e) => setDataEnc(e.target.value)} className="h-9 text-sm" />
+            <Label className="text-xs font-semibold">Data de encerramento (opcional)</Label>
+            <Popover>
+              <PopoverTrigger asChild>
+                <button
+                  type="button"
+                  className={cn(
+                    "flex h-9 w-full items-center justify-between rounded-md border border-input bg-background px-3 text-sm transition hover:bg-accent/40",
+                    !dataEnc && "text-muted-foreground"
+                  )}
+                >
+                  <span>
+                    {dataEnc
+                      ? format(parse(dataEnc, "yyyy-MM-dd", new Date()), "dd/MM/yyyy", { locale: ptBR })
+                      : "dd/mm/aaaa"}
+                  </span>
+                  <CalendarIcon className="h-4 w-4 opacity-70" />
+                </button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  locale={ptBR}
+                  selected={dataEnc ? parse(dataEnc, "yyyy-MM-dd", new Date()) : undefined}
+                  onSelect={(d) => setDataEnc(d ? format(d, "yyyy-MM-dd") : "")}
+                  initialFocus
+                  className={cn("p-3 pointer-events-auto")}
+                />
+              </PopoverContent>
+            </Popover>
             <p className="text-[11px] text-muted-foreground">Deixe vazio para encerrar manualmente.</p>
           </div>
+
 
           <div className="space-y-2">
             <div className="flex items-center justify-between">
