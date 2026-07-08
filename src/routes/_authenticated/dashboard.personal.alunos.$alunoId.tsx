@@ -685,11 +685,75 @@ function DeleteAlunoDialog({
   );
 }
 
-function TreinosTab({ firstName, onNovoPlano }: { firstName: string; onNovoPlano: () => void }) {
+type StudentWorkoutRow = {
+  id: string;
+  name: string;
+  status: string;
+  scheduled_for: string | null;
+  created_at: string;
+  template_id: string | null;
+  workout_templates: {
+    category: string | null;
+    duration_min: number | null;
+    level: string | null;
+    goal: string | null;
+    workout_template_exercises: { id: string }[];
+  } | null;
+};
+
+const WEEKDAYS = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
+const STATUS_STYLES: Record<string, string> = {
+  pending: "bg-primary/10 text-primary border-primary/30",
+  in_progress: "bg-amber-500/10 text-amber-600 border-amber-500/30 dark:text-amber-400",
+  completed: "bg-emerald-500/10 text-emerald-600 border-emerald-500/30 dark:text-emerald-400",
+  skipped: "bg-muted text-muted-foreground border-border",
+};
+const STATUS_LABELS: Record<string, string> = {
+  pending: "Agendado",
+  in_progress: "Em andamento",
+  completed: "Concluído",
+  skipped: "Não realizado",
+};
+
+function formatScheduled(date: string | null): { weekday: string; formatted: string } | null {
+  if (!date) return null;
+  const [y, m, d] = date.split("-").map(Number);
+  if (!y || !m || !d) return null;
+  const dt = new Date(y, m - 1, d);
+  return {
+    weekday: WEEKDAYS[dt.getDay()],
+    formatted: `${String(d).padStart(2, "0")}/${String(m).padStart(2, "0")}/${y}`,
+  };
+}
+
+function TreinosTab({ alunoId, firstName, onNovoPlano }: { alunoId: string; firstName: string; onNovoPlano: () => void }) {
+  const { data: treinos, isLoading, error } = useQuery({
+    queryKey: ["aluno-student-workouts", alunoId],
+    queryFn: async (): Promise<StudentWorkoutRow[]> => {
+      const { data, error } = await supabase
+        .from("student_workouts")
+        .select(
+          "id, name, status, scheduled_for, created_at, template_id, workout_templates ( category, duration_min, level, goal, workout_template_exercises ( id ) )",
+        )
+        .eq("aluno_id", alunoId)
+        .order("scheduled_for", { ascending: true, nullsFirst: false })
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data ?? []) as unknown as StudentWorkoutRow[];
+    },
+  });
+
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h3 className="font-display text-base font-semibold">Planos de Treino</h3>
+        <div>
+          <h3 className="font-display text-base font-semibold">Planos de Treino</h3>
+          <p className="text-xs text-muted-foreground">
+            {treinos && treinos.length > 0
+              ? `${treinos.length} treino${treinos.length === 1 ? "" : "s"} atribuído${treinos.length === 1 ? "" : "s"} a ${firstName}.`
+              : `Treinos atribuídos a ${firstName}.`}
+          </p>
+        </div>
         <div className="flex items-center gap-2">
           <button className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3.5 py-2 text-sm font-semibold hover:bg-accent">
             <Copy className="h-4 w-4" /> Copiar existente
@@ -703,18 +767,80 @@ function TreinosTab({ firstName, onNovoPlano }: { firstName: string; onNovoPlano
         </div>
       </div>
 
-      <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border bg-background/40 px-6 py-12 text-center">
-        <div className="grid h-12 w-12 place-items-center rounded-2xl bg-accent text-primary">
-          <FileText className="h-6 w-6" />
+      {isLoading ? (
+        <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-background/40 py-12 text-sm text-muted-foreground">
+          <Loader2 className="h-4 w-4 animate-spin" /> Carregando treinos…
         </div>
-        <p className="text-sm font-medium">Nenhum plano de treino para {firstName}.</p>
-        <p className="max-w-sm text-xs text-muted-foreground">
-          Crie um plano personalizado ou use um modelo pronto.
-        </p>
-      </div>
+      ) : error ? (
+        <div className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-6 text-sm text-destructive">
+          Não foi possível carregar os treinos deste aluno.
+        </div>
+      ) : !treinos || treinos.length === 0 ? (
+        <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border bg-background/40 px-6 py-12 text-center">
+          <div className="grid h-12 w-12 place-items-center rounded-2xl bg-accent text-primary">
+            <FileText className="h-6 w-6" />
+          </div>
+          <p className="text-sm font-medium">Nenhum plano de treino para {firstName}.</p>
+          <p className="max-w-sm text-xs text-muted-foreground">
+            Crie um plano personalizado ou use um modelo pronto.
+          </p>
+        </div>
+      ) : (
+        <ul className="grid gap-3 sm:grid-cols-2">
+          {treinos.map((t) => {
+            const sched = formatScheduled(t.scheduled_for);
+            const exercisesCount = t.workout_templates?.workout_template_exercises?.length ?? 0;
+            const duration = t.workout_templates?.duration_min;
+            const goal = t.workout_templates?.goal ?? t.workout_templates?.category;
+            const statusClass = STATUS_STYLES[t.status] ?? STATUS_STYLES.pending;
+            const statusLabel = STATUS_LABELS[t.status] ?? t.status;
+            return (
+              <li
+                key={t.id}
+                className="group flex flex-col gap-3 rounded-xl border border-border bg-background/40 p-4 transition-colors hover:border-primary/40"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate font-display text-sm font-semibold">{t.name}</p>
+                    {goal ? (
+                      <p className="mt-0.5 truncate text-xs text-muted-foreground capitalize">{goal}</p>
+                    ) : null}
+                  </div>
+                  <span className={`shrink-0 rounded-full border px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wide ${statusClass}`}>
+                    {statusLabel}
+                  </span>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-muted-foreground">
+                  {sched ? (
+                    <span className="inline-flex items-center gap-1.5">
+                      <Calendar className="h-3.5 w-3.5" />
+                      <span className="font-medium text-foreground">{sched.weekday}</span>
+                      <span>· {sched.formatted}</span>
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5">
+                      <Calendar className="h-3.5 w-3.5" /> Sem data
+                    </span>
+                  )}
+                  {duration ? (
+                    <span className="inline-flex items-center gap-1.5">
+                      <Clock className="h-3.5 w-3.5" /> {duration} min
+                    </span>
+                  ) : null}
+                  <span className="inline-flex items-center gap-1.5">
+                    <FileText className="h-3.5 w-3.5" /> {exercisesCount} exercício{exercisesCount === 1 ? "" : "s"}
+                  </span>
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </div>
   );
 }
+
 
 function ChangePasswordDialog({
   aluno, open, onOpenChange,
