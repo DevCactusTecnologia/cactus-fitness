@@ -227,7 +227,7 @@ function AlunoDetailPage() {
                   onDelete={() => setDeleteOpen(true)}
                 />
               )}
-              {activeTab === 1 && <TreinosTab alunoId={aluno.id} firstName={aluno.full_name.split(" ")[0]} onNovoPlano={() => setNovoPlanoOpen(true)} />}
+              {activeTab === 1 && <TreinosTab aluno={aluno} onNovoPlano={() => setNovoPlanoOpen(true)} />}
             </div>
           </div>
         </div>
@@ -686,330 +686,76 @@ function DeleteAlunoDialog({
   );
 }
 
-type TemplateExerciseRow = {
-  id: string;
-  position: number;
-  sets: number | null;
-  reps: string | null;
-  load: string | null;
-  rest_seconds: number | null;
-  notes: string | null;
-  exercises: { id: number; name: string } | null;
-};
+import {
+  buildPlano,
+  PLANO_SELECT,
+  type Plano,
+  type StudentWorkoutRow,
+} from "@/lib/plano";
+import { Link } from "@tanstack/react-router";
 
-type StudentWorkoutRow = {
-  id: string;
-  name: string;
-  status: string;
-  scheduled_for: string | null;
-  created_at: string;
-  template_id: string | null;
-  workout_templates: {
-    category: string | null;
-    duration_min: number | null;
-    level: string | null;
-    goal: string | null;
-    workout_template_exercises: TemplateExerciseRow[];
-  } | null;
-};
-
-const WEEKDAYS = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
-const STATUS_STYLES: Record<string, string> = {
-  pending: "bg-primary/10 text-primary border-primary/30",
-  in_progress: "bg-amber-500/10 text-amber-600 border-amber-500/30 dark:text-amber-400",
-  completed: "bg-emerald-500/10 text-emerald-600 border-emerald-500/30 dark:text-emerald-400",
-  skipped: "bg-muted text-muted-foreground border-border",
-};
-const STATUS_LABELS: Record<string, string> = {
-  pending: "Agendado",
-  in_progress: "Em andamento",
-  completed: "Concluído",
-  skipped: "Não realizado",
-};
-
-function formatScheduled(date: string | null): { weekday: string; formatted: string } | null {
-  if (!date) return null;
-  const [y, m, d] = date.split("-").map(Number);
-  if (!y || !m || !d) return null;
-  const dt = new Date(y, m - 1, d);
-  return {
-    weekday: WEEKDAYS[dt.getDay()],
-    formatted: `${String(d).padStart(2, "0")}/${String(m).padStart(2, "0")}/${y}`,
-  };
-}
-
-function formatRest(seconds: number | null): string | null {
-  if (!seconds) return null;
-  if (seconds >= 60 && seconds % 60 === 0) return `${seconds / 60} min`;
-  if (seconds >= 60) {
-    const m = Math.floor(seconds / 60);
-    const s = seconds % 60;
-    return `${m}m${s}s`;
-  }
-  return `${seconds}s`;
-}
-
-function SessionRow({ t, defaultOpen }: { t: StudentWorkoutRow; defaultOpen: boolean }) {
-  const [open, setOpen] = useState(defaultOpen);
-  const sched = formatScheduled(t.scheduled_for);
-  const exercises = [...(t.workout_templates?.workout_template_exercises ?? [])].sort(
-    (a, b) => a.position - b.position,
-  );
-  const weekday = sched?.weekday ?? t.name;
-
+function PlanoCard({ plano }: { plano: Plano }) {
   return (
-    <li className="overflow-hidden rounded-2xl border border-border bg-background/40 transition-colors">
-      <button
-        type="button"
-        onClick={() => setOpen((v) => !v)}
-        className="flex w-full items-center gap-3 px-4 py-3.5 text-left"
-        aria-expanded={open}
-      >
-        <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-primary/15 text-sm font-semibold text-primary">
-          {(exercises.length && sched ? sched.weekday[0] : t.name[0]) ?? "?"}
-        </span>
-        <div className="min-w-0 flex-1">
-          <p className="truncate font-display text-sm font-semibold">{weekday}</p>
-          <p className="mt-0.5 truncate text-xs text-muted-foreground">
-            {exercises.length} exercício{exercises.length === 1 ? "" : "s"}
-          </p>
-        </div>
-        <ChevronDown className={`h-4 w-4 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`} />
-      </button>
-
-      {open ? (
-        <div className="border-t border-border px-4 py-3">
-          {exercises.length === 0 ? (
-            <p className="py-2 text-xs text-muted-foreground">Nenhum exercício cadastrado.</p>
-          ) : (
-            <ol className="divide-y divide-border/60">
-              {exercises.map((ex, idx) => (
-                <li key={ex.id} className="flex items-start gap-3 py-2.5">
-                  <span className="mt-0.5 grid h-6 w-6 shrink-0 place-items-center rounded-full bg-primary/10 text-[11px] font-semibold text-primary">
-                    {idx + 1}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium leading-tight">
-                      {ex.exercises?.name ?? "Exercício removido"}
-                    </p>
-                    <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[11px] text-muted-foreground">
-                      {ex.sets ? (
-                        <span><span className="font-semibold text-foreground">{ex.sets}</span> séries</span>
-                      ) : null}
-                      {ex.reps ? (
-                        <span><span className="font-semibold text-foreground">{ex.reps}</span> reps</span>
-                      ) : null}
-                      <span className="inline-flex items-center gap-1">
-                        <Dumbbell className="h-3 w-3" />
-                        <span className="font-semibold text-foreground">
-                          {ex.load && ex.load.trim() ? ex.load : "A definir"}
-                        </span>
-                      </span>
-                      {formatRest(ex.rest_seconds) ? (
-                        <span className="inline-flex items-center gap-1">
-                          <Clock className="h-3 w-3" /> Descanso {formatRest(ex.rest_seconds)}
-                        </span>
-                      ) : null}
-                    </div>
-                    {ex.notes ? (
-                      <p className="mt-1 text-[11px] italic text-muted-foreground">{ex.notes}</p>
-                    ) : null}
-                  </div>
-                </li>
-              ))}
-            </ol>
-          )}
-        </div>
-      ) : null}
-    </li>
-  );
-}
-
-type Plano = {
-  id: string;
-  name: string;
-  firstName: string;
-  sessions: StudentWorkoutRow[];
-  sessionsCount: number;
-  perWeek: number;
-  weeks: number;
-  startDate: string | null;
-  goal: string | null;
-  isActive: boolean;
-  isSimple: boolean;
-};
-
-function buildPlano(firstName: string, sessions: StudentWorkoutRow[]): Plano | null {
-  if (sessions.length === 0) return null;
-  const sorted = [...sessions].sort((a, b) => (a.scheduled_for ?? "").localeCompare(b.scheduled_for ?? ""));
-  const dates = sorted.map((s) => s.scheduled_for).filter((d): d is string => !!d);
-  const start = dates[0] ?? null;
-  const end = dates[dates.length - 1] ?? null;
-  let weeks = 1;
-  if (start && end) {
-    const [sy, sm, sd] = start.split("-").map(Number);
-    const [ey, em, ed] = end.split("-").map(Number);
-    const diffDays = Math.round((new Date(ey, em - 1, ed).getTime() - new Date(sy, sm - 1, sd).getTime()) / 86400000);
-    weeks = Math.max(1, Math.ceil((diffDays + 1) / 7));
-  }
-  const weekdays = new Set(dates.map((d) => {
-    const [y, m, day] = d.split("-").map(Number);
-    return new Date(y, m - 1, day).getDay();
-  }));
-  const perWeek = Math.max(1, weekdays.size);
-  const goal = sorted.find((s) => s.workout_templates?.goal)?.workout_templates?.goal
-    ?? sorted.find((s) => s.workout_templates?.category)?.workout_templates?.category
-    ?? null;
-  return {
-    id: `plano-${firstName}`,
-    name: `Plano de ${firstName}`,
-    firstName,
-    sessions: sorted,
-    sessionsCount: sorted.length,
-    perWeek,
-    weeks,
-    startDate: start,
-    goal,
-    isActive: true,
-    isSimple: true,
-  };
-}
-
-function formatStartShort(date: string | null): string | null {
-  if (!date) return null;
-  const [, m, d] = date.split("-").map(Number);
-  if (!m || !d) return null;
-  const meses = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
-  return `${String(d).padStart(2, "0")} de ${meses[m - 1]}.`;
-}
-
-function PlanoCard({ plano, onOpen }: { plano: Plano; onOpen: () => void }) {
-  const startShort = formatStartShort(plano.startDate);
-  return (
-    <button
-      type="button"
-      onClick={onOpen}
-      className="group flex w-full items-center gap-4 rounded-2xl border border-border bg-background/40 p-4 text-left transition-colors hover:border-primary/40"
+    <Link
+      to="/dashboard/personal/treinos/plano/$planoId"
+      params={{ planoId: plano.id }}
+      className="block cursor-pointer rounded-lg border border-border bg-surface-2/30 p-4 transition-colors hover:bg-surface-2/50"
     >
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-2">
-          <p className="truncate font-display text-base font-semibold">{plano.name}</p>
-        </div>
-        <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-muted-foreground">
-          <span className="inline-flex items-center gap-1.5">
-            <Layers className="h-3.5 w-3.5" /> {plano.sessionsCount} sessões
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <Repeat className="h-3.5 w-3.5" /> {plano.perWeek}x/semana
-          </span>
-          <span className="inline-flex items-center gap-1.5">
-            <Clock className="h-3.5 w-3.5" /> {plano.weeks} {plano.weeks === 1 ? "semana" : "semanas"}
-          </span>
-          {startShort ? (
-            <span className="inline-flex items-center gap-1.5">
-              <Calendar className="h-3.5 w-3.5" /> Início {startShort}
-            </span>
-          ) : null}
-        </div>
-      </div>
-      <div className="flex shrink-0 items-center gap-2">
-        {plano.isActive ? (
-          <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-            Ativo
-          </span>
-        ) : null}
-        {plano.isSimple ? (
-          <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2.5 py-0.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
-            Simples
-          </span>
-        ) : null}
-        <ChevronDown className="h-4 w-4 -rotate-90 text-muted-foreground transition-transform group-hover:text-primary" />
-      </div>
-    </button>
-  );
-}
-
-function PlanoDetail({ plano, onBack }: { plano: Plano; onBack: () => void }) {
-  const startShort = formatStartShort(plano.startDate);
-  return (
-    <div className="grid gap-6 lg:grid-cols-[1fr_260px]">
-      <div>
-        <div className="mb-4 flex items-center gap-3">
-          <button
-            onClick={onBack}
-            className="grid h-8 w-8 place-items-center rounded-full border border-border bg-background text-muted-foreground hover:text-foreground"
-            aria-label="Voltar"
-          >
-            <ArrowLeft className="h-4 w-4" />
-          </button>
-          <div className="min-w-0">
-            <div className="flex items-center gap-2">
-              <h3 className="truncate font-display text-lg font-semibold">{plano.name}</h3>
+      <div className="flex min-h-[56px] items-center gap-3">
+        <div className="min-w-0 flex-1">
+          <div className="mb-1 flex items-center gap-2">
+            <p className="truncate text-sm font-semibold">{plano.name}</p>
+            <div className="ml-auto flex shrink-0 items-center gap-1.5">
               {plano.isActive ? (
-                <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
+                <span className="inline-flex items-center gap-1 rounded-full border border-green-500/30 bg-green-500/15 px-3 py-0.5 text-[0.625rem] font-semibold text-green-500">
                   Ativo
                 </span>
               ) : null}
+              {plano.isSimple ? (
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-green-500/30 bg-green-500/10 px-3 py-0.5 text-[0.625rem] font-semibold text-green-400">
+                  Simples
+                </span>
+              ) : null}
             </div>
-            <p className="text-xs text-muted-foreground">Aluno: {plano.firstName}</p>
+          </div>
+          <div className="flex flex-wrap items-center gap-3 text-xs text-fg-muted">
+            <span className="flex items-center gap-1">
+              <Layers className="h-3 w-3" />
+              {plano.sessionsCount} sessões
+            </span>
+            <span className="flex items-center gap-1">
+              <Repeat className="h-3 w-3" />
+              {plano.perWeek}x/semana
+            </span>
+            <span className="flex items-center gap-1">
+              <Clock className="h-3 w-3" />
+              {plano.weeks} {plano.weeks === 1 ? "semana" : "semanas"}
+            </span>
+            {plano.startShort ? (
+              <span className="flex items-center gap-1">
+                <Calendar className="h-3 w-3" />
+                Início {plano.startShort}
+              </span>
+            ) : null}
           </div>
         </div>
-
-        <div className="mb-4 grid grid-cols-2 gap-3">
-          <div className="rounded-2xl border border-border bg-background/40 px-4 py-3 text-center">
-            <p className="font-display text-2xl font-semibold">{plano.sessionsCount}</p>
-            <p className="mt-1 text-[11px] uppercase tracking-wide text-muted-foreground">Sessões</p>
-          </div>
-          <div className="rounded-2xl border border-border bg-background/40 px-4 py-3 text-center">
-            <p className="font-display text-2xl font-semibold">{startShort ?? "--"}</p>
-            <p className="mt-1 text-[11px] uppercase tracking-wide text-muted-foreground">Início</p>
-          </div>
+        <div className="flex shrink-0 items-center gap-1">
+          <ChevronDown className="h-5 w-5 -rotate-90 text-fg-muted" />
         </div>
-
-        <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Sessões de treino</p>
-        <ul className="space-y-2">
-          {plano.sessions.map((s, idx) => (
-            <SessionRow key={s.id} t={s} defaultOpen={idx === 0} />
-          ))}
-        </ul>
       </div>
-
-      <aside>
-        <p className="mb-2 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Ações</p>
-        <div className="space-y-2">
-          {[
-            { icon: Pencil, label: "Editar", className: "" },
-            { icon: Copy, label: "Duplicar", className: "" },
-            { icon: FileText, label: "Salvar como Template", className: "" },
-            { icon: FileText, label: "Exportar PDF", className: "" },
-            { icon: Layers, label: "Arquivar", className: "" },
-            { icon: Trash2, label: "Excluir", className: "text-destructive hover:text-destructive" },
-          ].map(({ icon: Icon, label, className }) => (
-            <button
-              key={label}
-              type="button"
-              className={`flex w-full items-center gap-2 rounded-2xl border border-border bg-background/40 px-4 py-2.5 text-sm font-semibold hover:bg-accent ${className}`}
-            >
-              <Icon className="h-4 w-4" /> {label}
-            </button>
-          ))}
-        </div>
-      </aside>
-    </div>
+    </Link>
   );
 }
 
-function TreinosTab({ alunoId, firstName, onNovoPlano }: { alunoId: string; firstName: string; onNovoPlano: () => void }) {
-  const [openPlanoId, setOpenPlanoId] = useState<string | null>(null);
+function TreinosTab({ aluno, onNovoPlano }: { aluno: Aluno; onNovoPlano: () => void }) {
+  const firstName = aluno.full_name.split(" ")[0];
   const { data: treinos, isLoading, error } = useQuery({
-    queryKey: ["aluno-student-workouts", alunoId],
+    queryKey: ["aluno-student-workouts", aluno.id],
     queryFn: async (): Promise<StudentWorkoutRow[]> => {
       const { data, error } = await supabase
         .from("student_workouts")
-        .select(
-          "id, name, status, scheduled_for, created_at, template_id, workout_templates ( category, duration_min, level, goal, workout_template_exercises ( id, position, sets, reps, load, rest_seconds, notes, exercises ( id, name ) ) )",
-        )
-        .eq("aluno_id", alunoId)
+        .select(PLANO_SELECT)
+        .eq("aluno_id", aluno.id)
         .order("scheduled_for", { ascending: true, nullsFirst: false })
         .order("created_at", { ascending: false });
       if (error) throw error;
@@ -1017,21 +763,16 @@ function TreinosTab({ alunoId, firstName, onNovoPlano }: { alunoId: string; firs
     },
   });
 
-  const plano = buildPlano(firstName, treinos ?? []);
-  const openPlano = openPlanoId && plano && plano.id === openPlanoId ? plano : null;
-
-  if (openPlano) {
-    return <PlanoDetail plano={openPlano} onBack={() => setOpenPlanoId(null)} />;
-  }
+  const plano = buildPlano(aluno, treinos ?? []);
 
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h3 className="font-display text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">Planos de Treino</h3>
-        </div>
+        <h3 className="font-display text-[11px] font-semibold uppercase tracking-wide text-fg-muted">
+          Planos de Treino
+        </h3>
         <div className="flex items-center gap-2">
-          <button className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3.5 py-2 text-sm font-semibold hover:bg-accent">
+          <button className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3.5 py-2 text-sm font-semibold hover:bg-surface-2">
             <Copy className="h-4 w-4" /> Copiar existente
           </button>
           <button
@@ -1044,31 +785,32 @@ function TreinosTab({ alunoId, firstName, onNovoPlano }: { alunoId: string; firs
       </div>
 
       {isLoading ? (
-        <div className="flex items-center justify-center gap-2 rounded-xl border border-border bg-background/40 py-12 text-sm text-muted-foreground">
+        <div className="flex items-center justify-center gap-2 rounded-lg border border-border bg-surface-2/30 py-12 text-sm text-fg-muted">
           <Loader2 className="h-4 w-4 animate-spin" /> Carregando treinos…
         </div>
       ) : error ? (
-        <div className="rounded-xl border border-destructive/30 bg-destructive/10 px-4 py-6 text-sm text-destructive">
+        <div className="rounded-lg border border-destructive/30 bg-destructive/10 px-4 py-6 text-sm text-destructive">
           Não foi possível carregar os treinos deste aluno.
         </div>
       ) : !plano ? (
-        <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-dashed border-border bg-background/40 px-6 py-12 text-center">
-          <div className="grid h-12 w-12 place-items-center rounded-2xl bg-accent text-primary">
+        <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-border bg-surface-2/20 px-6 py-12 text-center">
+          <div className="grid h-12 w-12 place-items-center rounded-2xl bg-surface-3 text-primary">
             <FileText className="h-6 w-6" />
           </div>
           <p className="text-sm font-medium">Nenhum plano de treino para {firstName}.</p>
-          <p className="max-w-sm text-xs text-muted-foreground">
+          <p className="max-w-sm text-xs text-fg-muted">
             Crie um plano personalizado ou use um modelo pronto.
           </p>
         </div>
       ) : (
         <div className="space-y-3">
-          <PlanoCard plano={plano} onOpen={() => setOpenPlanoId(plano.id)} />
+          <PlanoCard plano={plano} />
         </div>
       )}
     </div>
   );
 }
+
 
 
 
