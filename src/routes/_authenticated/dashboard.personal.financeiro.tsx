@@ -16,6 +16,8 @@ import {
   Calendar,
   Receipt,
   UserMinus,
+  CheckCircle2,
+  Trash2,
 } from "lucide-react";
 import { useRouter } from "@tanstack/react-router";
 import { IconRail } from "@/components/IconRail";
@@ -211,6 +213,7 @@ function PlanosTab() {
   const [testeGratis, setTesteGratis] = useState(false);
 
   const [plano, setPlano] = useState({ nome: "Forte", valor: "60,00", periodo: "mensal" });
+  const [histOpen, setHistOpen] = useState(false);
 
   const canCreate = nome.trim().length > 0 && valor.trim().length > 0;
   const cpfDigits = cpf.replace(/\D/g, "");
@@ -337,6 +340,7 @@ function PlanosTab() {
                   <button
                     type="button"
                     title="Histórico"
+                    onClick={() => setHistOpen(true)}
                     className="h-7 w-7 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted active:scale-90 transition-all"
                   >
                     <History className="h-3.5 w-3.5" />
@@ -549,6 +553,49 @@ function PlanosTab() {
               Associar
             </Button>
           </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={histOpen} onOpenChange={setHistOpen}>
+        <DialogContent className="sm:max-w-[500px] max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-semibold leading-none tracking-tight">
+              Pagamentos — marcos Lisboa
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-3 py-2">
+            <div className="rounded-lg border border-border bg-muted/30 p-3 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="font-medium text-sm">R$ 60,00</span>
+                <div className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted px-3 py-0.5 text-[11px] font-semibold text-muted-foreground">
+                  Pendente
+                </div>
+              </div>
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <span>Pix</span>
+                <span>Vencimento: 05/08/2026</span>
+              </div>
+              <div className="flex items-center justify-between text-xs text-muted-foreground">
+                <span>Taxa: R$ 3,59</span>
+                <span>Líquido: R$ 56,41</span>
+              </div>
+              <div className="flex items-center gap-2 pt-1">
+                <button
+                  type="button"
+                  className="inline-flex items-center justify-center whitespace-nowrap font-semibold border border-border bg-transparent text-foreground hover:border-primary hover:text-primary px-4 py-2 h-7 text-xs gap-1.5 rounded-full active:scale-[0.97] transition-all"
+                >
+                  <CheckCircle2 className="h-3.5 w-3.5" /> marcar como pago
+                </button>
+                <button
+                  type="button"
+                  className="inline-flex items-center justify-center whitespace-nowrap font-semibold bg-transparent px-4 py-2 h-7 text-xs gap-1.5 rounded-full text-destructive hover:text-destructive hover:bg-destructive/10 active:scale-[0.97] transition-all"
+                >
+                  <Trash2 className="h-3.5 w-3.5" /> deletar
+                </button>
+              </div>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </>
