@@ -213,6 +213,7 @@ function PlanosTab() {
   const [testeGratis, setTesteGratis] = useState(false);
 
   const [plano, setPlano] = useState({ nome: "Forte", valor: "60,00", periodo: "mensal" });
+  const [histOpen, setHistOpen] = useState(false);
 
   const canCreate = nome.trim().length > 0 && valor.trim().length > 0;
   const cpfDigits = cpf.replace(/\D/g, "");
