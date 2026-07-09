@@ -339,6 +339,7 @@ function PlanosTab() {
                   <button
                     type="button"
                     title="Histórico"
+                    onClick={() => setHistOpen(true)}
                     className="h-7 w-7 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted active:scale-90 transition-all"
                   >
                     <History className="h-3.5 w-3.5" />
