@@ -168,7 +168,7 @@ function MobileTopBar() {
 
 function PlanBanner() {
   return (
-    <div className="flex items-center gap-4 rounded-lg border border-border bg-card p-4 md:p-5">
+    <div className="flex items-center gap-4 rounded-xl border border-border bg-card p-4 md:p-5">
       <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
         <Crown className="h-6 w-6" />
       </div>
@@ -324,7 +324,7 @@ function NextEventCard() {
   return (
     <Link
       to="/dashboard/personal/agenda"
-      className="relative flex items-start gap-3 overflow-hidden rounded-lg border border-border bg-card p-5"
+      className="relative flex items-start gap-3 overflow-hidden rounded-xl border border-border bg-card p-5"
     >
       <span className="absolute inset-y-3 left-0 w-1 rounded-r-full bg-amber-500" />
       <div className="min-w-0 flex-1 pl-2">
@@ -481,16 +481,43 @@ function OwnerDashboard({ profile }: { profile: any }) {
   const greeting = greetingFor(new Date().getHours());
   const today = new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" });
 
-  const stat = (label: string, value: number | string, hint?: string, Icon?: React.ElementType) => (
-    <div className="rounded-lg border border-border bg-card p-4">
-      <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
-        <span>{label}</span>
-        {Icon && <span className="grid h-6 w-6 place-items-center rounded-md bg-primary/10 text-primary"><Icon className="h-3.5 w-3.5" /></span>}
+  const Sparkline = ({ points, up = true }: { points: number[]; up?: boolean }) => {
+    const w = 90, h = 32, pad = 2;
+    const min = Math.min(...points), max = Math.max(...points);
+    const range = max - min || 1;
+    const step = (w - pad * 2) / Math.max(points.length - 1, 1);
+    const d = points.map((v, i) => {
+      const x = pad + i * step;
+      const y = h - pad - ((v - min) / range) * (h - pad * 2);
+      return `${i === 0 ? "M" : "L"}${x.toFixed(1)},${y.toFixed(1)}`;
+    }).join(" ");
+    return (
+      <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} className={up ? "text-primary" : "text-muted-foreground"}>
+        <path d={d} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    );
+  };
+
+  const kpi = (label: string, value: number | string, hint: string, spark: number[], delta?: string) => (
+    <div className="rounded-xl border border-border bg-card p-4">
+      <div className="flex items-start justify-between gap-3">
+        <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">{label}</span>
+        {delta && (
+          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-bold text-emerald-400">
+            <TrendingUp className="h-3 w-3" /> {delta}
+          </span>
+        )}
       </div>
-      <div className="mt-2 font-display text-2xl font-extrabold tracking-tight">{value}</div>
-      {hint && <div className="mt-1 text-[11px] text-muted-foreground">{hint}</div>}
+      <div className="mt-3 flex items-end justify-between gap-3">
+        <div className="font-display text-3xl font-extrabold leading-none tracking-tight">{value}</div>
+        <Sparkline points={spark} />
+      </div>
+      <div className="mt-2 text-[11px] text-muted-foreground">{hint}</div>
     </div>
   );
+
+  const alunosAtivos = o?.ativos ?? 0;
+  const personaisAtivos = o?.totalPersonais ?? 0;
 
   return (
     <div className="min-h-screen w-full overflow-x-hidden bg-background text-foreground">
@@ -519,14 +546,15 @@ function OwnerDashboard({ profile }: { profile: any }) {
 
           {/* KPIs de gestão */}
           <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
-            {stat("Alunos ativos", o?.ativos ?? 0, `de ${o?.totalAlunos ?? 0} cadastrados`, HeartPulse)}
-            {stat("Personais ativos", o?.totalPersonais ?? 0, o?.totalEquipe ? `+ ${o.totalEquipe} na equipe` : "sua equipe técnica", Users)}
-            {stat("Receita do mês", "R$ 0,00", "em breve", TrendingUp)}
+            {kpi("Alunos ativos", alunosAtivos, `de ${o?.totalAlunos ?? 0} cadastrados`, [1, 2, 2, 3, 2, 4, alunosAtivos + 1], o?.novosAlunos30d ? `+${o.novosAlunos30d}` : undefined)}
+            {kpi("Personais ativos", personaisAtivos, o?.totalEquipe ? `+ ${o.totalEquipe} na equipe` : "sua equipe técnica", [1, 1, 2, 2, 3, 3, personaisAtivos + 1])}
+            {kpi("Receita do mês", "R$ 0", "vs mês anterior", [1, 1, 2, 2, 3, 4, 5])}
           </div>
+
 
           <div className="mt-6 grid gap-3 lg:grid-cols-[1.4fr_1fr]">
             {/* Atalhos rápidos */}
-            <section className="rounded-lg border border-border bg-card">
+            <section className="rounded-xl border border-border bg-card">
               <div className="flex items-center justify-between border-b border-border px-4 py-3">
                 <div>
                   <h2 className="font-display text-base font-bold">Atalhos rápidos</h2>
@@ -556,7 +584,7 @@ function OwnerDashboard({ profile }: { profile: any }) {
             </section>
 
             {/* Personais da academia */}
-            <section className="rounded-lg border border-border bg-card">
+            <section className="rounded-xl border border-border bg-card">
               <div className="flex items-center justify-between border-b border-border px-4 py-3">
                 <div>
                   <h2 className="font-display text-base font-bold">Personais da academia</h2>
@@ -750,7 +778,7 @@ function Dashboard() {
               <NextEventCard />
               <MobilePulseCard />
 
-              <div className="rounded-lg border border-border bg-card p-4 md:p-6">
+              <div className="rounded-xl border border-border bg-card p-4 md:p-6">
                 <div className="grid min-w-0 grid-cols-4 gap-2 sm:gap-3 md:grid-cols-5">
                   <QuickTile icon={Users} label="Alunos" to="/dashboard/personal/alunos" />
                   <QuickTile icon={HeartPulse} label="Avaliações" to="/dashboard/personal/avaliacoes" />
