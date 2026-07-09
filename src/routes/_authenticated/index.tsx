@@ -168,7 +168,7 @@ function MobileTopBar() {
 
 function PlanBanner() {
   return (
-    <div className="flex items-center gap-4 rounded-lg border border-border bg-card p-4 md:p-5">
+    <div className="flex items-center gap-4 rounded-xl border border-border bg-card p-4 md:p-5">
       <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
         <Crown className="h-6 w-6" />
       </div>
@@ -324,7 +324,7 @@ function NextEventCard() {
   return (
     <Link
       to="/dashboard/personal/agenda"
-      className="relative flex items-start gap-3 overflow-hidden rounded-lg border border-border bg-card p-5"
+      className="relative flex items-start gap-3 overflow-hidden rounded-xl border border-border bg-card p-5"
     >
       <span className="absolute inset-y-3 left-0 w-1 rounded-r-full bg-amber-500" />
       <div className="min-w-0 flex-1 pl-2">
@@ -554,7 +554,7 @@ function OwnerDashboard({ profile }: { profile: any }) {
 
           <div className="mt-6 grid gap-3 lg:grid-cols-[1.4fr_1fr]">
             {/* Atalhos rápidos */}
-            <section className="rounded-lg border border-border bg-card">
+            <section className="rounded-xl border border-border bg-card">
               <div className="flex items-center justify-between border-b border-border px-4 py-3">
                 <div>
                   <h2 className="font-display text-base font-bold">Atalhos rápidos</h2>
@@ -584,7 +584,7 @@ function OwnerDashboard({ profile }: { profile: any }) {
             </section>
 
             {/* Personais da academia */}
-            <section className="rounded-lg border border-border bg-card">
+            <section className="rounded-xl border border-border bg-card">
               <div className="flex items-center justify-between border-b border-border px-4 py-3">
                 <div>
                   <h2 className="font-display text-base font-bold">Personais da academia</h2>
@@ -778,7 +778,7 @@ function Dashboard() {
               <NextEventCard />
               <MobilePulseCard />
 
-              <div className="rounded-lg border border-border bg-card p-4 md:p-6">
+              <div className="rounded-xl border border-border bg-card p-4 md:p-6">
                 <div className="grid min-w-0 grid-cols-4 gap-2 sm:gap-3 md:grid-cols-5">
                   <QuickTile icon={Users} label="Alunos" to="/dashboard/personal/alunos" />
                   <QuickTile icon={HeartPulse} label="Avaliações" to="/dashboard/personal/avaliacoes" />
