@@ -163,21 +163,31 @@ function FinanceiroPage() {
 }
 
 function PlanosTab() {
+  const [open, setOpen] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+  const [nome, setNome] = useState("");
+  const [valor, setValor] = useState("");
+  const [periodo, setPeriodo] = useState("mensal");
+
+  const canCreate = nome.trim().length > 0 && valor.trim().length > 0;
+
   return (
     <>
       <div className="flex justify-between items-center">
         <p className="text-sm text-muted-foreground">1 plano(s) ativo(s)</p>
         <button
           type="button"
+          onClick={() => setOpen(true)}
           className="inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-full font-semibold bg-primary text-primary-foreground h-8 px-4 py-2 text-xs transition hover:brightness-110 active:scale-95"
         >
           <Plus className="h-4 w-4" /> Criar Plano
         </button>
       </div>
 
-      <div className="rounded-xl border border-border bg-card transition-colors">
+      <div className="rounded-xl border border-primary/40 bg-card transition-colors">
         <button
           type="button"
+          onClick={() => setExpanded((v) => !v)}
           className="w-full p-4 flex items-center justify-between text-left active:scale-[0.99] transition-transform"
         >
           <div className="flex-1 min-w-0">
@@ -191,9 +201,153 @@ function PlanosTab() {
               </span>
             </div>
           </div>
-          <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />
+          {expanded ? (
+            <ChevronUp className="h-4 w-4 text-muted-foreground shrink-0" />
+          ) : (
+            <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />
+          )}
         </button>
+
+        {expanded && (
+          <div className="border-t border-border/50">
+            <div className="flex items-center gap-1.5 px-4 py-2 bg-muted/40">
+              <button
+                type="button"
+                className="inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-full font-semibold bg-transparent text-muted-foreground hover:bg-muted hover:text-foreground py-2 h-7 text-xs px-2 active:scale-95 transition-transform"
+              >
+                <Plus className="h-3.5 w-3.5" /> Aluno
+              </button>
+              <button
+                type="button"
+                className="inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-full font-semibold bg-transparent text-muted-foreground hover:bg-muted hover:text-foreground py-2 h-7 text-xs px-2 active:scale-95 transition-transform"
+              >
+                <Pencil className="h-3.5 w-3.5" /> Editar
+              </button>
+              <button
+                type="button"
+                className="inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-full font-semibold bg-transparent hover:bg-muted py-2 h-7 text-xs px-2 text-destructive active:scale-95 transition-transform ml-auto"
+                aria-label="Excluir plano"
+              >
+                <XCircle className="h-3.5 w-3.5" />
+              </button>
+            </div>
+
+            <div className="divide-y divide-border/40">
+              <div className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted/30 transition-colors">
+                <div
+                  className="h-2 w-2 rounded-full shrink-0 bg-yellow-500"
+                  title="Aguardando"
+                />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium truncate">marcos Lisboa</p>
+                  <p className="text-[0.6875rem] text-muted-foreground">Dia 5 · Pix</p>
+                </div>
+                <div className="flex items-center gap-0.5 shrink-0">
+                  <button
+                    type="button"
+                    title="Histórico"
+                    className="h-7 w-7 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted active:scale-90 transition-all"
+                  >
+                    <History className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    title="Validade do plano"
+                    className="h-7 w-7 rounded-md flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted active:scale-90 transition-all"
+                  >
+                    <Calendar className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    title="Gerar cobrança"
+                    className="h-7 w-7 rounded-md flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 active:scale-90 transition-all"
+                  >
+                    <Receipt className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    type="button"
+                    title="Remover do plano"
+                    className="h-7 w-7 rounded-md flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 active:scale-90 transition-all"
+                  >
+                    <UserMinus className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
+
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogContent className="sm:max-w-[480px] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-semibold leading-none tracking-tight">
+              Criar Plano de Cobrança
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label htmlFor="nome">Nome do plano</Label>
+              <Input
+                id="nome"
+                placeholder="Ex: Mensalidade"
+                value={nome}
+                onChange={(e) => setNome(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="valor">Valor (R$)</Label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
+                  R$
+                </span>
+                <Input
+                  id="valor"
+                  placeholder="0,00"
+                  inputMode="numeric"
+                  className="pl-9"
+                  value={valor}
+                  onChange={(e) => setValor(e.target.value)}
+                />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Período</Label>
+              <Select value={periodo} onValueChange={setPeriodo}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Mensal" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="mensal">Mensal</SelectItem>
+                  <SelectItem value="trimestral">Trimestral</SelectItem>
+                  <SelectItem value="semestral">Semestral</SelectItem>
+                  <SelectItem value="anual">Anual</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <DialogFooter className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
+            <Button
+              variant="outline"
+              className="rounded-full h-10 px-6"
+              onClick={() => setOpen(false)}
+            >
+              Cancelar
+            </Button>
+            <Button
+              className="rounded-full h-10 px-6"
+              disabled={!canCreate}
+              onClick={() => setOpen(false)}
+            >
+              Criar Plano
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
