@@ -527,6 +527,94 @@ function OwnerDashboard({ profile }: { profile: any }) {
           </div>
 
           <div className="mt-6 grid gap-3 lg:grid-cols-[1.4fr_1fr]">
+            {/* Atalhos gestão */}
+            <section className="rounded-2xl border border-border bg-card">
+              <div className="border-b border-border px-4 py-3">
+                <h2 className="font-display text-base font-bold">Gestão rápida</h2>
+                <p className="text-[11px] text-muted-foreground">Ações da administração</p>
+              </div>
+              <div className="grid gap-2 p-3">
+                <Link to="/dashboard/personal/academia" className="group flex items-center gap-3 rounded-lg border border-border bg-background/40 p-3 hover:border-primary/40">
+                  <div className="grid h-9 w-9 place-items-center rounded-md bg-primary/10 text-primary"><UsersIcon className="h-4 w-4" /></div>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-sm font-semibold">Equipe & convites</div>
+                    <div className="text-[11px] text-muted-foreground">Convidar personais e ajustar papéis</div>
+                  </div>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                </Link>
+                <Link to="/dashboard/personal/alunos" className="group flex items-center gap-3 rounded-lg border border-border bg-background/40 p-3 hover:border-primary/40">
+                  <div className="grid h-9 w-9 place-items-center rounded-md bg-primary/10 text-primary"><Users className="h-4 w-4" /></div>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-sm font-semibold">Todos os alunos</div>
+                    <div className="text-[11px] text-muted-foreground">Cadastros e contatos</div>
+                  </div>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                </Link>
+                <Link to="/dashboard/personal/treinos" className="group flex items-center gap-3 rounded-lg border border-border bg-background/40 p-3 hover:border-primary/40">
+                  <div className="grid h-9 w-9 place-items-center rounded-md bg-primary/10 text-primary"><Dumbbell className="h-4 w-4" /></div>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-sm font-semibold">Modelos de treino</div>
+                    <div className="text-[11px] text-muted-foreground">Biblioteca compartilhada</div>
+                  </div>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                </Link>
+                <Link to="/dashboard/personal/agenda" className="group flex items-center gap-3 rounded-lg border border-border bg-background/40 p-3 hover:border-primary/40">
+                  <div className="grid h-9 w-9 place-items-center rounded-md bg-primary/10 text-primary"><CalendarDays className="h-4 w-4" /></div>
+                  <div className="min-w-0 flex-1">
+                    <div className="text-sm font-semibold">Agenda da academia</div>
+                    <div className="text-[11px] text-muted-foreground">Eventos e turmas</div>
+                  </div>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                </Link>
+              </div>
+            </section>
+
+            {/* Personais da academia */}
+            <section className="rounded-2xl border border-border bg-card">
+              <div className="flex items-center justify-between border-b border-border px-4 py-3">
+                <div>
+                  <h2 className="font-display text-base font-bold">Personais da academia</h2>
+                  <p className="text-[11px] text-muted-foreground">Distribuição de alunos por profissional</p>
+                </div>
+                <Link to="/dashboard/personal/academia" className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline">
+                  Gerenciar <ArrowRight className="h-3 w-3" />
+                </Link>
+              </div>
+              {!o || o.personaisList.length === 0 ? (
+                <div className="px-4 py-8 text-center text-sm text-muted-foreground">Nenhum personal cadastrado ainda.</div>
+              ) : (
+                <ul className="divide-y divide-border">
+                  {o.personaisList.map((p) => {
+                    const max = Math.max(...o.personaisList.map((x) => x.alunos), 1);
+                    const pct = (p.alunos / max) * 100;
+                    return (
+                      <li key={p.user_id} className="px-4 py-3">
+                        <div className="flex items-center gap-3">
+                          <div className="grid h-9 w-9 place-items-center rounded-full bg-primary/15 text-xs font-bold text-primary">
+                            {(p.full_name).slice(0, 2).toUpperCase()}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <div className="flex items-center gap-2">
+                              <div className="truncate text-sm font-semibold">{p.full_name}</div>
+                              {p.role === "owner" && <span className="inline-flex items-center gap-1 rounded-full bg-primary/15 px-1.5 py-0.5 text-[10px] font-bold text-primary"><Crown className="h-2.5 w-2.5" /> Dono</span>}
+                            </div>
+                            <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                              <div className="h-full rounded-full bg-primary" style={{ width: `${pct}%` }} />
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="font-display text-lg font-extrabold leading-none">{p.alunos}</div>
+                            <div className="text-[10px] uppercase tracking-widest text-muted-foreground">alunos</div>
+                          </div>
+                        </div>
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
+            </section>
+
+
             {/* Personais da academia */}
             <section className="rounded-2xl border border-border bg-card">
               <div className="flex items-center justify-between border-b border-border px-4 py-3">
