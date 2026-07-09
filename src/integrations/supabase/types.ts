@@ -178,6 +178,56 @@ export type Database = {
           },
         ]
       }
+      contratos_personal: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          fim: string | null
+          id: string
+          inicio: string
+          observacoes: string | null
+          organization_id: string
+          personal_user_id: string
+          tipo_repasse: Database["public"]["Enums"]["tipo_repasse"]
+          updated_at: string
+          valor: number
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          fim?: string | null
+          id?: string
+          inicio?: string
+          observacoes?: string | null
+          organization_id: string
+          personal_user_id: string
+          tipo_repasse: Database["public"]["Enums"]["tipo_repasse"]
+          updated_at?: string
+          valor: number
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          fim?: string | null
+          id?: string
+          inicio?: string
+          observacoes?: string | null
+          organization_id?: string
+          personal_user_id?: string
+          tipo_repasse?: Database["public"]["Enums"]["tipo_repasse"]
+          updated_at?: string
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contratos_personal_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       desafio_participantes: {
         Row: {
           aluno_id: string
@@ -448,6 +498,92 @@ export type Database = {
             columns: ["organization_id"]
             isOneToOne: false
             referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lancamentos: {
+        Row: {
+          aluno_id: string | null
+          categoria: Database["public"]["Enums"]["lancamento_categoria"]
+          competencia: string
+          contrato_id: string | null
+          created_at: string
+          created_by: string | null
+          descricao: string | null
+          id: string
+          is_espelho: boolean
+          organization_id: string
+          origem_lancamento_id: string | null
+          pago_em: string | null
+          personal_user_id: string | null
+          tipo: Database["public"]["Enums"]["lancamento_tipo"]
+          updated_at: string
+          valor: number
+        }
+        Insert: {
+          aluno_id?: string | null
+          categoria: Database["public"]["Enums"]["lancamento_categoria"]
+          competencia: string
+          contrato_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          descricao?: string | null
+          id?: string
+          is_espelho?: boolean
+          organization_id: string
+          origem_lancamento_id?: string | null
+          pago_em?: string | null
+          personal_user_id?: string | null
+          tipo: Database["public"]["Enums"]["lancamento_tipo"]
+          updated_at?: string
+          valor: number
+        }
+        Update: {
+          aluno_id?: string | null
+          categoria?: Database["public"]["Enums"]["lancamento_categoria"]
+          competencia?: string
+          contrato_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          descricao?: string | null
+          id?: string
+          is_espelho?: boolean
+          organization_id?: string
+          origem_lancamento_id?: string | null
+          pago_em?: string | null
+          personal_user_id?: string | null
+          tipo?: Database["public"]["Enums"]["lancamento_tipo"]
+          updated_at?: string
+          valor?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lancamentos_aluno_id_fkey"
+            columns: ["aluno_id"]
+            isOneToOne: false
+            referencedRelation: "alunos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lancamentos_contrato_id_fkey"
+            columns: ["contrato_id"]
+            isOneToOne: false
+            referencedRelation: "contratos_personal"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lancamentos_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lancamentos_origem_lancamento_id_fkey"
+            columns: ["origem_lancamento_id"]
+            isOneToOne: false
+            referencedRelation: "lancamentos"
             referencedColumns: ["id"]
           },
         ]
@@ -981,11 +1117,20 @@ export type Database = {
         Args: { _other_user: string; _user_id: string }
         Returns: boolean
       }
+      solo_org_for_personal: { Args: { _user_id: string }; Returns: string }
     }
     Enums: {
       app_role: "personal" | "aluno"
       desafio_tipo: "treino_realizado"
+      lancamento_categoria:
+        | "mensalidade"
+        | "repasse_personal"
+        | "salario"
+        | "particular"
+        | "outros"
+      lancamento_tipo: "receita" | "despesa"
       org_role: "owner" | "personal" | "staff"
+      tipo_repasse: "percentual" | "fixo_por_aluno" | "salario_fixo"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1115,7 +1260,16 @@ export const Constants = {
     Enums: {
       app_role: ["personal", "aluno"],
       desafio_tipo: ["treino_realizado"],
+      lancamento_categoria: [
+        "mensalidade",
+        "repasse_personal",
+        "salario",
+        "particular",
+        "outros",
+      ],
+      lancamento_tipo: ["receita", "despesa"],
       org_role: ["owner", "personal", "staff"],
+      tipo_repasse: ["percentual", "fixo_por_aluno", "salario_fixo"],
     },
   },
 } as const
