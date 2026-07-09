@@ -15,6 +15,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
 import { Route as AuthenticatedTreinosRouteImport } from './routes/_authenticated/treinos'
 import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
+import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedMeuTreinoRouteImport } from './routes/_authenticated/meu-treino'
 import { Route as AuthenticatedDesafiosRouteImport } from './routes/_authenticated/desafios'
 import { Route as AuthenticatedAvaliacoesRouteImport } from './routes/_authenticated/avaliacoes'
@@ -64,6 +65,11 @@ const AuthenticatedTreinosRoute = AuthenticatedTreinosRouteImport.update({
 const AuthenticatedPerfilRoute = AuthenticatedPerfilRouteImport.update({
   id: '/perfil',
   path: '/perfil',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
+  id: '/onboarding',
+  path: '/onboarding',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedMeuTreinoRoute = AuthenticatedMeuTreinoRouteImport.update({
@@ -197,6 +203,7 @@ export interface FileRoutesByFullPath {
   '/avaliacoes': typeof AuthenticatedAvaliacoesRoute
   '/desafios': typeof AuthenticatedDesafiosRoute
   '/meu-treino': typeof AuthenticatedMeuTreinoRouteWithChildren
+  '/onboarding': typeof AuthenticatedOnboardingRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/treinos': typeof AuthenticatedTreinosRoute
   '/academia/convite/$token': typeof AuthenticatedAcademiaConviteTokenRoute
@@ -224,6 +231,7 @@ export interface FileRoutesByTo {
   '/avaliacoes': typeof AuthenticatedAvaliacoesRoute
   '/desafios': typeof AuthenticatedDesafiosRoute
   '/meu-treino': typeof AuthenticatedMeuTreinoRouteWithChildren
+  '/onboarding': typeof AuthenticatedOnboardingRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/treinos': typeof AuthenticatedTreinosRoute
   '/': typeof AuthenticatedIndexRoute
@@ -254,6 +262,7 @@ export interface FileRoutesById {
   '/_authenticated/avaliacoes': typeof AuthenticatedAvaliacoesRoute
   '/_authenticated/desafios': typeof AuthenticatedDesafiosRoute
   '/_authenticated/meu-treino': typeof AuthenticatedMeuTreinoRouteWithChildren
+  '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
   '/_authenticated/treinos': typeof AuthenticatedTreinosRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
@@ -285,6 +294,7 @@ export interface FileRouteTypes {
     | '/avaliacoes'
     | '/desafios'
     | '/meu-treino'
+    | '/onboarding'
     | '/perfil'
     | '/treinos'
     | '/academia/convite/$token'
@@ -312,6 +322,7 @@ export interface FileRouteTypes {
     | '/avaliacoes'
     | '/desafios'
     | '/meu-treino'
+    | '/onboarding'
     | '/perfil'
     | '/treinos'
     | '/'
@@ -341,6 +352,7 @@ export interface FileRouteTypes {
     | '/_authenticated/avaliacoes'
     | '/_authenticated/desafios'
     | '/_authenticated/meu-treino'
+    | '/_authenticated/onboarding'
     | '/_authenticated/perfil'
     | '/_authenticated/treinos'
     | '/_authenticated/'
@@ -412,6 +424,13 @@ declare module '@tanstack/react-router' {
       path: '/perfil'
       fullPath: '/perfil'
       preLoaderRoute: typeof AuthenticatedPerfilRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/onboarding': {
+      id: '/_authenticated/onboarding'
+      path: '/onboarding'
+      fullPath: '/onboarding'
+      preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/meu-treino': {
@@ -582,6 +601,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedAvaliacoesRoute: typeof AuthenticatedAvaliacoesRoute
   AuthenticatedDesafiosRoute: typeof AuthenticatedDesafiosRoute
   AuthenticatedMeuTreinoRoute: typeof AuthenticatedMeuTreinoRouteWithChildren
+  AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedPerfilRoute: typeof AuthenticatedPerfilRoute
   AuthenticatedTreinosRoute: typeof AuthenticatedTreinosRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
@@ -608,6 +628,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAvaliacoesRoute: AuthenticatedAvaliacoesRoute,
   AuthenticatedDesafiosRoute: AuthenticatedDesafiosRoute,
   AuthenticatedMeuTreinoRoute: AuthenticatedMeuTreinoRouteWithChildren,
+  AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedPerfilRoute: AuthenticatedPerfilRoute,
   AuthenticatedTreinosRoute: AuthenticatedTreinosRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
