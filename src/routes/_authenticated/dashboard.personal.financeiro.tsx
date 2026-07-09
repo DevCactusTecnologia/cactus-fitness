@@ -4,8 +4,6 @@ import {
   Wallet,
   Plus,
   ArrowDown,
-  PlayCircle,
-  ChevronRight,
   ChevronDown,
   Users,
   Link as LinkIcon,
@@ -38,22 +36,6 @@ function FinanceiroPage() {
         </header>
 
         <main className="px-3 sm:px-4 py-4 sm:py-6 mx-auto max-w-5xl space-y-5 pb-24 md:pb-6">
-          {/* Tutorial */}
-          <button
-            type="button"
-            className="w-full bg-card border border-border rounded-xl p-3 flex items-center gap-3 text-left hover:border-primary/40 hover:bg-accent/40 transition-all active:scale-[0.99]"
-          >
-            <div className="relative w-20 h-12 rounded-lg overflow-hidden bg-muted shrink-0 grid place-items-center">
-              <PlayCircle className="h-6 w-6 text-white/90 drop-shadow" strokeWidth={1.75} />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-[0.6875rem] uppercase tracking-wider text-primary font-semibold">Tutorial em vídeo</p>
-              <p className="text-sm font-semibold text-foreground line-clamp-1 mt-0.5">
-                Como cobrar do aluno no cactusfitness
-              </p>
-            </div>
-            <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
-          </button>
 
           {/* Wallet */}
           <div className="rounded-xl border border-primary/30 bg-gradient-to-r from-primary/10 to-transparent p-5 space-y-3">
