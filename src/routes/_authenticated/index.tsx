@@ -679,7 +679,7 @@ function Dashboard() {
             </div>
 
             {/* KPIs */}
-            <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
+            <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
               <KpiCard
                 label="Alunos ativos"
                 value={String(stats?.alunosAtivos ?? 0)}
@@ -695,11 +695,17 @@ function Dashboard() {
                 spark={stats?.treinosSpark}
               />
               <KpiCard
+                label="Receita do mês"
+                value="R$ 0"
+                sub="vs mês anterior"
+              />
+              <KpiCard
                 label="Avaliações"
                 value={String(stats?.avaliacoes ?? 0)}
                 sub="em dia"
               />
             </div>
+
 
 
             <div className="grid grid-cols-1 gap-3 lg:grid-cols-[1.4fr_1fr]">
