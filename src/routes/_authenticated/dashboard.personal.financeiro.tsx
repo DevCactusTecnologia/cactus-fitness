@@ -248,12 +248,22 @@ function PlanosTab() {
             <div className="flex items-center gap-1.5 px-4 py-2 bg-muted/40">
               <button
                 type="button"
+                onClick={() => {
+                  setAlunoSel("");
+                  setCpf("");
+                  setDiaCobranca("5");
+                  setAceitaPix(true);
+                  setAceitaCartao(false);
+                  setTesteGratis(false);
+                  setAlunoOpen(true);
+                }}
                 className="inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-full font-semibold bg-transparent text-muted-foreground hover:bg-muted hover:text-foreground py-2 h-7 text-xs px-2 active:scale-95 transition-transform"
               >
                 <Plus className="h-3.5 w-3.5" /> Aluno
               </button>
               <button
                 type="button"
+                onClick={openEdit}
                 className="inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-full font-semibold bg-transparent text-muted-foreground hover:bg-muted hover:text-foreground py-2 h-7 text-xs px-2 active:scale-95 transition-transform"
               >
                 <Pencil className="h-3.5 w-3.5" /> Editar
