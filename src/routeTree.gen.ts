@@ -20,6 +20,7 @@ import { Route as AuthenticatedMeuTreinoRouteImport } from './routes/_authentica
 import { Route as AuthenticatedDesafiosRouteImport } from './routes/_authenticated/desafios'
 import { Route as AuthenticatedAvaliacoesRouteImport } from './routes/_authenticated/avaliacoes'
 import { Route as AuthenticatedMeuTreinoTreinoIdRouteImport } from './routes/_authenticated/meu-treino.treino.$id'
+import { Route as AuthenticatedDashboardPersonalFinanceiroRouteImport } from './routes/_authenticated/dashboard.personal.financeiro'
 import { Route as AuthenticatedDashboardPersonalExerciciosRouteImport } from './routes/_authenticated/dashboard.personal.exercicios'
 import { Route as AuthenticatedDashboardPersonalDesafiosRouteImport } from './routes/_authenticated/dashboard.personal.desafios'
 import { Route as AuthenticatedDashboardPersonalAgendaRouteImport } from './routes/_authenticated/dashboard.personal.agenda'
@@ -92,6 +93,12 @@ const AuthenticatedMeuTreinoTreinoIdRoute =
     id: '/treino/$id',
     path: '/treino/$id',
     getParentRoute: () => AuthenticatedMeuTreinoRoute,
+  } as any)
+const AuthenticatedDashboardPersonalFinanceiroRoute =
+  AuthenticatedDashboardPersonalFinanceiroRouteImport.update({
+    id: '/dashboard/personal/financeiro',
+    path: '/dashboard/personal/financeiro',
+    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedDashboardPersonalExerciciosRoute =
   AuthenticatedDashboardPersonalExerciciosRouteImport.update({
@@ -211,6 +218,7 @@ export interface FileRoutesByFullPath {
   '/dashboard/personal/agenda': typeof AuthenticatedDashboardPersonalAgendaRoute
   '/dashboard/personal/desafios': typeof AuthenticatedDashboardPersonalDesafiosRoute
   '/dashboard/personal/exercicios': typeof AuthenticatedDashboardPersonalExerciciosRoute
+  '/dashboard/personal/financeiro': typeof AuthenticatedDashboardPersonalFinanceiroRoute
   '/meu-treino/treino/$id': typeof AuthenticatedMeuTreinoTreinoIdRoute
   '/dashboard/personal/alunos/$alunoId': typeof AuthenticatedDashboardPersonalAlunosAlunoIdRoute
   '/dashboard/personal/avaliacao/$avaliacaoId': typeof AuthenticatedDashboardPersonalAvaliacaoAvaliacaoIdRoute
@@ -240,6 +248,7 @@ export interface FileRoutesByTo {
   '/dashboard/personal/agenda': typeof AuthenticatedDashboardPersonalAgendaRoute
   '/dashboard/personal/desafios': typeof AuthenticatedDashboardPersonalDesafiosRoute
   '/dashboard/personal/exercicios': typeof AuthenticatedDashboardPersonalExerciciosRoute
+  '/dashboard/personal/financeiro': typeof AuthenticatedDashboardPersonalFinanceiroRoute
   '/meu-treino/treino/$id': typeof AuthenticatedMeuTreinoTreinoIdRoute
   '/dashboard/personal/alunos/$alunoId': typeof AuthenticatedDashboardPersonalAlunosAlunoIdRoute
   '/dashboard/personal/avaliacao/$avaliacaoId': typeof AuthenticatedDashboardPersonalAvaliacaoAvaliacaoIdRoute
@@ -271,6 +280,7 @@ export interface FileRoutesById {
   '/_authenticated/dashboard/personal/agenda': typeof AuthenticatedDashboardPersonalAgendaRoute
   '/_authenticated/dashboard/personal/desafios': typeof AuthenticatedDashboardPersonalDesafiosRoute
   '/_authenticated/dashboard/personal/exercicios': typeof AuthenticatedDashboardPersonalExerciciosRoute
+  '/_authenticated/dashboard/personal/financeiro': typeof AuthenticatedDashboardPersonalFinanceiroRoute
   '/_authenticated/meu-treino/treino/$id': typeof AuthenticatedMeuTreinoTreinoIdRoute
   '/_authenticated/dashboard/personal/alunos/$alunoId': typeof AuthenticatedDashboardPersonalAlunosAlunoIdRoute
   '/_authenticated/dashboard/personal/avaliacao/$avaliacaoId': typeof AuthenticatedDashboardPersonalAvaliacaoAvaliacaoIdRoute
@@ -302,6 +312,7 @@ export interface FileRouteTypes {
     | '/dashboard/personal/agenda'
     | '/dashboard/personal/desafios'
     | '/dashboard/personal/exercicios'
+    | '/dashboard/personal/financeiro'
     | '/meu-treino/treino/$id'
     | '/dashboard/personal/alunos/$alunoId'
     | '/dashboard/personal/avaliacao/$avaliacaoId'
@@ -331,6 +342,7 @@ export interface FileRouteTypes {
     | '/dashboard/personal/agenda'
     | '/dashboard/personal/desafios'
     | '/dashboard/personal/exercicios'
+    | '/dashboard/personal/financeiro'
     | '/meu-treino/treino/$id'
     | '/dashboard/personal/alunos/$alunoId'
     | '/dashboard/personal/avaliacao/$avaliacaoId'
@@ -361,6 +373,7 @@ export interface FileRouteTypes {
     | '/_authenticated/dashboard/personal/agenda'
     | '/_authenticated/dashboard/personal/desafios'
     | '/_authenticated/dashboard/personal/exercicios'
+    | '/_authenticated/dashboard/personal/financeiro'
     | '/_authenticated/meu-treino/treino/$id'
     | '/_authenticated/dashboard/personal/alunos/$alunoId'
     | '/_authenticated/dashboard/personal/avaliacao/$avaliacaoId'
@@ -460,6 +473,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/meu-treino/treino/$id'
       preLoaderRoute: typeof AuthenticatedMeuTreinoTreinoIdRouteImport
       parentRoute: typeof AuthenticatedMeuTreinoRoute
+    }
+    '/_authenticated/dashboard/personal/financeiro': {
+      id: '/_authenticated/dashboard/personal/financeiro'
+      path: '/dashboard/personal/financeiro'
+      fullPath: '/dashboard/personal/financeiro'
+      preLoaderRoute: typeof AuthenticatedDashboardPersonalFinanceiroRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/dashboard/personal/exercicios': {
       id: '/_authenticated/dashboard/personal/exercicios'
@@ -610,6 +630,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedDashboardPersonalAgendaRoute: typeof AuthenticatedDashboardPersonalAgendaRoute
   AuthenticatedDashboardPersonalDesafiosRoute: typeof AuthenticatedDashboardPersonalDesafiosRoute
   AuthenticatedDashboardPersonalExerciciosRoute: typeof AuthenticatedDashboardPersonalExerciciosRoute
+  AuthenticatedDashboardPersonalFinanceiroRoute: typeof AuthenticatedDashboardPersonalFinanceiroRoute
   AuthenticatedDashboardPersonalAlunosAlunoIdRoute: typeof AuthenticatedDashboardPersonalAlunosAlunoIdRoute
   AuthenticatedDashboardPersonalAvaliacaoAvaliacaoIdRoute: typeof AuthenticatedDashboardPersonalAvaliacaoAvaliacaoIdRoute
   AuthenticatedDashboardPersonalAvaliacoesAlunoIdRoute: typeof AuthenticatedDashboardPersonalAvaliacoesAlunoIdRoute
@@ -642,6 +663,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedDashboardPersonalDesafiosRoute,
   AuthenticatedDashboardPersonalExerciciosRoute:
     AuthenticatedDashboardPersonalExerciciosRoute,
+  AuthenticatedDashboardPersonalFinanceiroRoute:
+    AuthenticatedDashboardPersonalFinanceiroRoute,
   AuthenticatedDashboardPersonalAlunosAlunoIdRoute:
     AuthenticatedDashboardPersonalAlunosAlunoIdRoute,
   AuthenticatedDashboardPersonalAvaliacaoAvaliacaoIdRoute:
