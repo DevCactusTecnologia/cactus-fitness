@@ -37,6 +37,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Switch } from "@/components/ui/switch";
 
 export const Route = createFileRoute("/_authenticated/dashboard/personal/financeiro")({
   head: () => ({
@@ -162,14 +164,47 @@ function FinanceiroPage() {
   );
 }
 
+type PlanoModalMode = "create" | "edit";
+
 function PlanosTab() {
   const [open, setOpen] = useState(false);
+  const [mode, setMode] = useState<PlanoModalMode>("create");
   const [expanded, setExpanded] = useState(false);
   const [nome, setNome] = useState("");
   const [valor, setValor] = useState("");
   const [periodo, setPeriodo] = useState("mensal");
 
+  const [alunoOpen, setAlunoOpen] = useState(false);
+  const [alunoSel, setAlunoSel] = useState("");
+  const [cpf, setCpf] = useState("");
+  const [diaCobranca, setDiaCobranca] = useState("5");
+  const [aceitaPix, setAceitaPix] = useState(true);
+  const [aceitaCartao, setAceitaCartao] = useState(false);
+  const [testeGratis, setTesteGratis] = useState(false);
+
   const canCreate = nome.trim().length > 0 && valor.trim().length > 0;
+  const canAssociar = alunoSel.length > 0 && (aceitaPix || aceitaCartao);
+
+  const taxaPix = aceitaPix ? 2.99 : 0;
+  const taxaCartao = aceitaCartao ? 1.49 : 0;
+  const taxaTotal = (taxaPix + taxaCartao).toFixed(2).replace(".", ",");
+
+  const openCreate = () => {
+    setMode("create");
+    setNome("");
+    setValor("");
+    setPeriodo("mensal");
+    setOpen(true);
+  };
+
+  const openEdit = () => {
+    setMode("edit");
+    setNome("Forte");
+    setValor("60,00");
+    setPeriodo("mensal");
+    setOpen(true);
+  };
+
 
   return (
     <>
@@ -177,7 +212,7 @@ function PlanosTab() {
         <p className="text-sm text-muted-foreground">1 plano(s) ativo(s)</p>
         <button
           type="button"
-          onClick={() => setOpen(true)}
+          onClick={openCreate}
           className="inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-full font-semibold bg-primary text-primary-foreground h-8 px-4 py-2 text-xs transition hover:brightness-110 active:scale-95"
         >
           <Plus className="h-4 w-4" /> Criar Plano
@@ -213,12 +248,22 @@ function PlanosTab() {
             <div className="flex items-center gap-1.5 px-4 py-2 bg-muted/40">
               <button
                 type="button"
+                onClick={() => {
+                  setAlunoSel("");
+                  setCpf("");
+                  setDiaCobranca("5");
+                  setAceitaPix(true);
+                  setAceitaCartao(false);
+                  setTesteGratis(false);
+                  setAlunoOpen(true);
+                }}
                 className="inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-full font-semibold bg-transparent text-muted-foreground hover:bg-muted hover:text-foreground py-2 h-7 text-xs px-2 active:scale-95 transition-transform"
               >
                 <Plus className="h-3.5 w-3.5" /> Aluno
               </button>
               <button
                 type="button"
+                onClick={openEdit}
                 className="inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-full font-semibold bg-transparent text-muted-foreground hover:bg-muted hover:text-foreground py-2 h-7 text-xs px-2 active:scale-95 transition-transform"
               >
                 <Pencil className="h-3.5 w-3.5" /> Editar
@@ -282,7 +327,7 @@ function PlanosTab() {
         <DialogContent className="sm:max-w-[480px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-lg font-semibold leading-none tracking-tight">
-              Criar Plano de Cobrança
+              {mode === "edit" ? "Editar Plano de Cobrança" : "Criar Plano de Cobrança"}
             </DialogTitle>
           </DialogHeader>
 
@@ -343,7 +388,115 @@ function PlanosTab() {
               disabled={!canCreate}
               onClick={() => setOpen(false)}
             >
-              Criar Plano
+              {mode === "edit" ? "Salvar" : "Criar Plano"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={alunoOpen} onOpenChange={setAlunoOpen}>
+        <DialogContent className="sm:max-w-[425px] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-semibold leading-none tracking-tight">
+              Associar aluno ao plano
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="space-y-4 py-2">
+            <div className="space-y-2">
+              <Label>Aluno</Label>
+              <Select value={alunoSel} onValueChange={setAlunoSel}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione um aluno" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="marcos">marcos Lisboa</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="cpfAluno">CPF do aluno</Label>
+              <Input
+                id="cpfAluno"
+                placeholder="000.000.000-00"
+                inputMode="numeric"
+                maxLength={14}
+                value={cpf}
+                onChange={(e) => setCpf(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="dataCobranca">Dia de cobrança (1-28)</Label>
+              <Input
+                id="dataCobranca"
+                type="number"
+                min={1}
+                max={28}
+                value={diaCobranca}
+                onChange={(e) => setDiaCobranca(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Formas de pagamento aceitas</Label>
+              <p className="text-xs text-muted-foreground">
+                Quando você seleciona as duas, o aluno escolhe como pagar no link de cobrança.
+              </p>
+              <div className="space-y-2">
+                <label className="flex items-center gap-3 rounded-lg border border-border bg-card p-3 cursor-pointer hover:bg-muted/40 transition-colors">
+                  <Checkbox
+                    checked={aceitaPix}
+                    onCheckedChange={(v) => setAceitaPix(v === true)}
+                  />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">Pix</p>
+                    <p className="text-xs text-muted-foreground">R$ 2,99 + 1% por cobrança</p>
+                  </div>
+                </label>
+                <label className="flex items-center gap-3 rounded-lg border border-border bg-card p-3 cursor-pointer hover:bg-muted/40 transition-colors">
+                  <Checkbox
+                    checked={aceitaCartao}
+                    onCheckedChange={(v) => setAceitaCartao(v === true)}
+                  />
+                  <div className="flex-1">
+                    <p className="text-sm font-medium">Cartão</p>
+                    <p className="text-xs text-muted-foreground">R$ 1,49 + 4% por cobrança</p>
+                  </div>
+                </label>
+              </div>
+              {(aceitaPix || aceitaCartao) && (
+                <div className="rounded-lg bg-muted px-3 py-2 text-xs">
+                  <p className="text-foreground/80">
+                    Taxa por cobrança: <span className="font-semibold">R$ {taxaTotal}</span>
+                  </p>
+                </div>
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label>Período de teste grátis</Label>
+                <Switch checked={testeGratis} onCheckedChange={setTesteGratis} />
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter className="flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
+            <Button
+              variant="outline"
+              className="rounded-full h-10 px-6"
+              onClick={() => setAlunoOpen(false)}
+            >
+              Cancelar
+            </Button>
+            <Button
+              className="rounded-full h-10 px-6"
+              disabled={!canAssociar}
+              onClick={() => setAlunoOpen(false)}
+            >
+              Associar
             </Button>
           </DialogFooter>
         </DialogContent>
