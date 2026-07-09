@@ -520,19 +520,10 @@ function OwnerDashboard({ profile }: { profile: any }) {
           </header>
 
           {/* KPIs de gestão */}
-          <div className="mt-6 grid grid-cols-2 gap-3 md:grid-cols-4">
-            {stat("Personais", o?.totalPersonais ?? 0, o?.totalEquipe ? `+ ${o.totalEquipe} equipe` : "sua equipe técnica", Users)}
-            {stat("Alunos", o?.totalAlunos ?? 0, `${o?.ativos ?? 0} ativos · ${o?.inativos ?? 0} inativos`, HeartPulse)}
-            {stat("Novos alunos", o?.novosAlunos30d ?? 0, "nos últimos 30 dias", TrendingUp)}
-            {stat("Convites pendentes", o?.convitesPendentes ?? 0, o?.convitesPendentes ? "aguardando aceite" : "nenhum aberto", Link2)}
-          </div>
-
-          {/* Engajamento da semana */}
-          <div className="mt-3 grid grid-cols-2 gap-3 md:grid-cols-4">
-            {stat("Sessões (7d)", o?.sessoesSemana ?? 0, `${o?.sessoesConcluidas ?? 0} concluídas`, Flame)}
-            {stat("Taxa de conclusão", o?.sessoesSemana ? `${Math.round(((o.sessoesConcluidas ?? 0) / o.sessoesSemana) * 100)}%` : "—", "treinos finalizados na semana", ClipboardCheck)}
-            {stat("Alunos por personal", o?.totalPersonais ? (o.totalAlunos / o.totalPersonais).toFixed(1) : "—", "média da academia", Users)}
-            {stat("Retenção ativa", o?.totalAlunos ? `${Math.round(((o.ativos ?? 0) / o.totalAlunos) * 100)}%` : "—", "alunos ativos vs total", Activity)}
+          <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-3">
+            {stat("Alunos ativos", o?.ativos ?? 0, `de ${o?.totalAlunos ?? 0} cadastrados`, HeartPulse)}
+            {stat("Personais ativos", o?.totalPersonais ?? 0, o?.totalEquipe ? `+ ${o.totalEquipe} na equipe` : "sua equipe técnica", Users)}
+            {stat("Receita do mês", "R$ 0,00", "em breve", TrendingUp)}
           </div>
 
           <div className="mt-6 grid gap-3 lg:grid-cols-[1.4fr_1fr]">
