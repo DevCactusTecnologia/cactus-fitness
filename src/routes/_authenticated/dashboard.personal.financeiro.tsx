@@ -404,7 +404,7 @@ function PlanosTab() {
             <Button
               className="rounded-full h-10 px-6"
               disabled={!canCreate}
-              onClick={() => setOpen(false)}
+              onClick={handleSave}
             >
               {mode === "edit" ? "Salvar" : "Criar Plano"}
             </Button>
