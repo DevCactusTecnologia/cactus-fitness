@@ -8,7 +8,9 @@ import {
   Users,
   Link as LinkIcon,
   FileText,
+  ArrowLeft,
 } from "lucide-react";
+import { useRouter } from "@tanstack/react-router";
 import { IconRail } from "@/components/IconRail";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 
@@ -26,12 +28,21 @@ type Tab = "planos" | "links" | "extrato" | "saques";
 
 function FinanceiroPage() {
   const [tab, setTab] = useState<Tab>("planos");
+  const router = useRouter();
 
   return (
     <div className="min-h-screen w-full overflow-x-hidden bg-background text-foreground">
       <IconRail />
       <div className="md:ml-[72px]">
-        <header className="hidden md:flex items-center px-4 sm:px-6 py-4 border-b border-border">
+        <header className="flex items-center gap-2 px-4 sm:px-6 py-4 border-b border-border">
+          <button
+            type="button"
+            onClick={() => router.history.back()}
+            aria-label="Voltar"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-foreground transition hover:border-primary hover:text-primary active:scale-95"
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </button>
           <h1 className="text-2xl font-bold font-display">Financeiro</h1>
         </header>
 
