@@ -16,6 +16,8 @@ import {
   Calendar,
   Receipt,
   UserMinus,
+  CheckCircle2,
+  Trash2,
 } from "lucide-react";
 import { useRouter } from "@tanstack/react-router";
 import { IconRail } from "@/components/IconRail";
