@@ -1,14 +1,10 @@
 import { createFileRoute, useNavigate, useSearch } from "@tanstack/react-router";
 import { useState } from "react";
 import { z } from "zod";
-import {
-  ArrowLeft, Loader2, Mail, Lock, Eye, EyeOff, AlertCircle,
-} from "lucide-react";
-import { Barbell, User } from "@phosphor-icons/react";
+import { Loader2, Eye, EyeOff, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import gymBg from "@/assets/gym-background.png.asset.json";
 import logoUrl from "@/assets/cactus-logo.png";
-
 
 const searchSchema = z.object({
   redirect: z.string().optional(),
@@ -19,14 +15,13 @@ export const Route = createFileRoute("/login")({
   head: () => ({
     meta: [
       { title: "Entrar · cactusfitness" },
-      { name: "description", content: "Gerencie seus alunos, treinos e avaliações físicas em um só lugar" },
+      { name: "description", content: "Acesse sua conta cactusfitness — personal, aluno ou academia." },
     ],
   }),
   validateSearch: searchSchema,
   component: LoginPage,
 });
 
-type Role = "personal" | "aluno";
 type Mode = "signin" | "signup";
 
 function BrandMark({ className = "size-14" }: { className?: string }) {
@@ -41,15 +36,13 @@ function BrandMark({ className = "size-14" }: { className?: string }) {
   );
 }
 
-
 function LoginPage() {
   const search = useSearch({ from: "/login" });
-  const [role, setRole] = useState<Role | null>(null);
   const [mode, setMode] = useState<Mode>(search.mode ?? "signin");
 
   return (
     <div className="min-h-screen bg-background flex flex-col lg:flex-row font-body">
-      {/* Left panel - hero (desktop only) */}
+      {/* Left panel - hero (desktop) */}
       <div className="hidden lg:flex lg:w-1/2 xl:w-[55%] relative overflow-hidden">
         <div
           className="absolute inset-0 bg-cover bg-center"
@@ -66,22 +59,20 @@ function LoginPage() {
               Transforme sua forma de treinar
             </h2>
             <p className="text-fg-muted text-base xl:text-lg font-body">
-              A plataforma completa para personal trainers gerenciarem seus alunos e evoluírem seus negócios.
+              A plataforma completa para personais, academias e alunos — tudo em uma única conta.
             </p>
           </div>
         </div>
       </div>
 
-      {/* Right panel - content */}
+      {/* Right panel */}
       <div className="flex-1 w-full lg:w-1/2 xl:w-[45%] flex flex-col bg-background relative">
-        {/* Mobile / tablet backdrop */}
         <div
           className="absolute inset-0 lg:hidden bg-cover bg-center"
           style={{ backgroundImage: `url(${gymBg.url})`, filter: "brightness(0.2) contrast(1.1)" }}
         />
         <div className="absolute inset-0 lg:hidden bg-gradient-to-t from-background via-background/85 to-background/50" />
 
-        {/* Mobile/tablet brand */}
         <div className="flex lg:hidden items-center justify-center pt-[max(2rem,env(safe-area-inset-top))] pb-2 sm:pt-12 sm:pb-4 relative z-10">
           <div className="relative">
             <div className="absolute -inset-6 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(215,242,5,0.14)_0%,transparent_70%)]" />
@@ -91,17 +82,7 @@ function LoginPage() {
 
         <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-10 py-6 sm:py-8 relative z-10">
           <div className="w-full max-w-[440px] bg-surface-1/95 backdrop-blur-sm border border-border rounded-2xl p-5 sm:p-7 lg:p-8 shadow-2xl shadow-black/20">
-            {role ? (
-              <AuthForm
-                role={role}
-                mode={mode}
-                setMode={setMode}
-                onBack={() => setRole(null)}
-                redirectTo={search.redirect}
-              />
-            ) : (
-              <RoleSelect onSelect={setRole} />
-            )}
+            <AuthForm mode={mode} setMode={setMode} redirectTo={search.redirect} />
           </div>
         </div>
         <div className="h-[max(1.5rem,env(safe-area-inset-bottom))] lg:hidden" />
@@ -110,87 +91,19 @@ function LoginPage() {
   );
 }
 
-
-function RoleSelect({ onSelect }: { onSelect: (r: Role) => void }) {
-  return (
-    <div>
-      <div className="mb-6 sm:mb-8">
-        <h1 className="text-2xl sm:text-[1.75rem] lg:text-3xl font-bold font-display text-primary leading-tight tracking-tight">
-          Como você quer entrar?
-        </h1>
-        <p className="text-fg-muted mt-2 text-sm font-body">
-          Selecione seu perfil para continuar
-        </p>
-      </div>
-
-      <div className="space-y-3">
-        <RoleCard
-          icon={<Barbell weight="fill" className="h-6 w-6 text-primary transition-colors" />}
-          title="Personal Trainer"
-          description="Gerencie seus alunos e treinos"
-          onClick={() => onSelect("personal")}
-        />
-        <RoleCard
-          icon={<User weight="fill" className="h-6 w-6 text-primary transition-colors" />}
-          title="Aluno"
-          description="Acesse seus treinos e progresso"
-          onClick={() => onSelect("aluno")}
-        />
-      </div>
-    </div>
-  );
-}
-
-function RoleCard({
-  icon, title, description, onClick,
-}: { icon: React.ReactNode; title: string; description: string; onClick: () => void }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className="w-full group relative bg-surface-2 border border-border rounded-xl p-4 sm:p-5 flex items-center gap-3 sm:gap-4 transition-all duration-200 active:scale-[0.98] text-left hover:border-primary hover:shadow-glow"
-    >
-      <div className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 group-hover:bg-primary/20 transition-colors">
-        {icon}
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-foreground font-semibold text-base font-display">{title}</p>
-        <p className="text-fg-muted text-sm mt-0.5 font-body">{description}</p>
-      </div>
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="1em"
-        height="1em"
-        fill="currentColor"
-        viewBox="0 0 256 256"
-        className="h-5 w-5 text-fg-muted/40 rotate-180 group-hover:text-primary group-hover:translate-x-1 transition-all flex-shrink-0"
-      >
-        <path d="M224,128a8,8,0,0,1-8,8H59.31l58.35,58.34a8,8,0,0,1-11.32,11.32l-72-72a8,8,0,0,1,0-11.32l72-72a8,8,0,0,1,11.32,11.32L59.31,120H216A8,8,0,0,1,224,128Z" />
-      </svg>
-    </button>
-  );
-}
-
 const credentialsSchema = z.object({
   email: z.string().trim().email("E-mail inválido").max(255),
   password: z.string().min(6, "Senha deve ter pelo menos 6 caracteres").max(72),
 });
 
-const signupSchema = credentialsSchema.extend({
-  fullName: z.string().trim().min(2, "Informe seu nome").max(100),
-});
-
 function AuthForm({
-  role, mode, setMode, onBack, redirectTo,
+  mode, setMode, redirectTo,
 }: {
-  role: Role;
   mode: Mode;
   setMode: (m: Mode) => void;
-  onBack: () => void;
   redirectTo?: string;
 }) {
   const navigate = useNavigate();
-  const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPwd, setShowPwd] = useState(false);
@@ -198,63 +111,63 @@ function AuthForm({
   const [error, setError] = useState<string | null>(null);
   const [notice, setNotice] = useState<string | null>(null);
 
-  
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError(null);
     setNotice(null);
 
+    const parsed = credentialsSchema.safeParse({ email, password });
+    if (!parsed.success) {
+      setError(parsed.error.issues[0]?.message ?? "Dados inválidos");
+      return;
+    }
+
+    setLoading(true);
     if (mode === "signup") {
-      const parsed = signupSchema.safeParse({ fullName, email, password });
-      if (!parsed.success) { setError(parsed.error.issues[0]?.message ?? "Dados inválidos"); return; }
-      setLoading(true);
       const { error: err } = await supabase.auth.signUp({
         email: parsed.data.email,
         password: parsed.data.password,
         options: {
           emailRedirectTo: typeof window !== "undefined" ? window.location.origin : undefined,
-          data: { full_name: parsed.data.fullName, role },
         },
       });
       setLoading(false);
       if (err) { setError(mapAuthError(err.message)); return; }
-      navigateAfterAuth();
+      // Novo cadastro sempre passa pelo onboarding
+      navigate({ to: "/onboarding" });
     } else {
-      const parsed = credentialsSchema.safeParse({ email, password });
-      if (!parsed.success) { setError(parsed.error.issues[0]?.message ?? "Dados inválidos"); return; }
-      setLoading(true);
       const { error: err } = await supabase.auth.signInWithPassword({
         email: parsed.data.email,
         password: parsed.data.password,
       });
       setLoading(false);
       if (err) { setError(mapAuthError(err.message)); return; }
-      navigateAfterAuth();
+      await navigateAfterAuth();
     }
   }
 
   async function navigateAfterAuth() {
-    // Se veio de uma URL bloqueada, respeita
     if (redirectTo && redirectTo.startsWith("/") && redirectTo !== "/") {
       navigate({ to: redirectTo });
       return;
     }
-    // Descobre o papel do usuário para escolher a home certa
     try {
       const { data: userData } = await supabase.auth.getUser();
       const uid = userData.user?.id;
-      if (uid) {
-        const { data: roles } = await supabase
-          .from("user_roles")
-          .select("role")
-          .eq("user_id", uid);
-        const isAluno = roles?.some((r) => r.role === "aluno");
-        navigate({ to: isAluno ? "/meu-treino" : "/" });
+      if (!uid) { navigate({ to: "/" }); return; }
+      const { data: roles } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", uid);
+      if (!roles || roles.length === 0) {
+        navigate({ to: "/onboarding" });
         return;
       }
-    } catch { /* fallback abaixo */ }
-    navigate({ to: "/" });
+      const isAluno = roles.some((r) => r.role === "aluno");
+      navigate({ to: isAluno ? "/meu-treino" : "/" });
+    } catch {
+      navigate({ to: "/" });
+    }
   }
 
   async function handleForgotPassword() {
@@ -271,82 +184,33 @@ function AuthForm({
     setNotice("Enviamos um link de recuperação para seu e-mail.");
   }
 
-  const roleLabel = role === "personal" ? "Personal Trainer" : "Aluno";
-  const roleTitle = role === "personal" ? "Bem-vindo, Personal" : "Bem-vindo, Aluno";
-  const roleSubtitle = role === "personal" ? "Entre para gerenciar seus alunos" : "Acesse seus treinos e progresso";
-  const RoleIcon =
-    role === "personal" ? (
-      <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256" className="h-5 w-5 text-primary">
-        <path d="M248,120h-8V88a16,16,0,0,0-16-16H208V64a16,16,0,0,0-16-16H168a16,16,0,0,0-16,16v56H104V64A16,16,0,0,0,88,48H64A16,16,0,0,0,48,64v8H32A16,16,0,0,0,16,88v32H8a8,8,0,0,0,0,16h8v32a16,16,0,0,0,16,16H48v8a16,16,0,0,0,16,16H88a16,16,0,0,0,16-16V136h48v56a16,16,0,0,0,16,16h24a16,16,0,0,0,16-16v-8h16a16,16,0,0,0,16-16V136h8a8,8,0,0,0,0-16ZM32,168V88H48v80Zm56,24H64V64H88V192Zm104,0H168V64h24V175.82c0,.06,0,.12,0,.18s0,.12,0,.18V192Zm32-24H208V88h16Z" />
-      </svg>
-    ) : (
-      <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256" className="h-5 w-5 text-primary">
-        <path d="M234.38,210a123.36,123.36,0,0,0-60.78-53.23,76,76,0,1,0-91.2,0A123.36,123.36,0,0,0,21.62,210a12,12,0,1,0,20.77,12c18.12-31.32,50.12-50,85.61-50s67.49,18.69,85.61,50a12,12,0,0,0,20.77-12ZM76,96a52,52,0,1,1,52,52A52.06,52.06,0,0,1,76,96Z" />
-      </svg>
-    );
-
   const emailValid = z.string().email().safeParse(email.trim()).success;
 
   return (
     <div>
-      <button
-        type="button"
-        onClick={onBack}
-        className="flex items-center gap-2 text-fg-muted hover:text-foreground transition-colors mb-6 active:scale-95 bg-surface-2 rounded-full px-3 py-1.5"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        <span className="text-sm font-body">Trocar perfil</span>
-      </button>
-
       <div className="mb-6 sm:mb-8">
-        <div className="flex items-center gap-3 mb-3">
-          <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
-            {RoleIcon}
-          </div>
-          <span className="text-primary/70 text-xs sm:text-sm font-medium uppercase tracking-wider font-body truncate">
-            {roleLabel}
-          </span>
-        </div>
         <h1 className="text-2xl sm:text-[1.75rem] lg:text-3xl font-bold font-display text-foreground leading-tight tracking-tight">
-          {mode === "signin" ? roleTitle : `Criar conta de ${roleLabel}`}
+          {mode === "signin" ? "Bem-vindo de volta" : "Criar sua conta"}
         </h1>
         <p className="text-fg-muted mt-2 text-sm font-body">
-          {mode === "signin" ? roleSubtitle : "Preencha seus dados para começar"}
+          {mode === "signin"
+            ? "Entre para acessar seus treinos e alunos"
+            : "Comece grátis — em segundos"}
         </p>
       </div>
 
-
       <form onSubmit={handleSubmit} className="space-y-4">
-        {mode === "signup" && (
-          <div className="space-y-1.5">
-            <div className="relative">
-              <input
-                id="name"
-                type="text"
-                autoComplete="name"
-                required
-                value={fullName}
-                onChange={(e) => setFullName(e.target.value)}
-                placeholder="Nome completo"
-                className="w-full h-12 bg-surface-2 text-foreground placeholder-fg-muted rounded-md px-4 text-sm font-body outline-none transition-all duration-200 border focus:border-primary focus:shadow-[0_0_0_3px_var(--primary-glow)] border-border hover:border-border-strong"
-              />
-            </div>
-          </div>
-        )}
-
         <div className="space-y-1.5">
-          <div className="relative">
-            <input
-              id="email"
-              type="email"
-              autoComplete="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Email"
-              className="w-full h-12 bg-surface-2 text-foreground placeholder-fg-muted rounded-md px-4 text-sm font-body outline-none transition-all duration-200 border focus:border-primary focus:shadow-[0_0_0_3px_var(--primary-glow)] border-border hover:border-border-strong"
-            />
-          </div>
+          <input
+            id="email"
+            type="email"
+            autoComplete="email"
+            required
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Email"
+            className="w-full h-12 bg-surface-2 text-foreground placeholder-fg-muted rounded-md px-4 text-sm font-body outline-none transition-all duration-200 border focus:border-primary focus:shadow-[0_0_0_3px_var(--primary-glow)] border-border hover:border-border-strong"
+          />
         </div>
 
         <div className="space-y-1.5">
@@ -431,7 +295,6 @@ function AuthForm({
     </div>
   );
 }
-
 
 function mapAuthError(msg: string): string {
   const m = msg.toLowerCase();
