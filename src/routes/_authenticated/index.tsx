@@ -613,11 +613,8 @@ function OwnerDashboard({ profile }: { profile: any }) {
                 </ul>
               )}
             </section>
-          </div>
-        </div>
-      </main>
-      <MobileBottomNav />
-    </div>
+
+
             {/* Personais da academia */}
             <section className="rounded-2xl border border-border bg-card">
               <div className="flex items-center justify-between border-b border-border px-4 py-3">
