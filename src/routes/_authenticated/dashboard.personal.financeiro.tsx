@@ -212,7 +212,7 @@ function PlanosTab() {
         <p className="text-sm text-muted-foreground">1 plano(s) ativo(s)</p>
         <button
           type="button"
-          onClick={() => setOpen(true)}
+          onClick={openCreate}
           className="inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-full font-semibold bg-primary text-primary-foreground h-8 px-4 py-2 text-xs transition hover:brightness-110 active:scale-95"
         >
           <Plus className="h-4 w-4" /> Criar Plano
