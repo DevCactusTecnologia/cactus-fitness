@@ -166,6 +166,34 @@ function FinanceiroPage() {
 
 type PlanoModalMode = "create" | "edit";
 
+function maskCPF(value: string): string {
+  const d = value.replace(/\D/g, "").slice(0, 11);
+  const p1 = d.slice(0, 3);
+  const p2 = d.slice(3, 6);
+  const p3 = d.slice(6, 9);
+  const p4 = d.slice(9, 11);
+  let out = p1;
+  if (d.length > 3) out += "." + p2;
+  if (d.length > 6) out += "." + p3;
+  if (d.length > 9) out += "-" + p4;
+  return out;
+}
+
+function isValidCPF(cpf: string): boolean {
+  if (cpf.length !== 11) return false;
+  if (/^(\d)\1{10}$/.test(cpf)) return false;
+  let sum = 0;
+  for (let i = 0; i < 9; i++) sum += parseInt(cpf[i]) * (10 - i);
+  let d1 = (sum * 10) % 11;
+  if (d1 === 10) d1 = 0;
+  if (d1 !== parseInt(cpf[9])) return false;
+  sum = 0;
+  for (let i = 0; i < 10; i++) sum += parseInt(cpf[i]) * (11 - i);
+  let d2 = (sum * 10) % 11;
+  if (d2 === 10) d2 = 0;
+  return d2 === parseInt(cpf[10]);
+}
+
 function PlanosTab() {
   const [open, setOpen] = useState(false);
   const [mode, setMode] = useState<PlanoModalMode>("create");
@@ -182,12 +210,23 @@ function PlanosTab() {
   const [aceitaCartao, setAceitaCartao] = useState(false);
   const [testeGratis, setTesteGratis] = useState(false);
 
+  const [plano, setPlano] = useState({ nome: "Forte", valor: "60,00", periodo: "mensal" });
+
   const canCreate = nome.trim().length > 0 && valor.trim().length > 0;
-  const canAssociar = alunoSel.length > 0 && (aceitaPix || aceitaCartao);
+  const cpfDigits = cpf.replace(/\D/g, "");
+  const cpfValid = isValidCPF(cpfDigits);
+  const canAssociar = alunoSel.length > 0 && (aceitaPix || aceitaCartao) && cpfValid;
 
   const taxaPix = aceitaPix ? 2.99 : 0;
   const taxaCartao = aceitaCartao ? 1.49 : 0;
   const taxaTotal = (taxaPix + taxaCartao).toFixed(2).replace(".", ",");
+
+  const periodoLabel: Record<string, string> = {
+    mensal: "mês",
+    trimestral: "trimestre",
+    semestral: "semestre",
+    anual: "ano",
+  };
 
   const openCreate = () => {
     setMode("create");
@@ -199,10 +238,17 @@ function PlanosTab() {
 
   const openEdit = () => {
     setMode("edit");
-    setNome("Forte");
-    setValor("60,00");
-    setPeriodo("mensal");
+    setNome(plano.nome);
+    setValor(plano.valor);
+    setPeriodo(plano.periodo);
     setOpen(true);
+  };
+
+  const handleSave = () => {
+    if (mode === "edit") {
+      setPlano({ nome: nome.trim(), valor: valor.trim(), periodo });
+    }
+    setOpen(false);
   };
 
 
@@ -226,10 +272,10 @@ function PlanosTab() {
           className="w-full p-4 flex items-center justify-between text-left active:scale-[0.99] transition-transform"
         >
           <div className="flex-1 min-w-0">
-            <p className="font-display font-bold text-base truncate">Forte</p>
+            <p className="font-display font-bold text-base truncate">{plano.nome}</p>
             <div className="flex items-center gap-3 mt-0.5">
               <span className="text-sm text-primary font-semibold">
-                R$ 60,00<span className="text-xs text-muted-foreground font-normal">/mês</span>
+                R$ {plano.valor}<span className="text-xs text-muted-foreground font-normal">/{periodoLabel[plano.periodo] ?? plano.periodo}</span>
               </span>
               <span className="text-xs text-muted-foreground flex items-center gap-1">
                 <Users className="h-3 w-3" /> 1
@@ -386,7 +432,7 @@ function PlanosTab() {
             <Button
               className="rounded-full h-10 px-6"
               disabled={!canCreate}
-              onClick={() => setOpen(false)}
+              onClick={handleSave}
             >
               {mode === "edit" ? "Salvar" : "Criar Plano"}
             </Button>
@@ -423,8 +469,12 @@ function PlanosTab() {
                 inputMode="numeric"
                 maxLength={14}
                 value={cpf}
-                onChange={(e) => setCpf(e.target.value)}
+                onChange={(e) => setCpf(maskCPF(e.target.value))}
+                aria-invalid={cpf.length > 0 && !cpfValid}
               />
+              {cpf.length > 0 && !cpfValid && (
+                <p className="text-xs text-destructive">CPF inválido</p>
+              )}
             </div>
 
             <div className="space-y-2">
