@@ -482,7 +482,7 @@ function OwnerDashboard({ profile }: { profile: any }) {
   const today = new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" });
 
   const stat = (label: string, value: number | string, hint?: string, Icon?: React.ElementType) => (
-    <div className="rounded-2xl border border-border bg-card p-4">
+    <div className="rounded-lg border border-border bg-card p-4">
       <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
         <span>{label}</span>
         {Icon && <span className="grid h-6 w-6 place-items-center rounded-md bg-primary/10 text-primary"><Icon className="h-3.5 w-3.5" /></span>}
@@ -526,7 +526,7 @@ function OwnerDashboard({ profile }: { profile: any }) {
 
           <div className="mt-6 grid gap-3 lg:grid-cols-[1.4fr_1fr]">
             {/* Atalhos gestão */}
-            <section className="rounded-2xl border border-border bg-card">
+            <section className="rounded-lg border border-border bg-card">
               <div className="border-b border-border px-4 py-3">
                 <h2 className="font-display text-base font-bold">Gestão rápida</h2>
                 <p className="text-[11px] text-muted-foreground">Ações da administração</p>
@@ -568,7 +568,7 @@ function OwnerDashboard({ profile }: { profile: any }) {
             </section>
 
             {/* Personais da academia */}
-            <section className="rounded-2xl border border-border bg-card">
+            <section className="rounded-lg border border-border bg-card">
               <div className="flex items-center justify-between border-b border-border px-4 py-3">
                 <div>
                   <h2 className="font-display text-base font-bold">Personais da academia</h2>
