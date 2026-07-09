@@ -214,6 +214,41 @@ function PlanosTab() {
 
   const [plano, setPlano] = useState({ nome: "Forte", valor: "60,00", periodo: "mensal" });
   const [histOpen, setHistOpen] = useState(false);
+  type Pagamento = {
+    id: string;
+    valor: string;
+    metodo: string;
+    vencimento: string;
+    taxa: string;
+    liquido: string;
+    status: "pendente" | "pago";
+    pagoEm?: string;
+  };
+  const [pagamentos, setPagamentos] = useState<Pagamento[]>([
+    {
+      id: "p1",
+      valor: "60,00",
+      metodo: "Pix",
+      vencimento: "05/08/2026",
+      taxa: "3,59",
+      liquido: "56,41",
+      status: "pendente",
+    },
+  ]);
+  const marcarPago = (id: string) => {
+    const hoje = new Date();
+    const dd = String(hoje.getDate()).padStart(2, "0");
+    const mm = String(hoje.getMonth() + 1).padStart(2, "0");
+    const yyyy = hoje.getFullYear();
+    setPagamentos((prev) =>
+      prev.map((p) =>
+        p.id === id ? { ...p, status: "pago", pagoEm: `${dd}/${mm}/${yyyy}` } : p,
+      ),
+    );
+  };
+  const deletarPagamento = (id: string) => {
+    setPagamentos((prev) => prev.filter((p) => p.id !== id));
+  };
 
   const canCreate = nome.trim().length > 0 && valor.trim().length > 0;
   const cpfDigits = cpf.replace(/\D/g, "");
