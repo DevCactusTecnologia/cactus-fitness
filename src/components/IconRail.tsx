@@ -30,6 +30,7 @@ const NAV_ITEMS: NavItem[] = [
   { icon: HeartPulse, label: "Avaliações", to: "/dashboard/personal/avaliacoes", match: (p) => p.startsWith("/dashboard/personal/avaliacoes") },
   { icon: Trophy, label: "Desafios", to: "/dashboard/personal/desafios", match: (p) => p.startsWith("/dashboard/personal/desafios") },
   { icon: CalendarDays, label: "Agenda", to: "/dashboard/personal/agenda", match: (p) => p.startsWith("/dashboard/personal/agenda") },
+  { icon: Wallet, label: "Financeiro", to: "/dashboard/personal/financeiro", match: (p) => p.startsWith("/dashboard/personal/financeiro") },
 ];
 
 function SidebarIconBtn({
