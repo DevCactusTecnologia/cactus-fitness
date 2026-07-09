@@ -9,6 +9,7 @@ import {
   CalendarDays,
   Shield,
   Bell,
+  Wallet,
 } from "lucide-react";
 import { UserAvatarMenu } from "@/components/UserAvatarMenu";
 import logoUrl from "@/assets/cactus-logo.png";
