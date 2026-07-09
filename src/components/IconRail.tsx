@@ -7,7 +7,7 @@ import {
   HeartPulse,
   Trophy,
   CalendarDays,
-  Building2,
+  Shield,
   Bell,
 } from "lucide-react";
 import { UserAvatarMenu } from "@/components/UserAvatarMenu";
@@ -23,12 +23,12 @@ type NavItem = {
 const NAV_ITEMS: NavItem[] = [
   { icon: LayoutDashboard, label: "Início", to: "/", match: (p) => p === "/" },
   { icon: Users, label: "Alunos", to: "/dashboard/personal/alunos", match: (p) => p.startsWith("/dashboard/personal/alunos") },
+  { icon: Shield, label: "Personais", to: "/dashboard/personal/personais", match: (p) => p.startsWith("/dashboard/personal/personais") },
   { icon: Dumbbell, label: "Treinos", to: "/dashboard/personal/treinos", match: (p) => p.startsWith("/dashboard/personal/treinos") },
   { icon: Flame, label: "Exercícios", to: "/dashboard/personal/exercicios", match: (p) => p.startsWith("/dashboard/personal/exercicios") },
   { icon: HeartPulse, label: "Avaliações", to: "/dashboard/personal/avaliacoes", match: (p) => p.startsWith("/dashboard/personal/avaliacoes") },
   { icon: Trophy, label: "Desafios", to: "/dashboard/personal/desafios", match: (p) => p.startsWith("/dashboard/personal/desafios") },
   { icon: CalendarDays, label: "Agenda", to: "/dashboard/personal/agenda", match: (p) => p.startsWith("/dashboard/personal/agenda") },
-  { icon: Building2, label: "Academia", to: "/dashboard/personal/academia", match: (p) => p.startsWith("/dashboard/personal/academia") },
 ];
 
 function SidebarIconBtn({
