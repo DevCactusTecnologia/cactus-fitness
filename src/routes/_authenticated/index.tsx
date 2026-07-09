@@ -504,10 +504,8 @@ function OwnerDashboard({ profile }: { profile: any }) {
               <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-primary">
                 <Home className="h-3.5 w-3.5" /> Painel da Academia
               </div>
-              <h1 className="mt-1 font-display text-2xl font-extrabold leading-tight tracking-tight md:text-3xl">
-                {o?.orgName ?? "Minha Academia"}
-              </h1>
               <p className="mt-1 text-xs text-muted-foreground">{greeting}, {name} · {today}</p>
+
             </div>
             <div className="flex flex-wrap gap-2">
               <Link to="/dashboard/personal/academia" className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-4 py-2 text-xs font-semibold hover:border-primary/40">
