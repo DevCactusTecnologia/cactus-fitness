@@ -3,14 +3,13 @@ import { useState } from "react";
 import {
   Wallet,
   Plus,
-  ArrowDownToLine,
-  PlayCircle,
-  Link as LinkIcon,
-  FileText,
   ArrowDown,
+  PlayCircle,
   ChevronRight,
   ChevronDown,
   Users,
+  Link as LinkIcon,
+  FileText,
 } from "lucide-react";
 import { IconRail } from "@/components/IconRail";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
@@ -33,106 +32,114 @@ function FinanceiroPage() {
   return (
     <div className="min-h-screen w-full overflow-x-hidden bg-background text-foreground">
       <IconRail />
-      <main className="pb-24 md:ml-[72px] md:pb-0">
-        <div className="mx-auto max-w-4xl px-4 pt-6 sm:px-8 sm:pt-8">
-          <h1 className="font-display text-2xl font-bold tracking-tight sm:text-3xl">Financeiro</h1>
+      <div className="md:ml-[72px]">
+        <header className="hidden md:flex items-center px-4 sm:px-6 py-4 border-b border-border">
+          <h1 className="text-2xl font-bold font-display">Financeiro</h1>
+        </header>
 
-          {/* Tutorial banner */}
+        <main className="px-3 sm:px-4 py-4 sm:py-6 mx-auto max-w-5xl space-y-5 pb-24 md:pb-6">
+          {/* Tutorial */}
           <button
             type="button"
-            className="mt-6 flex w-full items-center gap-4 rounded-2xl border border-border bg-card px-4 py-3 text-left transition hover:bg-accent/40"
+            className="w-full bg-card border border-border rounded-xl p-3 flex items-center gap-3 text-left hover:border-primary/40 hover:bg-accent/40 transition-all active:scale-[0.99]"
           >
-            <div className="relative grid h-14 w-20 shrink-0 place-items-center overflow-hidden rounded-xl bg-muted">
-              <PlayCircle className="h-7 w-7 text-white/90" />
+            <div className="relative w-20 h-12 rounded-lg overflow-hidden bg-muted shrink-0 grid place-items-center">
+              <PlayCircle className="h-6 w-6 text-white/90 drop-shadow" strokeWidth={1.75} />
             </div>
-            <div className="min-w-0 flex-1">
-              <p className="text-[11px] font-bold uppercase tracking-wider text-primary">Tutorial em vídeo</p>
-              <p className="mt-0.5 truncate text-sm font-semibold">Como cobrar do aluno no cactusfitness</p>
+            <div className="flex-1 min-w-0">
+              <p className="text-[0.6875rem] uppercase tracking-wider text-primary font-semibold">Tutorial em vídeo</p>
+              <p className="text-sm font-semibold text-foreground line-clamp-1 mt-0.5">
+                Como cobrar do aluno no cactusfitness
+              </p>
             </div>
-            <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground" />
+            <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
           </button>
 
-          {/* Wallet card */}
-          <section className="mt-4 overflow-hidden rounded-2xl border border-primary/60 bg-card shadow-[0_0_40px_-15px_hsl(var(--primary)/0.6)]">
-            <div className="flex flex-col gap-4 p-5 sm:flex-row sm:items-center sm:justify-between">
+          {/* Wallet */}
+          <div className="rounded-xl border border-primary/30 bg-gradient-to-r from-primary/10 to-transparent p-5 space-y-3">
+            <div className="flex items-center justify-between">
               <div>
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                  <Wallet className="h-4 w-4" />
-                  <span>Disponível para saque</span>
-                </div>
-                <p className="mt-2 font-display text-4xl font-bold tracking-tight">R$ 0,00</p>
+                <p className="text-sm text-muted-foreground flex items-center gap-1.5">
+                  <Wallet className="h-4 w-4" /> Disponível para saque
+                </p>
+                <p className="text-3xl font-bold mt-1">R$ 0,00</p>
               </div>
               <button
                 type="button"
-                className="inline-flex h-11 items-center gap-2 self-start rounded-full bg-primary px-6 text-sm font-semibold text-primary-foreground transition hover:brightness-110 sm:self-auto"
+                className="inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-full font-semibold bg-primary text-primary-foreground h-8 px-4 py-2 text-xs transition hover:brightness-110 active:scale-95"
               >
-                <ArrowDownToLine className="h-4 w-4" /> Sacar
+                <ArrowDown className="h-4 w-4" /> Sacar
               </button>
             </div>
-            <div className="border-t border-border/60 p-3">
-              <button
-                type="button"
-                className="flex w-full items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold text-foreground transition hover:bg-accent/40"
-              >
-                <Plus className="h-4 w-4" /> Adicionar conta bancária
-              </button>
-            </div>
-          </section>
+            <button
+              type="button"
+              className="inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-full font-semibold border border-border bg-transparent text-foreground hover:border-primary hover:text-primary px-4 py-2 text-xs w-full h-9 transition active:scale-95"
+            >
+              <Plus className="h-4 w-4" /> Adicionar conta bancária
+            </button>
+          </div>
 
           {/* Fees */}
-          <section className="mt-4 rounded-2xl border border-border bg-card p-5">
-            <p className="text-[11px] font-bold uppercase tracking-wider text-muted-foreground">Taxas e prazos</p>
-            <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div className="rounded-xl bg-background/40 p-4">
-                <p className="text-sm font-semibold">PIX</p>
-                <p className="mt-1 font-display text-lg font-bold text-primary">R$ 2,99 + 1%</p>
-                <p className="mt-1 text-[11px] text-muted-foreground">Compensação em até 7 dias</p>
+          <div className="rounded-lg border border-border bg-card px-4 py-3 space-y-2">
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Taxas e prazos</p>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="rounded-md bg-muted/40 p-2.5">
+                <p className="text-xs font-medium">PIX</p>
+                <p className="text-sm font-bold text-primary">R$ 2,99 + 1%</p>
+                <p className="text-[0.625rem] text-muted-foreground mt-0.5">Compensação em até 7 dias</p>
               </div>
-              <div className="rounded-xl bg-background/40 p-4">
-                <p className="text-sm font-semibold">Cartão à vista</p>
-                <p className="mt-1 font-display text-lg font-bold text-primary">R$ 1,49 + 4%</p>
-                <p className="mt-1 text-[11px] text-muted-foreground">Compensação em até 31 dias</p>
+              <div className="rounded-md bg-muted/40 p-2.5">
+                <p className="text-xs font-medium">Cartão à vista</p>
+                <p className="text-sm font-bold text-primary">R$ 1,49 + 4%</p>
+                <p className="text-[0.625rem] text-muted-foreground mt-0.5">Compensação em até 31 dias</p>
               </div>
             </div>
-            <p className="mt-3 text-[11px] text-muted-foreground">
+            <p className="text-[0.625rem] text-muted-foreground">
               As taxas são descontadas automaticamente. O valor líquido é creditado na sua carteira após a compensação.
             </p>
-          </section>
-
-          {/* Tabs pill */}
-          <div className="mt-5 grid grid-cols-4 gap-1 rounded-full border border-border bg-card p-1">
-            {(
-              [
-                { id: "planos", label: "Planos" },
-                { id: "links", label: "Links" },
-                { id: "extrato", label: "Extrato" },
-                { id: "saques", label: "Saques" },
-              ] as { id: Tab; label: string }[]
-            ).map((t) => {
-              const active = tab === t.id;
-              return (
-                <button
-                  key={t.id}
-                  type="button"
-                  onClick={() => setTab(t.id)}
-                  className={`rounded-full py-2.5 text-sm font-semibold transition ${
-                    active ? "bg-background text-foreground shadow" : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  {t.label}
-                </button>
-              );
-            })}
           </div>
 
-          <div className="mt-4">
-            {tab === "planos" && <PlanosTab />}
-            {tab === "links" && <EmptyState icon={LinkIcon} title="Nenhum link de cobrança" description="Crie links para cobrar avulsos e enviar aos alunos." />}
-            {tab === "extrato" && <EmptyState icon={FileText} title="Sem lançamentos" description="Suas movimentações aparecerão aqui." />}
-            {tab === "saques" && <EmptyState icon={ArrowDown} title="Nenhum saque solicitado" description="Adicione uma conta bancária para solicitar saques." />}
+          {/* Tabs */}
+          <div>
+            <div
+              role="tablist"
+              className="h-10 items-center justify-center rounded-md bg-muted p-1 text-muted-foreground w-full grid grid-cols-4"
+            >
+              {(
+                [
+                  { id: "planos", label: "Planos" },
+                  { id: "links", label: "Links" },
+                  { id: "extrato", label: "Extrato" },
+                  { id: "saques", label: "Saques" },
+                ] as { id: Tab; label: string }[]
+              ).map((t) => {
+                const active = tab === t.id;
+                return (
+                  <button
+                    key={t.id}
+                    role="tab"
+                    aria-selected={active}
+                    type="button"
+                    onClick={() => setTab(t.id)}
+                    className={`inline-flex items-center justify-center whitespace-nowrap rounded-sm px-3 py-1.5 text-sm font-medium transition-all ${
+                      active ? "bg-background text-foreground shadow-sm" : ""
+                    }`}
+                  >
+                    {t.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="space-y-3 mt-4">
+              {tab === "planos" && <PlanosTab />}
+              {tab === "links" && <EmptyState icon={LinkIcon} title="Nenhum link de cobrança" description="Crie links para cobrar avulsos e envie aos alunos." />}
+              {tab === "extrato" && <EmptyState icon={FileText} title="Sem lançamentos" description="Suas movimentações aparecerão aqui." />}
+              {tab === "saques" && <EmptyState icon={ArrowDown} title="Nenhum saque solicitado" description="Adicione uma conta bancária para solicitar saques." />}
+            </div>
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
       <MobileBottomNav />
     </div>
   );
@@ -140,41 +147,45 @@ function FinanceiroPage() {
 
 function PlanosTab() {
   return (
-    <div>
-      <div className="flex items-center justify-between gap-3">
+    <>
+      <div className="flex justify-between items-center">
         <p className="text-sm text-muted-foreground">1 plano(s) ativo(s)</p>
         <button
           type="button"
-          className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition hover:brightness-110"
+          className="inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-full font-semibold bg-primary text-primary-foreground h-8 px-4 py-2 text-xs transition hover:brightness-110 active:scale-95"
         >
           <Plus className="h-4 w-4" /> Criar Plano
         </button>
       </div>
 
-      <button
-        type="button"
-        className="mt-3 flex w-full items-center justify-between gap-3 rounded-2xl border border-border bg-card px-5 py-4 text-left transition hover:bg-accent/40"
-      >
-        <div className="min-w-0">
-          <p className="font-display text-base font-bold">Forte</p>
-          <div className="mt-1 flex items-center gap-3 text-sm">
-            <span className="font-semibold text-primary">R$ 60,00<span className="text-xs font-medium text-muted-foreground">/mês</span></span>
-            <span className="flex items-center gap-1 text-xs text-muted-foreground">
-              <Users className="h-3.5 w-3.5" /> 1
-            </span>
+      <div className="rounded-xl border border-border bg-card transition-colors">
+        <button
+          type="button"
+          className="w-full p-4 flex items-center justify-between text-left active:scale-[0.99] transition-transform"
+        >
+          <div className="flex-1 min-w-0">
+            <p className="font-display font-bold text-base truncate">Forte</p>
+            <div className="flex items-center gap-3 mt-0.5">
+              <span className="text-sm text-primary font-semibold">
+                R$ 60,00<span className="text-xs text-muted-foreground font-normal">/mês</span>
+              </span>
+              <span className="text-xs text-muted-foreground flex items-center gap-1">
+                <Users className="h-3 w-3" /> 1
+              </span>
+            </div>
           </div>
-        </div>
-        <ChevronDown className="h-5 w-5 shrink-0 text-muted-foreground" />
-      </button>
-    </div>
+          <ChevronDown className="h-4 w-4 text-muted-foreground shrink-0" />
+        </button>
+      </div>
+    </>
   );
 }
 
 function EmptyState({ icon: Icon, title, description }: { icon: React.ElementType; title: string; description: string }) {
   return (
-    <div className="rounded-2xl border border-dashed border-border/60 bg-card/40 p-10 text-center">
-      <div className="mx-auto mb-3 grid h-12 w-12 place-items-center rounded-full bg-primary/10 text-primary">
-        <Icon className="h-5 w-5" />
+    <div className="rounded-xl border border-dashed border-border bg-card/40 p-8 text-center">
+      <div className="mx-auto mb-3 grid h-10 w-10 place-items-center rounded-full bg-primary/10 text-primary">
+        <Icon className="h-4 w-4" />
       </div>
       <h3 className="font-display text-sm font-bold">{title}</h3>
       <p className="mx-auto mt-1 max-w-sm text-xs text-muted-foreground">{description}</p>
