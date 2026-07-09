@@ -164,14 +164,47 @@ function FinanceiroPage() {
   );
 }
 
+type PlanoModalMode = "create" | "edit";
+
 function PlanosTab() {
   const [open, setOpen] = useState(false);
+  const [mode, setMode] = useState<PlanoModalMode>("create");
   const [expanded, setExpanded] = useState(false);
   const [nome, setNome] = useState("");
   const [valor, setValor] = useState("");
   const [periodo, setPeriodo] = useState("mensal");
 
+  const [alunoOpen, setAlunoOpen] = useState(false);
+  const [alunoSel, setAlunoSel] = useState("");
+  const [cpf, setCpf] = useState("");
+  const [diaCobranca, setDiaCobranca] = useState("5");
+  const [aceitaPix, setAceitaPix] = useState(true);
+  const [aceitaCartao, setAceitaCartao] = useState(false);
+  const [testeGratis, setTesteGratis] = useState(false);
+
   const canCreate = nome.trim().length > 0 && valor.trim().length > 0;
+  const canAssociar = alunoSel.length > 0 && (aceitaPix || aceitaCartao);
+
+  const taxaPix = aceitaPix ? 2.99 : 0;
+  const taxaCartao = aceitaCartao ? 1.49 : 0;
+  const taxaTotal = (taxaPix + taxaCartao).toFixed(2).replace(".", ",");
+
+  const openCreate = () => {
+    setMode("create");
+    setNome("");
+    setValor("");
+    setPeriodo("mensal");
+    setOpen(true);
+  };
+
+  const openEdit = () => {
+    setMode("edit");
+    setNome("Forte");
+    setValor("60,00");
+    setPeriodo("mensal");
+    setOpen(true);
+  };
+
 
   return (
     <>
