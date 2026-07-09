@@ -717,7 +717,7 @@ function Dashboard() {
                 </div>
                 <div className="grid grid-cols-1 gap-2 p-3 sm:grid-cols-2">
                   <Shortcut icon={UserPlus} title="Novo aluno" sub="cadastrar ou convidar" k="N" to="/dashboard/personal/alunos" />
-                  <Shortcut icon={FileText} title="Modelo de plano" sub="criar plano reutilizável" k="P" to="/dashboard/personal/treinos" />
+                  <Shortcut icon={Wallet} title="Financeiro" sub="planos, cobranças e saques" k="F" to="/dashboard/personal/financeiro" />
                   <Shortcut icon={HeartPulse} title="Avaliação física" sub="iniciar nova avaliação" k="A" to="/dashboard/personal/avaliacoes" />
                   <Shortcut icon={Trophy} title="Desafios" sub="motivar seus alunos" k="D" to="/dashboard/personal/desafios" />
                 </div>
