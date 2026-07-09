@@ -6,7 +6,7 @@ import {
   Flame,
   HeartPulse,
   Trophy,
-  CalendarDays,
+  
   Shield,
   Bell,
   Wallet,
