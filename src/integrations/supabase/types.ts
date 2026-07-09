@@ -178,56 +178,6 @@ export type Database = {
           },
         ]
       }
-      contratos_personal: {
-        Row: {
-          ativo: boolean
-          created_at: string
-          fim: string | null
-          id: string
-          inicio: string
-          observacoes: string | null
-          organization_id: string
-          personal_user_id: string
-          tipo_repasse: Database["public"]["Enums"]["tipo_repasse"]
-          updated_at: string
-          valor: number
-        }
-        Insert: {
-          ativo?: boolean
-          created_at?: string
-          fim?: string | null
-          id?: string
-          inicio?: string
-          observacoes?: string | null
-          organization_id: string
-          personal_user_id: string
-          tipo_repasse: Database["public"]["Enums"]["tipo_repasse"]
-          updated_at?: string
-          valor: number
-        }
-        Update: {
-          ativo?: boolean
-          created_at?: string
-          fim?: string | null
-          id?: string
-          inicio?: string
-          observacoes?: string | null
-          organization_id?: string
-          personal_user_id?: string
-          tipo_repasse?: Database["public"]["Enums"]["tipo_repasse"]
-          updated_at?: string
-          valor?: number
-        }
-        Relationships: [
-          {
-            foreignKeyName: "contratos_personal_organization_id_fkey"
-            columns: ["organization_id"]
-            isOneToOne: false
-            referencedRelation: "organizations"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       desafio_participantes: {
         Row: {
           aluno_id: string
@@ -507,7 +457,6 @@ export type Database = {
           aluno_id: string | null
           categoria: Database["public"]["Enums"]["lancamento_categoria"]
           competencia: string
-          contrato_id: string | null
           created_at: string
           created_by: string | null
           descricao: string | null
@@ -525,7 +474,6 @@ export type Database = {
           aluno_id?: string | null
           categoria: Database["public"]["Enums"]["lancamento_categoria"]
           competencia: string
-          contrato_id?: string | null
           created_at?: string
           created_by?: string | null
           descricao?: string | null
@@ -543,7 +491,6 @@ export type Database = {
           aluno_id?: string | null
           categoria?: Database["public"]["Enums"]["lancamento_categoria"]
           competencia?: string
-          contrato_id?: string | null
           created_at?: string
           created_by?: string | null
           descricao?: string | null
@@ -563,13 +510,6 @@ export type Database = {
             columns: ["aluno_id"]
             isOneToOne: false
             referencedRelation: "alunos"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "lancamentos_contrato_id_fkey"
-            columns: ["contrato_id"]
-            isOneToOne: false
-            referencedRelation: "contratos_personal"
             referencedColumns: ["id"]
           },
           {
@@ -1130,7 +1070,6 @@ export type Database = {
         | "outros"
       lancamento_tipo: "receita" | "despesa"
       org_role: "owner" | "personal" | "staff"
-      tipo_repasse: "percentual" | "fixo_por_aluno" | "salario_fixo"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1269,7 +1208,6 @@ export const Constants = {
       ],
       lancamento_tipo: ["receita", "despesa"],
       org_role: ["owner", "personal", "staff"],
-      tipo_repasse: ["percentual", "fixo_por_aluno", "salario_fixo"],
     },
   },
 } as const
