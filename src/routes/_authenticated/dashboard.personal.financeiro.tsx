@@ -182,12 +182,23 @@ function PlanosTab() {
   const [aceitaCartao, setAceitaCartao] = useState(false);
   const [testeGratis, setTesteGratis] = useState(false);
 
+  const [plano, setPlano] = useState({ nome: "Forte", valor: "60,00", periodo: "mensal" });
+
   const canCreate = nome.trim().length > 0 && valor.trim().length > 0;
-  const canAssociar = alunoSel.length > 0 && (aceitaPix || aceitaCartao);
+  const cpfDigits = cpf.replace(/\D/g, "");
+  const cpfValid = isValidCPF(cpfDigits);
+  const canAssociar = alunoSel.length > 0 && (aceitaPix || aceitaCartao) && cpfValid;
 
   const taxaPix = aceitaPix ? 2.99 : 0;
   const taxaCartao = aceitaCartao ? 1.49 : 0;
   const taxaTotal = (taxaPix + taxaCartao).toFixed(2).replace(".", ",");
+
+  const periodoLabel: Record<string, string> = {
+    mensal: "mês",
+    trimestral: "trimestre",
+    semestral: "semestre",
+    anual: "ano",
+  };
 
   const openCreate = () => {
     setMode("create");
@@ -199,10 +210,17 @@ function PlanosTab() {
 
   const openEdit = () => {
     setMode("edit");
-    setNome("Forte");
-    setValor("60,00");
-    setPeriodo("mensal");
+    setNome(plano.nome);
+    setValor(plano.valor);
+    setPeriodo(plano.periodo);
     setOpen(true);
+  };
+
+  const handleSave = () => {
+    if (mode === "edit") {
+      setPlano({ nome: nome.trim(), valor: valor.trim(), periodo });
+    }
+    setOpen(false);
   };
 
 
