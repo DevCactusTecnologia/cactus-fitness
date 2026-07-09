@@ -441,8 +441,12 @@ function PlanosTab() {
                 inputMode="numeric"
                 maxLength={14}
                 value={cpf}
-                onChange={(e) => setCpf(e.target.value)}
+                onChange={(e) => setCpf(maskCPF(e.target.value))}
+                aria-invalid={cpf.length > 0 && !cpfValid}
               />
+              {cpf.length > 0 && !cpfValid && (
+                <p className="text-xs text-destructive">CPF inválido</p>
+              )}
             </div>
 
             <div className="space-y-2">
