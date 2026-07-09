@@ -327,7 +327,7 @@ function PlanosTab() {
         <DialogContent className="sm:max-w-[480px] max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-lg font-semibold leading-none tracking-tight">
-              Criar Plano de Cobrança
+              {mode === "edit" ? "Editar Plano de Cobrança" : "Criar Plano de Cobrança"}
             </DialogTitle>
           </DialogHeader>
 
