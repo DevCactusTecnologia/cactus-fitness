@@ -525,45 +525,33 @@ function OwnerDashboard({ profile }: { profile: any }) {
           </div>
 
           <div className="mt-6 grid gap-3 lg:grid-cols-[1.4fr_1fr]">
-            {/* Atalhos gestão */}
+            {/* Atalhos rápidos */}
             <section className="rounded-lg border border-border bg-card">
-              <div className="border-b border-border px-4 py-3">
-                <h2 className="font-display text-base font-bold">Gestão rápida</h2>
-                <p className="text-[11px] text-muted-foreground">Ações da administração</p>
+              <div className="flex items-center justify-between border-b border-border px-4 py-3">
+                <div>
+                  <h2 className="font-display text-base font-bold">Atalhos rápidos</h2>
+                  <p className="text-[11px] text-muted-foreground">Ações da administração</p>
+                </div>
+                <span className="text-[10px] uppercase tracking-widest text-muted-foreground">use as teclas</span>
               </div>
-              <div className="grid gap-2 p-3">
-                <Link to="/dashboard/personal/academia" className="group flex items-center gap-3 rounded-lg border border-border bg-background/40 p-3 hover:border-primary/40">
-                  <div className="grid h-9 w-9 place-items-center rounded-md bg-primary/10 text-primary"><UsersIcon className="h-4 w-4" /></div>
-                  <div className="min-w-0 flex-1">
-                    <div className="text-sm font-semibold">Equipe & convites</div>
-                    <div className="text-[11px] text-muted-foreground">Convidar personais e ajustar papéis</div>
-                  </div>
-                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                </Link>
-                <Link to="/dashboard/personal/alunos" className="group flex items-center gap-3 rounded-lg border border-border bg-background/40 p-3 hover:border-primary/40">
-                  <div className="grid h-9 w-9 place-items-center rounded-md bg-primary/10 text-primary"><Users className="h-4 w-4" /></div>
-                  <div className="min-w-0 flex-1">
-                    <div className="text-sm font-semibold">Todos os alunos</div>
-                    <div className="text-[11px] text-muted-foreground">Cadastros e contatos</div>
-                  </div>
-                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                </Link>
-                <Link to="/dashboard/personal/treinos" className="group flex items-center gap-3 rounded-lg border border-border bg-background/40 p-3 hover:border-primary/40">
-                  <div className="grid h-9 w-9 place-items-center rounded-md bg-primary/10 text-primary"><Dumbbell className="h-4 w-4" /></div>
-                  <div className="min-w-0 flex-1">
-                    <div className="text-sm font-semibold">Modelos de treino</div>
-                    <div className="text-[11px] text-muted-foreground">Biblioteca compartilhada</div>
-                  </div>
-                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                </Link>
-                <Link to="/dashboard/personal/agenda" className="group flex items-center gap-3 rounded-lg border border-border bg-background/40 p-3 hover:border-primary/40">
-                  <div className="grid h-9 w-9 place-items-center rounded-md bg-primary/10 text-primary"><CalendarDays className="h-4 w-4" /></div>
-                  <div className="min-w-0 flex-1">
-                    <div className="text-sm font-semibold">Agenda da academia</div>
-                    <div className="text-[11px] text-muted-foreground">Eventos e turmas</div>
-                  </div>
-                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                </Link>
+              <div className="grid gap-3 p-3 sm:grid-cols-2">
+                {[
+                  { to: "/dashboard/personal/academia", icon: UsersIcon, title: "Equipe & convites", desc: "Convidar personais e ajustar papéis", key: "E" },
+                  { to: "/dashboard/personal/alunos", icon: Users, title: "Todos os alunos", desc: "Cadastros e contatos", key: "A" },
+                  { to: "/dashboard/personal/treinos", icon: Dumbbell, title: "Modelos de treino", desc: "Biblioteca compartilhada", key: "T" },
+                  { to: "/dashboard/personal/agenda", icon: CalendarDays, title: "Agenda da academia", desc: "Eventos e turmas", key: "G" },
+                ].map(({ to, icon: Icon, title, desc, key }) => (
+                  <Link key={to} to={to} className="group flex items-center gap-3 rounded-lg border border-border bg-background/40 p-3 hover:border-primary/40">
+                    <div className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-primary/15 text-primary">
+                      <Icon className="h-4 w-4" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="truncate text-sm font-semibold">{title}</div>
+                      <div className="truncate text-[11px] text-muted-foreground">{desc}</div>
+                    </div>
+                    <kbd className="grid h-7 w-7 shrink-0 place-items-center rounded-md border border-border bg-background/60 font-mono text-[11px] font-bold text-muted-foreground">{key}</kbd>
+                  </Link>
+                ))}
               </div>
             </section>
 
