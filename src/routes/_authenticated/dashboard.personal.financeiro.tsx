@@ -8,7 +8,9 @@ import {
   Users,
   Link as LinkIcon,
   FileText,
+  ArrowLeft,
 } from "lucide-react";
+import { useRouter } from "@tanstack/react-router";
 import { IconRail } from "@/components/IconRail";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 
