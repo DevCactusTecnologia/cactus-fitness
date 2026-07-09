@@ -322,10 +322,7 @@ function NextEventCard() {
   const d = new Date(`${event.event_date}T${event.event_time}`);
   const dateLabel = `${d.getDate()} de ${d.toLocaleDateString("pt-BR", { month: "long" })} às ${event.event_time.slice(0, 5)}`;
   return (
-    <Link
-      to="/dashboard/personal/agenda"
-      className="relative flex items-start gap-3 overflow-hidden rounded-xl border border-border bg-card p-5"
-    >
+    <div className="relative flex items-start gap-3 overflow-hidden rounded-xl border border-border bg-card p-5">
       <span className="absolute inset-y-3 left-0 w-1 rounded-r-full bg-amber-500" />
       <div className="min-w-0 flex-1 pl-2">
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -338,7 +335,7 @@ function NextEventCard() {
         </div>
       </div>
       <ChevronRight className="mt-1 h-4 w-4 shrink-0 text-muted-foreground" />
-    </Link>
+    </div>
   );
 }
 
@@ -567,7 +564,7 @@ function OwnerDashboard({ profile }: { profile: any }) {
                   { to: "/dashboard/personal/academia", icon: UsersIcon, title: "Equipe & convites", desc: "Convidar personais e ajustar papéis", key: "E" },
                   { to: "/dashboard/personal/alunos", icon: Users, title: "Todos os alunos", desc: "Cadastros e contatos", key: "A" },
                   { to: "/dashboard/personal/treinos", icon: Dumbbell, title: "Modelos de treino", desc: "Biblioteca compartilhada", key: "T" },
-                  { to: "/dashboard/personal/agenda", icon: CalendarDays, title: "Agenda da academia", desc: "Eventos e turmas", key: "G" },
+                  
                 ].map(({ to, icon: Icon, title, desc, key }) => (
                   <Link key={to} to={to} className="group flex items-center gap-3 rounded-lg border border-border bg-background/40 p-3 hover:border-primary/40">
                     <div className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-primary/15 text-primary">

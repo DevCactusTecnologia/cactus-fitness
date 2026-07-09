@@ -23,7 +23,6 @@ import { Route as AuthenticatedMeuTreinoTreinoIdRouteImport } from './routes/_au
 import { Route as AuthenticatedDashboardPersonalFinanceiroRouteImport } from './routes/_authenticated/dashboard.personal.financeiro'
 import { Route as AuthenticatedDashboardPersonalExerciciosRouteImport } from './routes/_authenticated/dashboard.personal.exercicios'
 import { Route as AuthenticatedDashboardPersonalDesafiosRouteImport } from './routes/_authenticated/dashboard.personal.desafios'
-import { Route as AuthenticatedDashboardPersonalAgendaRouteImport } from './routes/_authenticated/dashboard.personal.agenda'
 import { Route as AuthenticatedDashboardPersonalAcademiaRouteImport } from './routes/_authenticated/dashboard.personal.academia'
 import { Route as AuthenticatedAcademiaConviteTokenRouteImport } from './routes/_authenticated/academia.convite.$token'
 import { Route as AuthenticatedDashboardPersonalTreinosIndexRouteImport } from './routes/_authenticated/dashboard.personal.treinos.index'
@@ -110,12 +109,6 @@ const AuthenticatedDashboardPersonalDesafiosRoute =
   AuthenticatedDashboardPersonalDesafiosRouteImport.update({
     id: '/dashboard/personal/desafios',
     path: '/dashboard/personal/desafios',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedDashboardPersonalAgendaRoute =
-  AuthenticatedDashboardPersonalAgendaRouteImport.update({
-    id: '/dashboard/personal/agenda',
-    path: '/dashboard/personal/agenda',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedDashboardPersonalAcademiaRoute =
@@ -215,7 +208,6 @@ export interface FileRoutesByFullPath {
   '/treinos': typeof AuthenticatedTreinosRoute
   '/academia/convite/$token': typeof AuthenticatedAcademiaConviteTokenRoute
   '/dashboard/personal/academia': typeof AuthenticatedDashboardPersonalAcademiaRoute
-  '/dashboard/personal/agenda': typeof AuthenticatedDashboardPersonalAgendaRoute
   '/dashboard/personal/desafios': typeof AuthenticatedDashboardPersonalDesafiosRoute
   '/dashboard/personal/exercicios': typeof AuthenticatedDashboardPersonalExerciciosRoute
   '/dashboard/personal/financeiro': typeof AuthenticatedDashboardPersonalFinanceiroRoute
@@ -245,7 +237,6 @@ export interface FileRoutesByTo {
   '/': typeof AuthenticatedIndexRoute
   '/academia/convite/$token': typeof AuthenticatedAcademiaConviteTokenRoute
   '/dashboard/personal/academia': typeof AuthenticatedDashboardPersonalAcademiaRoute
-  '/dashboard/personal/agenda': typeof AuthenticatedDashboardPersonalAgendaRoute
   '/dashboard/personal/desafios': typeof AuthenticatedDashboardPersonalDesafiosRoute
   '/dashboard/personal/exercicios': typeof AuthenticatedDashboardPersonalExerciciosRoute
   '/dashboard/personal/financeiro': typeof AuthenticatedDashboardPersonalFinanceiroRoute
@@ -277,7 +268,6 @@ export interface FileRoutesById {
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/academia/convite/$token': typeof AuthenticatedAcademiaConviteTokenRoute
   '/_authenticated/dashboard/personal/academia': typeof AuthenticatedDashboardPersonalAcademiaRoute
-  '/_authenticated/dashboard/personal/agenda': typeof AuthenticatedDashboardPersonalAgendaRoute
   '/_authenticated/dashboard/personal/desafios': typeof AuthenticatedDashboardPersonalDesafiosRoute
   '/_authenticated/dashboard/personal/exercicios': typeof AuthenticatedDashboardPersonalExerciciosRoute
   '/_authenticated/dashboard/personal/financeiro': typeof AuthenticatedDashboardPersonalFinanceiroRoute
@@ -309,7 +299,6 @@ export interface FileRouteTypes {
     | '/treinos'
     | '/academia/convite/$token'
     | '/dashboard/personal/academia'
-    | '/dashboard/personal/agenda'
     | '/dashboard/personal/desafios'
     | '/dashboard/personal/exercicios'
     | '/dashboard/personal/financeiro'
@@ -339,7 +328,6 @@ export interface FileRouteTypes {
     | '/'
     | '/academia/convite/$token'
     | '/dashboard/personal/academia'
-    | '/dashboard/personal/agenda'
     | '/dashboard/personal/desafios'
     | '/dashboard/personal/exercicios'
     | '/dashboard/personal/financeiro'
@@ -370,7 +358,6 @@ export interface FileRouteTypes {
     | '/_authenticated/'
     | '/_authenticated/academia/convite/$token'
     | '/_authenticated/dashboard/personal/academia'
-    | '/_authenticated/dashboard/personal/agenda'
     | '/_authenticated/dashboard/personal/desafios'
     | '/_authenticated/dashboard/personal/exercicios'
     | '/_authenticated/dashboard/personal/financeiro'
@@ -493,13 +480,6 @@ declare module '@tanstack/react-router' {
       path: '/dashboard/personal/desafios'
       fullPath: '/dashboard/personal/desafios'
       preLoaderRoute: typeof AuthenticatedDashboardPersonalDesafiosRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/dashboard/personal/agenda': {
-      id: '/_authenticated/dashboard/personal/agenda'
-      path: '/dashboard/personal/agenda'
-      fullPath: '/dashboard/personal/agenda'
-      preLoaderRoute: typeof AuthenticatedDashboardPersonalAgendaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/dashboard/personal/academia': {
@@ -627,7 +607,6 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
   AuthenticatedAcademiaConviteTokenRoute: typeof AuthenticatedAcademiaConviteTokenRoute
   AuthenticatedDashboardPersonalAcademiaRoute: typeof AuthenticatedDashboardPersonalAcademiaRoute
-  AuthenticatedDashboardPersonalAgendaRoute: typeof AuthenticatedDashboardPersonalAgendaRoute
   AuthenticatedDashboardPersonalDesafiosRoute: typeof AuthenticatedDashboardPersonalDesafiosRoute
   AuthenticatedDashboardPersonalExerciciosRoute: typeof AuthenticatedDashboardPersonalExerciciosRoute
   AuthenticatedDashboardPersonalFinanceiroRoute: typeof AuthenticatedDashboardPersonalFinanceiroRoute
@@ -657,8 +636,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
     AuthenticatedAcademiaConviteTokenRoute,
   AuthenticatedDashboardPersonalAcademiaRoute:
     AuthenticatedDashboardPersonalAcademiaRoute,
-  AuthenticatedDashboardPersonalAgendaRoute:
-    AuthenticatedDashboardPersonalAgendaRoute,
   AuthenticatedDashboardPersonalDesafiosRoute:
     AuthenticatedDashboardPersonalDesafiosRoute,
   AuthenticatedDashboardPersonalExerciciosRoute:
