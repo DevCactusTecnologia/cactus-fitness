@@ -244,10 +244,10 @@ function PlanosTab() {
           className="w-full p-4 flex items-center justify-between text-left active:scale-[0.99] transition-transform"
         >
           <div className="flex-1 min-w-0">
-            <p className="font-display font-bold text-base truncate">Forte</p>
+            <p className="font-display font-bold text-base truncate">{plano.nome}</p>
             <div className="flex items-center gap-3 mt-0.5">
               <span className="text-sm text-primary font-semibold">
-                R$ 60,00<span className="text-xs text-muted-foreground font-normal">/mês</span>
+                R$ {plano.valor}<span className="text-xs text-muted-foreground font-normal">/{periodoLabel[plano.periodo] ?? plano.periodo}</span>
               </span>
               <span className="text-xs text-muted-foreground flex items-center gap-1">
                 <Users className="h-3 w-3" /> 1
