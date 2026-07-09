@@ -322,10 +322,7 @@ function NextEventCard() {
   const d = new Date(`${event.event_date}T${event.event_time}`);
   const dateLabel = `${d.getDate()} de ${d.toLocaleDateString("pt-BR", { month: "long" })} às ${event.event_time.slice(0, 5)}`;
   return (
-    <Link
-      to="/dashboard/personal/agenda"
-      className="relative flex items-start gap-3 overflow-hidden rounded-xl border border-border bg-card p-5"
-    >
+    <div className="relative flex items-start gap-3 overflow-hidden rounded-xl border border-border bg-card p-5">
       <span className="absolute inset-y-3 left-0 w-1 rounded-r-full bg-amber-500" />
       <div className="min-w-0 flex-1 pl-2">
         <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -338,7 +335,7 @@ function NextEventCard() {
         </div>
       </div>
       <ChevronRight className="mt-1 h-4 w-4 shrink-0 text-muted-foreground" />
-    </Link>
+    </div>
   );
 }
 
