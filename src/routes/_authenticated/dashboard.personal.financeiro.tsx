@@ -5,14 +5,38 @@ import {
   Plus,
   ArrowDown,
   ChevronDown,
+  ChevronUp,
   Users,
   Link as LinkIcon,
   FileText,
   ArrowLeft,
+  Pencil,
+  XCircle,
+  History,
+  Calendar,
+  Receipt,
+  UserMinus,
 } from "lucide-react";
 import { useRouter } from "@tanstack/react-router";
 import { IconRail } from "@/components/IconRail";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
 
 export const Route = createFileRoute("/_authenticated/dashboard/personal/financeiro")({
   head: () => ({
