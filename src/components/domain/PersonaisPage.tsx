@@ -55,10 +55,9 @@ type TabKey = "todos" | "personais" | "equipe";
 export function PersonaisPage({ scope }: { scope: Scope }) {
   const [q, setQ] = useState("");
   const [tab, setTab] = useState<TabKey>("todos");
+  const [openCreate, setOpenCreate] = useState(false);
 
-  // Gestão de equipe/convites vive em /dashboard/personal/academia (compartilhada).
-  // TODO(lote 6): quando existir /dashboard/academia/configuracoes, apontar por scope.
-  const teamMgmtTo = "/dashboard/personal/academia";
+  const teamMgmtTo = scope === "academia" ? "/dashboard/academia/configuracoes" : "/dashboard/personal/academia";
 
   const { data: rows = [], isLoading } = useQuery({
     queryKey: ["personais"],
