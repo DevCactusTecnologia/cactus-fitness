@@ -531,8 +531,9 @@ function AcademiaHome() {
   );
 }
 
-function PersonalAvatar({ name, avatarRef }: { userId: string; name: string; avatarRef: string | null }) {
+function PersonalAvatar({ userId, name, avatarRef }: { userId: string; name: string; avatarRef: string | null }) {
   const url = useAvatarUrl(avatarRef);
+  const color = colorForId(userId);
   const initials = name
     .split(" ")
     .filter(Boolean)
@@ -543,7 +544,7 @@ function PersonalAvatar({ name, avatarRef }: { userId: string; name: string; ava
   return (
     <div
       className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-full text-xs font-bold font-display ring-2 ring-primary"
-      style={url ? undefined : { backgroundColor: "rgb(244, 63, 94)", color: "#fff" }}
+      style={url ? undefined : { backgroundColor: color.bg, color: color.fg }}
     >
       {url ? (
         <img src={url} alt={name} className="h-full w-full object-cover" />
