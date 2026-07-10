@@ -1,4 +1,4 @@
-import { createFileRoute, notFound, Link } from "@tanstack/react-router";
+import { createFileRoute, notFound, Link, useParams } from "@tanstack/react-router";
 import { useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -68,8 +68,8 @@ function formatDate(iso: string) {
   return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" });
 }
 
-function AvaliacaoPage() {
-  const { avaliacaoId } = Route.useParams();
+export function AvaliacaoPage() {
+  const { avaliacaoId } = useParams({ strict: false }) as { avaliacaoId: string };
   const { data, isLoading } = useAvaliacao(avaliacaoId);
 
   if (isLoading || !data) {
@@ -98,14 +98,15 @@ function AvaliacaoPage() {
             <button className="inline-flex h-9 items-center gap-1.5 rounded-full border border-border bg-card/60 px-3 text-sm font-semibold hover:bg-accent">
               <Share2 className="h-4 w-4" /> Compartilhar
             </button>
-            <Link
-              to="/dashboard/personal/avaliacoes/$alunoId"
-              params={{ alunoId: data.aluno_id }}
+            <button
+              type="button"
+              onClick={() => window.history.back()}
               aria-label="Fechar"
               className="grid h-9 w-9 place-items-center rounded-full border border-border bg-card/60 text-muted-foreground hover:bg-accent hover:text-foreground"
             >
               <X className="h-4 w-4" />
-            </Link>
+            </button>
+
           </div>
         </header>
 
