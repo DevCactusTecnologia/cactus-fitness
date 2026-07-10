@@ -218,8 +218,8 @@ function WalletCard() {
         <Wallet className="h-5 w-5" strokeWidth={1.75} />
       </div>
       <div className="min-w-0 flex-1 font-body">
-        <div className="truncate text-sm text-muted-foreground">Receita do mês</div>
-        <div className="truncate text-2xl font-extrabold leading-tight text-primary font-display">R$ 0,00</div>
+        <div className="truncate text-xs text-muted-foreground">Receita do mês</div>
+        <div className="truncate text-lg font-extrabold leading-tight text-primary font-display">R$ 0,00</div>
       </div>
       <Eye className="h-5 w-5 shrink-0 text-muted-foreground" strokeWidth={1.75} />
       <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground" strokeWidth={1.75} />
