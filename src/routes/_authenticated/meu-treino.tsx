@@ -32,6 +32,7 @@ export const Route = createFileRoute("/_authenticated/meu-treino")({
 const RAIL_ITEMS = [
   { icon: LayoutDashboard, label: "Início", to: "/meu-treino" as const },
   { icon: Dumbbell, label: "Treinos", to: "/treinos" as const },
+  { icon: TrendingUp, label: "Meu Progresso", to: "/meu-progresso" as const },
   { icon: Trophy, label: "Desafios", to: "/desafios" as const },
   { icon: HeartPulse, label: "Avaliações", to: "/avaliacoes" as const },
 ];
