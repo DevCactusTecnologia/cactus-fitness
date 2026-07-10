@@ -3,6 +3,7 @@ import { useState } from "react";
 import { z } from "zod";
 import { Loader2, Eye, EyeOff, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { getPrimaryClientRole, type AppRole } from "@/lib/client-roles";
 import gymBg from "@/assets/gym-background.png.asset.json";
 import logoUrl from "@/assets/cactus-logo.png";
 
@@ -163,8 +164,20 @@ function AuthForm({
         navigate({ to: "/onboarding" });
         return;
       }
-      const isAluno = roles.some((r) => r.role === "aluno");
-      navigate({ to: isAluno ? "/meu-treino" : "/" });
+      const role = getPrimaryClientRole(roles.map((r) => r.role as AppRole));
+      if (role === "aluno") {
+        navigate({ to: "/meu-treino" });
+        return;
+      }
+      if (role === "owner" || role === "staff") {
+        navigate({ to: "/dashboard/academia" });
+        return;
+      }
+      if (role === "personal") {
+        navigate({ to: "/dashboard/personal" });
+        return;
+      }
+      navigate({ to: "/onboarding" });
     } catch {
       navigate({ to: "/" });
     }

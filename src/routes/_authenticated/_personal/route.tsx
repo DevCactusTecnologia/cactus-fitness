@@ -1,9 +1,12 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
-import { getMyRoles } from "@/lib/roles.functions";
+import { getCurrentSessionRoles } from "@/lib/client-roles";
 
 export const Route = createFileRoute("/_authenticated/_personal")({
-  beforeLoad: async () => {
-    const { roles } = await getMyRoles();
+  beforeLoad: async ({ location }) => {
+    const { user, roles } = await getCurrentSessionRoles();
+    if (!user) {
+      throw redirect({ to: "/login", search: { redirect: location.href } });
+    }
     if (roles.length === 0) {
       throw redirect({ to: "/onboarding" });
     }
