@@ -216,15 +216,18 @@ export function AlunosPage({ scope }: { scope: Scope }) {
                 Alunos
               </h1>
             </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setOpenNew(true)}
-                className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.35)] hover:brightness-110"
-              >
-                <Plus className="h-4 w-4" /> Novo Aluno
-              </button>
-            </div>
+            {scope === "academia" && (
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setOpenNew(true)}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.35)] hover:brightness-110"
+                >
+                  <Plus className="h-4 w-4" /> Novo Aluno
+                </button>
+              </div>
+            )}
+
           </div>
         </div>
 

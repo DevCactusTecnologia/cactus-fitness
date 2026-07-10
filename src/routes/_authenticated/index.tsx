@@ -792,14 +792,6 @@ function Dashboard() {
               </div>
 
 
-              <div className="grid min-w-0 grid-cols-1 gap-3">
-
-                <ActionButton
-                  icon={UserPlus}
-                  label="Adicionar Aluno"
-                  onClick={() => navigate({ to: "/dashboard/personal/alunos", search: { new: true } })}
-                />
-              </div>
               <NextEventCard />
               <MobilePulseCard />
 
