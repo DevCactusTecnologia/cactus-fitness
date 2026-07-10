@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { BarChart3, FileText, Palette, Upload, Check, Loader2 } from "lucide-react";
+import { BarChart3, FileText, Palette, Upload, Check, Loader2, Camera } from "lucide-react";
 import { IconRail } from "@/components/IconRail";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { Label } from "@/components/ui/label";
@@ -9,6 +9,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useCurrentUser, initialsFromName } from "@/lib/auth";
+import { useAvatarUrl } from "@/hooks/useAvatarUrl";
+import { colorForId } from "@/lib/avatar-color";
+import { AvatarCropDialog } from "@/components/AvatarCropDialog";
 
 export const Route = createFileRoute("/_authenticated/perfil")({
   head: () => ({
