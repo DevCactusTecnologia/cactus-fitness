@@ -426,12 +426,14 @@ function AcademiaHome() {
             <div className="space-y-4">
               <MobileGreetingCard
                 name={name}
-                initials={initials}
                 alunos={alunosAtivos}
                 treinos={o?.treinosAtivos ?? 0}
                 avaliacoes={o?.avaliacoes ?? 0}
-                novos={o?.novosAlunos30d ?? 0}
+                novosAlunos={o?.novosAlunos30d ?? 0}
+                novosTreinos={o?.novosTreinos30d ?? 0}
+                novasAvaliacoes={o?.novasAvaliacoes30d ?? 0}
               />
+
 
               <WalletCard />
 
