@@ -270,7 +270,7 @@ export function PersonalDetailPage({ scope }: { scope: Scope }) {
                   <div className="space-y-1">
                     <Row icon={BadgeCheck} label="CREF" value={p.cref} />
                     <Row icon={Phone} label="Telefone" value={p.phone} />
-                    <Row icon={Mail} label="E-mail" value={null} />
+                    <Row icon={Mail} label="E-mail" value={emailData?.email ?? null} />
                     <Row
                       icon={Calendar}
                       label="Membro desde"
