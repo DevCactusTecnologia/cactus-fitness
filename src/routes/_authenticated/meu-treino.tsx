@@ -479,17 +479,17 @@ function MeuTreinoPage() {
           </section>
 
           {/* Grid de menu */}
-          <section className="grid grid-cols-2 gap-3">
+          <section className="grid grid-cols-2 gap-2">
             {MENU_ITEMS.map(({ icon: Icon, label }) => (
               <button
                 key={label}
                 type="button"
-                className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4 text-left transition hover:border-primary/60 hover:bg-accent/40"
+                className="flex items-center gap-2 rounded-xl border border-border bg-card p-2.5 text-left transition hover:border-primary/60 hover:bg-accent/40"
               >
-                <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-primary/10 text-primary">
-                  <Icon className="h-5 w-5" strokeWidth={1.75} />
+                <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
+                  <Icon className="h-4 w-4" strokeWidth={1.75} />
                 </div>
-                <span className="font-display text-base font-semibold">{label}</span>
+                <span className="font-display text-sm font-semibold">{label}</span>
               </button>
             ))}
           </section>
