@@ -66,12 +66,13 @@ function useOwnerOverview() {
       alunos.forEach((a: any) => { byPersonal[a.personal_id] = (byPersonal[a.personal_id] ?? 0) + 1; });
       const personalIds = personais.map((p: any) => p.user_id);
       const { data: profs } = personalIds.length
-        ? await supabase.from("profiles").select("id, full_name").in("id", personalIds)
+        ? await supabase.from("profiles").select("id, full_name, avatar_url").in("id", personalIds)
         : { data: [] as any[] };
       const profById = new Map((profs ?? []).map((p: any) => [p.id, p]));
       const personaisList = personais.map((p: any) => ({
         user_id: p.user_id,
         full_name: profById.get(p.user_id)?.full_name ?? "Sem nome",
+        avatar_url: profById.get(p.user_id)?.avatar_url ?? null,
         role: p.role,
         alunos: byPersonal[p.user_id] ?? 0,
       })).sort((a, b) => b.alunos - a.alunos);
@@ -430,9 +431,7 @@ function AcademiaHome() {
                       return (
                         <li key={p.user_id} className="px-4 py-3">
                           <div className="flex items-center gap-3">
-                            <div className="grid h-9 w-9 place-items-center rounded-full bg-primary/15 text-xs font-bold text-primary">
-                              {p.full_name.slice(0, 2).toUpperCase()}
-                            </div>
+                            <PersonalAvatar userId={p.user_id} name={p.full_name} avatarRef={p.avatar_url} />
                             <div className="min-w-0 flex-1">
                               <div className="flex items-center gap-2">
                                 <div className="truncate text-sm font-semibold">{p.full_name}</div>
@@ -528,6 +527,30 @@ function AcademiaHome() {
 
       </main>
       <MobileBottomNav scope="academia" />
+    </div>
+  );
+}
+
+function PersonalAvatar({ userId, name, avatarRef }: { userId: string; name: string; avatarRef: string | null }) {
+  const url = useAvatarUrl(avatarRef);
+  const color = colorForId(userId);
+  const initials = name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((p) => p[0])
+    .join("")
+    .toUpperCase() || "?";
+  return (
+    <div
+      className="grid h-9 w-9 shrink-0 place-items-center overflow-hidden rounded-full text-xs font-bold ring-2 ring-primary"
+      style={url ? undefined : { backgroundColor: color.bg, color: color.fg }}
+    >
+      {url ? (
+        <img src={url} alt={name} className="h-full w-full object-cover" />
+      ) : (
+        initials
+      )}
     </div>
   );
 }
