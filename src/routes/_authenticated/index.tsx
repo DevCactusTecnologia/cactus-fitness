@@ -800,7 +800,7 @@ function Dashboard() {
                   <QuickTile icon={Users} label="Alunos" to="/dashboard/personal/alunos" />
                   <QuickTile icon={HeartPulse} label="Avaliações" to="/dashboard/personal/avaliacoes" />
                   <QuickTile icon={Dumbbell} label="Treinos" to="/dashboard/personal/treinos" />
-                  <QuickTile icon={Dumbbell} label="Exercícios" to="/dashboard/personal/exercicios" />
+                  
                   <QuickTile icon={Trophy} label="Desafios" to="/dashboard/personal/desafios" />
                 </div>
               </div>
