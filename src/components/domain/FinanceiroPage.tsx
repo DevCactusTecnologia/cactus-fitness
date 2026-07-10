@@ -152,7 +152,7 @@ export function FinanceiroPage({ scope }: { scope: Scope }) {
           </div>
         </main>
       </div>
-      <MobileBottomNav />
+      <MobileBottomNav scope={scope} />
     </div>
   );
 }
