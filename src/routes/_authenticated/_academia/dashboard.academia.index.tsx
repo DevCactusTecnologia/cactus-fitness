@@ -463,7 +463,7 @@ function AcademiaHome() {
 
               <MobilePulseCard novosAlunos={o?.novosAlunos30d ?? 0} />
 
-              <div className="rounded-[1.55rem] border border-border bg-card p-4 shadow-[var(--shadow-mobile-card)]">
+              <div className="rounded-xl border border-border bg-card p-4 md:p-6">
                 <div className="grid grid-cols-4 gap-3">
                   {[
                     { icon: UsersIcon, label: "Equipe", to: "/dashboard/academia/personais" },
