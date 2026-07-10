@@ -114,6 +114,12 @@ function Row({
 export function PersonalDetailPage({ scope }: { scope: Scope }) {
   const { personalId } = useParams({ strict: false }) as { personalId: string };
   const { data: p, isLoading } = usePersonal(personalId);
+  const getEmailFn = useServerFn(getPersonalEmail);
+  const { data: emailData } = useQuery({
+    queryKey: ["personal-email", personalId],
+    queryFn: () => getEmailFn({ data: { personalId } }),
+    staleTime: 60_000,
+  });
   const [tab, setTab] = useState(0);
   const [editOpen, setEditOpen] = useState(false);
   const [passOpen, setPassOpen] = useState(false);
