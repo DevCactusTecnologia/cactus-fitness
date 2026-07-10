@@ -143,12 +143,13 @@ export function PersonaisPage({ scope }: { scope: Scope }) {
               <h1 className="text-xl font-bold tracking-tight font-display sm:text-2xl">Personais</h1>
             </div>
             <div className="flex flex-wrap items-center gap-2">
-              <Link
-                to={teamMgmtTo}
+              <button
+                type="button"
+                onClick={() => setOpenCreate(true)}
                 className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.35)] hover:brightness-110"
               >
-                <UserPlus className="h-4 w-4" /> Convidar Personal
-              </Link>
+                <UserPlus className="h-4 w-4" /> Cadastrar Personal
+              </button>
             </div>
           </div>
         </div>
@@ -171,8 +172,8 @@ export function PersonaisPage({ scope }: { scope: Scope }) {
               <InfoCard icon={Activity} title="Distribuição de alunos" desc="Veja quantos alunos cada personal atende hoje." />
               <InfoCard
                 icon={UsersIcon}
-                title="Equipe & convites"
-                desc="Convide novos personais e gerencie papéis da academia."
+                title="Equipe"
+                desc="Gerencie membros e papéis da academia."
                 to={teamMgmtTo}
               />
             </div>
