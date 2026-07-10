@@ -431,9 +431,7 @@ function AcademiaHome() {
                       return (
                         <li key={p.user_id} className="px-4 py-3">
                           <div className="flex items-center gap-3">
-                            <div className="grid h-9 w-9 place-items-center rounded-full bg-primary/15 text-xs font-bold text-primary">
-                              {p.full_name.slice(0, 2).toUpperCase()}
-                            </div>
+                            <PersonalAvatar userId={p.user_id} name={p.full_name} avatarRef={p.avatar_url} />
                             <div className="min-w-0 flex-1">
                               <div className="flex items-center gap-2">
                                 <div className="truncate text-sm font-semibold">{p.full_name}</div>
