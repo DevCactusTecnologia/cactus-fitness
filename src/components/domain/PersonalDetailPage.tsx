@@ -258,16 +258,54 @@ export function PersonalDetailPage({ scope }: { scope: Scope }) {
               )}
 
               {tab === 1 && (
-                <div className="space-y-1">
-                  <Row icon={BadgeCheck} label="CREF" value={p.cref} />
-                  <Row icon={Phone} label="Telefone" value={p.phone} />
-                  <Row icon={Mail} label="E-mail" value={null} />
-                  <Row
-                    icon={Calendar}
-                    label="Membro desde"
-                    value={new Date(p.member_since).toLocaleDateString("pt-BR")}
-                  />
-                </div>
+                <>
+                  <div className="space-y-1">
+                    <Row icon={BadgeCheck} label="CREF" value={p.cref} />
+                    <Row icon={Phone} label="Telefone" value={p.phone} />
+                    <Row icon={Mail} label="E-mail" value={null} />
+                    <Row
+                      icon={Calendar}
+                      label="Membro desde"
+                      value={new Date(p.member_since).toLocaleDateString("pt-BR")}
+                    />
+                  </div>
+
+                  <div className="mt-6 space-y-4 border-t border-border pt-4">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <button
+                        onClick={() => setEditOpen(true)}
+                        className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3.5 py-2 text-sm font-semibold hover:bg-accent"
+                      >
+                        <Pencil className="h-4 w-4" /> Editar dados
+                      </button>
+                      {canManage && (
+                        <>
+                          <button
+                            onClick={() => setPassOpen(true)}
+                            className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-semibold text-muted-foreground transition hover:bg-muted"
+                          >
+                            <KeyRound className="h-4 w-4" /> Alterar senha
+                          </button>
+                          <button
+                            onClick={() => setToggleOpen(true)}
+                            className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-semibold text-[oklch(0.72_0.18_45)] transition hover:bg-[oklch(0.72_0.18_45)]/10"
+                          >
+                            <Lock className="h-4 w-4" /> {p.is_active ? "Desativar personal" : "Ativar personal"}
+                          </button>
+                          <button
+                            onClick={() => setDeleteOpen(true)}
+                            className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-semibold text-[oklch(0.68_0.22_25)] transition hover:bg-[oklch(0.68_0.22_25)]/10"
+                          >
+                            <Trash2 className="h-4 w-4" /> Excluir personal
+                          </button>
+                        </>
+                      )}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      Membro desde {new Date(p.member_since).toLocaleDateString("pt-BR")}
+                    </div>
+                  </div>
+                </>
               )}
             </div>
           </div>
