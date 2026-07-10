@@ -10,6 +10,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { IconRail } from "@/components/IconRail";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { useCurrentUser, firstName, initialsFromName } from "@/lib/auth";
+import { useAvatarUrl } from "@/hooks/useAvatarUrl";
+import { colorForId } from "@/lib/avatar-color";
 import logoUrl from "@/assets/cactus-logo.png";
 
 export const Route = createFileRoute("/_authenticated/_academia/dashboard/academia/")({
