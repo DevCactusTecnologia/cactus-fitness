@@ -317,6 +317,8 @@ export function PersonalDetailPage({ scope }: { scope: Scope }) {
 
       <EditProfileDialog personal={p} open={editOpen} onOpenChange={setEditOpen} />
       <ChangePasswordDialog personal={p} open={passOpen} onOpenChange={setPassOpen} />
+      <ToggleActiveDialog personal={p} open={toggleOpen} onOpenChange={setToggleOpen} />
+      <DeletePersonalDialog personal={p} scope={scope} open={deleteOpen} onOpenChange={setDeleteOpen} />
     </div>
   );
 }
