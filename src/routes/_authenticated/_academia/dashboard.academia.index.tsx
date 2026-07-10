@@ -48,11 +48,13 @@ function useOwnerOverview() {
         supabase.from("organizations").select("id, name").eq("id", orgId).maybeSingle(),
         supabase.from("organization_members").select("id, user_id, role").eq("organization_id", orgId),
         supabase.from("alunos").select("id, personal_id, is_active, created_at").eq("organization_id", orgId),
-        supabase.from("workout_templates").select("id", { count: "exact", head: true }),
-        supabase.from("avaliacoes").select("id", { count: "exact", head: true }),
+        supabase.from("workout_templates").select("id, created_at"),
+        supabase.from("avaliacoes").select("id, created_at"),
       ]);
       const members = membersRes.data ?? [];
       const alunos = alunosRes.data ?? [];
+      const treinos = treinosRes.data ?? [];
+      const avaliacoes = avaliacoesRes.data ?? [];
       const personais = members.filter((m: any) => m.role === "owner" || m.role === "personal");
       const equipe = members.filter((m: any) => m.role === "staff");
       const ativos = alunos.filter((a: any) => a.is_active).length;
@@ -69,7 +71,10 @@ function useOwnerOverview() {
         role: p.role,
         alunos: byPersonal[p.user_id] ?? 0,
       })).sort((a, b) => b.alunos - a.alunos);
-      const novosAlunos30d = alunos.filter((a: any) => new Date(a.created_at) > new Date(Date.now() - 30 * 864e5)).length;
+      const cutoff = Date.now() - 30 * 864e5;
+      const novosAlunos30d = alunos.filter((a: any) => new Date(a.created_at).getTime() > cutoff).length;
+      const novosTreinos30d = treinos.filter((t: any) => t.created_at && new Date(t.created_at).getTime() > cutoff).length;
+      const novasAvaliacoes30d = avaliacoes.filter((a: any) => a.created_at && new Date(a.created_at).getTime() > cutoff).length;
       return {
         orgName: orgRes.data?.name ?? "Minha Academia",
         totalPersonais: personais.length,
@@ -77,13 +82,16 @@ function useOwnerOverview() {
         totalAlunos: alunos.length,
         ativos,
         novosAlunos30d,
-        treinosAtivos: treinosRes.count ?? 0,
-        avaliacoes: avaliacoesRes.count ?? 0,
+        novosTreinos30d,
+        novasAvaliacoes30d,
+        treinosAtivos: treinos.length,
+        avaliacoes: avaliacoes.length,
         personaisList,
       };
     },
   });
 }
+
 
 function Sparkline({ points, up = true }: { points: number[]; up?: boolean }) {
   const w = 90, h = 32, pad = 2;
