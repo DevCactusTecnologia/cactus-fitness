@@ -66,12 +66,13 @@ function useOwnerOverview() {
       alunos.forEach((a: any) => { byPersonal[a.personal_id] = (byPersonal[a.personal_id] ?? 0) + 1; });
       const personalIds = personais.map((p: any) => p.user_id);
       const { data: profs } = personalIds.length
-        ? await supabase.from("profiles").select("id, full_name").in("id", personalIds)
+        ? await supabase.from("profiles").select("id, full_name, avatar_url").in("id", personalIds)
         : { data: [] as any[] };
       const profById = new Map((profs ?? []).map((p: any) => [p.id, p]));
       const personaisList = personais.map((p: any) => ({
         user_id: p.user_id,
         full_name: profById.get(p.user_id)?.full_name ?? "Sem nome",
+        avatar_url: profById.get(p.user_id)?.avatar_url ?? null,
         role: p.role,
         alunos: byPersonal[p.user_id] ?? 0,
       })).sort((a, b) => b.alunos - a.alunos);
