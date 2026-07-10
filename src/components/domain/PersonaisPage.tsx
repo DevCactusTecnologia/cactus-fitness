@@ -184,8 +184,8 @@ export function PersonaisPage({ scope }: { scope: Scope }) {
             <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
               <div className="flex flex-wrap items-center gap-1 rounded-full border border-border bg-card p-1">
                 <TabBtn label="Todos" count={counts.todos} active={tab === "todos"} onClick={() => setTab("todos")} />
-                <TabBtn label="Personais" count={counts.personais} active={tab === "personais"} onClick={() => setTab("personais")} />
-                <TabBtn label="Equipe" count={counts.equipe} active={tab === "equipe"} onClick={() => setTab("equipe")} />
+                <TabBtn label="Ativos" count={counts.ativos} active={tab === "ativos"} onClick={() => setTab("ativos")} />
+                <TabBtn label="Inativos" count={counts.inativos} active={tab === "inativos"} onClick={() => setTab("inativos")} />
               </div>
               <button className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-sm hover:bg-accent">
                 <ArrowUpDown className="h-4 w-4" /> Mais recentes
