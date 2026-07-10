@@ -117,6 +117,8 @@ export function PersonalDetailPage({ scope }: { scope: Scope }) {
   const [tab, setTab] = useState(0);
   const [editOpen, setEditOpen] = useState(false);
   const [passOpen, setPassOpen] = useState(false);
+  const [toggleOpen, setToggleOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   const alunosBase = scope === "academia" ? "/dashboard/academia/alunos" : "/dashboard/personal/alunos";
 
