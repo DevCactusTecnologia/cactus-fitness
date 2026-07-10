@@ -29,9 +29,11 @@ export const Route = createFileRoute("/_authenticated/")({
       if (role === "aluno") {
         throw redirect({ to: "/dashboard/aluno" });
       }
-      // owner/staff → academia (once ported). For now personal/owner stay on this page.
-      if (role === "staff") {
+      if (role === "owner" || role === "staff") {
         throw redirect({ to: "/dashboard/academia" });
+      }
+      if (role === "personal") {
+        throw redirect({ to: "/dashboard/personal" });
       }
       if (!role) {
         throw redirect({ to: "/onboarding" });
