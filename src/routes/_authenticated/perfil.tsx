@@ -559,6 +559,13 @@ function PerfilPage() {
         </div>
       </div>
       <MobileBottomNav />
+      <AvatarCropDialog
+        open={!!cropSrc}
+        imageSrc={cropSrc}
+        onCancel={() => setCropSrc(null)}
+        onConfirm={handleAvatarConfirm}
+        saving={uploadingAvatar}
+      />
     </div>
   );
 }
