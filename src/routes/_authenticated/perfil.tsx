@@ -142,6 +142,40 @@ function PerfilPage() {
   const [sections, setSections] = useState<Record<string, boolean>>(DEFAULTS.sections);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
 
+  const { profile } = useCurrentUser();
+  const avatarUrl = useAvatarUrl(profile?.avatar_url);
+  const initials = initialsFromName(profile?.full_name, profile?.email);
+  const avatarColor = colorForId(profile?.id ?? "user");
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleAvatarPick = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file || !file.type.startsWith("image/")) return;
+    if (file.size > 5 * 1024 * 1024) { toast.error("Arquivo maior que 5MB"); return; }
+    const reader = new FileReader();
+    reader.onload = () => setCropSrc(typeof reader.result === "string" ? reader.result : null);
+    reader.readAsDataURL(file);
+  };
+
+  const handleAvatarConfirm = async (blob: Blob) => {
+    if (!profile?.id) return;
+    setUploadingAvatar(true);
+    const path = `${profile.id}/avatar-${Date.now()}.jpg`;
+    const { error: upErr } = await supabase.storage
+      .from("avatars")
+      .upload(path, blob, { upsert: true, contentType: "image/jpeg" });
+    if (upErr) { setUploadingAvatar(false); toast.error("Falha ao enviar imagem"); return; }
+    const { error: dbErr } = await supabase.from("profiles").update({ avatar_url: path }).eq("id", profile.id);
+    setUploadingAvatar(false);
+    setCropSrc(null);
+    if (dbErr) { toast.error(dbErr.message); return; }
+    await qc.invalidateQueries({ queryKey: ["current-user-profile", profile.id] });
+    toast.success("Foto atualizada");
+  };
+
   const colorPending = primaryColor.toLowerCase() !== savedColor.toLowerCase();
 
   useEffect(() => {
