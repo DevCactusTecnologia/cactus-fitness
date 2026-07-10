@@ -3,8 +3,9 @@ import { useQuery } from "@tanstack/react-query";
 import {
   Home, UserPlus, Users as UsersIcon, Users, Dumbbell, Crown, ArrowRight,
   TrendingUp, Wallet, HeartPulse, Trophy, Eye, ChevronRight, ChevronDown, Activity,
-  Link2,
+  Link2, Lock, Pencil,
 } from "lucide-react";
+
 import { supabase } from "@/integrations/supabase/client";
 import { IconRail } from "@/components/IconRail";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
