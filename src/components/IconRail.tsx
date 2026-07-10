@@ -39,6 +39,8 @@ const NAV_BY_SCOPE: Record<Scope, NavItem[]> = {
     { icon: Shield, label: "Personais", to: "/dashboard/academia/personais" as string, match: (p) => p.startsWith("/dashboard/academia/personais") },
     { icon: Dumbbell, label: "Treinos", to: "/dashboard/academia/treinos" as string, match: (p) => p.startsWith("/dashboard/academia/treinos") },
     { icon: Flame, label: "Exercícios", to: "/dashboard/academia/exercicios" as string, match: (p) => p.startsWith("/dashboard/academia/exercicios") },
+    { icon: HeartPulse, label: "Avaliações", to: "/dashboard/academia/avaliacoes" as string, match: (p) => p.startsWith("/dashboard/academia/avaliacoes") },
+    { icon: Trophy, label: "Desafios", to: "/dashboard/academia/desafios" as string, match: (p) => p.startsWith("/dashboard/academia/desafios") },
     { icon: Wallet, label: "Financeiro", to: "/dashboard/academia/financeiro" as string, match: (p) => p.startsWith("/dashboard/academia/financeiro") },
     { icon: Building2, label: "Configurações", to: "/dashboard/academia/configuracoes" as string, match: (p) => p.startsWith("/dashboard/academia/configuracoes") },
   ],
