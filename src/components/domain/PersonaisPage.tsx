@@ -1,15 +1,18 @@
 import { Link } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import {
   UserPlus, Shield, Search, ChevronRight, ChevronLeft, ChevronDown,
-  ArrowUpDown, Activity, Users as UsersIcon, Loader2, Crown,
+  ArrowUpDown, Activity, Users as UsersIcon, Loader2, Crown, X,
 } from "lucide-react";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { IconRail } from "@/components/IconRail";
 import { initialsFromName } from "@/lib/auth";
 import { colorForId } from "@/lib/avatar-color";
+import { createPersonal } from "@/lib/academia-config.functions";
 import type { Scope } from "@/lib/scope";
 
 /* ---------- Info card ---------- */
