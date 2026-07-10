@@ -261,7 +261,7 @@ function MobilePulseCard({ novosAlunos }: { novosAlunos: number }) {
           </span>
         )}
       </div>
-      <div className="min-w-0 flex-1">
+      <div className="min-w-0 flex-1 font-body">
         <div className="truncate text-sm font-extrabold text-foreground sm:text-base">pulso da academia</div>
         <div className="truncate text-xs text-muted-foreground sm:text-sm">{subtitle}</div>
       </div>
