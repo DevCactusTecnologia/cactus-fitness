@@ -195,25 +195,6 @@ export function PersonalDetailPage({ scope }: { scope: Scope }) {
                     <UsersIcon className="h-3 w-3" /> {p.alunos.length} {p.alunos.length === 1 ? "aluno" : "alunos"}
                   </span>
                 </div>
-
-                <div className="mt-3 flex flex-wrap items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setEditOpen(true)}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-xs font-medium transition-colors hover:bg-accent"
-                  >
-                    <Pencil className="h-3.5 w-3.5" /> Editar perfil
-                  </button>
-                  {canManage && (
-                    <button
-                      type="button"
-                      onClick={() => setPassOpen(true)}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-xs font-medium transition-colors hover:bg-accent"
-                    >
-                      <KeyRound className="h-3.5 w-3.5" /> Alterar senha
-                    </button>
-                  )}
-                </div>
               </div>
             </div>
           </div>
