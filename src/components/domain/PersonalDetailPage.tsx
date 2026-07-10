@@ -21,7 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import {
-  updatePersonalProfile, changePersonalPassword, togglePersonalActive,
+  updatePersonalProfile, changePersonalPassword, togglePersonalActive, getPersonalEmail,
 } from "@/lib/personal-admin.functions";
 import { removeMember } from "@/lib/academia-config.functions";
 
