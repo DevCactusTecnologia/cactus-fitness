@@ -1,5 +1,5 @@
 import { notFound, useNavigate, useParams, Link } from "@tanstack/react-router";
-import type { Scope } from "@/lib/scope";
+import { useScope, type Scope } from "@/lib/scope";
 import { useEffect, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
@@ -684,6 +684,8 @@ function DeleteAlunoDialog({
 }: { aluno: Aluno; open: boolean; onOpenChange: (o: boolean) => void }) {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+  const scope = useScope();
+  const alunosBase = scope === "academia" ? "/dashboard/academia/alunos" : "/dashboard/personal/alunos";
 
   const mutation = useMutation({
     mutationFn: async () => {
@@ -743,6 +745,8 @@ import {
 
 
 function PlanoCard({ plano }: { plano: Plano }) {
+  const scope = useScope();
+  const treinosBase = scope === "academia" ? "/dashboard/academia/treinos" : "/dashboard/personal/treinos";
   return (
     <Link
       to={`${treinosBase}/plano/$planoId` as "/dashboard/personal/treinos/plano/$planoId"}
