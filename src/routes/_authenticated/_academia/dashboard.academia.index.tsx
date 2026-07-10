@@ -161,16 +161,17 @@ function MobileTopBar() {
   );
 }
 
-function MobileGreetingCard({ name, initials, alunos, treinos, avaliacoes, novos }: {
-  name: string; initials: string; alunos: number; treinos: number; avaliacoes: number; novos: number;
+function MobileGreetingCard({ name, alunos, treinos, avaliacoes, novosAlunos, novosTreinos, novasAvaliacoes }: {
+  name: string; alunos: number; treinos: number; avaliacoes: number;
+  novosAlunos: number; novosTreinos: number; novasAvaliacoes: number;
 }) {
   const greeting = greetingFor(new Date().getHours());
-  const suffix = novos > 0 ? `↑ ${novos} este mês` : "";
+  const delta = (n: number) => n > 0 ? `↑ ${n} este mês` : "";
   return (
     <div className="rounded-[1.55rem] border border-border bg-[image:var(--gradient-greeting-card)] p-5 shadow-[var(--shadow-mobile-card)]">
       <div className="flex items-center gap-4">
-        <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full text-base font-bold ring-2 ring-primary/70 font-display sm:h-14 sm:w-14" style={{ backgroundColor: "rgb(244, 63, 94)", color: "#fff" }}>
-          {initials}
+        <div className="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-full bg-background/60 ring-2 ring-primary/70 sm:h-14 sm:w-14">
+          <img src={logoUrl} alt="CactusFitness" className="h-8 w-8 object-contain sm:h-10 sm:w-10" />
         </div>
         <div className="min-w-0">
           <div className="text-xs font-medium text-muted-foreground sm:text-sm">{greeting},</div>
@@ -181,20 +182,23 @@ function MobileGreetingCard({ name, initials, alunos, treinos, avaliacoes, novos
         <div>
           <div className="text-3xl font-extrabold leading-none font-display sm:text-[2.15rem]">{alunos}</div>
           <div className="mt-2 text-xs leading-tight text-muted-foreground sm:text-sm">alunos<br />ativos</div>
-          {suffix && <div className="mt-1 text-[11px] font-semibold text-primary">{suffix}</div>}
+          {delta(novosAlunos) && <div className="mt-1 text-[11px] font-semibold text-emerald-500">{delta(novosAlunos)}</div>}
         </div>
         <div>
           <div className="text-3xl font-extrabold leading-none font-display sm:text-[2.15rem]">{treinos}</div>
           <div className="mt-2 text-xs leading-tight text-muted-foreground sm:text-sm">treinos<br />ativos</div>
+          {delta(novosTreinos) && <div className="mt-1 text-[11px] font-semibold text-emerald-500">{delta(novosTreinos)}</div>}
         </div>
         <div>
           <div className="text-3xl font-extrabold leading-none font-display sm:text-[2.15rem]">{avaliacoes}</div>
           <div className="mt-2 text-xs leading-tight text-muted-foreground sm:text-sm">avaliações<br />físicas</div>
+          {delta(novasAvaliacoes) && <div className="mt-1 text-[11px] font-semibold text-emerald-500">{delta(novasAvaliacoes)}</div>}
         </div>
       </div>
     </div>
   );
 }
+
 
 function WalletCard() {
   return (
