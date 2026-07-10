@@ -584,8 +584,8 @@ function OwnerDashboard({ profile }: { profile: any }) {
               <div className="grid gap-3 p-3 sm:grid-cols-2">
                 {[
                   { to: "/dashboard/academia/personais", icon: UsersIcon, title: "Equipe", desc: "Cadastrar personais e ajustar papéis", key: "E" },
-                  { to: "/dashboard/personal/alunos", icon: Users, title: "Todos os alunos", desc: "Cadastros e contatos", key: "A" },
-                  { to: "/dashboard/personal/treinos", icon: Dumbbell, title: "Modelos de treino", desc: "Biblioteca compartilhada", key: "T" },
+                  { to: "/dashboard/personal/alunos", icon: Users, title: "Aluno", desc: "Cadastros e contatos", key: "A" },
+                  { to: "/dashboard/personal/treinos", icon: Dumbbell, title: "Treinos", desc: "Biblioteca compartilhada", key: "T" },
                   
                 ].map(({ to, icon: Icon, title, desc, key }) => (
                   <Link key={to} to={to} className="group flex items-center gap-3 rounded-lg border border-border bg-background/40 p-3 hover:border-primary/40">
