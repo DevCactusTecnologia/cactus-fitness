@@ -42,21 +42,12 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 
-export const Route = createFileRoute("/_authenticated/_personal/dashboard/personal/financeiro")({
-  head: () => ({
-    meta: [
-      { title: "Financeiro · cactusfitness" },
-      { name: "description", content: "Gerencie planos, links de cobrança, extrato e saques da sua carteira." },
-    ],
-  }),
-  component: FinanceiroPage,
-});
-
 type Tab = "planos" | "links" | "extrato" | "saques";
 
-function FinanceiroPage() {
+export function FinanceiroPage({ scope }: { scope: Scope }) {
   const [tab, setTab] = useState<Tab>("planos");
   const router = useRouter();
+
 
   return (
     <div className="min-h-screen w-full overflow-x-hidden bg-background text-foreground">
