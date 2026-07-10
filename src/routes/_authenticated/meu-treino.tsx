@@ -484,7 +484,7 @@ function MeuTreinoPage() {
               <button
                 key={label}
                 type="button"
-                className="flex items-center gap-2 rounded-xl border border-border bg-card p-2.5 text-left transition hover:border-primary/60 hover:bg-accent/40"
+                className="flex items-center gap-2 rounded-[10px] border border-border bg-card p-2.5 text-left transition hover:border-primary/60 hover:bg-accent/40"
               >
                 <div className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
                   <Icon className="h-4 w-4" strokeWidth={1.75} />
