@@ -23,7 +23,6 @@ import { Route as AuthenticatedPersonalRouteRouteImport } from './routes/_authen
 import { Route as AuthenticatedAlunoRouteRouteImport } from './routes/_authenticated/_aluno/route'
 import { Route as AuthenticatedAcademiaRouteRouteImport } from './routes/_authenticated/_academia/route'
 import { Route as AuthenticatedMeuTreinoTreinoIdRouteImport } from './routes/_authenticated/meu-treino.treino.$id'
-import { Route as AuthenticatedAcademiaConviteTokenRouteImport } from './routes/_authenticated/academia.convite.$token'
 import { Route as AuthenticatedAlunoDashboardAlunoIndexRouteImport } from './routes/_authenticated/_aluno/dashboard.aluno.index'
 import { Route as AuthenticatedAcademiaDashboardAcademiaIndexRouteImport } from './routes/_authenticated/_academia/dashboard.academia.index'
 import { Route as AuthenticatedPersonalDashboardPersonalFinanceiroRouteImport } from './routes/_authenticated/_personal/dashboard.personal.financeiro'
@@ -123,12 +122,6 @@ const AuthenticatedMeuTreinoTreinoIdRoute =
     id: '/treino/$id',
     path: '/treino/$id',
     getParentRoute: () => AuthenticatedMeuTreinoRoute,
-  } as any)
-const AuthenticatedAcademiaConviteTokenRoute =
-  AuthenticatedAcademiaConviteTokenRouteImport.update({
-    id: '/academia/convite/$token',
-    path: '/academia/convite/$token',
-    getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedAlunoDashboardAlunoIndexRoute =
   AuthenticatedAlunoDashboardAlunoIndexRouteImport.update({
@@ -325,7 +318,6 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/treinos': typeof AuthenticatedTreinosRoute
-  '/academia/convite/$token': typeof AuthenticatedAcademiaConviteTokenRoute
   '/meu-treino/treino/$id': typeof AuthenticatedMeuTreinoTreinoIdRoute
   '/dashboard/academia/configuracoes': typeof AuthenticatedAcademiaDashboardAcademiaConfiguracoesRoute
   '/dashboard/academia/exercicios': typeof AuthenticatedAcademiaDashboardAcademiaExerciciosRoute
@@ -368,7 +360,6 @@ export interface FileRoutesByTo {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/treinos': typeof AuthenticatedTreinosRoute
-  '/academia/convite/$token': typeof AuthenticatedAcademiaConviteTokenRoute
   '/meu-treino/treino/$id': typeof AuthenticatedMeuTreinoTreinoIdRoute
   '/dashboard/academia/configuracoes': typeof AuthenticatedAcademiaDashboardAcademiaConfiguracoesRoute
   '/dashboard/academia/exercicios': typeof AuthenticatedAcademiaDashboardAcademiaExerciciosRoute
@@ -416,7 +407,6 @@ export interface FileRoutesById {
   '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
   '/_authenticated/treinos': typeof AuthenticatedTreinosRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
-  '/_authenticated/academia/convite/$token': typeof AuthenticatedAcademiaConviteTokenRoute
   '/_authenticated/meu-treino/treino/$id': typeof AuthenticatedMeuTreinoTreinoIdRoute
   '/_authenticated/_academia/dashboard/academia/configuracoes': typeof AuthenticatedAcademiaDashboardAcademiaConfiguracoesRoute
   '/_authenticated/_academia/dashboard/academia/exercicios': typeof AuthenticatedAcademiaDashboardAcademiaExerciciosRoute
@@ -461,7 +451,6 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/perfil'
     | '/treinos'
-    | '/academia/convite/$token'
     | '/meu-treino/treino/$id'
     | '/dashboard/academia/configuracoes'
     | '/dashboard/academia/exercicios'
@@ -504,7 +493,6 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/perfil'
     | '/treinos'
-    | '/academia/convite/$token'
     | '/meu-treino/treino/$id'
     | '/dashboard/academia/configuracoes'
     | '/dashboard/academia/exercicios'
@@ -551,7 +539,6 @@ export interface FileRouteTypes {
     | '/_authenticated/perfil'
     | '/_authenticated/treinos'
     | '/_authenticated/'
-    | '/_authenticated/academia/convite/$token'
     | '/_authenticated/meu-treino/treino/$id'
     | '/_authenticated/_academia/dashboard/academia/configuracoes'
     | '/_authenticated/_academia/dashboard/academia/exercicios'
@@ -690,13 +677,6 @@ declare module '@tanstack/react-router' {
       fullPath: '/meu-treino/treino/$id'
       preLoaderRoute: typeof AuthenticatedMeuTreinoTreinoIdRouteImport
       parentRoute: typeof AuthenticatedMeuTreinoRoute
-    }
-    '/_authenticated/academia/convite/$token': {
-      id: '/_authenticated/academia/convite/$token'
-      path: '/academia/convite/$token'
-      fullPath: '/academia/convite/$token'
-      preLoaderRoute: typeof AuthenticatedAcademiaConviteTokenRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/_aluno/dashboard/aluno/': {
       id: '/_authenticated/_aluno/dashboard/aluno/'
@@ -1062,7 +1042,6 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedPerfilRoute: typeof AuthenticatedPerfilRoute
   AuthenticatedTreinosRoute: typeof AuthenticatedTreinosRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
-  AuthenticatedAcademiaConviteTokenRoute: typeof AuthenticatedAcademiaConviteTokenRoute
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
@@ -1076,8 +1055,6 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedPerfilRoute: AuthenticatedPerfilRoute,
   AuthenticatedTreinosRoute: AuthenticatedTreinosRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
-  AuthenticatedAcademiaConviteTokenRoute:
-    AuthenticatedAcademiaConviteTokenRoute,
 }
 
 const AuthenticatedRouteRouteWithChildren =

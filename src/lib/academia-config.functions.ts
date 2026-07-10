@@ -24,23 +24,16 @@ export const getAcademiaConfig = createServerFn({ method: "GET" })
     const { supabase, userId } = context;
     const { orgId, myRole } = await resolveOwnerOrg(supabase, userId);
 
-    const [orgRes, membersRes, invitesRes] = await Promise.all([
+    const [orgRes, membersRes] = await Promise.all([
       supabase.from("organizations").select("id, name, slug, logo_url, created_at").eq("id", orgId).single(),
       supabase
         .from("organization_members")
         .select("user_id, role, created_at")
         .eq("organization_id", orgId)
         .order("created_at", { ascending: true }),
-      supabase
-        .from("organization_invites")
-        .select("id, email, role, token, expires_at, accepted_at, created_at")
-        .eq("organization_id", orgId)
-        .is("accepted_at", null)
-        .order("created_at", { ascending: false }),
     ]);
     if (orgRes.error) throw new Error(orgRes.error.message);
     if (membersRes.error) throw new Error(membersRes.error.message);
-    if (invitesRes.error) throw new Error(invitesRes.error.message);
 
     const userIds = (membersRes.data ?? []).map((m: any) => m.user_id);
     let profilesById: Record<string, { id: string; full_name: string | null; avatar_url: string | null }> = {};
@@ -60,7 +53,6 @@ export const getAcademiaConfig = createServerFn({ method: "GET" })
       myRole,
       org: orgRes.data,
       members,
-      invites: (invitesRes.data ?? []).filter((i: any) => new Date(i.expires_at) > new Date()),
     };
   });
 
@@ -80,60 +72,49 @@ export const updateAcademiaName = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
-const inviteSchema = z.object({
-  email: z.string().trim().toLowerCase().email(),
-  role: z.enum(["staff", "personal"]),
+const createPersonalSchema = z.object({
+  full_name: z.string().trim().min(2, "Nome muito curto").max(120),
+  email: z.string().trim().toLowerCase().email("E-mail inválido"),
+  password: z.string().min(8, "Senha precisa ter pelo menos 8 caracteres").max(72),
 });
 
-function randomToken() {
-  const bytes = new Uint8Array(24);
-  crypto.getRandomValues(bytes);
-  return Array.from(bytes, (b) => b.toString(16).padStart(2, "0")).join("");
-}
-
-export const inviteStaff = createServerFn({ method: "POST" })
+export const createPersonal = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => inviteSchema.parse(d))
+  .inputValidator((d) => createPersonalSchema.parse(d))
   .handler(async ({ context, data }) => {
     const { supabase, userId } = context;
     const { orgId, myRole } = await resolveOwnerOrg(supabase, userId);
-    if (myRole !== "owner") throw new Error("Apenas o dono pode enviar convites.");
+    if (myRole !== "owner") throw new Error("Apenas o dono pode cadastrar personais.");
 
-    const token = randomToken();
-    const expires_at = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const { data: invite, error } = await supabase
-      .from("organization_invites")
-      .insert({
-        organization_id: orgId,
-        email: data.email,
-        role: data.role,
-        invited_by: userId,
-        token,
-        expires_at,
-      })
-      .select("id, token")
-      .single();
-    if (error) throw new Error(error.message);
-    return { id: invite.id, token: invite.token };
-  });
+    const { data: created, error: createErr } = await supabaseAdmin.auth.admin.createUser({
+      email: data.email,
+      password: data.password,
+      email_confirm: true,
+      user_metadata: { full_name: data.full_name },
+    });
+    if (createErr || !created?.user) {
+      throw new Error(createErr?.message ?? "Não foi possível criar o usuário.");
+    }
 
-const revokeSchema = z.object({ id: z.string().uuid() });
+    const newUserId = created.user.id;
 
-export const revokeInvite = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((d) => revokeSchema.parse(d))
-  .handler(async ({ context, data }) => {
-    const { supabase, userId } = context;
-    const { orgId, myRole } = await resolveOwnerOrg(supabase, userId);
-    if (myRole !== "owner") throw new Error("Apenas o dono pode revogar convites.");
-    const { error } = await supabase
-      .from("organization_invites")
-      .delete()
-      .eq("id", data.id)
-      .eq("organization_id", orgId);
-    if (error) throw new Error(error.message);
-    return { ok: true };
+    // Garante nome no profile (o trigger cria com fallback; aqui reforçamos)
+    await supabaseAdmin
+      .from("profiles")
+      .upsert({ id: newUserId, full_name: data.full_name }, { onConflict: "id" });
+
+    const { error: memErr } = await supabaseAdmin
+      .from("organization_members")
+      .insert({ organization_id: orgId, user_id: newUserId, role: "personal" });
+    if (memErr) {
+      // rollback: apaga usuário para não deixar órfão
+      await supabaseAdmin.auth.admin.deleteUser(newUserId);
+      throw new Error(memErr.message);
+    }
+
+    return { ok: true, user_id: newUserId };
   });
 
 const removeMemberSchema = z.object({ userId: z.string().uuid() });
