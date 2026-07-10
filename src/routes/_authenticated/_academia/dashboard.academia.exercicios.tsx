@@ -1,9 +1,12 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
+import { ExerciciosPage } from "@/components/domain/ExerciciosPage";
 
-// Exercícios ainda não estão no rail da academia (lote 3 apenas Personais).
-// Rota gêmea preparada para futuro; por enquanto redireciona ao personal.
 export const Route = createFileRoute("/_authenticated/_academia/dashboard/academia/exercicios")({
-  beforeLoad: () => {
-    throw redirect({ to: "/dashboard/personal/exercicios", replace: true });
-  },
+  head: () => ({
+    meta: [
+      { title: "Exercícios · cactusfitness" },
+      { name: "description", content: "Biblioteca completa de exercícios organizados por grupo muscular." },
+    ],
+  }),
+  component: () => <ExerciciosPage scope="academia" />,
 });
