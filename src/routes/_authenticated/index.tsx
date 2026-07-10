@@ -451,11 +451,10 @@ function useOwnerOverview() {
         .maybeSingle();
       if (!mine || mine.role !== "owner") return null;
       const orgId = mine.organization_id;
-      const [orgRes, membersRes, alunosRes, invitesRes, sessionsRes] = await Promise.all([
+      const [orgRes, membersRes, alunosRes, sessionsRes] = await Promise.all([
         supabase.from("organizations").select("id, name").eq("id", orgId).maybeSingle(),
         supabase.from("organization_members").select("id, user_id, role").eq("organization_id", orgId),
         supabase.from("alunos").select("id, personal_id, is_active, created_at").eq("organization_id", orgId),
-        supabase.from("organization_invites").select("id").eq("organization_id", orgId).is("accepted_at", null),
         supabase.from("workout_sessions").select("id, status, started_at").gte("started_at", new Date(Date.now() - 7 * 864e5).toISOString()),
       ]);
       const members = membersRes.data ?? [];
@@ -465,7 +464,6 @@ function useOwnerOverview() {
       const equipe = members.filter((m: any) => m.role === "staff");
       const ativos = alunos.filter((a: any) => a.is_active).length;
       const inativos = alunos.length - ativos;
-      // Alunos por personal
       const byPersonal: Record<string, number> = {};
       alunos.forEach((a: any) => { byPersonal[a.personal_id] = (byPersonal[a.personal_id] ?? 0) + 1; });
       const personalIds = personais.map((p: any) => p.user_id);
@@ -488,7 +486,6 @@ function useOwnerOverview() {
         ativos,
         inativos,
         novosAlunos30d,
-        convitesPendentes: invitesRes.data?.length ?? 0,
         sessoesSemana: sessions.length,
         sessoesConcluidas: sessions.filter((s: any) => s.status === "completed").length,
         personaisList,
@@ -586,7 +583,7 @@ function OwnerDashboard({ profile }: { profile: any }) {
               </div>
               <div className="grid gap-3 p-3 sm:grid-cols-2">
                 {[
-                  { to: "/dashboard/personal/academia", icon: UsersIcon, title: "Equipe & convites", desc: "Convidar personais e ajustar papéis", key: "E" },
+                  { to: "/dashboard/academia/personais", icon: UsersIcon, title: "Equipe", desc: "Cadastrar personais e ajustar papéis", key: "E" },
                   { to: "/dashboard/personal/alunos", icon: Users, title: "Todos os alunos", desc: "Cadastros e contatos", key: "A" },
                   { to: "/dashboard/personal/treinos", icon: Dumbbell, title: "Modelos de treino", desc: "Biblioteca compartilhada", key: "T" },
                   
