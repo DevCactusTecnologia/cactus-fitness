@@ -30,7 +30,7 @@ export const Route = createFileRoute("/_authenticated/")({
     }
     const role = getPrimaryClientRole(roles);
     if (role === "aluno") {
-      throw redirect({ to: "/dashboard/aluno" });
+      throw redirect({ to: "/meu-treino" });
     }
     if (role === "owner" || role === "staff") {
       throw redirect({ to: "/dashboard/academia" });
