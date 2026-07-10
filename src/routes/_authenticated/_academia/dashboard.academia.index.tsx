@@ -449,6 +449,9 @@ function AcademiaHome() {
             <div className="space-y-4">
               <MobileGreetingCard
                 name={name}
+                initials={initials}
+                avatarUrl={avatarUrl}
+                avatarColor={avatarColor}
                 alunos={alunosAtivos}
                 treinos={o?.treinosAtivos ?? 0}
                 avaliacoes={o?.avaliacoes ?? 0}
