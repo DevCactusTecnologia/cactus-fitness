@@ -231,7 +231,11 @@ function ActionButton({ icon: Icon, label, onClick, to }: { icon: React.ElementT
   return <button type="button" onClick={onClick} className={cls}>{inner}</button>;
 }
 
-function MobilePulseCard() {
+function MobilePulseCard({ novosAlunos }: { novosAlunos: number }) {
+  const total = novosAlunos;
+  const subtitle = total > 0
+    ? `${total} atividade${total === 1 ? "" : "s"} nova${total === 1 ? "" : "s"} · ${total} aluno${total === 1 ? "" : "s"} pra falar`
+    : "Nenhuma atividade nova";
   return (
     <button
       type="button"
@@ -241,15 +245,21 @@ function MobilePulseCard() {
         <div className="grid h-12 w-12 place-items-center rounded-full bg-primary/15 text-primary">
           <Activity className="h-6 w-6" strokeWidth={2} />
         </div>
+        {total > 0 && (
+          <span className="absolute -right-1 -top-1 grid h-5 w-5 place-items-center rounded-full bg-rose-500 text-[11px] font-extrabold text-white">
+            {total}
+          </span>
+        )}
       </div>
       <div className="min-w-0 flex-1">
         <div className="truncate text-sm font-extrabold text-foreground sm:text-base">pulso da academia</div>
-        <div className="truncate text-xs text-muted-foreground sm:text-sm">Nenhuma atividade nova</div>
+        <div className="truncate text-xs text-muted-foreground sm:text-sm">{subtitle}</div>
       </div>
       <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
     </button>
   );
 }
+
 
 function AcademiaHome() {
   const { profile } = useCurrentUser();
