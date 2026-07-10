@@ -479,7 +479,7 @@ function MeuTreinoPage() {
           </section>
 
           {/* Grid de menu */}
-          <section className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <section className="grid grid-cols-2 gap-3">
             {MENU_ITEMS.map(({ icon: Icon, label }) => (
               <button
                 key={label}
