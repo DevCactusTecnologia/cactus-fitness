@@ -1033,6 +1033,10 @@ export type Database = {
         Returns: boolean
       }
       current_user_org_id: { Args: never; Returns: string }
+      current_user_primary_role: {
+        Args: never
+        Returns: Database["public"]["Enums"]["app_role"]
+      }
       gen_workout_template_slug: { Args: { _kind: string }; Returns: string }
       has_org_role: {
         Args: {
