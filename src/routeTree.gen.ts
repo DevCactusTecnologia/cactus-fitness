@@ -35,16 +35,22 @@ import { Route as AuthenticatedPersonalDashboardPersonalTreinosIndexRouteImport 
 import { Route as AuthenticatedPersonalDashboardPersonalPersonaisIndexRouteImport } from './routes/_authenticated/_personal/dashboard.personal.personais.index'
 import { Route as AuthenticatedPersonalDashboardPersonalAvaliacoesIndexRouteImport } from './routes/_authenticated/_personal/dashboard.personal.avaliacoes.index'
 import { Route as AuthenticatedPersonalDashboardPersonalAlunosIndexRouteImport } from './routes/_authenticated/_personal/dashboard.personal.alunos.index'
+import { Route as AuthenticatedAcademiaDashboardAcademiaTreinosIndexRouteImport } from './routes/_authenticated/_academia/dashboard.academia.treinos.index'
 import { Route as AuthenticatedAcademiaDashboardAcademiaAlunosIndexRouteImport } from './routes/_authenticated/_academia/dashboard.academia.alunos.index'
 import { Route as AuthenticatedPersonalDashboardPersonalTreinosNovoTemplateRouteImport } from './routes/_authenticated/_personal/dashboard.personal.treinos.novo-template'
 import { Route as AuthenticatedPersonalDashboardPersonalTreinosNovoPlanoRouteImport } from './routes/_authenticated/_personal/dashboard.personal.treinos.novo-plano'
 import { Route as AuthenticatedPersonalDashboardPersonalAvaliacoesAlunoIdRouteImport } from './routes/_authenticated/_personal/dashboard.personal.avaliacoes.$alunoId'
 import { Route as AuthenticatedPersonalDashboardPersonalAvaliacaoAvaliacaoIdRouteImport } from './routes/_authenticated/_personal/dashboard.personal.avaliacao.$avaliacaoId'
 import { Route as AuthenticatedPersonalDashboardPersonalAlunosAlunoIdRouteImport } from './routes/_authenticated/_personal/dashboard.personal.alunos.$alunoId'
+import { Route as AuthenticatedAcademiaDashboardAcademiaTreinosNovoTemplateRouteImport } from './routes/_authenticated/_academia/dashboard.academia.treinos.novo-template'
+import { Route as AuthenticatedAcademiaDashboardAcademiaTreinosNovoPlanoRouteImport } from './routes/_authenticated/_academia/dashboard.academia.treinos.novo-plano'
 import { Route as AuthenticatedAcademiaDashboardAcademiaAlunosAlunoIdRouteImport } from './routes/_authenticated/_academia/dashboard.academia.alunos.$alunoId'
 import { Route as AuthenticatedPersonalDashboardPersonalTreinosPlanoPlanoIdRouteImport } from './routes/_authenticated/_personal/dashboard.personal.treinos.plano.$planoId'
 import { Route as AuthenticatedPersonalDashboardPersonalTreinosModeloModeloIdRouteImport } from './routes/_authenticated/_personal/dashboard.personal.treinos.modelo.$modeloId'
 import { Route as AuthenticatedPersonalDashboardPersonalTreinosEditarSlugRouteImport } from './routes/_authenticated/_personal/dashboard.personal.treinos.editar.$slug'
+import { Route as AuthenticatedAcademiaDashboardAcademiaTreinosPlanoPlanoIdRouteImport } from './routes/_authenticated/_academia/dashboard.academia.treinos.plano.$planoId'
+import { Route as AuthenticatedAcademiaDashboardAcademiaTreinosModeloModeloIdRouteImport } from './routes/_authenticated/_academia/dashboard.academia.treinos.modelo.$modeloId'
+import { Route as AuthenticatedAcademiaDashboardAcademiaTreinosEditarSlugRouteImport } from './routes/_authenticated/_academia/dashboard.academia.treinos.editar.$slug'
 
 const ResetPasswordRoute = ResetPasswordRouteImport.update({
   id: '/reset-password',
@@ -187,6 +193,12 @@ const AuthenticatedPersonalDashboardPersonalAlunosIndexRoute =
     path: '/dashboard/personal/alunos/',
     getParentRoute: () => AuthenticatedPersonalRouteRoute,
   } as any)
+const AuthenticatedAcademiaDashboardAcademiaTreinosIndexRoute =
+  AuthenticatedAcademiaDashboardAcademiaTreinosIndexRouteImport.update({
+    id: '/dashboard/academia/treinos/',
+    path: '/dashboard/academia/treinos/',
+    getParentRoute: () => AuthenticatedAcademiaRouteRoute,
+  } as any)
 const AuthenticatedAcademiaDashboardAcademiaAlunosIndexRoute =
   AuthenticatedAcademiaDashboardAcademiaAlunosIndexRouteImport.update({
     id: '/dashboard/academia/alunos/',
@@ -223,6 +235,18 @@ const AuthenticatedPersonalDashboardPersonalAlunosAlunoIdRoute =
     path: '/dashboard/personal/alunos/$alunoId',
     getParentRoute: () => AuthenticatedPersonalRouteRoute,
   } as any)
+const AuthenticatedAcademiaDashboardAcademiaTreinosNovoTemplateRoute =
+  AuthenticatedAcademiaDashboardAcademiaTreinosNovoTemplateRouteImport.update({
+    id: '/dashboard/academia/treinos/novo-template',
+    path: '/dashboard/academia/treinos/novo-template',
+    getParentRoute: () => AuthenticatedAcademiaRouteRoute,
+  } as any)
+const AuthenticatedAcademiaDashboardAcademiaTreinosNovoPlanoRoute =
+  AuthenticatedAcademiaDashboardAcademiaTreinosNovoPlanoRouteImport.update({
+    id: '/dashboard/academia/treinos/novo-plano',
+    path: '/dashboard/academia/treinos/novo-plano',
+    getParentRoute: () => AuthenticatedAcademiaRouteRoute,
+  } as any)
 const AuthenticatedAcademiaDashboardAcademiaAlunosAlunoIdRoute =
   AuthenticatedAcademiaDashboardAcademiaAlunosAlunoIdRouteImport.update({
     id: '/dashboard/academia/alunos/$alunoId',
@@ -249,6 +273,26 @@ const AuthenticatedPersonalDashboardPersonalTreinosEditarSlugRoute =
     path: '/dashboard/personal/treinos/editar/$slug',
     getParentRoute: () => AuthenticatedPersonalRouteRoute,
   } as any)
+const AuthenticatedAcademiaDashboardAcademiaTreinosPlanoPlanoIdRoute =
+  AuthenticatedAcademiaDashboardAcademiaTreinosPlanoPlanoIdRouteImport.update({
+    id: '/dashboard/academia/treinos/plano/$planoId',
+    path: '/dashboard/academia/treinos/plano/$planoId',
+    getParentRoute: () => AuthenticatedAcademiaRouteRoute,
+  } as any)
+const AuthenticatedAcademiaDashboardAcademiaTreinosModeloModeloIdRoute =
+  AuthenticatedAcademiaDashboardAcademiaTreinosModeloModeloIdRouteImport.update(
+    {
+      id: '/dashboard/academia/treinos/modelo/$modeloId',
+      path: '/dashboard/academia/treinos/modelo/$modeloId',
+      getParentRoute: () => AuthenticatedAcademiaRouteRoute,
+    } as any,
+  )
+const AuthenticatedAcademiaDashboardAcademiaTreinosEditarSlugRoute =
+  AuthenticatedAcademiaDashboardAcademiaTreinosEditarSlugRouteImport.update({
+    id: '/dashboard/academia/treinos/editar/$slug',
+    path: '/dashboard/academia/treinos/editar/$slug',
+    getParentRoute: () => AuthenticatedAcademiaRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
@@ -270,16 +314,22 @@ export interface FileRoutesByFullPath {
   '/dashboard/academia/': typeof AuthenticatedAcademiaDashboardAcademiaIndexRoute
   '/dashboard/aluno/': typeof AuthenticatedAlunoDashboardAlunoIndexRoute
   '/dashboard/academia/alunos/$alunoId': typeof AuthenticatedAcademiaDashboardAcademiaAlunosAlunoIdRoute
+  '/dashboard/academia/treinos/novo-plano': typeof AuthenticatedAcademiaDashboardAcademiaTreinosNovoPlanoRoute
+  '/dashboard/academia/treinos/novo-template': typeof AuthenticatedAcademiaDashboardAcademiaTreinosNovoTemplateRoute
   '/dashboard/personal/alunos/$alunoId': typeof AuthenticatedPersonalDashboardPersonalAlunosAlunoIdRoute
   '/dashboard/personal/avaliacao/$avaliacaoId': typeof AuthenticatedPersonalDashboardPersonalAvaliacaoAvaliacaoIdRoute
   '/dashboard/personal/avaliacoes/$alunoId': typeof AuthenticatedPersonalDashboardPersonalAvaliacoesAlunoIdRoute
   '/dashboard/personal/treinos/novo-plano': typeof AuthenticatedPersonalDashboardPersonalTreinosNovoPlanoRoute
   '/dashboard/personal/treinos/novo-template': typeof AuthenticatedPersonalDashboardPersonalTreinosNovoTemplateRoute
   '/dashboard/academia/alunos/': typeof AuthenticatedAcademiaDashboardAcademiaAlunosIndexRoute
+  '/dashboard/academia/treinos/': typeof AuthenticatedAcademiaDashboardAcademiaTreinosIndexRoute
   '/dashboard/personal/alunos/': typeof AuthenticatedPersonalDashboardPersonalAlunosIndexRoute
   '/dashboard/personal/avaliacoes/': typeof AuthenticatedPersonalDashboardPersonalAvaliacoesIndexRoute
   '/dashboard/personal/personais/': typeof AuthenticatedPersonalDashboardPersonalPersonaisIndexRoute
   '/dashboard/personal/treinos/': typeof AuthenticatedPersonalDashboardPersonalTreinosIndexRoute
+  '/dashboard/academia/treinos/editar/$slug': typeof AuthenticatedAcademiaDashboardAcademiaTreinosEditarSlugRoute
+  '/dashboard/academia/treinos/modelo/$modeloId': typeof AuthenticatedAcademiaDashboardAcademiaTreinosModeloModeloIdRoute
+  '/dashboard/academia/treinos/plano/$planoId': typeof AuthenticatedAcademiaDashboardAcademiaTreinosPlanoPlanoIdRoute
   '/dashboard/personal/treinos/editar/$slug': typeof AuthenticatedPersonalDashboardPersonalTreinosEditarSlugRoute
   '/dashboard/personal/treinos/modelo/$modeloId': typeof AuthenticatedPersonalDashboardPersonalTreinosModeloModeloIdRoute
   '/dashboard/personal/treinos/plano/$planoId': typeof AuthenticatedPersonalDashboardPersonalTreinosPlanoPlanoIdRoute
@@ -304,16 +354,22 @@ export interface FileRoutesByTo {
   '/dashboard/academia': typeof AuthenticatedAcademiaDashboardAcademiaIndexRoute
   '/dashboard/aluno': typeof AuthenticatedAlunoDashboardAlunoIndexRoute
   '/dashboard/academia/alunos/$alunoId': typeof AuthenticatedAcademiaDashboardAcademiaAlunosAlunoIdRoute
+  '/dashboard/academia/treinos/novo-plano': typeof AuthenticatedAcademiaDashboardAcademiaTreinosNovoPlanoRoute
+  '/dashboard/academia/treinos/novo-template': typeof AuthenticatedAcademiaDashboardAcademiaTreinosNovoTemplateRoute
   '/dashboard/personal/alunos/$alunoId': typeof AuthenticatedPersonalDashboardPersonalAlunosAlunoIdRoute
   '/dashboard/personal/avaliacao/$avaliacaoId': typeof AuthenticatedPersonalDashboardPersonalAvaliacaoAvaliacaoIdRoute
   '/dashboard/personal/avaliacoes/$alunoId': typeof AuthenticatedPersonalDashboardPersonalAvaliacoesAlunoIdRoute
   '/dashboard/personal/treinos/novo-plano': typeof AuthenticatedPersonalDashboardPersonalTreinosNovoPlanoRoute
   '/dashboard/personal/treinos/novo-template': typeof AuthenticatedPersonalDashboardPersonalTreinosNovoTemplateRoute
   '/dashboard/academia/alunos': typeof AuthenticatedAcademiaDashboardAcademiaAlunosIndexRoute
+  '/dashboard/academia/treinos': typeof AuthenticatedAcademiaDashboardAcademiaTreinosIndexRoute
   '/dashboard/personal/alunos': typeof AuthenticatedPersonalDashboardPersonalAlunosIndexRoute
   '/dashboard/personal/avaliacoes': typeof AuthenticatedPersonalDashboardPersonalAvaliacoesIndexRoute
   '/dashboard/personal/personais': typeof AuthenticatedPersonalDashboardPersonalPersonaisIndexRoute
   '/dashboard/personal/treinos': typeof AuthenticatedPersonalDashboardPersonalTreinosIndexRoute
+  '/dashboard/academia/treinos/editar/$slug': typeof AuthenticatedAcademiaDashboardAcademiaTreinosEditarSlugRoute
+  '/dashboard/academia/treinos/modelo/$modeloId': typeof AuthenticatedAcademiaDashboardAcademiaTreinosModeloModeloIdRoute
+  '/dashboard/academia/treinos/plano/$planoId': typeof AuthenticatedAcademiaDashboardAcademiaTreinosPlanoPlanoIdRoute
   '/dashboard/personal/treinos/editar/$slug': typeof AuthenticatedPersonalDashboardPersonalTreinosEditarSlugRoute
   '/dashboard/personal/treinos/modelo/$modeloId': typeof AuthenticatedPersonalDashboardPersonalTreinosModeloModeloIdRoute
   '/dashboard/personal/treinos/plano/$planoId': typeof AuthenticatedPersonalDashboardPersonalTreinosPlanoPlanoIdRoute
@@ -343,16 +399,22 @@ export interface FileRoutesById {
   '/_authenticated/_academia/dashboard/academia/': typeof AuthenticatedAcademiaDashboardAcademiaIndexRoute
   '/_authenticated/_aluno/dashboard/aluno/': typeof AuthenticatedAlunoDashboardAlunoIndexRoute
   '/_authenticated/_academia/dashboard/academia/alunos/$alunoId': typeof AuthenticatedAcademiaDashboardAcademiaAlunosAlunoIdRoute
+  '/_authenticated/_academia/dashboard/academia/treinos/novo-plano': typeof AuthenticatedAcademiaDashboardAcademiaTreinosNovoPlanoRoute
+  '/_authenticated/_academia/dashboard/academia/treinos/novo-template': typeof AuthenticatedAcademiaDashboardAcademiaTreinosNovoTemplateRoute
   '/_authenticated/_personal/dashboard/personal/alunos/$alunoId': typeof AuthenticatedPersonalDashboardPersonalAlunosAlunoIdRoute
   '/_authenticated/_personal/dashboard/personal/avaliacao/$avaliacaoId': typeof AuthenticatedPersonalDashboardPersonalAvaliacaoAvaliacaoIdRoute
   '/_authenticated/_personal/dashboard/personal/avaliacoes/$alunoId': typeof AuthenticatedPersonalDashboardPersonalAvaliacoesAlunoIdRoute
   '/_authenticated/_personal/dashboard/personal/treinos/novo-plano': typeof AuthenticatedPersonalDashboardPersonalTreinosNovoPlanoRoute
   '/_authenticated/_personal/dashboard/personal/treinos/novo-template': typeof AuthenticatedPersonalDashboardPersonalTreinosNovoTemplateRoute
   '/_authenticated/_academia/dashboard/academia/alunos/': typeof AuthenticatedAcademiaDashboardAcademiaAlunosIndexRoute
+  '/_authenticated/_academia/dashboard/academia/treinos/': typeof AuthenticatedAcademiaDashboardAcademiaTreinosIndexRoute
   '/_authenticated/_personal/dashboard/personal/alunos/': typeof AuthenticatedPersonalDashboardPersonalAlunosIndexRoute
   '/_authenticated/_personal/dashboard/personal/avaliacoes/': typeof AuthenticatedPersonalDashboardPersonalAvaliacoesIndexRoute
   '/_authenticated/_personal/dashboard/personal/personais/': typeof AuthenticatedPersonalDashboardPersonalPersonaisIndexRoute
   '/_authenticated/_personal/dashboard/personal/treinos/': typeof AuthenticatedPersonalDashboardPersonalTreinosIndexRoute
+  '/_authenticated/_academia/dashboard/academia/treinos/editar/$slug': typeof AuthenticatedAcademiaDashboardAcademiaTreinosEditarSlugRoute
+  '/_authenticated/_academia/dashboard/academia/treinos/modelo/$modeloId': typeof AuthenticatedAcademiaDashboardAcademiaTreinosModeloModeloIdRoute
+  '/_authenticated/_academia/dashboard/academia/treinos/plano/$planoId': typeof AuthenticatedAcademiaDashboardAcademiaTreinosPlanoPlanoIdRoute
   '/_authenticated/_personal/dashboard/personal/treinos/editar/$slug': typeof AuthenticatedPersonalDashboardPersonalTreinosEditarSlugRoute
   '/_authenticated/_personal/dashboard/personal/treinos/modelo/$modeloId': typeof AuthenticatedPersonalDashboardPersonalTreinosModeloModeloIdRoute
   '/_authenticated/_personal/dashboard/personal/treinos/plano/$planoId': typeof AuthenticatedPersonalDashboardPersonalTreinosPlanoPlanoIdRoute
@@ -379,16 +441,22 @@ export interface FileRouteTypes {
     | '/dashboard/academia/'
     | '/dashboard/aluno/'
     | '/dashboard/academia/alunos/$alunoId'
+    | '/dashboard/academia/treinos/novo-plano'
+    | '/dashboard/academia/treinos/novo-template'
     | '/dashboard/personal/alunos/$alunoId'
     | '/dashboard/personal/avaliacao/$avaliacaoId'
     | '/dashboard/personal/avaliacoes/$alunoId'
     | '/dashboard/personal/treinos/novo-plano'
     | '/dashboard/personal/treinos/novo-template'
     | '/dashboard/academia/alunos/'
+    | '/dashboard/academia/treinos/'
     | '/dashboard/personal/alunos/'
     | '/dashboard/personal/avaliacoes/'
     | '/dashboard/personal/personais/'
     | '/dashboard/personal/treinos/'
+    | '/dashboard/academia/treinos/editar/$slug'
+    | '/dashboard/academia/treinos/modelo/$modeloId'
+    | '/dashboard/academia/treinos/plano/$planoId'
     | '/dashboard/personal/treinos/editar/$slug'
     | '/dashboard/personal/treinos/modelo/$modeloId'
     | '/dashboard/personal/treinos/plano/$planoId'
@@ -413,16 +481,22 @@ export interface FileRouteTypes {
     | '/dashboard/academia'
     | '/dashboard/aluno'
     | '/dashboard/academia/alunos/$alunoId'
+    | '/dashboard/academia/treinos/novo-plano'
+    | '/dashboard/academia/treinos/novo-template'
     | '/dashboard/personal/alunos/$alunoId'
     | '/dashboard/personal/avaliacao/$avaliacaoId'
     | '/dashboard/personal/avaliacoes/$alunoId'
     | '/dashboard/personal/treinos/novo-plano'
     | '/dashboard/personal/treinos/novo-template'
     | '/dashboard/academia/alunos'
+    | '/dashboard/academia/treinos'
     | '/dashboard/personal/alunos'
     | '/dashboard/personal/avaliacoes'
     | '/dashboard/personal/personais'
     | '/dashboard/personal/treinos'
+    | '/dashboard/academia/treinos/editar/$slug'
+    | '/dashboard/academia/treinos/modelo/$modeloId'
+    | '/dashboard/academia/treinos/plano/$planoId'
     | '/dashboard/personal/treinos/editar/$slug'
     | '/dashboard/personal/treinos/modelo/$modeloId'
     | '/dashboard/personal/treinos/plano/$planoId'
@@ -451,16 +525,22 @@ export interface FileRouteTypes {
     | '/_authenticated/_academia/dashboard/academia/'
     | '/_authenticated/_aluno/dashboard/aluno/'
     | '/_authenticated/_academia/dashboard/academia/alunos/$alunoId'
+    | '/_authenticated/_academia/dashboard/academia/treinos/novo-plano'
+    | '/_authenticated/_academia/dashboard/academia/treinos/novo-template'
     | '/_authenticated/_personal/dashboard/personal/alunos/$alunoId'
     | '/_authenticated/_personal/dashboard/personal/avaliacao/$avaliacaoId'
     | '/_authenticated/_personal/dashboard/personal/avaliacoes/$alunoId'
     | '/_authenticated/_personal/dashboard/personal/treinos/novo-plano'
     | '/_authenticated/_personal/dashboard/personal/treinos/novo-template'
     | '/_authenticated/_academia/dashboard/academia/alunos/'
+    | '/_authenticated/_academia/dashboard/academia/treinos/'
     | '/_authenticated/_personal/dashboard/personal/alunos/'
     | '/_authenticated/_personal/dashboard/personal/avaliacoes/'
     | '/_authenticated/_personal/dashboard/personal/personais/'
     | '/_authenticated/_personal/dashboard/personal/treinos/'
+    | '/_authenticated/_academia/dashboard/academia/treinos/editar/$slug'
+    | '/_authenticated/_academia/dashboard/academia/treinos/modelo/$modeloId'
+    | '/_authenticated/_academia/dashboard/academia/treinos/plano/$planoId'
     | '/_authenticated/_personal/dashboard/personal/treinos/editar/$slug'
     | '/_authenticated/_personal/dashboard/personal/treinos/modelo/$modeloId'
     | '/_authenticated/_personal/dashboard/personal/treinos/plano/$planoId'
@@ -656,6 +736,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPersonalDashboardPersonalAlunosIndexRouteImport
       parentRoute: typeof AuthenticatedPersonalRouteRoute
     }
+    '/_authenticated/_academia/dashboard/academia/treinos/': {
+      id: '/_authenticated/_academia/dashboard/academia/treinos/'
+      path: '/dashboard/academia/treinos'
+      fullPath: '/dashboard/academia/treinos/'
+      preLoaderRoute: typeof AuthenticatedAcademiaDashboardAcademiaTreinosIndexRouteImport
+      parentRoute: typeof AuthenticatedAcademiaRouteRoute
+    }
     '/_authenticated/_academia/dashboard/academia/alunos/': {
       id: '/_authenticated/_academia/dashboard/academia/alunos/'
       path: '/dashboard/academia/alunos'
@@ -698,6 +785,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPersonalDashboardPersonalAlunosAlunoIdRouteImport
       parentRoute: typeof AuthenticatedPersonalRouteRoute
     }
+    '/_authenticated/_academia/dashboard/academia/treinos/novo-template': {
+      id: '/_authenticated/_academia/dashboard/academia/treinos/novo-template'
+      path: '/dashboard/academia/treinos/novo-template'
+      fullPath: '/dashboard/academia/treinos/novo-template'
+      preLoaderRoute: typeof AuthenticatedAcademiaDashboardAcademiaTreinosNovoTemplateRouteImport
+      parentRoute: typeof AuthenticatedAcademiaRouteRoute
+    }
+    '/_authenticated/_academia/dashboard/academia/treinos/novo-plano': {
+      id: '/_authenticated/_academia/dashboard/academia/treinos/novo-plano'
+      path: '/dashboard/academia/treinos/novo-plano'
+      fullPath: '/dashboard/academia/treinos/novo-plano'
+      preLoaderRoute: typeof AuthenticatedAcademiaDashboardAcademiaTreinosNovoPlanoRouteImport
+      parentRoute: typeof AuthenticatedAcademiaRouteRoute
+    }
     '/_authenticated/_academia/dashboard/academia/alunos/$alunoId': {
       id: '/_authenticated/_academia/dashboard/academia/alunos/$alunoId'
       path: '/dashboard/academia/alunos/$alunoId'
@@ -726,6 +827,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPersonalDashboardPersonalTreinosEditarSlugRouteImport
       parentRoute: typeof AuthenticatedPersonalRouteRoute
     }
+    '/_authenticated/_academia/dashboard/academia/treinos/plano/$planoId': {
+      id: '/_authenticated/_academia/dashboard/academia/treinos/plano/$planoId'
+      path: '/dashboard/academia/treinos/plano/$planoId'
+      fullPath: '/dashboard/academia/treinos/plano/$planoId'
+      preLoaderRoute: typeof AuthenticatedAcademiaDashboardAcademiaTreinosPlanoPlanoIdRouteImport
+      parentRoute: typeof AuthenticatedAcademiaRouteRoute
+    }
+    '/_authenticated/_academia/dashboard/academia/treinos/modelo/$modeloId': {
+      id: '/_authenticated/_academia/dashboard/academia/treinos/modelo/$modeloId'
+      path: '/dashboard/academia/treinos/modelo/$modeloId'
+      fullPath: '/dashboard/academia/treinos/modelo/$modeloId'
+      preLoaderRoute: typeof AuthenticatedAcademiaDashboardAcademiaTreinosModeloModeloIdRouteImport
+      parentRoute: typeof AuthenticatedAcademiaRouteRoute
+    }
+    '/_authenticated/_academia/dashboard/academia/treinos/editar/$slug': {
+      id: '/_authenticated/_academia/dashboard/academia/treinos/editar/$slug'
+      path: '/dashboard/academia/treinos/editar/$slug'
+      fullPath: '/dashboard/academia/treinos/editar/$slug'
+      preLoaderRoute: typeof AuthenticatedAcademiaDashboardAcademiaTreinosEditarSlugRouteImport
+      parentRoute: typeof AuthenticatedAcademiaRouteRoute
+    }
   }
 }
 
@@ -733,7 +855,13 @@ interface AuthenticatedAcademiaRouteRouteChildren {
   AuthenticatedAcademiaDashboardAcademiaFinanceiroRoute: typeof AuthenticatedAcademiaDashboardAcademiaFinanceiroRoute
   AuthenticatedAcademiaDashboardAcademiaIndexRoute: typeof AuthenticatedAcademiaDashboardAcademiaIndexRoute
   AuthenticatedAcademiaDashboardAcademiaAlunosAlunoIdRoute: typeof AuthenticatedAcademiaDashboardAcademiaAlunosAlunoIdRoute
+  AuthenticatedAcademiaDashboardAcademiaTreinosNovoPlanoRoute: typeof AuthenticatedAcademiaDashboardAcademiaTreinosNovoPlanoRoute
+  AuthenticatedAcademiaDashboardAcademiaTreinosNovoTemplateRoute: typeof AuthenticatedAcademiaDashboardAcademiaTreinosNovoTemplateRoute
   AuthenticatedAcademiaDashboardAcademiaAlunosIndexRoute: typeof AuthenticatedAcademiaDashboardAcademiaAlunosIndexRoute
+  AuthenticatedAcademiaDashboardAcademiaTreinosIndexRoute: typeof AuthenticatedAcademiaDashboardAcademiaTreinosIndexRoute
+  AuthenticatedAcademiaDashboardAcademiaTreinosEditarSlugRoute: typeof AuthenticatedAcademiaDashboardAcademiaTreinosEditarSlugRoute
+  AuthenticatedAcademiaDashboardAcademiaTreinosModeloModeloIdRoute: typeof AuthenticatedAcademiaDashboardAcademiaTreinosModeloModeloIdRoute
+  AuthenticatedAcademiaDashboardAcademiaTreinosPlanoPlanoIdRoute: typeof AuthenticatedAcademiaDashboardAcademiaTreinosPlanoPlanoIdRoute
 }
 
 const AuthenticatedAcademiaRouteRouteChildren: AuthenticatedAcademiaRouteRouteChildren =
@@ -744,8 +872,20 @@ const AuthenticatedAcademiaRouteRouteChildren: AuthenticatedAcademiaRouteRouteCh
       AuthenticatedAcademiaDashboardAcademiaIndexRoute,
     AuthenticatedAcademiaDashboardAcademiaAlunosAlunoIdRoute:
       AuthenticatedAcademiaDashboardAcademiaAlunosAlunoIdRoute,
+    AuthenticatedAcademiaDashboardAcademiaTreinosNovoPlanoRoute:
+      AuthenticatedAcademiaDashboardAcademiaTreinosNovoPlanoRoute,
+    AuthenticatedAcademiaDashboardAcademiaTreinosNovoTemplateRoute:
+      AuthenticatedAcademiaDashboardAcademiaTreinosNovoTemplateRoute,
     AuthenticatedAcademiaDashboardAcademiaAlunosIndexRoute:
       AuthenticatedAcademiaDashboardAcademiaAlunosIndexRoute,
+    AuthenticatedAcademiaDashboardAcademiaTreinosIndexRoute:
+      AuthenticatedAcademiaDashboardAcademiaTreinosIndexRoute,
+    AuthenticatedAcademiaDashboardAcademiaTreinosEditarSlugRoute:
+      AuthenticatedAcademiaDashboardAcademiaTreinosEditarSlugRoute,
+    AuthenticatedAcademiaDashboardAcademiaTreinosModeloModeloIdRoute:
+      AuthenticatedAcademiaDashboardAcademiaTreinosModeloModeloIdRoute,
+    AuthenticatedAcademiaDashboardAcademiaTreinosPlanoPlanoIdRoute:
+      AuthenticatedAcademiaDashboardAcademiaTreinosPlanoPlanoIdRoute,
   }
 
 const AuthenticatedAcademiaRouteRouteWithChildren =
