@@ -3,8 +3,9 @@ import { useQuery } from "@tanstack/react-query";
 import {
   Home, UserPlus, Users as UsersIcon, Users, Dumbbell, Crown, ArrowRight,
   TrendingUp, Wallet, HeartPulse, Trophy, Eye, ChevronRight, ChevronDown, Activity,
-  Link2,
+  Link2, Lock, Pencil,
 } from "lucide-react";
+
 import { supabase } from "@/integrations/supabase/client";
 import { IconRail } from "@/components/IconRail";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
@@ -230,7 +231,11 @@ function ActionButton({ icon: Icon, label, onClick, to }: { icon: React.ElementT
   return <button type="button" onClick={onClick} className={cls}>{inner}</button>;
 }
 
-function MobilePulseCard() {
+function MobilePulseCard({ novosAlunos }: { novosAlunos: number }) {
+  const total = novosAlunos;
+  const subtitle = total > 0
+    ? `${total} atividade${total === 1 ? "" : "s"} nova${total === 1 ? "" : "s"} · ${total} aluno${total === 1 ? "" : "s"} pra falar`
+    : "Nenhuma atividade nova";
   return (
     <button
       type="button"
@@ -240,15 +245,21 @@ function MobilePulseCard() {
         <div className="grid h-12 w-12 place-items-center rounded-full bg-primary/15 text-primary">
           <Activity className="h-6 w-6" strokeWidth={2} />
         </div>
+        {total > 0 && (
+          <span className="absolute -right-1 -top-1 grid h-5 w-5 place-items-center rounded-full bg-rose-500 text-[11px] font-extrabold text-white">
+            {total}
+          </span>
+        )}
       </div>
       <div className="min-w-0 flex-1">
         <div className="truncate text-sm font-extrabold text-foreground sm:text-base">pulso da academia</div>
-        <div className="truncate text-xs text-muted-foreground sm:text-sm">Nenhuma atividade nova</div>
+        <div className="truncate text-xs text-muted-foreground sm:text-sm">{subtitle}</div>
       </div>
       <ChevronDown className="h-4 w-4 shrink-0 text-muted-foreground" />
     </button>
   );
 }
+
 
 function AcademiaHome() {
   const { profile } = useCurrentUser();
@@ -439,21 +450,32 @@ function AcademiaHome() {
 
               <div className="grid grid-cols-2 gap-3">
                 <ActionButton
-                  icon={UserPlus}
+                  icon={Lock}
                   label="Adicionar Aluno"
                   onClick={() => navigate({ to: "/dashboard/academia/alunos" })}
                 />
                 <ActionButton
-                  icon={Link2}
-                  label="Gerenciar Equipe"
+                  icon={Lock}
+                  label="Link de Cadastro"
                   to="/dashboard/academia/personais"
                 />
               </div>
 
-              <MobilePulseCard />
+              <MobilePulseCard novosAlunos={o?.novosAlunos30d ?? 0} />
             </div>
+
+            <button
+              type="button"
+              onClick={() => navigate({ to: "/dashboard/academia/configuracoes" })}
+              className="fixed bottom-20 right-4 z-30 inline-flex items-center gap-2 rounded-full border border-primary/60 bg-card/95 px-4 py-2 text-sm font-semibold text-primary shadow-[var(--shadow-mobile-card)] backdrop-blur lg:hidden"
+              aria-label="Editar"
+            >
+              <Pencil className="h-4 w-4" strokeWidth={2.2} />
+              Editar
+            </button>
           </div>
         </div>
+
       </main>
       <MobileBottomNav scope="academia" />
     </div>
