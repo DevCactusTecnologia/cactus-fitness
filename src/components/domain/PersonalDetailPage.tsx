@@ -409,13 +409,25 @@ function EditProfileDialog({
 
           </div>
           <div className="space-y-1.5">
+            <Label htmlFor="p-email">E-mail</Label>
+            <Input
+              id="p-email"
+              type="email"
+              value={emailVal}
+              onChange={(e) => setEmailVal(e.target.value)}
+              placeholder="email@exemplo.com"
+              autoComplete="email"
+            />
+            {emailError && <p className="text-xs text-destructive">{emailError}</p>}
+          </div>
+          <div className="space-y-1.5">
             <Label htmlFor="p-cref">CREF</Label>
             <Input id="p-cref" value={cref} onChange={(e) => setCref(e.target.value)} placeholder="000000-G/UF" />
           </div>
         </div>
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={save.isPending}>Cancelar</Button>
-          <Button onClick={() => save.mutate()} disabled={save.isPending || fullName.trim().length < 2}>
+          <Button onClick={() => save.mutate()} disabled={save.isPending || fullName.trim().length < 2 || !!emailError}>
             {save.isPending ? "Salvando..." : "Salvar"}
           </Button>
         </DialogFooter>
