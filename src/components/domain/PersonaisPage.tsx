@@ -7,6 +7,7 @@ import {
   ArrowUpDown, Activity, Users as UsersIcon, Loader2, Crown, X,
 } from "lucide-react";
 import { toast } from "sonner";
+
 import { supabase } from "@/integrations/supabase/client";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { IconRail } from "@/components/IconRail";
@@ -218,8 +219,12 @@ export function PersonaisPage({ scope }: { scope: Scope }) {
                 </div>
               ) : (
                 filtered.map((p) => (
-                  <div
+                  <Link
                     key={p.user_id}
+                    to={scope === "academia"
+                      ? "/dashboard/academia/personais/$personalId"
+                      : "/dashboard/personal/personais/$personalId"}
+                    params={{ personalId: p.user_id }}
                     className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-4 py-3 transition hover:bg-accent/50 sm:grid-cols-[1.6fr_1fr_1fr_auto] sm:px-5 sm:py-4"
                   >
                     <div className="flex min-w-0 items-center gap-3">
@@ -258,8 +263,9 @@ export function PersonaisPage({ scope }: { scope: Scope }) {
                     <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-muted-foreground">
                       <ChevronRight className="h-4 w-4" />
                     </span>
-                  </div>
+                  </Link>
                 ))
+
               )}
             </div>
 
