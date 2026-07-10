@@ -19,6 +19,8 @@ import {
 } from "@/components/ui/sheet";
 import { useSignOut } from "@/lib/auth";
 
+type Scope = "personal" | "academia" | "aluno";
+
 type Item = {
   icon: React.ElementType;
   label: string;
@@ -27,11 +29,28 @@ type Item = {
   badge?: string;
 };
 
-const ITEMS: Item[] = [
-  { icon: LayoutDashboard, label: "Início", to: "/", match: (p) => p === "/" },
-  { icon: Users, label: "Alunos", to: "/dashboard/personal/alunos", match: (p) => p.startsWith("/dashboard/personal/alunos") },
-  { icon: Dumbbell, label: "Treinos", to: "/dashboard/personal/treinos", match: (p) => p.startsWith("/dashboard/personal/treinos") },
-];
+const ITEMS_BY_SCOPE: Record<Scope, Item[]> = {
+  personal: [
+    { icon: LayoutDashboard, label: "Início", to: "/", match: (p) => p === "/" },
+    { icon: Users, label: "Alunos", to: "/dashboard/personal/alunos", match: (p) => p.startsWith("/dashboard/personal/alunos") },
+    { icon: Dumbbell, label: "Treinos", to: "/dashboard/personal/treinos", match: (p) => p.startsWith("/dashboard/personal/treinos") },
+  ],
+  academia: [
+    { icon: LayoutDashboard, label: "Painel", to: "/dashboard/academia", match: (p) => p === "/dashboard/academia" },
+    { icon: Users, label: "Alunos", to: "/dashboard/academia/alunos", match: (p) => p.startsWith("/dashboard/academia/alunos") },
+    { icon: Dumbbell, label: "Treinos", to: "/dashboard/academia/treinos", match: (p) => p.startsWith("/dashboard/academia/treinos") },
+  ],
+  aluno: [
+    { icon: LayoutDashboard, label: "Início", to: "/dashboard/aluno", match: (p) => p === "/dashboard/aluno" },
+    { icon: Dumbbell, label: "Treinos", to: "/meu-treino", match: (p) => p.startsWith("/meu-treino") },
+  ],
+};
+
+function detectScope(pathname: string): Scope {
+  if (pathname.startsWith("/dashboard/academia")) return "academia";
+  if (pathname.startsWith("/dashboard/aluno")) return "aluno";
+  return "personal";
+}
 
 type MenuLink = {
   icon: React.ElementType;
