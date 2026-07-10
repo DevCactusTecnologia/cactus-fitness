@@ -3,10 +3,11 @@ import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import {
   ChevronLeft, ChevronRight, Loader2, Mail, Phone, Calendar, Shield, Crown,
-  BadgeCheck, Users as UsersIcon, Pencil, KeyRound, Eye, EyeOff, Power,
+  BadgeCheck, Users as UsersIcon, Pencil, KeyRound, Eye, EyeOff, Lock, Trash2, AlertTriangle,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { IconRail } from "@/components/IconRail";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
@@ -22,6 +23,7 @@ import { Button } from "@/components/ui/button";
 import {
   updatePersonalProfile, changePersonalPassword, togglePersonalActive,
 } from "@/lib/personal-admin.functions";
+import { removeMember } from "@/lib/academia-config.functions";
 
 type PersonalDetail = {
   user_id: string;
