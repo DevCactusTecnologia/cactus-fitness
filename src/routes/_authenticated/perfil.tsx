@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { BarChart3, FileText, Palette, Upload, Check, Loader2 } from "lucide-react";
+import { BarChart3, FileText, Palette, Upload, Check, Loader2, Camera } from "lucide-react";
 import { IconRail } from "@/components/IconRail";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { Label } from "@/components/ui/label";
@@ -9,6 +9,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useCurrentUser, initialsFromName } from "@/lib/auth";
+import { useAvatarUrl } from "@/hooks/useAvatarUrl";
+import { colorForId } from "@/lib/avatar-color";
+import { AvatarCropDialog } from "@/components/AvatarCropDialog";
 
 export const Route = createFileRoute("/_authenticated/perfil")({
   head: () => ({
@@ -138,6 +142,40 @@ function PerfilPage() {
   const [sections, setSections] = useState<Record<string, boolean>>(DEFAULTS.sections);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
 
+  const { profile } = useCurrentUser();
+  const avatarUrl = useAvatarUrl(profile?.avatar_url);
+  const initials = initialsFromName(profile?.full_name, profile?.email);
+  const avatarColor = colorForId(profile?.id ?? "user");
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleAvatarPick = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file || !file.type.startsWith("image/")) return;
+    if (file.size > 5 * 1024 * 1024) { toast.error("Arquivo maior que 5MB"); return; }
+    const reader = new FileReader();
+    reader.onload = () => setCropSrc(typeof reader.result === "string" ? reader.result : null);
+    reader.readAsDataURL(file);
+  };
+
+  const handleAvatarConfirm = async (blob: Blob) => {
+    if (!profile?.id) return;
+    setUploadingAvatar(true);
+    const path = `${profile.id}/avatar-${Date.now()}.jpg`;
+    const { error: upErr } = await supabase.storage
+      .from("avatars")
+      .upload(path, blob, { upsert: true, contentType: "image/jpeg" });
+    if (upErr) { setUploadingAvatar(false); toast.error("Falha ao enviar imagem"); return; }
+    const { error: dbErr } = await supabase.from("profiles").update({ avatar_url: path }).eq("id", profile.id);
+    setUploadingAvatar(false);
+    setCropSrc(null);
+    if (dbErr) { toast.error(dbErr.message); return; }
+    await qc.invalidateQueries({ queryKey: ["current-user-profile", profile.id] });
+    toast.success("Foto atualizada");
+  };
+
   const colorPending = primaryColor.toLowerCase() !== savedColor.toLowerCase();
 
   useEffect(() => {
@@ -265,6 +303,58 @@ function PerfilPage() {
 
             {tab === "customizar" && (
               <div className="flex flex-col space-y-4">
+                {/* Foto de Perfil */}
+                <section className="rounded-xl border border-border bg-card text-foreground">
+                  <div className="flex flex-col space-y-1.5 p-4">
+                    <h3 className="font-display text-base font-bold tracking-tight sm:text-lg">
+                      Foto de perfil
+                    </h3>
+                    <p className="text-xs text-muted-foreground sm:text-sm">
+                      Aparece no painel e para seus alunos
+                    </p>
+                  </div>
+                  <div className="p-4">
+                    <div className="flex items-center gap-4">
+                      <button
+                        type="button"
+                        onClick={() => avatarInputRef.current?.click()}
+                        className="group relative grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-full ring-2 ring-primary/70 font-display text-xl font-bold transition active:scale-95"
+                        style={avatarUrl ? undefined : { backgroundColor: avatarColor.bg, color: avatarColor.fg }}
+                      >
+                        {avatarUrl ? (
+                          <img src={avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
+                        ) : (
+                          <span>{initials}</span>
+                        )}
+                        <span className="absolute inset-0 grid place-items-center bg-black/50 opacity-0 transition group-hover:opacity-100">
+                          <Camera className="h-5 w-5 text-white" />
+                        </span>
+                      </button>
+                      <div className="min-w-0 flex-1">
+                        <button
+                          type="button"
+                          onClick={() => avatarInputRef.current?.click()}
+                          disabled={uploadingAvatar}
+                          className="inline-flex h-9 items-center gap-2 rounded-full border border-border bg-transparent px-4 text-sm font-semibold text-foreground transition hover:bg-muted disabled:opacity-60"
+                        >
+                          {uploadingAvatar ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+                          {avatarUrl ? "Trocar foto" : "Enviar foto"}
+                        </button>
+                        <p className="mt-2 text-[0.625rem] text-muted-foreground">
+                          JPG ou PNG. Máx 5MB.
+                        </p>
+                      </div>
+                      <input
+                        ref={avatarInputRef}
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleAvatarPick}
+                      />
+                    </div>
+                  </div>
+                </section>
+
                 {/* Logo / Marca */}
                 <section className="rounded-xl border border-border bg-card text-foreground">
                   <div className="flex flex-col space-y-1.5 p-4">
@@ -469,6 +559,13 @@ function PerfilPage() {
         </div>
       </div>
       <MobileBottomNav />
+      <AvatarCropDialog
+        open={!!cropSrc}
+        imageSrc={cropSrc}
+        onCancel={() => setCropSrc(null)}
+        onConfirm={handleAvatarConfirm}
+        saving={uploadingAvatar}
+      />
     </div>
   );
 }
