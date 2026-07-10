@@ -490,15 +490,6 @@ function AcademiaHome() {
               </div>
             </div>
 
-            <button
-              type="button"
-              onClick={() => navigate({ to: "/dashboard/academia/configuracoes" })}
-              className="fixed bottom-20 right-4 z-30 inline-flex items-center gap-2 rounded-full border border-primary/60 bg-card/95 px-4 py-2 text-sm font-semibold text-primary shadow-[var(--shadow-mobile-card)] backdrop-blur lg:hidden"
-              aria-label="Editar"
-            >
-              <Pencil className="h-4 w-4" strokeWidth={2.2} />
-              Editar
-            </button>
           </div>
         </div>
 
