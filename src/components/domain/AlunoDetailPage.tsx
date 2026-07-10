@@ -1331,3 +1331,180 @@ function CopyPlanConfigDialog({
     </Dialog>
   );
 }
+
+function AvaliacoesTab({ alunoId, scope }: { alunoId: string; scope: Scope }) {
+  const qc = useQueryClient();
+  const [novaOpen, setNovaOpen] = useState(false);
+  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+  const [mode, setMode] = useState<"personal" | "aluno">("personal");
+
+  const detailBase =
+    scope === "academia"
+      ? "/dashboard/academia/avaliacao/$avaliacaoId"
+      : "/dashboard/personal/avaliacao/$avaliacaoId";
+
+  const { data: avaliacoes = [], isLoading } = useQuery({
+    queryKey: ["avaliacoes", alunoId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("avaliacoes")
+        .select("id, assessment_date, composicao_corporal, perimetros, vo2max, neuromotora, dinamometria, teste_rm, banco_wells, postural, fotos")
+        .eq("aluno_id", alunoId)
+        .order("assessment_date", { ascending: false });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  const createAvaliacao = useMutation({
+    mutationFn: async () => {
+      const { data: userData } = await supabase.auth.getUser();
+      const personalId = userData.user?.id;
+      if (!personalId) throw new Error("Sessão expirada.");
+      const { data, error } = await supabase
+        .from("avaliacoes")
+        .insert({ personal_id: personalId, aluno_id: alunoId, assessment_date: date, mode })
+        .select("id")
+        .single();
+      if (error) throw error;
+      return data.id as string;
+    },
+    onSuccess: () => {
+      setNovaOpen(false);
+      qc.invalidateQueries({ queryKey: ["avaliacoes", alunoId] });
+      toast.success("Avaliação criada");
+    },
+    onError: (e: any) => toast.error(e.message ?? "Erro ao criar"),
+  });
+
+  const deleteAvaliacao = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase.from("avaliacoes").delete().eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["avaliacoes", alunoId] });
+      toast.success("Avaliação excluída");
+    },
+    onError: (e: any) => toast.error(e.message ?? "Erro ao excluir"),
+  });
+
+  function fmt(d: string) {
+    const [y, m, day] = d.split("-").map(Number);
+    const months = ["janeiro","fevereiro","março","abril","maio","junho","julho","agosto","setembro","outubro","novembro","dezembro"];
+    return `${String(day).padStart(2, "0")} de ${months[m - 1]} de ${y}`;
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <h3 className="font-display text-base font-bold">Avaliações Físicas</h3>
+          <p className="text-xs text-muted-foreground">Histórico de avaliações do aluno</p>
+        </div>
+        <button
+          type="button"
+          onClick={() => setNovaOpen(true)}
+          className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:brightness-110"
+        >
+          <Plus className="h-4 w-4" /> Nova
+        </button>
+      </div>
+
+      {isLoading ? (
+        <div className="grid place-items-center py-8">
+          <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+        </div>
+      ) : avaliacoes.length === 0 ? (
+        <div className="rounded-xl border border-dashed border-border/60 bg-background/40 p-8 text-center">
+          <p className="text-sm font-medium">Nenhuma avaliação física</p>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Clique em "Nova" para criar a primeira avaliação.
+          </p>
+        </div>
+      ) : (
+        <ul className="space-y-2">
+          {avaliacoes.map((av: any) => (
+            <li
+              key={av.id}
+              className="flex items-center gap-2 rounded-xl border border-border/60 bg-background/40 px-4 py-3"
+            >
+              <Link
+                to={detailBase}
+                params={{ avaliacaoId: av.id }}
+                className="min-w-0 flex-1"
+              >
+                <div className="flex items-center gap-2 text-sm font-semibold">
+                  <Calendar className="h-4 w-4 text-primary" />
+                  {fmt(av.assessment_date)}
+                </div>
+              </Link>
+              <button
+                type="button"
+                onClick={() => {
+                  if (confirm("Excluir esta avaliação?")) deleteAvaliacao.mutate(av.id);
+                }}
+                className="grid h-8 w-8 place-items-center rounded-lg text-destructive hover:bg-destructive/10"
+                aria-label="Excluir"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <Dialog open={novaOpen} onOpenChange={setNovaOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Nova avaliação física</DialogTitle>
+            <DialogDescription>Escolha quem vai preencher as medidas e a data.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3">
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setMode("personal")}
+                className={`rounded-lg border p-3 text-left text-sm transition ${mode === "personal" ? "border-primary bg-primary/5" : "border-border"}`}
+              >
+                <div className="font-semibold">Eu vou preencher</div>
+                <div className="mt-0.5 text-xs text-muted-foreground">Avaliação completa</div>
+              </button>
+              <button
+                type="button"
+                onClick={() => setMode("aluno")}
+                className={`rounded-lg border p-3 text-left text-sm transition ${mode === "aluno" ? "border-primary bg-primary/5" : "border-border"}`}
+              >
+                <div className="font-semibold">Pedir pro aluno</div>
+                <div className="mt-0.5 text-xs text-muted-foreground">Envia no app</div>
+              </button>
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="new_av_date" className="text-xs">Data</Label>
+              <Input id="new_av_date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+            </div>
+          </div>
+          <DialogFooter>
+            <button
+              type="button"
+              onClick={() => setNovaOpen(false)}
+              className="rounded-full border border-border bg-background px-4 py-2 text-sm font-semibold hover:bg-accent"
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              onClick={() => createAvaliacao.mutate()}
+              disabled={createAvaliacao.isPending}
+              className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground hover:brightness-110 disabled:opacity-60"
+            >
+              {createAvaliacao.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+              Criar
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
+  );
+}
+
