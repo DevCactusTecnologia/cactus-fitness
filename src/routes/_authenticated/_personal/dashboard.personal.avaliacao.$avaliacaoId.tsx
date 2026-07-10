@@ -69,7 +69,7 @@ function formatDate(iso: string) {
 }
 
 export function AvaliacaoPage() {
-  const { avaliacaoId } = Route.useParams();
+  const { avaliacaoId } = useParams({ strict: false }) as { avaliacaoId: string };
   const { data, isLoading } = useAvaliacao(avaliacaoId);
 
   if (isLoading || !data) {
