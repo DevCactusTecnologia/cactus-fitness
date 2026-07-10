@@ -175,8 +175,7 @@ function MobileGreetingCard({ name, initials, avatarUrl, avatarColor, alunos, tr
     <div className="rounded-[1.55rem] border border-border bg-[image:var(--gradient-greeting-card)] p-4 shadow-[var(--shadow-mobile-card)]">
       <div className="flex items-center gap-3">
         <div
-          className="grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-full ring-2 ring-primary/70 font-display text-sm font-bold"
-          style={avatarUrl ? undefined : { backgroundColor: avatarColor.bg, color: avatarColor.fg }}
+          className="grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-full ring-2 ring-primary/70 font-display text-sm font-bold bg-primary text-primary-foreground"
         >
           {avatarUrl ? (
             <img src={avatarUrl} alt={name} className="h-full w-full object-cover" />
@@ -184,6 +183,7 @@ function MobileGreetingCard({ name, initials, avatarUrl, avatarColor, alunos, tr
             <span>{initials}</span>
           )}
         </div>
+
         <div className="min-w-0">
           <div className="text-xs font-medium text-muted-foreground">{greeting},</div>
           <div className="truncate text-lg font-extrabold leading-tight tracking-tight font-display">{name}</div>
