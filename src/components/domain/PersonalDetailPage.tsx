@@ -21,7 +21,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import {
-  updatePersonalProfile, changePersonalPassword, togglePersonalActive,
+  updatePersonalProfile, changePersonalPassword, togglePersonalActive, getPersonalEmail,
 } from "@/lib/personal-admin.functions";
 import { removeMember } from "@/lib/academia-config.functions";
 
@@ -114,6 +114,12 @@ function Row({
 export function PersonalDetailPage({ scope }: { scope: Scope }) {
   const { personalId } = useParams({ strict: false }) as { personalId: string };
   const { data: p, isLoading } = usePersonal(personalId);
+  const getEmailFn = useServerFn(getPersonalEmail);
+  const { data: emailData } = useQuery({
+    queryKey: ["personal-email", personalId],
+    queryFn: () => getEmailFn({ data: { personalId } }),
+    staleTime: 60_000,
+  });
   const [tab, setTab] = useState(0);
   const [editOpen, setEditOpen] = useState(false);
   const [passOpen, setPassOpen] = useState(false);
@@ -264,7 +270,7 @@ export function PersonalDetailPage({ scope }: { scope: Scope }) {
                   <div className="space-y-1">
                     <Row icon={BadgeCheck} label="CREF" value={p.cref} />
                     <Row icon={Phone} label="Telefone" value={p.phone} />
-                    <Row icon={Mail} label="E-mail" value={null} />
+                    <Row icon={Mail} label="E-mail" value={emailData?.email ?? null} />
                     <Row
                       icon={Calendar}
                       label="Membro desde"
@@ -318,7 +324,7 @@ export function PersonalDetailPage({ scope }: { scope: Scope }) {
       </main>
       <MobileBottomNav scope={scope} />
 
-      <EditProfileDialog personal={p} open={editOpen} onOpenChange={setEditOpen} />
+      <EditProfileDialog personal={p} email={emailData?.email ?? null} open={editOpen} onOpenChange={setEditOpen} />
       <ChangePasswordDialog personal={p} open={passOpen} onOpenChange={setPassOpen} />
       <ToggleActiveDialog personal={p} open={toggleOpen} onOpenChange={setToggleOpen} />
       <DeletePersonalDialog personal={p} scope={scope} open={deleteOpen} onOpenChange={setDeleteOpen} />
@@ -327,21 +333,27 @@ export function PersonalDetailPage({ scope }: { scope: Scope }) {
 }
 
 function EditProfileDialog({
-  personal, open, onOpenChange,
-}: { personal: PersonalDetail; open: boolean; onOpenChange: (v: boolean) => void }) {
+  personal, email, open, onOpenChange,
+}: { personal: PersonalDetail; email: string | null; open: boolean; onOpenChange: (v: boolean) => void }) {
   const qc = useQueryClient();
   const updateFn = useServerFn(updatePersonalProfile);
   const [fullName, setFullName] = useState(personal.full_name);
   const [phone, setPhone] = useState(personal.phone ?? "");
   const [cref, setCref] = useState(personal.cref ?? "");
+  const [emailVal, setEmailVal] = useState(email ?? "");
 
   useEffect(() => {
     if (open) {
       setFullName(personal.full_name);
       setPhone(personal.phone ?? "");
       setCref(personal.cref ?? "");
+      setEmailVal(email ?? "");
     }
-  }, [open, personal]);
+  }, [open, personal, email]);
+
+  const emailChanged = emailVal.trim().toLowerCase() !== (email ?? "").toLowerCase();
+  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal.trim());
+  const emailError = emailChanged && emailVal.trim().length > 0 && !emailValid ? "E-mail inválido" : null;
 
   const save = useMutation({
     mutationFn: async () => {
@@ -351,12 +363,14 @@ function EditProfileDialog({
           full_name: fullName.trim(),
           phone: phone.trim() || null,
           cref: cref.trim() || null,
+          ...(emailChanged && emailValid ? { email: emailVal.trim().toLowerCase() } : {}),
         },
       });
     },
     onSuccess: () => {
       toast.success("Perfil atualizado");
       qc.invalidateQueries({ queryKey: ["personal-detail", personal.user_id] });
+      qc.invalidateQueries({ queryKey: ["personal-email", personal.user_id] });
       qc.invalidateQueries({ queryKey: ["personais"] });
       onOpenChange(false);
     },
@@ -395,13 +409,25 @@ function EditProfileDialog({
 
           </div>
           <div className="space-y-1.5">
+            <Label htmlFor="p-email">E-mail</Label>
+            <Input
+              id="p-email"
+              type="email"
+              value={emailVal}
+              onChange={(e) => setEmailVal(e.target.value)}
+              placeholder="email@exemplo.com"
+              autoComplete="email"
+            />
+            {emailError && <p className="text-xs text-destructive">{emailError}</p>}
+          </div>
+          <div className="space-y-1.5">
             <Label htmlFor="p-cref">CREF</Label>
             <Input id="p-cref" value={cref} onChange={(e) => setCref(e.target.value)} placeholder="000000-G/UF" />
           </div>
         </div>
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={save.isPending}>Cancelar</Button>
-          <Button onClick={() => save.mutate()} disabled={save.isPending || fullName.trim().length < 2}>
+          <Button onClick={() => save.mutate()} disabled={save.isPending || fullName.trim().length < 2 || !!emailError}>
             {save.isPending ? "Salvando..." : "Salvar"}
           </Button>
         </DialogFooter>

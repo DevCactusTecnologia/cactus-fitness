@@ -21,6 +21,7 @@ const updateSchema = z.object({
   full_name: z.string().trim().min(2).max(120),
   phone: z.string().trim().max(40).nullable().optional(),
   cref: z.string().trim().max(40).nullable().optional(),
+  email: z.string().trim().toLowerCase().email("E-mail inválido").max(255).optional(),
 });
 
 export const updatePersonalProfile = createServerFn({ method: "POST" })
@@ -49,7 +50,38 @@ export const updatePersonalProfile = createServerFn({ method: "POST" })
       })
       .eq("id", data.personalId);
     if (error) throw new Error(error.message);
+
+    if (data.email) {
+      const { data: current } = await supabaseAdmin.auth.admin.getUserById(data.personalId);
+      if (current.user?.email !== data.email) {
+        const { error: emailErr } = await supabaseAdmin.auth.admin.updateUserById(data.personalId, {
+          email: data.email,
+          email_confirm: true,
+        });
+        if (emailErr) throw new Error(emailErr.message);
+      }
+    }
     return { ok: true };
+  });
+
+export const getPersonalEmail = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ personalId: z.string().uuid() }).parse(d))
+  .handler(async ({ context, data }) => {
+    const { supabase, userId } = context;
+    const { orgId } = await resolveOwnerOrg(supabase, userId);
+    const { data: member } = await supabase
+      .from("organization_members")
+      .select("user_id")
+      .eq("organization_id", orgId)
+      .eq("user_id", data.personalId)
+      .maybeSingle();
+    if (!member) throw new Error("Personal não encontrado nesta academia.");
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: u, error } = await supabaseAdmin.auth.admin.getUserById(data.personalId);
+    if (error) throw new Error(error.message);
+    return { email: u.user?.email ?? null };
   });
 
 const toggleSchema = z.object({
