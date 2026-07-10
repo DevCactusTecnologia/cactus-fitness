@@ -169,30 +169,30 @@ function MobileGreetingCard({ name, alunos, treinos, avaliacoes, novosAlunos, no
   const greeting = greetingFor(new Date().getHours());
   const delta = (n: number) => n > 0 ? `↑ ${n} este mês` : "";
   return (
-    <div className="rounded-[1.55rem] border border-border bg-[image:var(--gradient-greeting-card)] p-5 shadow-[var(--shadow-mobile-card)]">
-      <div className="flex items-center gap-4">
-        <div className="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-full bg-background/60 ring-2 ring-primary/70 sm:h-14 sm:w-14">
-          <img src={logoUrl} alt="CactusFitness" className="h-8 w-8 object-contain sm:h-10 sm:w-10" />
+    <div className="rounded-[1.55rem] border border-border bg-[image:var(--gradient-greeting-card)] p-4 shadow-[var(--shadow-mobile-card)]">
+      <div className="flex items-center gap-3">
+        <div className="grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-full bg-background/60 ring-2 ring-primary/70">
+          <img src={logoUrl} alt="CactusFitness" className="h-7 w-7 object-contain" />
         </div>
         <div className="min-w-0">
-          <div className="text-xs font-medium text-muted-foreground sm:text-sm">{greeting},</div>
-          <div className="truncate text-xl font-extrabold leading-tight tracking-tight font-display sm:text-[1.5rem]">{name}</div>
+          <div className="text-xs font-medium text-muted-foreground">{greeting},</div>
+          <div className="truncate text-lg font-extrabold leading-tight tracking-tight font-display">{name}</div>
         </div>
       </div>
-      <div className="mt-6 grid grid-cols-3 gap-4 sm:mt-7">
+      <div className="mt-5 grid grid-cols-3 gap-3">
         <div>
-          <div className="text-3xl font-extrabold leading-none font-display sm:text-[2.15rem]">{alunos}</div>
-          <div className="mt-2 text-xs leading-tight text-muted-foreground sm:text-sm">alunos<br />ativos</div>
+          <div className="text-[1.6rem] font-extrabold leading-none font-display">{alunos}</div>
+          <div className="mt-1.5 text-[11px] leading-tight text-muted-foreground">alunos<br />ativos</div>
           {delta(novosAlunos) && <div className="mt-1 text-[11px] font-semibold text-emerald-500">{delta(novosAlunos)}</div>}
         </div>
         <div>
-          <div className="text-3xl font-extrabold leading-none font-display sm:text-[2.15rem]">{treinos}</div>
-          <div className="mt-2 text-xs leading-tight text-muted-foreground sm:text-sm">treinos<br />ativos</div>
+          <div className="text-[1.6rem] font-extrabold leading-none font-display">{treinos}</div>
+          <div className="mt-1.5 text-[11px] leading-tight text-muted-foreground">treinos<br />ativos</div>
           {delta(novosTreinos) && <div className="mt-1 text-[11px] font-semibold text-emerald-500">{delta(novosTreinos)}</div>}
         </div>
         <div>
-          <div className="text-3xl font-extrabold leading-none font-display sm:text-[2.15rem]">{avaliacoes}</div>
-          <div className="mt-2 text-xs leading-tight text-muted-foreground sm:text-sm">avaliações<br />físicas</div>
+          <div className="text-[1.6rem] font-extrabold leading-none font-display">{avaliacoes}</div>
+          <div className="mt-1.5 text-[11px] leading-tight text-muted-foreground">avaliações<br />físicas</div>
           {delta(novasAvaliacoes) && <div className="mt-1 text-[11px] font-semibold text-emerald-500">{delta(novasAvaliacoes)}</div>}
         </div>
       </div>
