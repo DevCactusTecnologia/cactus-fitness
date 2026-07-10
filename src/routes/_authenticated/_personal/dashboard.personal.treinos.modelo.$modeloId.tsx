@@ -37,7 +37,7 @@ import {
 } from "@/components/ui/alert-dialog";
 
 export const Route = createFileRoute(
-  "/_authenticated/dashboard/personal/treinos/modelo/$modeloId",
+  "/_authenticated/_personal/dashboard/personal/treinos/modelo/$modeloId",
 )({
   head: () => ({
     meta: [

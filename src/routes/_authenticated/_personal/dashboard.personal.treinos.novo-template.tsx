@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { WorkoutEditor } from "@/components/workout-editor/WorkoutEditor";
 
-export const Route = createFileRoute("/_authenticated/dashboard/personal/treinos/novo-template")({
+export const Route = createFileRoute("/_authenticated/_personal/dashboard/personal/treinos/novo-template")({
   head: () => ({
     meta: [
       { title: "Criar modelo de treino · cactusfitness" },

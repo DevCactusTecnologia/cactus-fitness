@@ -11,7 +11,7 @@ import { IconRail } from "@/components/IconRail";
 import { initialsFromName } from "@/lib/auth";
 import { colorForId } from "@/lib/avatar-color";
 
-export const Route = createFileRoute("/_authenticated/dashboard/personal/personais/")({
+export const Route = createFileRoute("/_authenticated/_personal/dashboard/personal/personais/")({
   head: () => ({
     meta: [
       { title: "Personais · cactusfitness" },

@@ -23,7 +23,7 @@ import { IconRail } from "@/components/IconRail";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { colorForId } from "@/lib/avatar-color";
 
-export const Route = createFileRoute("/_authenticated/dashboard/personal/alunos/$alunoId")({
+export const Route = createFileRoute("/_authenticated/_personal/dashboard/personal/alunos/$alunoId")({
   head: () => ({
     meta: [
       { title: "Perfil do Aluno · cactusfitness" },
