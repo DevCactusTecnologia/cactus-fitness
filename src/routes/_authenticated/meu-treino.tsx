@@ -498,8 +498,8 @@ function MeuTreinoPage() {
 
       {/* Bottom nav (mobile) — mesmos itens do rail lateral */}
       <nav className="fixed inset-x-0 bottom-0 z-40 md:hidden border-t border-border/60 bg-background/95 backdrop-blur-xl">
-        <div className={`grid`} style={{ gridTemplateColumns: `repeat(${RAIL_ITEMS.length}, minmax(0, 1fr))` }}>
-          {RAIL_ITEMS.map(({ icon: Icon, label, to }) => {
+        <div className={`grid`} style={{ gridTemplateColumns: `repeat(${MOBILE_NAV_ITEMS.length}, minmax(0, 1fr))` }}>
+          {MOBILE_NAV_ITEMS.map(({ icon: Icon, label, to }) => {
             const active = to === "/meu-treino";
             return (
               <Link
