@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useCurrentUser, useSignOut, initialsFromName, firstName } from "@/lib/auth";
 import { useAvatarUrl } from "@/hooks/useAvatarUrl";
+import { colorForId } from "@/lib/avatar-color";
 
 export function UserAvatarMenu() {
   const { profile } = useCurrentUser();
@@ -19,6 +20,7 @@ export function UserAvatarMenu() {
   const displayName = firstName(profile?.full_name, profile?.email);
   const email = profile?.email ?? undefined;
   const avatarUrl = useAvatarUrl(profile?.avatar_url);
+  const color = profile?.id ? colorForId(profile.id) : null;
 
   return (
     <DropdownMenu>
@@ -30,7 +32,7 @@ export function UserAvatarMenu() {
         >
           <span
             className="absolute inset-0 grid place-items-center overflow-hidden rounded-full text-xs font-bold font-display"
-            style={avatarUrl ? undefined : { backgroundColor: "rgb(244, 63, 94)", color: "#fff" }}
+            style={avatarUrl ? undefined : color ? { backgroundColor: color.bg, color: color.fg } : undefined}
           >
             {avatarUrl ? (
               <img src={avatarUrl} alt={displayName} className="h-full w-full object-cover" />
