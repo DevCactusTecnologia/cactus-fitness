@@ -462,6 +462,32 @@ function AcademiaHome() {
               </div>
 
               <MobilePulseCard novosAlunos={o?.novosAlunos30d ?? 0} />
+
+              <div className="rounded-[1.55rem] border border-border bg-card p-4 shadow-[var(--shadow-mobile-card)]">
+                <div className="grid grid-cols-4 gap-3">
+                  {[
+                    { icon: UsersIcon, label: "Equipe", to: "/dashboard/academia/personais" },
+                    { icon: Users, label: "Todos os alunos", to: "/dashboard/academia/alunos" },
+                    { icon: Dumbbell, label: "Modelos de treino", to: "/dashboard/academia/treinos" },
+                    { icon: Wallet, label: "Financeiro", to: "/dashboard/academia/financeiro" },
+                    { icon: HeartPulse, label: "Avaliações", to: "/dashboard/academia/avaliacoes" },
+                    { icon: Trophy, label: "Desafios", to: "/dashboard/academia/desafios" },
+                  ].map(({ icon: Icon, label, to }) => (
+                    <Link
+                      key={to}
+                      to={to}
+                      className="flex min-w-0 flex-col items-center gap-2 py-2 text-center"
+                    >
+                      <div className="grid h-11 w-11 place-items-center rounded-full bg-primary/10 text-primary">
+                        <Icon className="h-5 w-5" strokeWidth={1.75} />
+                      </div>
+                      <span className="max-w-full break-words text-[11px] font-medium leading-tight text-foreground/85">
+                        {label}
+                      </span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
             </div>
 
             <button
