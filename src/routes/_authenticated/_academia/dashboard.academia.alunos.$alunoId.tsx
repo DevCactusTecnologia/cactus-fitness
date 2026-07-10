@@ -1,13 +1,12 @@
-import { createFileRoute, redirect } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
+import { AlunoDetailPage } from "@/components/domain/AlunoDetailPage";
 
-// TODO(lote 5): portar o detail de aluno com scope. Por enquanto redireciona
-// para a tela existente do personal — mesma view, dados scoping por RLS.
 export const Route = createFileRoute("/_authenticated/_academia/dashboard/academia/alunos/$alunoId")({
-  beforeLoad: ({ params }) => {
-    throw redirect({
-      to: "/dashboard/personal/alunos/$alunoId",
-      params: { alunoId: params.alunoId },
-      replace: true,
-    });
-  },
+  head: () => ({
+    meta: [
+      { title: "Perfil do Aluno · cactusfitness" },
+      { name: "description", content: "Detalhes, contato e histórico do aluno." },
+    ],
+  }),
+  component: () => <AlunoDetailPage scope="academia" />,
 });
