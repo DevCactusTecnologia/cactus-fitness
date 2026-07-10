@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import type { Scope } from "@/lib/scope";
 import { useState } from "react";
 import {
   Wallet,
