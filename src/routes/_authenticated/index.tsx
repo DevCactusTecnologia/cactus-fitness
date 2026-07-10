@@ -701,7 +701,7 @@ function Dashboard() {
             </div>
 
             {/* KPIs */}
-            <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+            <div className="grid grid-cols-2 gap-3 lg:grid-cols-3">
               <KpiCard
                 label="Alunos ativos"
                 value={String(stats?.alunosAtivos ?? 0)}
@@ -717,16 +717,12 @@ function Dashboard() {
                 spark={stats?.treinosSpark}
               />
               <KpiCard
-                label="Receita do mês"
-                value="R$ 0"
-                sub="vs mês anterior"
-              />
-              <KpiCard
                 label="Avaliações"
                 value={String(stats?.avaliacoes ?? 0)}
                 sub="em dia"
               />
             </div>
+
 
 
 
@@ -738,10 +734,11 @@ function Dashboard() {
                   <span className="font-mono text-[0.625rem] text-fg-muted">use as teclas</span>
                 </div>
                 <div className="grid grid-cols-1 gap-2 p-3 sm:grid-cols-2">
-                  <Shortcut icon={UserPlus} title="Novo aluno" sub="cadastrar ou convidar" k="N" to="/dashboard/personal/alunos" />
-                  <Shortcut icon={Wallet} title="Financeiro" sub="planos, cobranças e saques" k="F" to="/dashboard/personal/financeiro" />
-                  <Shortcut icon={HeartPulse} title="Avaliação física" sub="iniciar nova avaliação" k="A" to="/dashboard/personal/avaliacoes" />
+                  <Shortcut icon={Users} title="Alunos" sub="cadastros e contatos" k="A" to="/dashboard/personal/alunos" />
+                  <Shortcut icon={Dumbbell} title="Treinos" sub="biblioteca de treinos" k="T" to="/dashboard/personal/treinos" />
                   <Shortcut icon={Trophy} title="Desafios" sub="motivar seus alunos" k="D" to="/dashboard/personal/desafios" />
+                  <Shortcut icon={HeartPulse} title="Avaliações" sub="avaliações físicas" k="V" to="/dashboard/personal/avaliacoes" />
+
                 </div>
               </section>
 
