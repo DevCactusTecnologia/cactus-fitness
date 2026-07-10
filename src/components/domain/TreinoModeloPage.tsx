@@ -72,7 +72,7 @@ type Session = {
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 export function TreinoModeloPage({ scope }: { scope: Scope }) {
-  const { modeloId } = useParams({ from: scope === "academia" ? "/_authenticated/_academia/dashboard/academia/treinos/modelo/$modeloId" : "/_authenticated/_personal/dashboard/personal/treinos/modelo/$modeloId" });
+  const { modeloId } = useParams({ strict: false }) as { modeloId: string };
   const base = scope === "academia" ? "/dashboard/academia/treinos" : "/dashboard/personal/treinos";
   const navigate = useNavigate();
   const qc = useQueryClient();
