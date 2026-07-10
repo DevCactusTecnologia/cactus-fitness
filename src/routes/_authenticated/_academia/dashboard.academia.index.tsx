@@ -176,7 +176,7 @@ function MobileGreetingCard({ name, alunos, treinos, avaliacoes, novosAlunos, no
         </div>
         <div className="min-w-0">
           <div className="text-xs font-medium text-muted-foreground sm:text-sm">{greeting},</div>
-          <div className="truncate text-2xl font-extrabold leading-tight tracking-tight font-display sm:text-[1.75rem]">{name}</div>
+          <div className="truncate text-xl font-extrabold leading-tight tracking-tight font-display sm:text-[1.5rem]">{name}</div>
         </div>
       </div>
       <div className="mt-6 grid grid-cols-3 gap-4 sm:mt-7">
@@ -463,7 +463,7 @@ function AcademiaHome() {
 
               <MobilePulseCard novosAlunos={o?.novosAlunos30d ?? 0} />
 
-              <div className="rounded-[1.55rem] border border-border bg-card p-4 shadow-[var(--shadow-mobile-card)]">
+              <div className="rounded-xl border border-border bg-card p-4 md:p-6">
                 <div className="grid grid-cols-4 gap-3">
                   {[
                     { icon: UsersIcon, label: "Equipe", to: "/dashboard/academia/personais" },
