@@ -1,11 +1,12 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, Dumbbell, Trophy, HeartPulse } from "lucide-react";
+import { LayoutDashboard, Dumbbell, Trophy, HeartPulse, TrendingUp } from "lucide-react";
 import { UserAvatarMenu } from "@/components/UserAvatarMenu";
 import logoUrl from "@/assets/cactus-logo.png";
 
 export const ALUNO_NAV = [
   { icon: LayoutDashboard, label: "Início", to: "/meu-treino" as const },
   { icon: Dumbbell, label: "Treinos", to: "/treinos" as const },
+  { icon: TrendingUp, label: "Meu Progresso", to: "/meu-progresso" as const },
   { icon: Trophy, label: "Desafios", to: "/desafios" as const },
   { icon: HeartPulse, label: "Avaliações", to: "/avaliacoes" as const },
 ];
