@@ -276,7 +276,7 @@ export function PersonalDetailPage({ scope }: { scope: Scope }) {
                     <div className="flex flex-wrap items-center gap-2">
                       <button
                         onClick={() => setEditOpen(true)}
-                        className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3.5 py-2 text-sm font-semibold hover:bg-accent"
+                        className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3.5 py-2 text-sm font-semibold text-foreground transition-all duration-200 hover:border-primary hover:text-primary hover:shadow-[0_0_0_1px_var(--color-primary),0_0_12px_var(--color-primary)]"
                       >
                         <Pencil className="h-4 w-4" /> Editar dados
                       </button>
@@ -284,7 +284,7 @@ export function PersonalDetailPage({ scope }: { scope: Scope }) {
                         <>
                           <button
                             onClick={() => setPassOpen(true)}
-                            className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-semibold text-muted-foreground transition hover:bg-muted"
+                            className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3.5 py-2 text-sm font-semibold text-foreground transition-all duration-200 hover:border-primary hover:text-primary hover:shadow-[0_0_0_1px_var(--color-primary),0_0_12px_var(--color-primary)]"
                           >
                             <KeyRound className="h-4 w-4" /> Alterar senha
                           </button>
