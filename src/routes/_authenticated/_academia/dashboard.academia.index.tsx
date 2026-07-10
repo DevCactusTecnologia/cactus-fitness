@@ -212,6 +212,7 @@ function MobileGreetingCard({ name, initials, avatarUrl, avatarColor, alunos, tr
 
 
 function WalletCard() {
+  const [hidden, setHidden] = useState(false);
   return (
     <div className="flex items-center gap-4 rounded-[1.55rem] border border-border bg-card px-5 py-4 shadow-[var(--shadow-mobile-card)]">
       <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
@@ -219,9 +220,18 @@ function WalletCard() {
       </div>
       <div className="min-w-0 flex-1 font-body">
         <div className="truncate text-xs text-muted-foreground">Receita do mês</div>
-        <div className="truncate text-lg font-extrabold leading-tight text-primary font-display">R$ 0,00</div>
+        <div className="truncate text-lg font-extrabold leading-tight text-primary font-display">
+          {hidden ? "R$ ••••••" : "R$ 0,00"}
+        </div>
       </div>
-      <Eye className="h-5 w-5 shrink-0 text-muted-foreground" strokeWidth={1.75} />
+      <button
+        type="button"
+        onClick={() => setHidden((v) => !v)}
+        aria-label={hidden ? "Mostrar receita" : "Ocultar receita"}
+        className="shrink-0 text-muted-foreground hover:text-foreground"
+      >
+        {hidden ? <EyeOff className="h-5 w-5" strokeWidth={1.75} /> : <Eye className="h-5 w-5" strokeWidth={1.75} />}
+      </button>
       <ChevronRight className="h-5 w-5 shrink-0 text-muted-foreground" strokeWidth={1.75} />
     </div>
   );
