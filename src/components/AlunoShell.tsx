@@ -11,6 +11,8 @@ export const ALUNO_NAV = [
   { icon: HeartPulse, label: "Avaliações", to: "/avaliacoes" as const },
 ];
 
+const ALUNO_MOBILE_NAV = ALUNO_NAV.filter((i) => i.to !== "/meu-progresso");
+
 export function AlunoShell({ children }: { children: React.ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const isActive = (to: string) => pathname === to || (to === "/meu-treino" && pathname.startsWith("/meu-treino"));
@@ -69,8 +71,8 @@ export function AlunoShell({ children }: { children: React.ReactNode }) {
 
       {/* Bottom nav (mobile) */}
       <nav className="fixed inset-x-0 bottom-0 z-40 md:hidden border-t border-border/60 bg-background/95 backdrop-blur-xl">
-        <div className="grid" style={{ gridTemplateColumns: `repeat(${ALUNO_NAV.length}, minmax(0, 1fr))` }}>
-          {ALUNO_NAV.map(({ icon: Icon, label, to }) => {
+        <div className="grid" style={{ gridTemplateColumns: `repeat(${ALUNO_MOBILE_NAV.length}, minmax(0, 1fr))` }}>
+          {ALUNO_MOBILE_NAV.map(({ icon: Icon, label, to }) => {
             const active = isActive(to);
             return (
               <Link
