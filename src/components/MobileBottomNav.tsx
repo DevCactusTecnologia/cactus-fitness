@@ -19,6 +19,8 @@ import {
 } from "@/components/ui/sheet";
 import { useSignOut } from "@/lib/auth";
 
+type Scope = "personal" | "academia" | "aluno";
+
 type Item = {
   icon: React.ElementType;
   label: string;
@@ -27,11 +29,28 @@ type Item = {
   badge?: string;
 };
 
-const ITEMS: Item[] = [
-  { icon: LayoutDashboard, label: "Início", to: "/", match: (p) => p === "/" },
-  { icon: Users, label: "Alunos", to: "/dashboard/personal/alunos", match: (p) => p.startsWith("/dashboard/personal/alunos") },
-  { icon: Dumbbell, label: "Treinos", to: "/dashboard/personal/treinos", match: (p) => p.startsWith("/dashboard/personal/treinos") },
-];
+const ITEMS_BY_SCOPE: Record<Scope, Item[]> = {
+  personal: [
+    { icon: LayoutDashboard, label: "Início", to: "/", match: (p) => p === "/" },
+    { icon: Users, label: "Alunos", to: "/dashboard/personal/alunos", match: (p) => p.startsWith("/dashboard/personal/alunos") },
+    { icon: Dumbbell, label: "Treinos", to: "/dashboard/personal/treinos", match: (p) => p.startsWith("/dashboard/personal/treinos") },
+  ],
+  academia: [
+    { icon: LayoutDashboard, label: "Painel", to: "/dashboard/academia", match: (p) => p === "/dashboard/academia" },
+    { icon: Users, label: "Alunos", to: "/dashboard/academia/alunos", match: (p) => p.startsWith("/dashboard/academia/alunos") },
+    { icon: Dumbbell, label: "Treinos", to: "/dashboard/academia/treinos", match: (p) => p.startsWith("/dashboard/academia/treinos") },
+  ],
+  aluno: [
+    { icon: LayoutDashboard, label: "Início", to: "/dashboard/aluno", match: (p) => p === "/dashboard/aluno" },
+    { icon: Dumbbell, label: "Treinos", to: "/meu-treino", match: (p) => p.startsWith("/meu-treino") },
+  ],
+};
+
+function detectScope(pathname: string): Scope {
+  if (pathname.startsWith("/dashboard/academia")) return "academia";
+  if (pathname.startsWith("/dashboard/aluno")) return "aluno";
+  return "personal";
+}
 
 type MenuLink = {
   icon: React.ElementType;
@@ -44,9 +63,11 @@ const MENU_LINKS: MenuLink[] = [
   { icon: UserCircle2, label: "Perfil", description: "Gerencie suas informações pessoais", to: "/perfil" },
 ];
 
-export function MobileBottomNav() {
+export function MobileBottomNav({ scope: scopeProp }: { scope?: Scope } = {}) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const signOut = useSignOut();
+  const scope = scopeProp ?? detectScope(pathname);
+  const items = ITEMS_BY_SCOPE[scope];
 
   const linkClass = (active: boolean) =>
     `relative flex min-w-0 flex-1 flex-col items-center gap-0.5 py-1 text-[10px] sm:text-[11px] ${
@@ -55,7 +76,7 @@ export function MobileBottomNav() {
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-40 flex w-full max-w-full items-stretch justify-around overflow-hidden border-t border-border bg-background/95 px-1.5 py-2 backdrop-blur md:hidden">
-      {ITEMS.map((i) => {
+      {items.map((i: Item) => {
         const active = i.match ? i.match(pathname) : false;
         return (
           <Link key={i.label} to={i.to!} className={linkClass(active)}>

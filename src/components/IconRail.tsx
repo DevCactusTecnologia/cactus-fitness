@@ -6,13 +6,14 @@ import {
   Flame,
   HeartPulse,
   Trophy,
-  
   Shield,
-  Bell,
   Wallet,
+  Building2,
 } from "lucide-react";
 import { UserAvatarMenu } from "@/components/UserAvatarMenu";
 import logoUrl from "@/assets/cactus-logo.png";
+
+type Scope = "personal" | "academia" | "aluno";
 
 type NavItem = {
   icon: React.ElementType;
@@ -21,17 +22,38 @@ type NavItem = {
   match: (path: string) => boolean;
 };
 
-const NAV_ITEMS: NavItem[] = [
-  { icon: LayoutDashboard, label: "Início", to: "/", match: (p) => p === "/" },
-  { icon: Users, label: "Alunos", to: "/dashboard/personal/alunos", match: (p) => p.startsWith("/dashboard/personal/alunos") },
-  { icon: Shield, label: "Personais", to: "/dashboard/personal/personais", match: (p) => p.startsWith("/dashboard/personal/personais") },
-  { icon: Dumbbell, label: "Treinos", to: "/dashboard/personal/treinos", match: (p) => p.startsWith("/dashboard/personal/treinos") },
-  { icon: Flame, label: "Exercícios", to: "/dashboard/personal/exercicios", match: (p) => p.startsWith("/dashboard/personal/exercicios") },
-  { icon: HeartPulse, label: "Avaliações", to: "/dashboard/personal/avaliacoes", match: (p) => p.startsWith("/dashboard/personal/avaliacoes") },
-  { icon: Trophy, label: "Desafios", to: "/dashboard/personal/desafios", match: (p) => p.startsWith("/dashboard/personal/desafios") },
-  
-  { icon: Wallet, label: "Financeiro", to: "/dashboard/personal/financeiro", match: (p) => p.startsWith("/dashboard/personal/financeiro") },
-];
+const NAV_BY_SCOPE: Record<Scope, NavItem[]> = {
+  personal: [
+    { icon: LayoutDashboard, label: "Início", to: "/", match: (p) => p === "/" },
+    { icon: Users, label: "Alunos", to: "/dashboard/personal/alunos", match: (p) => p.startsWith("/dashboard/personal/alunos") },
+    { icon: Shield, label: "Personais", to: "/dashboard/personal/personais", match: (p) => p.startsWith("/dashboard/personal/personais") },
+    { icon: Dumbbell, label: "Treinos", to: "/dashboard/personal/treinos", match: (p) => p.startsWith("/dashboard/personal/treinos") },
+    { icon: Flame, label: "Exercícios", to: "/dashboard/personal/exercicios", match: (p) => p.startsWith("/dashboard/personal/exercicios") },
+    { icon: HeartPulse, label: "Avaliações", to: "/dashboard/personal/avaliacoes", match: (p) => p.startsWith("/dashboard/personal/avaliacoes") },
+    { icon: Trophy, label: "Desafios", to: "/dashboard/personal/desafios", match: (p) => p.startsWith("/dashboard/personal/desafios") },
+    { icon: Wallet, label: "Financeiro", to: "/dashboard/personal/financeiro", match: (p) => p.startsWith("/dashboard/personal/financeiro") },
+  ],
+  academia: [
+    { icon: LayoutDashboard, label: "Painel", to: "/dashboard/academia", match: (p) => p === "/dashboard/academia" },
+    { icon: Users, label: "Alunos", to: "/dashboard/academia/alunos" as string, match: (p) => p.startsWith("/dashboard/academia/alunos") },
+    { icon: Shield, label: "Personais", to: "/dashboard/academia/personais" as string, match: (p) => p.startsWith("/dashboard/academia/personais") },
+    { icon: Dumbbell, label: "Treinos", to: "/dashboard/academia/treinos" as string, match: (p) => p.startsWith("/dashboard/academia/treinos") },
+    { icon: Wallet, label: "Financeiro", to: "/dashboard/academia/financeiro" as string, match: (p) => p.startsWith("/dashboard/academia/financeiro") },
+    { icon: Building2, label: "Configurações", to: "/dashboard/academia/configuracoes" as string, match: (p) => p.startsWith("/dashboard/academia/configuracoes") },
+  ],
+  aluno: [
+    { icon: LayoutDashboard, label: "Início", to: "/dashboard/aluno", match: (p) => p === "/dashboard/aluno" },
+    { icon: Dumbbell, label: "Treinos", to: "/meu-treino", match: (p) => p.startsWith("/meu-treino") },
+    { icon: HeartPulse, label: "Avaliações", to: "/avaliacoes", match: (p) => p.startsWith("/avaliacoes") },
+    { icon: Trophy, label: "Desafios", to: "/desafios", match: (p) => p.startsWith("/desafios") },
+  ],
+};
+
+function detectScope(pathname: string): Scope {
+  if (pathname.startsWith("/dashboard/academia")) return "academia";
+  if (pathname.startsWith("/dashboard/aluno")) return "aluno";
+  return "personal";
+}
 
 function SidebarIconBtn({
   icon: Icon,
@@ -72,8 +94,10 @@ function SidebarIconBtn({
   return <button onClick={onClick} title={label} className={`${base} ${styles}`}>{inner}</button>;
 }
 
-export function IconRail() {
+export function IconRail({ scope: scopeProp }: { scope?: Scope } = {}) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const scope = scopeProp ?? detectScope(pathname);
+  const items = NAV_BY_SCOPE[scope];
   return (
     <aside className="fixed inset-y-0 left-0 z-50 hidden w-[72px] flex-col items-center gap-2 border-r border-border bg-sidebar py-4 md:flex">
       <div className="mb-2 grid h-10 w-10 place-items-center rounded-xl">
@@ -93,7 +117,7 @@ export function IconRail() {
           }}
         />
       </div>
-      {NAV_ITEMS.map((n) => (
+      {items.map((n) => (
         <SidebarIconBtn key={n.label} icon={n.icon} to={n.to} label={n.label} active={n.match(pathname)} />
       ))}
       <div className="mt-auto flex flex-col items-center gap-2">
