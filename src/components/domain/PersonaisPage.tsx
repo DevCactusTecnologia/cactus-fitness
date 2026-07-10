@@ -49,9 +49,10 @@ type PersonalRow = {
   role: "owner" | "personal" | "staff";
   created_at: string;
   alunos_count: number;
+  is_active: boolean;
 };
 
-type TabKey = "todos" | "personais" | "equipe";
+type TabKey = "todos" | "ativos" | "inativos";
 
 export function PersonaisPage({ scope }: { scope: Scope }) {
   const [q, setQ] = useState("");
@@ -79,7 +80,7 @@ export function PersonaisPage({ scope }: { scope: Scope }) {
       const [membersRes, alunosRes] = await Promise.all([
         supabase
           .from("organization_members")
-          .select("user_id, role, created_at")
+          .select("user_id, role, created_at, is_active")
           .eq("organization_id", orgId)
           .order("created_at", { ascending: true }),
         supabase
@@ -87,7 +88,7 @@ export function PersonaisPage({ scope }: { scope: Scope }) {
           .select("personal_id")
           .eq("organization_id", orgId),
       ]);
-      const members = (membersRes.data ?? []) as { user_id: string; role: PersonalRow["role"]; created_at: string }[];
+      const members = (membersRes.data ?? []) as { user_id: string; role: PersonalRow["role"]; created_at: string; is_active: boolean }[];
       const counts: Record<string, number> = {};
       (alunosRes.data ?? []).forEach((a: any) => {
         counts[a.personal_id] = (counts[a.personal_id] ?? 0) + 1;
@@ -104,21 +105,22 @@ export function PersonaisPage({ scope }: { scope: Scope }) {
         role: m.role,
         created_at: m.created_at,
         alunos_count: counts[m.user_id] ?? 0,
+        is_active: m.is_active ?? true,
       }));
     },
   });
 
   const counts = useMemo(() => ({
     todos: rows.length,
-    personais: rows.filter((r) => r.role === "owner" || r.role === "personal").length,
-    equipe: rows.filter((r) => r.role === "staff").length,
+    ativos: rows.filter((r) => r.is_active).length,
+    inativos: rows.filter((r) => !r.is_active).length,
   }), [rows]);
 
   const filtered = useMemo(() => {
     const term = q.trim().toLowerCase();
     return rows.filter((r) => {
-      if (tab === "personais" && !(r.role === "owner" || r.role === "personal")) return false;
-      if (tab === "equipe" && r.role !== "staff") return false;
+      if (tab === "ativos" && !r.is_active) return false;
+      if (tab === "inativos" && r.is_active) return false;
       if (!term) return true;
       return r.full_name.toLowerCase().includes(term);
     });
@@ -182,8 +184,8 @@ export function PersonaisPage({ scope }: { scope: Scope }) {
             <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
               <div className="flex flex-wrap items-center gap-1 rounded-full border border-border bg-card p-1">
                 <TabBtn label="Todos" count={counts.todos} active={tab === "todos"} onClick={() => setTab("todos")} />
-                <TabBtn label="Personais" count={counts.personais} active={tab === "personais"} onClick={() => setTab("personais")} />
-                <TabBtn label="Equipe" count={counts.equipe} active={tab === "equipe"} onClick={() => setTab("equipe")} />
+                <TabBtn label="Ativos" count={counts.ativos} active={tab === "ativos"} onClick={() => setTab("ativos")} />
+                <TabBtn label="Inativos" count={counts.inativos} active={tab === "inativos"} onClick={() => setTab("inativos")} />
               </div>
               <button className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-sm hover:bg-accent">
                 <ArrowUpDown className="h-4 w-4" /> Mais recentes
