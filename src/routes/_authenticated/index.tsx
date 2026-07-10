@@ -17,7 +17,30 @@ import { useCurrentUser, firstName, initialsFromName } from "@/lib/auth";
 
 
 
+import { redirect } from "@tanstack/react-router";
+import { getPrimaryRole } from "@/lib/roles.functions";
+
 export const Route = createFileRoute("/_authenticated/")({
+  beforeLoad: async ({ search }) => {
+    // Preserve forbidden flag (avoid loop redirects)
+    if ((search as { forbidden?: number } | undefined)?.forbidden) return;
+    try {
+      const { role } = await getPrimaryRole();
+      if (role === "aluno") {
+        throw redirect({ to: "/dashboard/aluno" });
+      }
+      // owner/staff → academia (once ported). For now personal/owner stay on this page.
+      if (role === "staff") {
+        throw redirect({ to: "/dashboard/academia" });
+      }
+      if (!role) {
+        throw redirect({ to: "/onboarding" });
+      }
+    } catch (err) {
+      // Rethrow redirects; swallow role fetch errors (fallback to personal dashboard)
+      if (err && typeof err === "object" && "to" in err) throw err;
+    }
+  },
   component: Dashboard,
 });
 
