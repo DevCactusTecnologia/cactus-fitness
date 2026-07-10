@@ -217,7 +217,7 @@ function WalletCard() {
       <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
         <Wallet className="h-5 w-5" strokeWidth={1.75} />
       </div>
-      <div className="min-w-0 flex-1">
+      <div className="min-w-0 flex-1 font-body">
         <div className="truncate text-sm text-muted-foreground">Receita do mês</div>
         <div className="truncate text-2xl font-extrabold leading-tight text-primary font-display">R$ 0,00</div>
       </div>
