@@ -48,11 +48,13 @@ function useOwnerOverview() {
         supabase.from("organizations").select("id, name").eq("id", orgId).maybeSingle(),
         supabase.from("organization_members").select("id, user_id, role").eq("organization_id", orgId),
         supabase.from("alunos").select("id, personal_id, is_active, created_at").eq("organization_id", orgId),
-        supabase.from("workout_templates").select("id", { count: "exact", head: true }),
-        supabase.from("avaliacoes").select("id", { count: "exact", head: true }),
+        supabase.from("workout_templates").select("id, created_at"),
+        supabase.from("avaliacoes").select("id, created_at"),
       ]);
       const members = membersRes.data ?? [];
       const alunos = alunosRes.data ?? [];
+      const treinos = treinosRes.data ?? [];
+      const avaliacoes = avaliacoesRes.data ?? [];
       const personais = members.filter((m: any) => m.role === "owner" || m.role === "personal");
       const equipe = members.filter((m: any) => m.role === "staff");
       const ativos = alunos.filter((a: any) => a.is_active).length;
@@ -69,7 +71,10 @@ function useOwnerOverview() {
         role: p.role,
         alunos: byPersonal[p.user_id] ?? 0,
       })).sort((a, b) => b.alunos - a.alunos);
-      const novosAlunos30d = alunos.filter((a: any) => new Date(a.created_at) > new Date(Date.now() - 30 * 864e5)).length;
+      const cutoff = Date.now() - 30 * 864e5;
+      const novosAlunos30d = alunos.filter((a: any) => new Date(a.created_at).getTime() > cutoff).length;
+      const novosTreinos30d = treinos.filter((t: any) => t.created_at && new Date(t.created_at).getTime() > cutoff).length;
+      const novasAvaliacoes30d = avaliacoes.filter((a: any) => a.created_at && new Date(a.created_at).getTime() > cutoff).length;
       return {
         orgName: orgRes.data?.name ?? "Minha Academia",
         totalPersonais: personais.length,
@@ -77,13 +82,16 @@ function useOwnerOverview() {
         totalAlunos: alunos.length,
         ativos,
         novosAlunos30d,
-        treinosAtivos: treinosRes.count ?? 0,
-        avaliacoes: avaliacoesRes.count ?? 0,
+        novosTreinos30d,
+        novasAvaliacoes30d,
+        treinosAtivos: treinos.length,
+        avaliacoes: avaliacoes.length,
         personaisList,
       };
     },
   });
 }
+
 
 function Sparkline({ points, up = true }: { points: number[]; up?: boolean }) {
   const w = 90, h = 32, pad = 2;
@@ -153,16 +161,17 @@ function MobileTopBar() {
   );
 }
 
-function MobileGreetingCard({ name, initials, alunos, treinos, avaliacoes, novos }: {
-  name: string; initials: string; alunos: number; treinos: number; avaliacoes: number; novos: number;
+function MobileGreetingCard({ name, alunos, treinos, avaliacoes, novosAlunos, novosTreinos, novasAvaliacoes }: {
+  name: string; alunos: number; treinos: number; avaliacoes: number;
+  novosAlunos: number; novosTreinos: number; novasAvaliacoes: number;
 }) {
   const greeting = greetingFor(new Date().getHours());
-  const suffix = novos > 0 ? `↑ ${novos} este mês` : "";
+  const delta = (n: number) => n > 0 ? `↑ ${n} este mês` : "";
   return (
     <div className="rounded-[1.55rem] border border-border bg-[image:var(--gradient-greeting-card)] p-5 shadow-[var(--shadow-mobile-card)]">
       <div className="flex items-center gap-4">
-        <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full text-base font-bold ring-2 ring-primary/70 font-display sm:h-14 sm:w-14" style={{ backgroundColor: "rgb(244, 63, 94)", color: "#fff" }}>
-          {initials}
+        <div className="grid h-12 w-12 shrink-0 place-items-center overflow-hidden rounded-full bg-background/60 ring-2 ring-primary/70 sm:h-14 sm:w-14">
+          <img src={logoUrl} alt="CactusFitness" className="h-8 w-8 object-contain sm:h-10 sm:w-10" />
         </div>
         <div className="min-w-0">
           <div className="text-xs font-medium text-muted-foreground sm:text-sm">{greeting},</div>
@@ -173,20 +182,23 @@ function MobileGreetingCard({ name, initials, alunos, treinos, avaliacoes, novos
         <div>
           <div className="text-3xl font-extrabold leading-none font-display sm:text-[2.15rem]">{alunos}</div>
           <div className="mt-2 text-xs leading-tight text-muted-foreground sm:text-sm">alunos<br />ativos</div>
-          {suffix && <div className="mt-1 text-[11px] font-semibold text-primary">{suffix}</div>}
+          {delta(novosAlunos) && <div className="mt-1 text-[11px] font-semibold text-emerald-500">{delta(novosAlunos)}</div>}
         </div>
         <div>
           <div className="text-3xl font-extrabold leading-none font-display sm:text-[2.15rem]">{treinos}</div>
           <div className="mt-2 text-xs leading-tight text-muted-foreground sm:text-sm">treinos<br />ativos</div>
+          {delta(novosTreinos) && <div className="mt-1 text-[11px] font-semibold text-emerald-500">{delta(novosTreinos)}</div>}
         </div>
         <div>
           <div className="text-3xl font-extrabold leading-none font-display sm:text-[2.15rem]">{avaliacoes}</div>
           <div className="mt-2 text-xs leading-tight text-muted-foreground sm:text-sm">avaliações<br />físicas</div>
+          {delta(novasAvaliacoes) && <div className="mt-1 text-[11px] font-semibold text-emerald-500">{delta(novasAvaliacoes)}</div>}
         </div>
       </div>
     </div>
   );
 }
+
 
 function WalletCard() {
   return (
@@ -414,12 +426,14 @@ function AcademiaHome() {
             <div className="space-y-4">
               <MobileGreetingCard
                 name={name}
-                initials={initials}
                 alunos={alunosAtivos}
                 treinos={o?.treinosAtivos ?? 0}
                 avaliacoes={o?.avaliacoes ?? 0}
-                novos={o?.novosAlunos30d ?? 0}
+                novosAlunos={o?.novosAlunos30d ?? 0}
+                novosTreinos={o?.novosTreinos30d ?? 0}
+                novasAvaliacoes={o?.novasAvaliacoes30d ?? 0}
               />
+
 
               <WalletCard />
 
