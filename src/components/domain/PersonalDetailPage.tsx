@@ -3,10 +3,11 @@ import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import {
   ChevronLeft, ChevronRight, Loader2, Mail, Phone, Calendar, Shield, Crown,
-  BadgeCheck, Users as UsersIcon, Pencil, KeyRound, Eye, EyeOff, Power,
+  BadgeCheck, Users as UsersIcon, Pencil, KeyRound, Eye, EyeOff, Lock, Trash2, AlertTriangle,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { IconRail } from "@/components/IconRail";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
@@ -22,6 +23,7 @@ import { Button } from "@/components/ui/button";
 import {
   updatePersonalProfile, changePersonalPassword, togglePersonalActive,
 } from "@/lib/personal-admin.functions";
+import { removeMember } from "@/lib/academia-config.functions";
 
 type PersonalDetail = {
   user_id: string;
@@ -115,6 +117,8 @@ export function PersonalDetailPage({ scope }: { scope: Scope }) {
   const [tab, setTab] = useState(0);
   const [editOpen, setEditOpen] = useState(false);
   const [passOpen, setPassOpen] = useState(false);
+  const [toggleOpen, setToggleOpen] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   const alunosBase = scope === "academia" ? "/dashboard/academia/alunos" : "/dashboard/personal/alunos";
 
@@ -193,25 +197,6 @@ export function PersonalDetailPage({ scope }: { scope: Scope }) {
                     <UsersIcon className="h-3 w-3" /> {p.alunos.length} {p.alunos.length === 1 ? "aluno" : "alunos"}
                   </span>
                 </div>
-
-                <div className="mt-3 flex flex-wrap items-center gap-2">
-                  <button
-                    type="button"
-                    onClick={() => setEditOpen(true)}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-xs font-medium transition-colors hover:bg-accent"
-                  >
-                    <Pencil className="h-3.5 w-3.5" /> Editar perfil
-                  </button>
-                  {canManage && (
-                    <button
-                      type="button"
-                      onClick={() => setPassOpen(true)}
-                      className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-xs font-medium transition-colors hover:bg-accent"
-                    >
-                      <KeyRound className="h-3.5 w-3.5" /> Alterar senha
-                    </button>
-                  )}
-                </div>
               </div>
             </div>
           </div>
@@ -275,16 +260,54 @@ export function PersonalDetailPage({ scope }: { scope: Scope }) {
               )}
 
               {tab === 1 && (
-                <div className="space-y-1">
-                  <Row icon={BadgeCheck} label="CREF" value={p.cref} />
-                  <Row icon={Phone} label="Telefone" value={p.phone} />
-                  <Row icon={Mail} label="E-mail" value={null} />
-                  <Row
-                    icon={Calendar}
-                    label="Membro desde"
-                    value={new Date(p.member_since).toLocaleDateString("pt-BR")}
-                  />
-                </div>
+                <>
+                  <div className="space-y-1">
+                    <Row icon={BadgeCheck} label="CREF" value={p.cref} />
+                    <Row icon={Phone} label="Telefone" value={p.phone} />
+                    <Row icon={Mail} label="E-mail" value={null} />
+                    <Row
+                      icon={Calendar}
+                      label="Membro desde"
+                      value={new Date(p.member_since).toLocaleDateString("pt-BR")}
+                    />
+                  </div>
+
+                  <div className="mt-6 space-y-4 border-t border-border pt-4">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <button
+                        onClick={() => setEditOpen(true)}
+                        className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3.5 py-2 text-sm font-semibold hover:bg-accent"
+                      >
+                        <Pencil className="h-4 w-4" /> Editar dados
+                      </button>
+                      {canManage && (
+                        <>
+                          <button
+                            onClick={() => setPassOpen(true)}
+                            className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-semibold text-muted-foreground transition hover:bg-muted"
+                          >
+                            <KeyRound className="h-4 w-4" /> Alterar senha
+                          </button>
+                          <button
+                            onClick={() => setToggleOpen(true)}
+                            className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-semibold text-[oklch(0.72_0.18_45)] transition hover:bg-[oklch(0.72_0.18_45)]/10"
+                          >
+                            <Lock className="h-4 w-4" /> {p.is_active ? "Desativar personal" : "Ativar personal"}
+                          </button>
+                          <button
+                            onClick={() => setDeleteOpen(true)}
+                            className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-semibold text-[oklch(0.68_0.22_25)] transition hover:bg-[oklch(0.68_0.22_25)]/10"
+                          >
+                            <Trash2 className="h-4 w-4" /> Excluir personal
+                          </button>
+                        </>
+                      )}
+                    </div>
+                    <div className="text-xs text-muted-foreground">
+                      Membro desde {new Date(p.member_since).toLocaleDateString("pt-BR")}
+                    </div>
+                  </div>
+                </>
               )}
             </div>
           </div>
@@ -294,6 +317,8 @@ export function PersonalDetailPage({ scope }: { scope: Scope }) {
 
       <EditProfileDialog personal={p} open={editOpen} onOpenChange={setEditOpen} />
       <ChangePasswordDialog personal={p} open={passOpen} onOpenChange={setPassOpen} />
+      <ToggleActiveDialog personal={p} open={toggleOpen} onOpenChange={setToggleOpen} />
+      <DeletePersonalDialog personal={p} scope={scope} open={deleteOpen} onOpenChange={setDeleteOpen} />
     </div>
   );
 }
@@ -303,22 +328,17 @@ function EditProfileDialog({
 }: { personal: PersonalDetail; open: boolean; onOpenChange: (v: boolean) => void }) {
   const qc = useQueryClient();
   const updateFn = useServerFn(updatePersonalProfile);
-  const toggleFn = useServerFn(togglePersonalActive);
   const [fullName, setFullName] = useState(personal.full_name);
   const [phone, setPhone] = useState(personal.phone ?? "");
   const [cref, setCref] = useState(personal.cref ?? "");
-  const [isActive, setIsActive] = useState(personal.is_active);
 
   useEffect(() => {
     if (open) {
       setFullName(personal.full_name);
       setPhone(personal.phone ?? "");
       setCref(personal.cref ?? "");
-      setIsActive(personal.is_active);
     }
   }, [open, personal]);
-
-  const canToggle = personal.role !== "owner";
 
   const save = useMutation({
     mutationFn: async () => {
@@ -330,9 +350,6 @@ function EditProfileDialog({
           cref: cref.trim() || null,
         },
       });
-      if (canToggle && isActive !== personal.is_active) {
-        await toggleFn({ data: { personalId: personal.user_id, is_active: isActive } });
-      }
     },
     onSuccess: () => {
       toast.success("Perfil atualizado");
@@ -347,7 +364,7 @@ function EditProfileDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle className="font-display">Editar perfil</DialogTitle>
+          <DialogTitle className="font-display">Editar dados</DialogTitle>
           <DialogDescription>Atualize as informações do personal.</DialogDescription>
         </DialogHeader>
         <div className="space-y-3">
@@ -363,30 +380,115 @@ function EditProfileDialog({
             <Label htmlFor="p-cref">CREF</Label>
             <Input id="p-cref" value={cref} onChange={(e) => setCref(e.target.value)} placeholder="000000-G/UF" />
           </div>
-          {canToggle && (
-            <label className="flex items-center justify-between gap-3 rounded-lg border border-border p-3">
-              <div className="flex items-center gap-2">
-                <Power className="h-4 w-4 text-muted-foreground" />
-                <div>
-                  <div className="text-sm font-medium">Personal ativo</div>
-                  <div className="text-xs text-muted-foreground">
-                    Inativos não aparecem para novos vínculos.
-                  </div>
-                </div>
-              </div>
-              <input
-                type="checkbox"
-                checked={isActive}
-                onChange={(e) => setIsActive(e.target.checked)}
-                className="h-5 w-5 accent-primary"
-              />
-            </label>
-          )}
         </div>
         <DialogFooter>
           <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={save.isPending}>Cancelar</Button>
           <Button onClick={() => save.mutate()} disabled={save.isPending || fullName.trim().length < 2}>
             {save.isPending ? "Salvando..." : "Salvar"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function ToggleActiveDialog({
+  personal, open, onOpenChange,
+}: { personal: PersonalDetail; open: boolean; onOpenChange: (v: boolean) => void }) {
+  const qc = useQueryClient();
+  const toggleFn = useServerFn(togglePersonalActive);
+  const next = !personal.is_active;
+
+  const submit = useMutation({
+    mutationFn: async () => {
+      await toggleFn({ data: { personalId: personal.user_id, is_active: next } });
+    },
+    onSuccess: () => {
+      toast.success(next ? "Personal ativado" : "Personal desativado");
+      qc.invalidateQueries({ queryKey: ["personal-detail", personal.user_id] });
+      qc.invalidateQueries({ queryKey: ["personais"] });
+      onOpenChange(false);
+    },
+    onError: (e: any) => toast.error(e?.message ?? "Erro ao alterar status"),
+  });
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle className="font-display">
+            {next ? "Ativar personal" : "Desativar personal"}
+          </DialogTitle>
+          <DialogDescription>
+            {next
+              ? `${personal.full_name} voltará a aparecer nas listagens ativas.`
+              : `${personal.full_name} deixará de aparecer nas listagens ativas. Os alunos vinculados permanecem, mas o acesso pode ser revisto.`}
+          </DialogDescription>
+        </DialogHeader>
+        <DialogFooter>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={submit.isPending}>Cancelar</Button>
+          <Button onClick={() => submit.mutate()} disabled={submit.isPending}>
+            {submit.isPending ? "Salvando..." : next ? "Ativar" : "Desativar"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function DeletePersonalDialog({
+  personal, scope, open, onOpenChange,
+}: { personal: PersonalDetail; scope: Scope; open: boolean; onOpenChange: (v: boolean) => void }) {
+  const qc = useQueryClient();
+  const navigate = useNavigate();
+  const removeFn = useServerFn(removeMember);
+  const [confirm, setConfirm] = useState("");
+
+  useEffect(() => { if (open) setConfirm(""); }, [open]);
+
+  const canSubmit = confirm.trim().toLowerCase() === "excluir";
+
+  const submit = useMutation({
+    mutationFn: async () => {
+      await removeFn({ data: { userId: personal.user_id } });
+    },
+    onSuccess: () => {
+      toast.success("Personal removido");
+      qc.invalidateQueries({ queryKey: ["personais"] });
+      onOpenChange(false);
+      const base = scope === "academia" ? "/dashboard/academia/personais" : "/dashboard/personal/personais";
+      navigate({ to: base });
+    },
+    onError: (e: any) => toast.error(e?.message ?? "Erro ao excluir"),
+  });
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle className="font-display flex items-center gap-2">
+            <AlertTriangle className="h-5 w-5 text-[oklch(0.68_0.22_25)]" /> Excluir personal
+          </DialogTitle>
+          <DialogDescription>
+            Esta ação remove <span className="font-medium">{personal.full_name}</span> da academia.
+            Os alunos vinculados ficam sem personal responsável até serem realocados.
+            Digite <span className="font-mono font-semibold">excluir</span> para confirmar.
+          </DialogDescription>
+        </DialogHeader>
+        <Input
+          value={confirm}
+          onChange={(e) => setConfirm(e.target.value)}
+          placeholder="excluir"
+          autoComplete="off"
+        />
+        <DialogFooter>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={submit.isPending}>Cancelar</Button>
+          <Button
+            variant="destructive"
+            onClick={() => submit.mutate()}
+            disabled={!canSubmit || submit.isPending}
+          >
+            {submit.isPending ? "Excluindo..." : "Excluir"}
           </Button>
         </DialogFooter>
       </DialogContent>
