@@ -17,6 +17,7 @@ import { Route as AuthenticatedTreinosRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedMeuTreinoRouteImport } from './routes/_authenticated/meu-treino'
+import { Route as AuthenticatedMeuProgressoRouteImport } from './routes/_authenticated/meu-progresso'
 import { Route as AuthenticatedDesafiosRouteImport } from './routes/_authenticated/desafios'
 import { Route as AuthenticatedAvaliacoesRouteImport } from './routes/_authenticated/avaliacoes'
 import { Route as AuthenticatedPersonalRouteRouteImport } from './routes/_authenticated/_personal/route'
@@ -99,6 +100,12 @@ const AuthenticatedMeuTreinoRoute = AuthenticatedMeuTreinoRouteImport.update({
   path: '/meu-treino',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedMeuProgressoRoute =
+  AuthenticatedMeuProgressoRouteImport.update({
+    id: '/meu-progresso',
+    path: '/meu-progresso',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedDesafiosRoute = AuthenticatedDesafiosRouteImport.update({
   id: '/desafios',
   path: '/desafios',
@@ -356,6 +363,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/avaliacoes': typeof AuthenticatedAvaliacoesRoute
   '/desafios': typeof AuthenticatedDesafiosRoute
+  '/meu-progresso': typeof AuthenticatedMeuProgressoRoute
   '/meu-treino': typeof AuthenticatedMeuTreinoRouteWithChildren
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/perfil': typeof AuthenticatedPerfilRoute
@@ -404,6 +412,7 @@ export interface FileRoutesByTo {
   '/': typeof AuthenticatedIndexRoute
   '/avaliacoes': typeof AuthenticatedAvaliacoesRoute
   '/desafios': typeof AuthenticatedDesafiosRoute
+  '/meu-progresso': typeof AuthenticatedMeuProgressoRoute
   '/meu-treino': typeof AuthenticatedMeuTreinoRouteWithChildren
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/perfil': typeof AuthenticatedPerfilRoute
@@ -456,6 +465,7 @@ export interface FileRoutesById {
   '/_authenticated/_personal': typeof AuthenticatedPersonalRouteRouteWithChildren
   '/_authenticated/avaliacoes': typeof AuthenticatedAvaliacoesRoute
   '/_authenticated/desafios': typeof AuthenticatedDesafiosRoute
+  '/_authenticated/meu-progresso': typeof AuthenticatedMeuProgressoRoute
   '/_authenticated/meu-treino': typeof AuthenticatedMeuTreinoRouteWithChildren
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
@@ -507,6 +517,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/avaliacoes'
     | '/desafios'
+    | '/meu-progresso'
     | '/meu-treino'
     | '/onboarding'
     | '/perfil'
@@ -555,6 +566,7 @@ export interface FileRouteTypes {
     | '/'
     | '/avaliacoes'
     | '/desafios'
+    | '/meu-progresso'
     | '/meu-treino'
     | '/onboarding'
     | '/perfil'
@@ -606,6 +618,7 @@ export interface FileRouteTypes {
     | '/_authenticated/_personal'
     | '/_authenticated/avaliacoes'
     | '/_authenticated/desafios'
+    | '/_authenticated/meu-progresso'
     | '/_authenticated/meu-treino'
     | '/_authenticated/onboarding'
     | '/_authenticated/perfil'
@@ -712,6 +725,13 @@ declare module '@tanstack/react-router' {
       path: '/meu-treino'
       fullPath: '/meu-treino'
       preLoaderRoute: typeof AuthenticatedMeuTreinoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/meu-progresso': {
+      id: '/_authenticated/meu-progresso'
+      path: '/meu-progresso'
+      fullPath: '/meu-progresso'
+      preLoaderRoute: typeof AuthenticatedMeuProgressoRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/desafios': {
@@ -1175,6 +1195,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedPersonalRouteRoute: typeof AuthenticatedPersonalRouteRouteWithChildren
   AuthenticatedAvaliacoesRoute: typeof AuthenticatedAvaliacoesRoute
   AuthenticatedDesafiosRoute: typeof AuthenticatedDesafiosRoute
+  AuthenticatedMeuProgressoRoute: typeof AuthenticatedMeuProgressoRoute
   AuthenticatedMeuTreinoRoute: typeof AuthenticatedMeuTreinoRouteWithChildren
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedPerfilRoute: typeof AuthenticatedPerfilRoute
@@ -1188,6 +1209,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedPersonalRouteRoute: AuthenticatedPersonalRouteRouteWithChildren,
   AuthenticatedAvaliacoesRoute: AuthenticatedAvaliacoesRoute,
   AuthenticatedDesafiosRoute: AuthenticatedDesafiosRoute,
+  AuthenticatedMeuProgressoRoute: AuthenticatedMeuProgressoRoute,
   AuthenticatedMeuTreinoRoute: AuthenticatedMeuTreinoRouteWithChildren,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedPerfilRoute: AuthenticatedPerfilRoute,
@@ -1206,3 +1228,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}
