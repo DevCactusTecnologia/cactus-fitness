@@ -49,9 +49,10 @@ type PersonalRow = {
   role: "owner" | "personal" | "staff";
   created_at: string;
   alunos_count: number;
+  is_active: boolean;
 };
 
-type TabKey = "todos" | "personais" | "equipe";
+type TabKey = "todos" | "ativos" | "inativos";
 
 export function PersonaisPage({ scope }: { scope: Scope }) {
   const [q, setQ] = useState("");
@@ -79,7 +80,7 @@ export function PersonaisPage({ scope }: { scope: Scope }) {
       const [membersRes, alunosRes] = await Promise.all([
         supabase
           .from("organization_members")
-          .select("user_id, role, created_at")
+          .select("user_id, role, created_at, is_active")
           .eq("organization_id", orgId)
           .order("created_at", { ascending: true }),
         supabase
@@ -87,7 +88,7 @@ export function PersonaisPage({ scope }: { scope: Scope }) {
           .select("personal_id")
           .eq("organization_id", orgId),
       ]);
-      const members = (membersRes.data ?? []) as { user_id: string; role: PersonalRow["role"]; created_at: string }[];
+      const members = (membersRes.data ?? []) as { user_id: string; role: PersonalRow["role"]; created_at: string; is_active: boolean }[];
       const counts: Record<string, number> = {};
       (alunosRes.data ?? []).forEach((a: any) => {
         counts[a.personal_id] = (counts[a.personal_id] ?? 0) + 1;
@@ -104,21 +105,22 @@ export function PersonaisPage({ scope }: { scope: Scope }) {
         role: m.role,
         created_at: m.created_at,
         alunos_count: counts[m.user_id] ?? 0,
+        is_active: m.is_active ?? true,
       }));
     },
   });
 
   const counts = useMemo(() => ({
     todos: rows.length,
-    personais: rows.filter((r) => r.role === "owner" || r.role === "personal").length,
-    equipe: rows.filter((r) => r.role === "staff").length,
+    ativos: rows.filter((r) => r.is_active).length,
+    inativos: rows.filter((r) => !r.is_active).length,
   }), [rows]);
 
   const filtered = useMemo(() => {
     const term = q.trim().toLowerCase();
     return rows.filter((r) => {
-      if (tab === "personais" && !(r.role === "owner" || r.role === "personal")) return false;
-      if (tab === "equipe" && r.role !== "staff") return false;
+      if (tab === "ativos" && !r.is_active) return false;
+      if (tab === "inativos" && r.is_active) return false;
       if (!term) return true;
       return r.full_name.toLowerCase().includes(term);
     });
