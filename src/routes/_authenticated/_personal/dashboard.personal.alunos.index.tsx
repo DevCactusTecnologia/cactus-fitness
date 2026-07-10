@@ -24,7 +24,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 
-export const Route = createFileRoute("/_authenticated/dashboard/personal/alunos/")({
+export const Route = createFileRoute("/_authenticated/_personal/dashboard/personal/alunos/")({
   validateSearch: (search: Record<string, unknown>): { new?: boolean } => ({
     new: search.new === true || search.new === "1" || search.new === "true",
   }),

@@ -42,7 +42,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Switch } from "@/components/ui/switch";
 
-export const Route = createFileRoute("/_authenticated/dashboard/personal/financeiro")({
+export const Route = createFileRoute("/_authenticated/_personal/dashboard/personal/financeiro")({
   head: () => ({
     meta: [
       { title: "Financeiro · cactusfitness" },

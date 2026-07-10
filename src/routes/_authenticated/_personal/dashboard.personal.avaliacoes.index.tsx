@@ -28,7 +28,7 @@ const alunosAvaliacoesQuery = queryOptions({
   staleTime: 60_000,
 });
 
-export const Route = createFileRoute("/_authenticated/dashboard/personal/avaliacoes/")({
+export const Route = createFileRoute("/_authenticated/_personal/dashboard/personal/avaliacoes/")({
   head: () => ({
     meta: [
       { title: "Avaliações Físicas · cactusfitness" },

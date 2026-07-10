@@ -17,7 +17,7 @@ import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/_authenticated/dashboard/personal/desafios")({
+export const Route = createFileRoute("/_authenticated/_personal/dashboard/personal/desafios")({
   head: () => ({
     meta: [
       { title: "Desafios · cactusfitness" },

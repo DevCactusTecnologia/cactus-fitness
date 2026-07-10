@@ -1033,6 +1033,10 @@ export type Database = {
         Returns: boolean
       }
       current_user_org_id: { Args: never; Returns: string }
+      current_user_primary_role: {
+        Args: never
+        Returns: Database["public"]["Enums"]["app_role"]
+      }
       gen_workout_template_slug: { Args: { _kind: string }; Returns: string }
       has_org_role: {
         Args: {
@@ -1060,7 +1064,7 @@ export type Database = {
       solo_org_for_personal: { Args: { _user_id: string }; Returns: string }
     }
     Enums: {
-      app_role: "personal" | "aluno"
+      app_role: "personal" | "aluno" | "owner" | "staff"
       desafio_tipo: "treino_realizado"
       lancamento_categoria:
         | "mensalidade"
@@ -1197,7 +1201,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["personal", "aluno"],
+      app_role: ["personal", "aluno", "owner", "staff"],
       desafio_tipo: ["treino_realizado"],
       lancamento_categoria: [
         "mensalidade",

@@ -19,7 +19,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { generateAvaliacaoAnalysis } from "@/lib/avaliacao-ai.functions";
 
-export const Route = createFileRoute("/_authenticated/dashboard/personal/avaliacao/$avaliacaoId")({
+export const Route = createFileRoute("/_authenticated/_personal/dashboard/personal/avaliacao/$avaliacaoId")({
   head: () => ({
     meta: [
       { title: "Avaliação Física · cactusfitness" },

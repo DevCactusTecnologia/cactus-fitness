@@ -10,7 +10,7 @@ import { IconRail } from "@/components/IconRail";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/_authenticated/dashboard/personal/avaliacoes/$alunoId")({
+export const Route = createFileRoute("/_authenticated/_personal/dashboard/personal/avaliacoes/$alunoId")({
   head: () => ({
     meta: [
       { title: "Avaliações Físicas · cactusfitness" },

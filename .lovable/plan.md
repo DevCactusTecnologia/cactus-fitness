@@ -1,67 +1,126 @@
-## Objetivo
-Ao clicar em "Modelo de Plano" ou "Template de Treino" no menu de /treinos, abrir um editor completo (nova página) para criação, replicando o layout do welltrainer original.
+# Plano: rotas segmentadas por papel com gates de segurança
 
-## Estrutura de rotas
-Criar duas novas rotas:
+Objetivo: reorganizar as rotas do dashboard em três árvores (`academia`, `personal`, `aluno`) com controle de acesso em três camadas (gate de rota → server function → RLS), preservando compatibilidade com URLs atuais via redirects.
 
-- `src/routes/_authenticated/dashboard.personal.treinos.novo-plano.tsx` → `/dashboard/personal/treinos/novo-plano`
-- `src/routes/_authenticated/dashboard.personal.treinos.novo-template.tsx` → `/dashboard/personal/treinos/novo-template`
+## 1. Backend — fundação de RBAC
 
-Ligar os dois `DropdownMenuItem` do `NovoModeloMenu` (em `dashboard.personal.treinos.tsx`) a essas rotas via `<Link>`.
+### 1.1 Enum `app_role` (verificar/estender)
+Garantir valores: `owner`, `personal`, `staff`, `aluno`. Se `aluno` não existir, adicionar via migration `ALTER TYPE`.
 
-## Layout comum (as duas páginas)
-Header fixo no topo (igual ao original):
-- Botão "Voltar" (ícone chevron-left) → volta para `/dashboard/personal/treinos`
-- Título: "Criar modelo de plano" ou "Criar modelo de treino"
-- Botão "Salvar" à direita (verde primary, disabled se nome vazio)
+### 1.2 Popular `user_roles`
+- Trigger que, ao inserir em `organization_members` com role `owner|personal|staff`, replica em `user_roles` para o mesmo `app_role`.
+- Trigger que, ao inserir/aceitar convite de aluno (tabela `alunos.user_id`), insere `('aluno')` em `user_roles`.
+- Backfill único no momento da migration para os registros existentes.
 
-Corpo principal em grid 2 colunas em desktop, stacked em mobile:
+### 1.3 Função `current_user_primary_role()`
+`SECURITY DEFINER`, retorna o papel principal do usuário logado com prioridade `owner > staff > personal > aluno`. Usada pelo `/dashboard` para decidir redirect inicial.
 
-**Coluna esquerda — Estrutura do treino**
-- Campo Nome ("Nome do plano" / "Nome do treino")
-- Campo Descrição (textarea opcional)
-- Lista de sessões/blocos com drag-and-drop (@dnd-kit/core + @dnd-kit/sortable, já em uso em outras partes ou instalar):
-  - Modelo de Plano: várias **Sessões** (A, B, C…), cada uma contém **Blocos** que contêm **Exercícios**. Botão "Adicionar sessão".
-  - Modelo de Treino: apenas **Blocos** com **Exercícios** (sem nível de sessão). Botão "Adicionar bloco".
-- Dentro de cada bloco: linhas de exercício com nome, séries, reps, descanso, notas. Botões "Adicionar exercício" e "Adicionar bloco".
-- Reordenação por drag handle em sessões, blocos e exercícios.
+## 2. Nova estrutura de rotas
 
-**Coluna direita — Painel de configurações / seleção**
-- Aba "Selecionar exercícios": lista dos exercícios do usuário (query `exercises`), busca, filtro por grupo, clique adiciona ao bloco ativo.
-- Aba "Configurações": switch "Periodizar" (só no plano), tags/categoria, nível, objetivo, duração estimada.
-- Em mobile as abas viram um `Sheet` bottom-drawer com os mesmos conteúdos.
+```
+src/routes/_authenticated/
+  route.tsx                                    (já existe — gate de sessão)
+  index.tsx                                    → redireciona por papel
 
-## Persistência (Supabase)
-Usar tabelas existentes:
-- `workout_templates` — grava o modelo raiz. Adicionar campo `kind` ('plan' | 'template') via migration se não existir; senão usar `category` como discriminador.
-- `workout_template_exercises` — grava exercícios ordenados por `order_index`, com colunas `sets`, `reps`, `rest_seconds`, `notes`, `block_label`, `session_label` (verificar quais existem; migration se faltarem).
+  _academia/route.tsx                          gate: has_role owner|staff
+  _academia/dashboard.academia.index.tsx       → /dashboard/academia
+  _academia/dashboard.academia.alunos.index.tsx
+  _academia/dashboard.academia.alunos.$alunoId.tsx
+  _academia/dashboard.academia.personais.index.tsx
+  _academia/dashboard.academia.treinos.index.tsx
+  _academia/dashboard.academia.treinos.plano.$planoId.tsx
+  _academia/dashboard.academia.exercicios.tsx
+  _academia/dashboard.academia.avaliacoes.index.tsx
+  _academia/dashboard.academia.desafios.tsx
+  _academia/dashboard.academia.financeiro.tsx
+  _academia/dashboard.academia.configuracoes.tsx  (ex-"academia")
 
-Ao clicar em "Salvar":
-1. `createServerFn` `saveWorkoutTemplate` (com `requireSupabaseAuth`) que faz insert em `workout_templates` e bulk-insert em `workout_template_exercises`.
-2. On success: `queryClient.invalidateQueries(["workout_templates"])` + `navigate({ to: "/dashboard/personal/treinos" })` + toast "Modelo salvo".
+  _personal/route.tsx                          gate: has_role personal|owner
+  _personal/dashboard.personal.index.tsx
+  _personal/dashboard.personal.alunos.index.tsx
+  _personal/dashboard.personal.alunos.$alunoId.tsx
+  _personal/dashboard.personal.treinos.*        (portar arquivos atuais)
+  _personal/dashboard.personal.exercicios.tsx
+  _personal/dashboard.personal.avaliacoes.*
+  _personal/dashboard.personal.desafios.tsx
+  _personal/dashboard.personal.financeiro.tsx
 
-## Detalhes técnicos
-- Estado local do editor em um único `useReducer` com ações `ADD_SESSION`, `ADD_BLOCK`, `ADD_EXERCISE`, `REORDER`, `UPDATE_EXERCISE`, `REMOVE_*`, `SET_NAME`, etc.
-- Componentes reutilizáveis em `src/components/workout-editor/`:
-  - `EditorHeader.tsx`
-  - `SessionCard.tsx` (só plano)
-  - `BlockCard.tsx`
-  - `ExerciseRow.tsx`
-  - `ExercisePickerPanel.tsx`
-  - `SettingsPanel.tsx`
-- Reaproveitar tokens de design existentes (bg-card, border-border, primary). Sem cores hardcoded.
-- Manter `IconRail` + `MobileBottomNav` do dashboard.
+  _aluno/route.tsx                             gate: has_role aluno
+  _aluno/dashboard.aluno.index.tsx
+  _aluno/dashboard.aluno.meu-plano.tsx
+  _aluno/dashboard.aluno.treinos.index.tsx
+  _aluno/dashboard.aluno.treinos.$planoId.tsx
+  _aluno/dashboard.aluno.avaliacoes.tsx
+  _aluno/dashboard.aluno.desafios.tsx
 
-## Escopo NÃO incluído nesta iteração
-- Duplicar/exportar modelo
-- Vídeos incorporados nos exercícios (só link se existir)
-- Superséries com animação complexa
-- Compartilhamento entre personais
+  dashboard.perfil.tsx                         compartilhado
+```
 
-## Ordem de implementação
-1. Migration para colunas faltantes em `workout_templates` / `workout_template_exercises`.
-2. `saveWorkoutTemplate.functions.ts` + tipos.
-3. Componentes do editor.
-4. Rotas `novo-plano` e `novo-template`.
-5. Ligar `NovoModeloMenu` aos `<Link>`.
-6. Verificação: build, navegação, criação de exemplo end-to-end via Playwright.
+Convenção: sem acento, kebab-case. Todo `$param` (IDs) é validado no `beforeLoad` via server fn que checa se pertence ao escopo do usuário — devolve `notFound()` senão.
+
+## 3. Gates por camada (defense in depth)
+
+**Camada 1 — rota (`_academia/route.tsx` etc.):**
+```tsx
+beforeLoad: async ({ context, location }) => {
+  const roles = await getMyRoles(); // server fn com requireSupabaseAuth
+  if (!roles.some(r => ['owner','staff'].includes(r)))
+    throw redirect({ to: '/dashboard', search: { forbidden: 1 }});
+  return { activeRole: 'academia' };
+}
+```
+
+**Camada 2 — server functions:** toda mutation/query sensível chama `has_role(auth.uid(), 'x')` antes de operar, mesmo estando atrás do gate.
+
+**Camada 3 — RLS:** policies existentes continuam scoping por `organization_id` + `auth.uid()`. Nenhuma policy nova depende da rota.
+
+## 4. Redirects de compatibilidade (1–2 releases)
+
+Manter arquivos antigos (`dashboard.personal.alunos.index.tsx`, etc.) apenas com:
+```tsx
+beforeLoad: () => { throw redirect({ to: '/dashboard/personal/alunos', replace: true }); }
+```
+Após métricas confirmarem tráfego ≈0 nas rotas antigas (via analytics), remover.
+
+## 5. Home `/dashboard` inteligente
+
+`_authenticated/index.tsx` chama `current_user_primary_role()` no `beforeLoad` e redireciona:
+- `owner|staff` → `/dashboard/academia`
+- `personal` → `/dashboard/personal`
+- `aluno` → `/dashboard/aluno`
+
+## 6. UI shell por papel
+
+- `IconRail` recebe prop `scope: 'academia'|'personal'|'aluno'` (lido via `Route.useRouteContext().activeRole` que o gate injetou) e renderiza só os itens do papel.
+- `MobileBottomNav` idem.
+- Componentes de lista (Alunos, Treinos, Financeiro) extraídos para `src/components/domain/` e reutilizados entre árvores com props de escopo — sem duplicação de lógica.
+
+## 7. Segurança e escala — invariantes
+
+- IDs em URL: migrar `alunos.id`, `workout_templates.id` para `uuid` (já são) ou slugs opacos onde faltar. Nunca sequenciais.
+- Todo server fn de escrita: `requireSupabaseAuth` + `has_role` check + input validado com Zod.
+- Todo `$param` validado (existe + pertence ao tenant) no `beforeLoad`.
+- Log estruturado com `activeRole` + `organization_id` em cada server fn — pronto para agrupamento por papel em observabilidade.
+- Rate-limit por papel nas rotas mais quentes (financeiro, avaliações) via middleware de server fn — a implementar quando escalar.
+
+## 8. Ordem de execução
+
+1. Migration: enum `aluno` em `app_role` + triggers `user_roles` + backfill + `current_user_primary_role()`.
+2. Server fns compartilhadas: `getMyRoles`, `getPrimaryRole`, validators de escopo por `$param`.
+3. Criar os três layouts gate (`_academia`, `_personal`, `_aluno`) — cada um só com `route.tsx` + um `index.tsx` mínimo.
+4. Portar árvore `personal` primeiro (é a maior; já existe). Renomear arquivos, ajustar `createFileRoute` paths, mover para `_personal/`.
+5. Portar árvore `academia` (novos arquivos, reusando componentes de `personal`).
+6. Portar árvore `aluno` (a partir de `meu-treino.tsx` atual).
+7. Redirects em cada arquivo antigo.
+8. Atualizar `IconRail` e `MobileBottomNav` para escopo por papel.
+9. Home `/dashboard` com redirect por papel.
+10. Verificação end-to-end com Playwright em cada papel: login → home → todas as rotas do escopo respondem 200, rotas de outro escopo respondem redirect.
+
+## Fora de escopo desta iteração
+
+- Feature flags por tenant.
+- Multi-organization switcher na topbar (usuário owner de várias academias).
+- Rate limiting em produção.
+- Auditoria/audit log em tabela dedicada.
+
+Todos previstos para iterações subsequentes, sem impactar a estrutura de rotas acima.

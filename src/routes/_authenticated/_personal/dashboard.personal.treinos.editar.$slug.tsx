@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { WorkoutEditor } from "@/components/workout-editor/WorkoutEditor";
 
 export const Route = createFileRoute(
-  "/_authenticated/dashboard/personal/treinos/editar/$slug",
+  "/_authenticated/_personal/dashboard/personal/treinos/editar/$slug",
 )({
   head: () => ({
     meta: [

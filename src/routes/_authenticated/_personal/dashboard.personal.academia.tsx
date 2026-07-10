@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { IconRail } from "@/components/IconRail";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 
-export const Route = createFileRoute("/_authenticated/dashboard/personal/academia")({
+export const Route = createFileRoute("/_authenticated/_personal/dashboard/personal/academia")({
   head: () => ({
     meta: [
       { title: "Minha Academia · cactusfitness" },

@@ -44,7 +44,7 @@ import { IconRail } from "@/components/IconRail";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 
-export const Route = createFileRoute("/_authenticated/dashboard/personal/treinos/plano/$planoId")({
+export const Route = createFileRoute("/_authenticated/_personal/dashboard/personal/treinos/plano/$planoId")({
   head: () => ({
     meta: [
       { title: "Plano de Treino · cactusfitness" },

@@ -6,7 +6,7 @@ const searchSchema = z.object({
   alunoId: z.string().uuid().optional(),
 });
 
-export const Route = createFileRoute("/_authenticated/dashboard/personal/treinos/novo-plano")({
+export const Route = createFileRoute("/_authenticated/_personal/dashboard/personal/treinos/novo-plano")({
   validateSearch: searchSchema,
   head: () => ({
     meta: [
