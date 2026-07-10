@@ -216,13 +216,7 @@ export function AlunoDetailPage({ scope }: { scope: Scope }) {
                 {TABS.map((t, i) => (
                   <button
                     key={t}
-                    onClick={() => {
-                      if (t === "Avaliações") {
-                        navigate({ to: `${avaliacoesBase}/$alunoId` as "/dashboard/personal/avaliacoes/$alunoId", params: { alunoId } });
-                        return;
-                      }
-                      setActiveTab(i);
-                    }}
+                    onClick={() => setActiveTab(i)}
                     className={`whitespace-nowrap px-4 py-3 text-sm font-medium transition-colors ${
                       i === activeTab
                         ? "border-b-2 border-primary text-primary"
@@ -237,6 +231,7 @@ export function AlunoDetailPage({ scope }: { scope: Scope }) {
 
             <div className="p-5 md:p-6">
               {activeTab === 0 && <TreinosTab aluno={aluno} onNovoPlano={() => setNovoPlanoOpen(true)} onCopiar={() => setCopyPickerOpen(true)} />}
+              {activeTab === 1 && <AvaliacoesTab alunoId={aluno.id} scope={scope} />}
               {activeTab === 2 && (
                 <InformacoesTab
                   aluno={aluno}
@@ -246,6 +241,7 @@ export function AlunoDetailPage({ scope }: { scope: Scope }) {
                 />
               )}
             </div>
+
           </div>
         </div>
       </main>
