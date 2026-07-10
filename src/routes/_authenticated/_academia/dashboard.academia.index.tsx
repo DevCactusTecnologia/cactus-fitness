@@ -307,8 +307,8 @@ function AcademiaHome() {
 
   const shortcuts = [
     { to: "/dashboard/academia/personais", icon: UsersIcon, title: "Equipe", desc: "Cadastrar personais e ajustar papéis", key: "E" },
-    { to: "/dashboard/academia/alunos", icon: Users, title: "Todos os alunos", desc: "Cadastros e contatos", key: "A" },
-    { to: "/dashboard/academia/treinos", icon: Dumbbell, title: "Modelos de treino", desc: "Biblioteca compartilhada", key: "T" },
+    { to: "/dashboard/academia/alunos", icon: Users, title: "Aluno", desc: "Cadastros e contatos", key: "A" },
+    { to: "/dashboard/academia/treinos", icon: Dumbbell, title: "Treinos", desc: "Biblioteca compartilhada", key: "T" },
     { to: "/dashboard/academia/financeiro", icon: Wallet, title: "Financeiro", desc: "Receitas, repasses e saques", key: "F" },
     { to: "/dashboard/academia/avaliacoes", icon: HeartPulse, title: "Avaliações", desc: "Consolidado da academia", key: "V" },
     { to: "/dashboard/academia/desafios", icon: Trophy, title: "Desafios", desc: "Engajamento e ranking", key: "D" },
@@ -500,8 +500,8 @@ function AcademiaHome() {
                 <div className="grid grid-cols-4 gap-3">
                   {[
                     { icon: UsersIcon, label: "Equipe", to: "/dashboard/academia/personais" },
-                    { icon: Users, label: "Todos os alunos", to: "/dashboard/academia/alunos" },
-                    { icon: Dumbbell, label: "Modelos de treino", to: "/dashboard/academia/treinos" },
+                    { icon: Users, label: "Aluno", to: "/dashboard/academia/alunos" },
+                    { icon: Dumbbell, label: "Treinos", to: "/dashboard/academia/treinos" },
                     { icon: Wallet, label: "Financeiro", to: "/dashboard/academia/financeiro" },
                     { icon: HeartPulse, label: "Avaliações", to: "/dashboard/academia/avaliacoes" },
                     { icon: Trophy, label: "Desafios", to: "/dashboard/academia/desafios" },
