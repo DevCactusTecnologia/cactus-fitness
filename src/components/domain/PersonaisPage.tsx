@@ -264,13 +264,143 @@ export function PersonaisPage({ scope }: { scope: Scope }) {
             </div>
 
             <p className="mt-3 text-xs text-muted-foreground">
-              Para convidar, remover ou trocar o papel de alguém, acesse{" "}
-              <Link to={teamMgmtTo} className="text-primary hover:underline">Equipe & convites</Link>.
+              Para remover ou trocar o papel de alguém, acesse{" "}
+              <Link to={teamMgmtTo} className="text-primary hover:underline">Equipe</Link>.
             </p>
           </div>
         </div>
       </main>
       <MobileBottomNav scope={scope} />
+      {openCreate && <CreatePersonalModal onClose={() => setOpenCreate(false)} />}
+    </div>
+  );
+}
+
+function CreatePersonalModal({ onClose }: { onClose: () => void }) {
+  const qc = useQueryClient();
+  const runCreate = useServerFn(createPersonal);
+  const [fullName, setFullName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const mut = useMutation({
+    mutationFn: () =>
+      runCreate({ data: { full_name: fullName.trim(), email: email.trim(), password } }),
+    onSuccess: () => {
+      toast.success("Personal cadastrado!");
+      qc.invalidateQueries({ queryKey: ["personais"] });
+      qc.invalidateQueries({ queryKey: ["academia-config"] });
+      onClose();
+    },
+    onError: (e) => toast.error((e as Error).message),
+  });
+
+  const valid =
+    fullName.trim().length >= 2 &&
+    /.+@.+\..+/.test(email.trim()) &&
+    password.length >= 8;
+
+  return (
+    <div
+      className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <h2 className="font-display text-lg font-bold">Cadastrar Personal</h2>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Crie o acesso do personal ao sistema.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="grid h-8 w-8 place-items-center rounded-md text-muted-foreground hover:bg-muted hover:text-foreground"
+            aria-label="Fechar"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        <form
+          className="mt-5 space-y-3"
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (valid && !mut.isPending) mut.mutate();
+          }}
+        >
+          <label className="block">
+            <span className="mb-1 block text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+              Nome completo
+            </span>
+            <input
+              type="text"
+              required
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              className="h-11 w-full rounded-md border border-border bg-background px-3 text-sm outline-none focus:border-primary"
+              placeholder="Ex.: João Silva"
+              autoFocus
+            />
+          </label>
+
+          <label className="block">
+            <span className="mb-1 block text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+              E-mail de acesso
+            </span>
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="h-11 w-full rounded-md border border-border bg-background px-3 text-sm outline-none focus:border-primary"
+              placeholder="personal@exemplo.com"
+              autoComplete="off"
+            />
+          </label>
+
+          <label className="block">
+            <span className="mb-1 block text-xs font-semibold uppercase tracking-widest text-muted-foreground">
+              Senha inicial
+            </span>
+            <input
+              type="text"
+              required
+              minLength={8}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="h-11 w-full rounded-md border border-border bg-background px-3 text-sm outline-none focus:border-primary"
+              placeholder="Mínimo 8 caracteres"
+              autoComplete="new-password"
+            />
+            <span className="mt-1 block text-[11px] text-muted-foreground">
+              O personal poderá alterar depois no perfil.
+            </span>
+          </label>
+
+          <div className="mt-5 flex items-center justify-end gap-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="rounded-full px-4 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground"
+            >
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              disabled={!valid || mut.isPending}
+              className="inline-flex items-center gap-1.5 rounded-full bg-primary px-5 py-2 text-sm font-semibold text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.35)] hover:brightness-110 disabled:opacity-50"
+            >
+              {mut.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <UserPlus className="h-4 w-4" />}
+              Cadastrar
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }
