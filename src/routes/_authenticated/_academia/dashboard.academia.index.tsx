@@ -176,7 +176,7 @@ function MobileGreetingCard({ name, alunos, treinos, avaliacoes, novosAlunos, no
         </div>
         <div className="min-w-0">
           <div className="text-xs font-medium text-muted-foreground sm:text-sm">{greeting},</div>
-          <div className="truncate text-xl font-extrabold leading-tight tracking-tight font-display sm:text-[1.5rem]">{name}</div>
+          <div className="truncate text-2xl font-extrabold leading-tight tracking-tight font-display sm:text-[1.75rem]">{name}</div>
         </div>
       </div>
       <div className="mt-6 grid grid-cols-3 gap-4 sm:mt-7">
