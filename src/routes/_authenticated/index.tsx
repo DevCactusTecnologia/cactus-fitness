@@ -18,29 +18,28 @@ import { useCurrentUser, firstName, initialsFromName } from "@/lib/auth";
 
 
 import { redirect } from "@tanstack/react-router";
-import { getPrimaryRole } from "@/lib/roles.functions";
+import { getCurrentSessionRoles, getPrimaryClientRole } from "@/lib/client-roles";
 
 export const Route = createFileRoute("/_authenticated/")({
-  beforeLoad: async ({ search }) => {
+  beforeLoad: async ({ search, location }) => {
     // Preserve forbidden flag (avoid loop redirects)
     if ((search as { forbidden?: number } | undefined)?.forbidden) return;
-    try {
-      const { role } = await getPrimaryRole();
-      if (role === "aluno") {
-        throw redirect({ to: "/dashboard/aluno" });
-      }
-      if (role === "owner" || role === "staff") {
-        throw redirect({ to: "/dashboard/academia" });
-      }
-      if (role === "personal") {
-        throw redirect({ to: "/dashboard/personal" });
-      }
-      if (!role) {
-        throw redirect({ to: "/onboarding" });
-      }
-    } catch (err) {
-      // Rethrow redirects; swallow role fetch errors (fallback to personal dashboard)
-      if (err && typeof err === "object" && "to" in err) throw err;
+    const { user, roles } = await getCurrentSessionRoles();
+    if (!user) {
+      throw redirect({ to: "/login", search: { redirect: location.href } });
+    }
+    const role = getPrimaryClientRole(roles);
+    if (role === "aluno") {
+      throw redirect({ to: "/dashboard/aluno" });
+    }
+    if (role === "owner" || role === "staff") {
+      throw redirect({ to: "/dashboard/academia" });
+    }
+    if (role === "personal") {
+      throw redirect({ to: "/dashboard/personal" });
+    }
+    if (!role) {
+      throw redirect({ to: "/onboarding" });
     }
   },
   component: Dashboard,
