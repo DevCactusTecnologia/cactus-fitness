@@ -59,7 +59,7 @@ export const getAcademiaConfig = createServerFn({ method: "GET" })
     return {
       myRole,
       org: orgRes.data,
-      members: membersRes.data ?? [],
+      members,
       invites: (invitesRes.data ?? []).filter((i: any) => new Date(i.expires_at) > new Date()),
     };
   });
