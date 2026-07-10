@@ -51,7 +51,7 @@ export function FinanceiroPage({ scope }: { scope: Scope }) {
 
   return (
     <div className="min-h-screen w-full overflow-x-hidden bg-background text-foreground">
-      <IconRail />
+      <IconRail scope={scope} />
       <div className="md:ml-[72px]">
         <header className="flex items-center gap-2 px-4 sm:px-6 py-4 border-b border-border">
           <button
