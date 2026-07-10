@@ -28,7 +28,7 @@ export const getAcademiaConfig = createServerFn({ method: "GET" })
       supabase.from("organizations").select("id, name, slug, logo_url, created_at").eq("id", orgId).single(),
       supabase
         .from("organization_members")
-        .select("user_id, role, created_at, profiles:profiles!organization_members_user_id_fkey(id, full_name, avatar_url)")
+        .select("user_id, role, created_at")
         .eq("organization_id", orgId)
         .order("created_at", { ascending: true }),
       supabase
@@ -41,6 +41,20 @@ export const getAcademiaConfig = createServerFn({ method: "GET" })
     if (orgRes.error) throw new Error(orgRes.error.message);
     if (membersRes.error) throw new Error(membersRes.error.message);
     if (invitesRes.error) throw new Error(invitesRes.error.message);
+
+    const userIds = (membersRes.data ?? []).map((m: any) => m.user_id);
+    let profilesById: Record<string, { id: string; full_name: string | null; avatar_url: string | null }> = {};
+    if (userIds.length > 0) {
+      const { data: profs } = await supabase
+        .from("profiles")
+        .select("id, full_name, avatar_url")
+        .in("id", userIds);
+      profilesById = Object.fromEntries((profs ?? []).map((p: any) => [p.id, p]));
+    }
+    const members = (membersRes.data ?? []).map((m: any) => ({
+      ...m,
+      profile: profilesById[m.user_id] ?? null,
+    }));
 
     return {
       myRole,
