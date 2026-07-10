@@ -327,12 +327,9 @@ function EditProfileDialog({
   personal, open, onOpenChange,
 }: { personal: PersonalDetail; open: boolean; onOpenChange: (v: boolean) => void }) {
   const qc = useQueryClient();
-  const updateFn = useServerFn(updatePersonalProfile);
-  const toggleFn = useServerFn(togglePersonalActive);
   const [fullName, setFullName] = useState(personal.full_name);
   const [phone, setPhone] = useState(personal.phone ?? "");
   const [cref, setCref] = useState(personal.cref ?? "");
-  const [isActive, setIsActive] = useState(personal.is_active);
 
   useEffect(() => {
     if (open) {
