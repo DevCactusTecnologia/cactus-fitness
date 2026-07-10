@@ -667,9 +667,15 @@ function Dashboard() {
     }
   }, [loading, profile, navigate]);
 
-  // Dono da academia vê painel de gestão
+  // Dono da academia vai para o painel dedicado (com layout mobile completo)
+  useEffect(() => {
+    if (!loading && !ownerLoading && ownerOverview) {
+      navigate({ to: "/dashboard/academia", replace: true });
+    }
+  }, [loading, ownerLoading, ownerOverview, navigate]);
+
   if (!loading && !ownerLoading && ownerOverview) {
-    return <OwnerDashboard profile={profile} />;
+    return null;
   }
 
   const name = firstName(profile?.full_name, profile?.email);
