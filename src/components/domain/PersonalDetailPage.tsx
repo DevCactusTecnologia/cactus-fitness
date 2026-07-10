@@ -1,26 +1,36 @@
 import { notFound, useParams, Link } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import {
   ChevronLeft, ChevronRight, Loader2, Mail, Phone, Calendar, Shield, Crown,
-  BadgeCheck, Users as UsersIcon, FileText, Sparkles,
+  BadgeCheck, Users as UsersIcon, Pencil, KeyRound, Eye, EyeOff, Power,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { IconRail } from "@/components/IconRail";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { initialsFromName } from "@/lib/auth";
 import { colorForId } from "@/lib/avatar-color";
 import type { Scope } from "@/lib/scope";
+import {
+  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import {
+  updatePersonalProfile, changePersonalPassword, togglePersonalActive,
+} from "@/lib/personal-admin.functions";
 
 type PersonalDetail = {
   user_id: string;
   full_name: string;
   phone: string | null;
   cref: string | null;
-  bio: string | null;
-  specialties: string[] | null;
   created_at: string;
   role: "owner" | "personal" | "staff";
+  is_active: boolean;
   member_since: string;
   organization_id: string;
   alunos: { id: string; full_name: string; is_active: boolean; created_at: string }[];
@@ -46,7 +56,7 @@ function usePersonal(personalId: string) {
 
       const { data: member } = await supabase
         .from("organization_members")
-        .select("user_id, role, created_at")
+        .select("user_id, role, created_at, is_active")
         .eq("organization_id", orgId)
         .eq("user_id", personalId)
         .maybeSingle();
@@ -54,7 +64,7 @@ function usePersonal(personalId: string) {
 
       const { data: profile } = await supabase
         .from("profiles")
-        .select("id, full_name, phone, cref, bio, specialties, created_at")
+        .select("id, full_name, phone, cref, created_at")
         .eq("id", personalId)
         .maybeSingle();
 
@@ -70,10 +80,9 @@ function usePersonal(personalId: string) {
         full_name: profile?.full_name ?? "Sem nome",
         phone: profile?.phone ?? null,
         cref: profile?.cref ?? null,
-        bio: profile?.bio ?? null,
-        specialties: (profile?.specialties as string[] | null) ?? null,
         created_at: profile?.created_at ?? member.created_at,
         role: member.role as PersonalDetail["role"],
+        is_active: (member as any).is_active ?? true,
         member_since: member.created_at,
         organization_id: orgId,
         alunos: (alunos ?? []) as PersonalDetail["alunos"],
@@ -104,6 +113,8 @@ export function PersonalDetailPage({ scope }: { scope: Scope }) {
   const { personalId } = useParams({ strict: false }) as { personalId: string };
   const { data: p, isLoading } = usePersonal(personalId);
   const [tab, setTab] = useState(0);
+  const [editOpen, setEditOpen] = useState(false);
+  const [passOpen, setPassOpen] = useState(false);
 
   const alunosBase = scope === "academia" ? "/dashboard/academia/alunos" : "/dashboard/personal/alunos";
 
@@ -117,6 +128,7 @@ export function PersonalDetailPage({ scope }: { scope: Scope }) {
 
   const initials = initialsFromName(p.full_name, null);
   const avColor = colorForId(p.user_id);
+  const canManage = p.role !== "owner";
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -168,9 +180,37 @@ export function PersonalDetailPage({ scope }: { scope: Scope }) {
                       Equipe
                     </span>
                   )}
+                  <span
+                    className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${
+                      p.is_active
+                        ? "bg-emerald-500/15 text-emerald-500"
+                        : "bg-muted text-muted-foreground"
+                    }`}
+                  >
+                    {p.is_active ? "Ativo" : "Inativo"}
+                  </span>
                   <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
                     <UsersIcon className="h-3 w-3" /> {p.alunos.length} {p.alunos.length === 1 ? "aluno" : "alunos"}
                   </span>
+                </div>
+
+                <div className="mt-3 flex flex-wrap items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setEditOpen(true)}
+                    className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-xs font-medium transition-colors hover:bg-accent"
+                  >
+                    <Pencil className="h-3.5 w-3.5" /> Editar perfil
+                  </button>
+                  {canManage && (
+                    <button
+                      type="button"
+                      onClick={() => setPassOpen(true)}
+                      className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3 py-1.5 text-xs font-medium transition-colors hover:bg-accent"
+                    >
+                      <KeyRound className="h-3.5 w-3.5" /> Alterar senha
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
@@ -244,19 +284,6 @@ export function PersonalDetailPage({ scope }: { scope: Scope }) {
                     label="Membro desde"
                     value={new Date(p.member_since).toLocaleDateString("pt-BR")}
                   />
-                  <Row
-                    icon={Sparkles}
-                    label="Especialidades"
-                    value={p.specialties && p.specialties.length ? p.specialties.join(", ") : null}
-                  />
-                  <div className="mt-4 rounded-lg border border-border bg-background/40 p-4">
-                    <div className="mb-2 flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                      <FileText className="h-3.5 w-3.5" /> Bio
-                    </div>
-                    <p className="whitespace-pre-wrap text-sm text-muted-foreground">
-                      {p.bio || "Sem biografia cadastrada."}
-                    </p>
-                  </div>
                 </div>
               )}
             </div>
@@ -264,6 +291,184 @@ export function PersonalDetailPage({ scope }: { scope: Scope }) {
         </div>
       </main>
       <MobileBottomNav scope={scope} />
+
+      <EditProfileDialog personal={p} open={editOpen} onOpenChange={setEditOpen} />
+      <ChangePasswordDialog personal={p} open={passOpen} onOpenChange={setPassOpen} />
     </div>
+  );
+}
+
+function EditProfileDialog({
+  personal, open, onOpenChange,
+}: { personal: PersonalDetail; open: boolean; onOpenChange: (v: boolean) => void }) {
+  const qc = useQueryClient();
+  const updateFn = useServerFn(updatePersonalProfile);
+  const toggleFn = useServerFn(togglePersonalActive);
+  const [fullName, setFullName] = useState(personal.full_name);
+  const [phone, setPhone] = useState(personal.phone ?? "");
+  const [cref, setCref] = useState(personal.cref ?? "");
+  const [isActive, setIsActive] = useState(personal.is_active);
+
+  useEffect(() => {
+    if (open) {
+      setFullName(personal.full_name);
+      setPhone(personal.phone ?? "");
+      setCref(personal.cref ?? "");
+      setIsActive(personal.is_active);
+    }
+  }, [open, personal]);
+
+  const canToggle = personal.role !== "owner";
+
+  const save = useMutation({
+    mutationFn: async () => {
+      await updateFn({
+        data: {
+          personalId: personal.user_id,
+          full_name: fullName.trim(),
+          phone: phone.trim() || null,
+          cref: cref.trim() || null,
+        },
+      });
+      if (canToggle && isActive !== personal.is_active) {
+        await toggleFn({ data: { personalId: personal.user_id, is_active: isActive } });
+      }
+    },
+    onSuccess: () => {
+      toast.success("Perfil atualizado");
+      qc.invalidateQueries({ queryKey: ["personal-detail", personal.user_id] });
+      qc.invalidateQueries({ queryKey: ["personais"] });
+      onOpenChange(false);
+    },
+    onError: (e: any) => toast.error(e?.message ?? "Erro ao salvar"),
+  });
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle className="font-display">Editar perfil</DialogTitle>
+          <DialogDescription>Atualize as informações do personal.</DialogDescription>
+        </DialogHeader>
+        <div className="space-y-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="p-name">Nome completo</Label>
+            <Input id="p-name" value={fullName} onChange={(e) => setFullName(e.target.value)} />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="p-phone">Telefone</Label>
+            <Input id="p-phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="(11) 99999-9999" />
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="p-cref">CREF</Label>
+            <Input id="p-cref" value={cref} onChange={(e) => setCref(e.target.value)} placeholder="000000-G/UF" />
+          </div>
+          {canToggle && (
+            <label className="flex items-center justify-between gap-3 rounded-lg border border-border p-3">
+              <div className="flex items-center gap-2">
+                <Power className="h-4 w-4 text-muted-foreground" />
+                <div>
+                  <div className="text-sm font-medium">Personal ativo</div>
+                  <div className="text-xs text-muted-foreground">
+                    Inativos não aparecem para novos vínculos.
+                  </div>
+                </div>
+              </div>
+              <input
+                type="checkbox"
+                checked={isActive}
+                onChange={(e) => setIsActive(e.target.checked)}
+                className="h-5 w-5 accent-primary"
+              />
+            </label>
+          )}
+        </div>
+        <DialogFooter>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={save.isPending}>Cancelar</Button>
+          <Button onClick={() => save.mutate()} disabled={save.isPending || fullName.trim().length < 2}>
+            {save.isPending ? "Salvando..." : "Salvar"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+function ChangePasswordDialog({
+  personal, open, onOpenChange,
+}: { personal: PersonalDetail; open: boolean; onOpenChange: (v: boolean) => void }) {
+  const changeFn = useServerFn(changePersonalPassword);
+  const [password, setPassword] = useState("");
+  const [confirm, setConfirm] = useState("");
+  const [show, setShow] = useState(false);
+
+  useEffect(() => {
+    if (open) { setPassword(""); setConfirm(""); setShow(false); }
+  }, [open]);
+
+  const passError = password.length > 0 && password.length < 8 ? "Mínimo 8 caracteres" : null;
+  const confirmError = confirm.length > 0 && confirm !== password ? "Senhas não coincidem" : null;
+  const canSubmit = password.length >= 8 && confirm === password;
+
+  const submit = useMutation({
+    mutationFn: async () => {
+      await changeFn({ data: { personalId: personal.user_id, newPassword: password } });
+    },
+    onSuccess: () => {
+      toast.success("Senha atualizada");
+      onOpenChange(false);
+    },
+    onError: (e: any) => toast.error(e?.message ?? "Erro ao alterar senha"),
+  });
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle className="font-display">Alterar senha</DialogTitle>
+          <DialogDescription>Defina uma nova senha para {personal.full_name}.</DialogDescription>
+        </DialogHeader>
+        <div className="space-y-3">
+          <div className="space-y-1.5">
+            <Label htmlFor="pass">Nova senha</Label>
+            <div className="relative">
+              <Input
+                id="pass"
+                type={show ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                autoComplete="new-password"
+              />
+              <button
+                type="button"
+                onClick={() => setShow((s) => !s)}
+                className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-muted-foreground hover:text-foreground"
+                aria-label={show ? "Ocultar senha" : "Mostrar senha"}
+              >
+                {show ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
+            {passError && <p className="text-xs text-destructive">{passError}</p>}
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="pass-c">Confirmar senha</Label>
+            <Input
+              id="pass-c"
+              type={show ? "text" : "password"}
+              value={confirm}
+              onChange={(e) => setConfirm(e.target.value)}
+              autoComplete="new-password"
+            />
+            {confirmError && <p className="text-xs text-destructive">{confirmError}</p>}
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={submit.isPending}>Cancelar</Button>
+          <Button onClick={() => submit.mutate()} disabled={!canSubmit || submit.isPending}>
+            {submit.isPending ? "Salvando..." : "Alterar senha"}
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
