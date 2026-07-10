@@ -68,7 +68,7 @@ function formatDate(iso: string) {
   return d.toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" });
 }
 
-function AvaliacaoPage() {
+export function AvaliacaoPage() {
   const { avaliacaoId } = Route.useParams();
   const { data, isLoading } = useAvaliacao(avaliacaoId);
 
