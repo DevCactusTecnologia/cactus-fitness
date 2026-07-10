@@ -1060,7 +1060,7 @@ export type Database = {
       solo_org_for_personal: { Args: { _user_id: string }; Returns: string }
     }
     Enums: {
-      app_role: "personal" | "aluno"
+      app_role: "personal" | "aluno" | "owner" | "staff"
       desafio_tipo: "treino_realizado"
       lancamento_categoria:
         | "mensalidade"
@@ -1197,7 +1197,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["personal", "aluno"],
+      app_role: ["personal", "aluno", "owner", "staff"],
       desafio_tipo: ["treino_realizado"],
       lancamento_categoria: [
         "mensalidade",
