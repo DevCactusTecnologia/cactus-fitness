@@ -37,6 +37,8 @@ const RAIL_ITEMS = [
   { icon: HeartPulse, label: "Avaliações", to: "/avaliacoes" as const },
 ];
 
+const MOBILE_NAV_ITEMS = RAIL_ITEMS.filter((i) => i.to !== "/meu-progresso");
+
 
 
 const MENU_ITEMS: { icon: any; label: string }[] = [
