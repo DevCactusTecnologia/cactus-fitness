@@ -324,7 +324,7 @@ export function PersonalDetailPage({ scope }: { scope: Scope }) {
       </main>
       <MobileBottomNav scope={scope} />
 
-      <EditProfileDialog personal={p} open={editOpen} onOpenChange={setEditOpen} />
+      <EditProfileDialog personal={p} email={emailData?.email ?? null} open={editOpen} onOpenChange={setEditOpen} />
       <ChangePasswordDialog personal={p} open={passOpen} onOpenChange={setPassOpen} />
       <ToggleActiveDialog personal={p} open={toggleOpen} onOpenChange={setToggleOpen} />
       <DeletePersonalDialog personal={p} scope={scope} open={deleteOpen} onOpenChange={setDeleteOpen} />
@@ -333,21 +333,27 @@ export function PersonalDetailPage({ scope }: { scope: Scope }) {
 }
 
 function EditProfileDialog({
-  personal, open, onOpenChange,
-}: { personal: PersonalDetail; open: boolean; onOpenChange: (v: boolean) => void }) {
+  personal, email, open, onOpenChange,
+}: { personal: PersonalDetail; email: string | null; open: boolean; onOpenChange: (v: boolean) => void }) {
   const qc = useQueryClient();
   const updateFn = useServerFn(updatePersonalProfile);
   const [fullName, setFullName] = useState(personal.full_name);
   const [phone, setPhone] = useState(personal.phone ?? "");
   const [cref, setCref] = useState(personal.cref ?? "");
+  const [emailVal, setEmailVal] = useState(email ?? "");
 
   useEffect(() => {
     if (open) {
       setFullName(personal.full_name);
       setPhone(personal.phone ?? "");
       setCref(personal.cref ?? "");
+      setEmailVal(email ?? "");
     }
-  }, [open, personal]);
+  }, [open, personal, email]);
+
+  const emailChanged = emailVal.trim().toLowerCase() !== (email ?? "").toLowerCase();
+  const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal.trim());
+  const emailError = emailChanged && emailVal.trim().length > 0 && !emailValid ? "E-mail inválido" : null;
 
   const save = useMutation({
     mutationFn: async () => {
@@ -357,12 +363,14 @@ function EditProfileDialog({
           full_name: fullName.trim(),
           phone: phone.trim() || null,
           cref: cref.trim() || null,
+          ...(emailChanged && emailValid ? { email: emailVal.trim().toLowerCase() } : {}),
         },
       });
     },
     onSuccess: () => {
       toast.success("Perfil atualizado");
       qc.invalidateQueries({ queryKey: ["personal-detail", personal.user_id] });
+      qc.invalidateQueries({ queryKey: ["personal-email", personal.user_id] });
       qc.invalidateQueries({ queryKey: ["personais"] });
       onOpenChange(false);
     },
