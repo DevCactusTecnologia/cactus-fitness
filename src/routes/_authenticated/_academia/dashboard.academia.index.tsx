@@ -164,8 +164,9 @@ function MobileTopBar() {
   );
 }
 
-function MobileGreetingCard({ name, alunos, treinos, avaliacoes, novosAlunos, novosTreinos, novasAvaliacoes }: {
-  name: string; alunos: number; treinos: number; avaliacoes: number;
+function MobileGreetingCard({ name, initials, avatarUrl, avatarColor, alunos, treinos, avaliacoes, novosAlunos, novosTreinos, novasAvaliacoes }: {
+  name: string; initials: string; avatarUrl: string | null; avatarColor: { bg: string; fg: string };
+  alunos: number; treinos: number; avaliacoes: number;
   novosAlunos: number; novosTreinos: number; novasAvaliacoes: number;
 }) {
   const greeting = greetingFor(new Date().getHours());
@@ -173,8 +174,15 @@ function MobileGreetingCard({ name, alunos, treinos, avaliacoes, novosAlunos, no
   return (
     <div className="rounded-[1.55rem] border border-border bg-[image:var(--gradient-greeting-card)] p-4 shadow-[var(--shadow-mobile-card)]">
       <div className="flex items-center gap-3">
-        <div className="grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-full bg-background/60 ring-2 ring-primary/70">
-          <img src={logoUrl} alt="CactusFitness" className="h-7 w-7 object-contain" />
+        <div
+          className="grid h-11 w-11 shrink-0 place-items-center overflow-hidden rounded-full ring-2 ring-primary/70 font-display text-sm font-bold"
+          style={avatarUrl ? undefined : { backgroundColor: avatarColor.bg, color: avatarColor.fg }}
+        >
+          {avatarUrl ? (
+            <img src={avatarUrl} alt={name} className="h-full w-full object-cover" />
+          ) : (
+            <span>{initials}</span>
+          )}
         </div>
         <div className="min-w-0">
           <div className="text-xs font-medium text-muted-foreground">{greeting},</div>
