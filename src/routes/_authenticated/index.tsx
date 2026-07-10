@@ -35,9 +35,7 @@ export const Route = createFileRoute("/_authenticated/")({
     if (role === "owner" || role === "staff") {
       throw redirect({ to: "/dashboard/academia" });
     }
-    if (role === "personal") {
-      throw redirect({ to: "/dashboard/personal" });
-    }
+    // personal role renders the Dashboard at "/"
     if (!role) {
       throw redirect({ to: "/onboarding" });
     }
