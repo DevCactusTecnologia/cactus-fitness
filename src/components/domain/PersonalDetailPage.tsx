@@ -377,7 +377,22 @@ function EditProfileDialog({
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="p-phone">Telefone</Label>
-            <Input id="p-phone" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="(11) 99999-9999" />
+            <Input
+              id="p-phone"
+              value={phone}
+              onChange={(e) => {
+                const digits = e.target.value.replace(/\D/g, "").slice(0, 11);
+                let formatted = digits;
+                if (digits.length > 0) formatted = `(${digits.slice(0, 2)}`;
+                if (digits.length >= 3) formatted += `) ${digits.slice(2, 7)}`;
+                if (digits.length >= 8) formatted = `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7, 11)}`;
+                setPhone(formatted);
+              }}
+              placeholder="(11) 99999-9999"
+              inputMode="numeric"
+              maxLength={15}
+            />
+
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="p-cref">CREF</Label>
