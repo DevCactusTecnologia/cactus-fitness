@@ -277,6 +277,8 @@ function AcademiaHome() {
   const navigate = useNavigate();
   const name = firstName(profile?.full_name, profile?.email);
   const initials = initialsFromName(profile?.full_name, profile?.email);
+  const avatarUrl = useAvatarUrl(profile?.avatar_url);
+  const avatarColor = colorForId(profile?.id ?? name);
   const greeting = greetingFor(new Date().getHours());
   const today = new Date().toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long" });
 
