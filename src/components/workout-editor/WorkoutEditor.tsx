@@ -1250,8 +1250,8 @@ function ExerciseDetailSheet({
           <div className="space-y-2">
             <h4 className="px-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Configuração de cada série</h4>
             <div className="-mx-1 overflow-x-auto px-1">
-              <div className="min-w-[500px] space-y-1">
-                <div className="grid grid-cols-[120px_48px_minmax(72px,1fr)_100px_80px_32px] gap-2 px-1 pb-0.5">
+              <div className="min-w-[520px] space-y-1">
+                <div className="grid grid-cols-[150px_48px_minmax(56px,1fr)_100px_80px_32px] gap-2 px-1 pb-0.5">
               <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Tipo</span>
               <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground text-center">Série</span>
               <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Alvo</span>
@@ -1307,7 +1307,7 @@ function ExerciseDetailSheet({
                   });
                 };
                 return (
-                  <div key={i} className="grid grid-cols-[120px_48px_minmax(72px,1fr)_100px_80px_32px] items-center gap-2 py-1">
+                  <div key={i} className="grid grid-cols-[150px_48px_minmax(56px,1fr)_100px_80px_32px] items-center gap-2 py-1">
                     <SetTypePickerButton
                       index={i}
                       currentType={currentType}
@@ -1537,7 +1537,16 @@ function AlvoPickerButton({
   };
 
 
-  const label = value ? (detectMode(value) === "tempo" ? value : `${value} reps`) : "— reps";
+  const formatTempo = (raw: string) => {
+    const n = parseInt(raw.replace(/s$/i, "").trim() || "0", 10) || 0;
+    if (n < 60) return `${n}s`;
+    const m = Math.floor(n / 60);
+    const s = n % 60;
+    return s === 0 ? `${m}min` : `${m}min ${s}s`;
+  };
+  const label = value
+    ? (detectMode(value) === "tempo" ? formatTempo(value) : `${value} reps`)
+    : "— reps";
 
   return (
     <>
