@@ -470,6 +470,14 @@ function TreinoPage() {
           </div>
         )}
 
+        <div className="my-4 rounded-2xl border border-primary/25 bg-gradient-to-r from-primary/15 via-primary/5 to-transparent px-5 py-4">
+          <div className="inline-flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-primary shadow-[0_0_10px] shadow-primary" />
+            <span className="font-display text-sm font-bold text-primary">{blockLabel}</span>
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">Bloco 1 de 1 · {rows.length} exercícios</p>
+        </div>
+
         {!loading && rows.length === 0 && (
           <div className="rounded-2xl border border-border bg-card p-6 text-center text-sm text-muted-foreground">
             Este treino ainda não possui exercícios.
