@@ -81,6 +81,9 @@ export function TreinoModeloPage({ scope }: { scope: Scope }) {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [useOpen, setUseOpen] = useState(false);
+  const [alunoSearch, setAlunoSearch] = useState("");
+  const [selectedAlunoId, setSelectedAlunoId] = useState<string | null>(null);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["modelo-detail", modeloId],
