@@ -449,10 +449,12 @@ function PlanConfigDialog({
       queryClient.invalidateQueries({ queryKey: ["aluno-student-workouts", aluno.id] });
       onOpenChange(false);
       toast.success("Plano criado");
-      navigate({
-        to: "/dashboard/personal/treinos/editar/$slug",
-        params: { slug },
-      });
+      const editBase =
+        scope === "academia"
+          ? "/dashboard/academia/treinos/editar/$slug"
+          : "/dashboard/personal/treinos/editar/$slug";
+      navigate({ to: editBase as "/dashboard/personal/treinos/editar/$slug", params: { slug } });
+
     },
     onError: (e: Error) => toast.error(e.message),
   });
