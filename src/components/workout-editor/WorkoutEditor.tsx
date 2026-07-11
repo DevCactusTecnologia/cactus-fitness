@@ -72,6 +72,7 @@ type ExerciseItem = {
   rest_by_set?: number[];
   load_by_set?: string[];
   count_by_set?: string[];
+  muscles_primary?: string[];
 };
 
 
