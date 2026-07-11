@@ -342,6 +342,42 @@ export function WorkoutEditor({
     return () => clearTimeout(id);
   }, [loadingEdit]);
 
+  // Prefetch da biblioteca de exercícios: o sheet abre sem trava.
+  useEffect(() => {
+    qc.prefetchQuery({
+      queryKey: ["exercises-catalog"],
+      staleTime: 5 * 60_000,
+      queryFn: async () => {
+        const pageSize = 1000;
+        const rows: any[] = [];
+        for (let from = 0; ; from += pageSize) {
+          const { data, error } = await supabase
+            .from("exercises")
+            .select("id, name, difficulty, image_path, muscles_primary, muscles_secondary, exercise_groups(name)")
+            .order("name", { ascending: true })
+            .range(from, from + pageSize - 1);
+          if (error) throw error;
+          if (!data || data.length === 0) break;
+          rows.push(...data);
+          if (data.length < pageSize) break;
+        }
+        return rows.map((r) => {
+          const g = r.exercise_groups as any;
+          const name = Array.isArray(g) ? (g[0]?.name ?? null) : (g?.name ?? null);
+          return {
+            id: r.id as number,
+            name: r.name as string,
+            group: name,
+            difficulty: (r.difficulty as string | null) ?? null,
+            image_path: (r.image_path as string | null) ?? null,
+            muscles_primary: (r.muscles_primary as string[] | null) ?? [],
+            muscles_secondary: (r.muscles_secondary as string[] | null) ?? [],
+          };
+        });
+      },
+    });
+  }, [qc]);
+
   const backHref = kind === "plan"
     ? (alunoId ? `/dashboard/${scope === "academia" ? "academia" : "personal"}/alunos/${alunoId}` : scopeBase)
     : scopeBase;
