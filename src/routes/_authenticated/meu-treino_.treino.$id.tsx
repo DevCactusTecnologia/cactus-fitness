@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   X, Clock, Check, Play, ChevronDown, ChevronLeft, MessageSquare,
-  AlertTriangle, Timer, Plus, FileDown, Gauge, CheckCheck,
+  AlertTriangle, Timer, Plus, Gauge, CheckCheck,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useCurrentUser } from "@/lib/auth";
@@ -407,31 +407,22 @@ function TreinoPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="fixed top-0 inset-x-0 z-30 bg-background/80 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-3xl items-center justify-between gap-3 px-4 py-3">
-          <div className="flex items-center gap-3">
-            <button onClick={() => navigate({ to: "/meu-treino" })} className="grid h-9 w-9 place-items-center rounded-full text-muted-foreground hover:bg-accent" aria-label="Fechar">
-              <X className="h-5 w-5" />
+        <div className="mx-auto flex max-w-3xl items-center justify-between gap-2 px-3 py-2 sm:px-4 sm:py-3">
+          <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+            <button onClick={() => navigate({ to: "/meu-treino" })} className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-muted-foreground hover:bg-accent sm:h-9 sm:w-9" aria-label="Fechar">
+              <X className="h-4 w-4 sm:h-5 sm:w-5" />
             </button>
             <div className="min-w-0">
-              <h1 className="font-display text-base font-bold leading-tight">{workoutName}</h1>
-              <p className="mt-0.5 inline-flex items-center gap-1 text-xs text-muted-foreground">
+              <h1 className="truncate font-display text-sm font-bold leading-tight sm:text-base">{workoutName}</h1>
+              <p className="mt-0.5 inline-flex items-center gap-1 text-[11px] text-muted-foreground sm:text-xs">
                 <Clock className="h-3 w-3" /> {formatTimer(timer)}
               </p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
-            {perms.allow_pdf && (
-              <button
-                onClick={downloadPdf}
-                className="hidden sm:inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-2 text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-accent"
-                aria-label="Baixar PDF"
-              >
-                <FileDown className="h-4 w-4" /> PDF
-              </button>
-            )}
-            <span className="text-sm font-semibold text-muted-foreground tabular-nums">{pct}%</span>
-            <button onClick={finish} className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 font-display text-sm font-bold text-primary-foreground transition hover:brightness-110">
-              <Check className="h-4 w-4" strokeWidth={3} /> Concluir
+          <div className="flex shrink-0 items-center gap-2">
+            <span className="text-xs font-semibold text-muted-foreground tabular-nums sm:text-sm">{pct}%</span>
+            <button onClick={finish} className="inline-flex items-center gap-1 rounded-full bg-primary px-2.5 py-1 font-display text-[11px] font-bold text-primary-foreground transition hover:brightness-110 sm:px-3 sm:py-1.5 sm:text-xs">
+              <Check className="h-3.5 w-3.5" strokeWidth={3} /> Concluir
             </button>
           </div>
         </div>
@@ -623,15 +614,6 @@ function TreinoPage() {
           <button onClick={() => navigate({ to: "/meu-treino" })} className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-muted-foreground hover:bg-accent" aria-label="Voltar">
             <ChevronLeft className="h-5 w-5" />
           </button>
-          {perms.allow_pdf && (
-            <button
-              onClick={downloadPdf}
-              className="sm:hidden inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-2.5 text-xs font-semibold text-muted-foreground hover:text-foreground"
-              aria-label="Baixar PDF"
-            >
-              <FileDown className="h-4 w-4" /> PDF
-            </button>
-          )}
           <button onClick={finish} className="flex flex-1 items-center justify-center gap-2 rounded-full border border-orange-500/60 py-3 font-display text-sm font-bold text-orange-500 hover:bg-orange-500/10">
             <AlertTriangle className="h-4 w-4" /> Finalizar mesmo assim
           </button>
