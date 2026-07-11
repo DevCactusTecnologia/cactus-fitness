@@ -24,9 +24,6 @@ import { duplicateTemplateAsPlan } from "@/lib/workout-templates.functions";
 import { IconRail } from "@/components/IconRail";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { formatRest } from "@/lib/plano";
-import { IconRail } from "@/components/IconRail";
-import { MobileBottomNav } from "@/components/MobileBottomNav";
-import { formatRest } from "@/lib/plano";
 import {
   Dialog,
   DialogContent,
