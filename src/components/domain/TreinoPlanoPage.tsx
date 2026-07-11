@@ -179,9 +179,11 @@ export function TreinoPlanoPage({ scope }: { scope: Scope }) {
                 templateId={templateId}
                 templateSlug={templateSlug}
                 planoName={data?.plano?.name ?? "este plano"}
+                isArchived={data?.isArchived ?? false}
                 onDeleted={backToAluno}
                 onArchived={backToAluno}
               />
+
             </div>
           </div>
         </main>
