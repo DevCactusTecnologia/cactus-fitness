@@ -233,4 +233,33 @@
     height: 0;
     display: none;
   }
+
+  /* Elegant horizontal scrollbar for session rows */
+  .sessions-scroll {
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: hsl(var(--fg) / 0.18) transparent;
+  }
+  .sessions-scroll::-webkit-scrollbar {
+    height: 8px;
+    width: 8px;
+    display: block;
+    -webkit-appearance: none;
+  }
+  .sessions-scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .sessions-scroll::-webkit-scrollbar-thumb {
+    background: hsl(var(--fg) / 0.16);
+    border-radius: 9999px;
+    transition: background 0.2s ease;
+  }
+  .sessions-scroll:hover::-webkit-scrollbar-thumb {
+    background: hsl(var(--fg) / 0.28);
+  }
+  .sessions-scroll::-webkit-scrollbar-thumb:hover {
+    background: hsl(var(--primary) / 0.55);
+  }
 }
+

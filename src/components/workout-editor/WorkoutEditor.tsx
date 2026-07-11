@@ -763,24 +763,25 @@ export function WorkoutEditor({
 
           {/* Sessions row */}
           {kind === "plan" ? (
-            <div className="mt-4 flex flex-wrap items-start gap-3">
+            <div className="sessions-scroll mt-4 flex items-start gap-3 overflow-x-auto overflow-y-visible pb-3 -mx-1 px-1 sm:flex-nowrap">
               {state.sessions.map((s, i) => (
-                <SessionCard
-                  key={s.id}
-                  index={i}
-                  total={state.sessions.length}
-                  session={s}
-                  dispatch={dispatch}
-                  onPickTargetBlock={(blockId) => {
-                    setActiveTarget({ sessionId: s.id, blockId });
-                    setPickerOpen(true);
-                  }}
-                  activeBlockId={activeTarget?.sessionId === s.id ? activeTarget.blockId : null}
-                />
+                <div key={s.id} className="w-full sm:w-auto sm:flex-none">
+                  <SessionCard
+                    index={i}
+                    total={state.sessions.length}
+                    session={s}
+                    dispatch={dispatch}
+                    onPickTargetBlock={(blockId) => {
+                      setActiveTarget({ sessionId: s.id, blockId });
+                      setPickerOpen(true);
+                    }}
+                    activeBlockId={activeTarget?.sessionId === s.id ? activeTarget.blockId : null}
+                  />
+                </div>
               ))}
               <button
                 onClick={() => dispatch({ type: "ADD_SESSION" })}
-                className="inline-flex h-11 w-full sm:w-auto min-w-0 sm:min-w-[220px] items-center justify-center gap-2 rounded-full border border-dashed border-border/70 px-4 text-sm font-medium text-muted-foreground hover:bg-muted"
+                className="inline-flex h-11 w-full sm:w-auto sm:flex-none min-w-0 sm:min-w-[220px] items-center justify-center gap-2 rounded-full border border-dashed border-border/70 px-4 text-sm font-medium text-muted-foreground hover:bg-muted"
               >
                 <Plus className="h-4 w-4" /> Adicionar sessão
               </button>
