@@ -23,7 +23,7 @@ function EditarModeloPage() {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("workout_templates")
-        .select("id, kind")
+        .select("id, kind, aluno_id")
         .eq("slug", slug)
         .maybeSingle();
       if (error) throw error;
@@ -48,5 +48,5 @@ function EditarModeloPage() {
   }
 
   const kind = data.kind === "plan" ? "plan" : "template";
-  return <WorkoutEditor kind={kind} editSlug={slug} />;
+  return <WorkoutEditor kind={kind} editSlug={slug} alunoId={data.aluno_id ?? null} />;
 }
