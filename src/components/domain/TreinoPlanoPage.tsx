@@ -488,22 +488,56 @@ const ACTIONS = [
 ] as const;
 
 function ActionsSidebar({
+  scope,
   alunoId,
   templateId,
   planoName,
   onDeleted,
   onArchived,
 }: {
+  scope: Scope;
   alunoId: string;
   templateId: string | null;
   planoName: string;
   onDeleted: () => void;
   onArchived: () => void;
 }) {
+  const navigate = useNavigate();
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [archiveOpen, setArchiveOpen] = useState(false);
   const [archiving, setArchiving] = useState(false);
+  const [editing, setEditing] = useState(false);
+
+  const handleEdit = async () => {
+    if (!templateId) {
+      toast.error("Este plano não pode ser editado no builder.");
+      return;
+    }
+    setEditing(true);
+    try {
+      const { data, error } = await supabase
+        .from("workout_templates")
+        .select("slug")
+        .eq("id", templateId)
+        .maybeSingle();
+      if (error) throw error;
+      if (!data?.slug) throw new Error("Plano não encontrado.");
+      const editBase =
+        scope === "academia"
+          ? "/dashboard/academia/treinos/editar/$slug"
+          : "/dashboard/personal/treinos/editar/$slug";
+      navigate({
+        to: editBase as "/dashboard/personal/treinos/editar/$slug",
+        params: { slug: data.slug },
+      });
+    } catch (err) {
+      toast.error("Não foi possível abrir o editor", {
+        description: err instanceof Error ? err.message : undefined,
+      });
+      setEditing(false);
+    }
+  };
 
   const scopedQuery = <T extends { eq: (col: string, val: any) => T; is: (col: string, val: any) => T }>(q: T): T => {
     let out = q.eq("aluno_id", alunoId);
