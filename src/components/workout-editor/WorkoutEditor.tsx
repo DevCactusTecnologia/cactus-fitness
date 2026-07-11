@@ -869,11 +869,67 @@ export function WorkoutEditor({
               <button
                 onClick={() => handleSave()}
                 disabled={!canSave}
-                className="inline-flex h-9 items-center gap-1.5 rounded-full bg-[oklch(0.92_0.19_115)] px-4 text-sm font-semibold text-[oklch(0.2_0.05_115)] hover:brightness-105 disabled:opacity-50 lg:hidden"
+                className="inline-flex h-9 items-center gap-1.5 rounded-full bg-[oklch(0.92_0.19_115)] px-4 text-sm font-semibold text-[oklch(0.2_0.05_115)] hover:brightness-105 disabled:opacity-50"
               >
                 {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                 Salvar
               </button>
+              <button
+                type="button"
+                onClick={() => setPickerOpen(true)}
+                className="hidden sm:inline-flex h-9 items-center gap-1.5 rounded-full border border-border bg-card px-4 text-sm font-medium text-foreground hover:bg-muted"
+              >
+                <CheckSquare className="h-4 w-4" />
+                Selecionar exercícios
+              </button>
+              {kind === "plan" && isEdit && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      type="button"
+                      aria-label="Mais ações"
+                      className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-foreground hover:bg-muted"
+                    >
+                      <MoreHorizontal className="h-4 w-4" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuItem
+                      onSelect={(e) => { e.preventDefault(); duplicatePlanMut.mutate(); }}
+                      disabled={duplicatePlanMut.isPending || !editSlug}
+                    >
+                      {duplicatePlanMut.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Copy className="mr-2 h-4 w-4" />}
+                      Duplicar
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onSelect={(e) => { e.preventDefault(); saveAsTemplateMut.mutate(); }}
+                      disabled={!canSaveAsTemplate || saveAsTemplateMut.isPending}
+                    >
+                      {saveAsTemplateMut.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LayoutTemplate className="mr-2 h-4 w-4" />}
+                      Salvar como Template
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onSelect={(e) => { e.preventDefault(); handleExportPdf(); }}>
+                      <FileDown className="mr-2 h-4 w-4" />
+                      Exportar PDF
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onSelect={(e) => { e.preventDefault(); setArchiveConfirmOpen(true); }}
+                      disabled={!alunoId || !templateId}
+                    >
+                      <Archive className="mr-2 h-4 w-4" />
+                      Arquivar
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onSelect={(e) => { e.preventDefault(); setDeleteConfirmOpen(true); }}
+                      disabled={!alunoId || !templateId}
+                      className="text-destructive focus:text-destructive"
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Excluir
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
             </div>
           </div>
         </header>
