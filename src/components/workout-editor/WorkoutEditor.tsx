@@ -3259,7 +3259,7 @@ function ExercisePicker({
                 </p>
               </SheetHeader>
               <div className="min-h-0 flex-1 space-y-2 overflow-y-auto px-4 py-3">
-                {catalog.filter((e) => selectedIds.has(e.id)).map((e) => {
+                {selectedIds.map((id) => catalog.find((e) => e.id === id)).filter(Boolean).map((e: any) => {
                   const diff = difficultyStyle(e.difficulty);
                   const muscles = [...(e.muscles_primary ?? []), ...(e.muscles_secondary ?? [])].slice(0, 3).join(" • ");
                   return (
