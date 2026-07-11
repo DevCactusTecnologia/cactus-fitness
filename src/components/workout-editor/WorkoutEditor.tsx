@@ -1085,7 +1085,7 @@ function BlockCard({
         ))}
         <button
           onClick={onPickTarget}
-          className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-border/70 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+          className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-border/70 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:border-primary hover:text-primary hover:bg-muted"
         >
           <Plus className="h-4 w-4" /> Adicionar exercício
         </button>
