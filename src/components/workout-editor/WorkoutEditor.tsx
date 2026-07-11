@@ -853,39 +853,95 @@ export function WorkoutEditor({
       </div>
       <MobileBottomNav />
 
-      <AlertDialog open={leaveOpen} onOpenChange={setLeaveOpen}>
-        <AlertDialogContent>
+      <AlertDialog
+        open={leaveOpen}
+        onOpenChange={(next) => {
+          if (!next) {
+            setLeaveOpen(false);
+            if (blocker.status === "blocked") blocker.reset();
+          }
+        }}
+      >
+        <AlertDialogContent className="max-w-md">
           <AlertDialogHeader>
-            <AlertDialogTitle>Sair sem salvar?</AlertDialogTitle>
-            <AlertDialogDescription>
-              {state.name.trim().length === 0
-                ? `Você ainda não nomeou o ${kind === "plan" ? "plano" : "modelo"} — sem um nome, ele não pode ser salvo. Adicione um nome agora pra preservar o trabalho ou descarte tudo.`
-                : `Você tem alterações não salvas. Se sair agora, o trabalho será perdido.`}
-            </AlertDialogDescription>
+            <div className="flex items-start gap-3">
+              <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[oklch(0.85_0.18_75)]/15 text-[oklch(0.85_0.18_75)]">
+                <AlertTriangle className="h-4 w-4" />
+              </div>
+              <div className="min-w-0 flex-1 space-y-1 text-left">
+                <AlertDialogTitle className="text-lg font-bold">
+                  Alterações não salvas
+                </AlertDialogTitle>
+                <AlertDialogDescription>
+                  Suas mudanças neste {kind === "plan" ? "plano" : "modelo"} ainda não foram salvas.
+                  {canSave ? " O que você quer fazer?" : ""}
+                </AlertDialogDescription>
+              </div>
+            </div>
           </AlertDialogHeader>
-          <AlertDialogFooter>
+
+          {!canSave && (
+            <div className="mt-1 flex items-start gap-2 rounded-lg border border-[oklch(0.75_0.18_60)]/40 bg-[oklch(0.75_0.18_60)]/10 px-3 py-2 text-xs text-[oklch(0.85_0.18_75)]">
+              <Info className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+              <span>
+                Adicione um <strong className="font-semibold">nome</strong> no topo do {kind === "plan" ? "plano" : "modelo"} antes de salvar. Sem nome, só é possível descartar.
+              </span>
+            </div>
+          )}
+
+          <AlertDialogFooter className="mt-2 flex-row justify-end gap-2 sm:justify-end">
             <button
               type="button"
               onClick={() => {
                 setLeaveOpen(false);
-                navigate({ to: backHref });
-              }}
-              className="inline-flex h-10 items-center justify-center rounded-full bg-destructive px-5 text-sm font-semibold text-destructive-foreground shadow-[0_0_20px_-4px_hsl(var(--destructive)/0.6)] hover:bg-destructive/90"
-            >
-              {kind === "plan" ? "Descartar plano" : "Descartar modelo"}
-            </button>
-            <button
-              type="button"
-              onClick={() => {
-                setLeaveOpen(false);
-                if (state.name.trim().length === 0) {
+                if (blocker.status === "blocked") blocker.reset();
+                if (!canSave) {
                   setTimeout(() => nameInputRef.current?.focus(), 50);
                 }
               }}
               className="inline-flex h-10 items-center justify-center rounded-full border border-border bg-card px-5 text-sm font-semibold text-foreground hover:bg-muted"
             >
-              {state.name.trim().length === 0 ? "Adicionar nome agora" : "Continuar editando"}
+              Continuar editando
             </button>
+            <button
+              type="button"
+              onClick={async () => {
+                // Turn off dirty so blocker won't intercept the follow-up nav
+                suppressDirtyRef.current = true;
+                setTouched(false);
+                setLeaveOpen(false);
+                if (blocker.status === "blocked") {
+                  blocker.proceed();
+                } else {
+                  setTimeout(() => navigate({ to: backHref }), 0);
+                }
+              }}
+              className="inline-flex h-10 items-center justify-center rounded-full border border-destructive/60 bg-transparent px-5 text-sm font-semibold text-destructive hover:bg-destructive/10"
+            >
+              Descartar
+            </button>
+            {canSave && (
+              <button
+                type="button"
+                disabled={saving}
+                onClick={async () => {
+                  const ok = await handleSave({ skipNavigate: true });
+                  if (!ok) return;
+                  suppressDirtyRef.current = true;
+                  setTouched(false);
+                  setLeaveOpen(false);
+                  if (blocker.status === "blocked") {
+                    blocker.proceed();
+                  } else {
+                    setTimeout(() => navigate({ to: backHref }), 0);
+                  }
+                }}
+                className="inline-flex h-10 items-center justify-center gap-1.5 rounded-full bg-[oklch(0.92_0.19_115)] px-5 text-sm font-semibold text-[oklch(0.2_0.05_115)] hover:brightness-105 disabled:opacity-50"
+              >
+                {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+                Salvar e sair
+              </button>
+            )}
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
