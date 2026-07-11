@@ -1257,7 +1257,7 @@ function ExerciseDetailSheet({
               <div className="min-w-[520px] space-y-1">
                 <div className="grid grid-cols-[150px_64px_minmax(48px,1fr)_100px_80px_32px] gap-2 px-1 pb-0.5">
               <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Tipo</span>
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground text-center">Série</span>
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Série</span>
               <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Alvo</span>
               <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Carga</span>
               <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Descanso</span>
@@ -1504,7 +1504,11 @@ function AlvoPickerButton({
     return "rep";
   };
   const [mode, setMode] = useState<"rep" | "faixa" | "tempo">(detectMode(value || "12"));
-  const [rep, setRep] = useState<string>(() => (mode === "rep" ? (value || "12") : "12"));
+  const parseReps = (v: string) => {
+    const parts = (v || "12").split("/").map((s) => s.trim()).filter(Boolean);
+    return parts.length > 0 ? parts : ["12"];
+  };
+  const [reps, setReps] = useState<string[]>(() => (mode === "rep" ? parseReps(value) : ["12"]));
   const [faixaMin, setFaixaMin] = useState<string>(() => {
     if (mode === "faixa") {
       const [a] = value.split("-");
@@ -1537,7 +1541,7 @@ function AlvoPickerButton({
   const openDialog = () => {
     const m = detectMode(value || "12");
     setMode(m);
-    if (m === "rep") setRep(value || "12");
+    if (m === "rep") setReps(parseReps(value));
     else if (m === "faixa") {
       const [a, b] = (value || "8-12").split("-");
       setFaixaMin(a?.trim() || "8");
@@ -1551,8 +1555,10 @@ function AlvoPickerButton({
   };
 
   const confirm = () => {
-    if (mode === "rep") onSave(rep.trim() || "0");
-    else if (mode === "faixa") onSave(`${faixaMin.trim() || "0"}-${faixaMax.trim() || "0"}`);
+    if (mode === "rep") {
+      const cleaned = reps.map((r) => r.trim()).filter(Boolean);
+      onSave(cleaned.length > 0 ? cleaned.join("/") : "0");
+    } else if (mode === "faixa") onSave(`${faixaMin.trim() || "0"}-${faixaMax.trim() || "0"}`);
     else onSave(`${tempoMin * 60 + tempoSeg}s`);
     setOpen(false);
   };
@@ -1565,8 +1571,13 @@ function AlvoPickerButton({
     const s = n % 60;
     return s === 0 ? `${m}min` : `${m}min ${s}s`;
   };
+  const formatReps = (v: string) => {
+    const parts = v.split("/").map((s) => s.trim()).filter(Boolean);
+    if (parts.length <= 1) return `${v} reps`;
+    return `${parts.join("/ ")} reps`;
+  };
   const label = value
-    ? (detectMode(value) === "tempo" ? formatTempo(value) : `${value} reps`)
+    ? (detectMode(value) === "tempo" ? formatTempo(value) : formatReps(value))
     : "— reps";
 
   return (
@@ -1609,17 +1620,42 @@ function AlvoPickerButton({
           </div>
           <div className="mb-5 mt-4">
             {mode === "rep" && (
-              <div className="flex items-baseline justify-center gap-3 py-4">
-                <input
-                  type="number"
-                  inputMode="numeric"
-                  min={1}
-                  max={100}
-                  value={rep}
-                  onChange={(e) => setRep(e.target.value)}
-                  className="w-32 rounded-xl border border-border bg-surface-2 px-4 py-3 text-center font-mono text-4xl font-bold tabular-nums outline-none [appearance:textfield] focus:border-primary [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                />
-                <span className="text-base font-medium text-fg-muted">reps</span>
+              <div className="flex flex-col gap-2 py-2">
+                {reps.map((r, idx) => (
+                  <div key={idx} className="flex items-center justify-center gap-2">
+                    <input
+                      type="number"
+                      inputMode="numeric"
+                      min={1}
+                      max={100}
+                      value={r}
+                      onChange={(e) => {
+                        const next = [...reps];
+                        next[idx] = e.target.value;
+                        setReps(next);
+                      }}
+                      className="w-24 rounded-xl border border-border bg-surface-2 px-3 py-2 text-center font-mono text-2xl font-bold tabular-nums outline-none [appearance:textfield] focus:border-primary [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                    />
+                    <span className="text-sm font-medium text-fg-muted">reps</span>
+                    {reps.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => setReps(reps.filter((_, i) => i !== idx))}
+                        aria-label="Remover"
+                        className="grid size-8 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                      >
+                        <Trash2 className="size-4" />
+                      </button>
+                    )}
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => setReps([...reps, reps[reps.length - 1] || "12"])}
+                  className="mx-auto mt-1 inline-flex items-center gap-1.5 rounded-full border border-dashed border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+                >
+                  <Plus className="size-3.5" /> Adicionar rep
+                </button>
               </div>
             )}
             {mode === "faixa" && (
