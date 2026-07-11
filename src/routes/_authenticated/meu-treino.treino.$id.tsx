@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   X, Clock, Check, Play, ChevronDown, ChevronLeft, MessageSquare,
-  AlertTriangle, Timer, Plus, FileDown, Gauge,
+  AlertTriangle, Timer, Plus, FileDown, Gauge, CheckCheck,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useCurrentUser } from "@/lib/auth";
@@ -328,6 +328,18 @@ function TreinoPage() {
     setExtraSets((prev) => ({ ...prev, [rowId]: (prev[rowId] ?? 0) + 1 }));
   }
 
+  async function completeAll(row: ExerciseRow) {
+    const total = (row.sets || 0) + (extraSets[row.id] ?? 0);
+    for (let i = 0; i < total; i++) {
+      const key = `${row.id}:${i}`;
+      if (doneSets.has(key)) continue;
+      const isExtra = i >= row.sets;
+      const ok = await saveSetLog(row, i, { isExtra });
+      if (!ok) return;
+      setDoneSets((prev) => new Set(prev).add(key));
+    }
+  }
+
   async function finish() {
     if (sessionId) {
       const dur = Math.floor((Date.now() - startedAtRef.current) / 1000);
@@ -389,8 +401,8 @@ function TreinoPage() {
   }
 
   const runningElapsed = runningSet ? Math.floor((Date.now() - runningSet.startedAt) / 1000) : 0;
-  // usa nowTick para forçar re-render
-  void nowTick;
+  void nowTick; void runningElapsed;
+
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -444,19 +456,20 @@ function TreinoPage() {
       )}
 
       <main className="mx-auto max-w-3xl px-4 pt-[76px] pb-28">
-        <div className="my-4 rounded-2xl border border-border bg-card px-5 py-4">
-          <div className="inline-flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-primary" />
-            <span className="font-display text-sm font-bold text-primary">{blockLabel}</span>
-          </div>
-          <p className="mt-1 text-xs text-muted-foreground">Bloco 1 de 1 · {rows.length} exercícios</p>
-        </div>
-
         {loading && (
           <div className="rounded-2xl border border-border bg-card p-6 text-center text-sm text-muted-foreground">
             Carregando exercícios...
           </div>
         )}
+
+
+        <div className="my-4 rounded-2xl border border-primary/25 bg-gradient-to-r from-primary/15 via-primary/5 to-transparent px-5 py-4">
+          <div className="inline-flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-primary shadow-[0_0_10px] shadow-primary" />
+            <span className="font-display text-sm font-bold text-primary">{blockLabel}</span>
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">Bloco 1 de 1 · {rows.length} exercícios</p>
+        </div>
 
         {!loading && rows.length === 0 && (
           <div className="rounded-2xl border border-border bg-card p-6 text-center text-sm text-muted-foreground">
@@ -504,10 +517,10 @@ function TreinoPage() {
 
                 {isOpen && (
                   <div className="border-t border-border/60 px-4 py-4">
-                    <div className={`grid items-center gap-2 pb-3 text-[10px] uppercase tracking-widest text-muted-foreground ${hasLoadCol ? "grid-cols-[36px_1fr_1fr_1fr_88px]" : "grid-cols-[36px_1fr_1fr_88px]"}`}>
+                    <div className={`grid items-center gap-2 pb-3 text-[10px] uppercase tracking-widest text-muted-foreground ${hasLoadCol ? "grid-cols-[36px_1fr_1fr_72px_44px]" : "grid-cols-[36px_1fr_72px_44px]"}`}>
                       <span className="text-center">Serie</span>
                       {hasLoadCol && <span className="text-center">Carga (kg)</span>}
-                      <span className="text-center">Reps</span>
+                      <span className="text-center">Alvo</span>
                       <span className="text-center">Desc.</span>
                       <span />
                     </div>
@@ -521,7 +534,7 @@ function TreinoPage() {
                       const repsKey = `${key}:reps`;
                       const rpeVal = rpes[key];
                       return (
-                        <div key={i} className={`grid items-center gap-2 py-2 ${hasLoadCol ? "grid-cols-[36px_1fr_1fr_1fr_88px]" : "grid-cols-[36px_1fr_1fr_88px]"}`}>
+                        <div key={i} className={`grid items-center gap-2 py-1.5 ${hasLoadCol ? "grid-cols-[36px_1fr_1fr_72px_44px]" : "grid-cols-[36px_1fr_72px_44px]"}`}>
                           <div className={`grid h-8 w-8 place-items-center rounded-full text-sm font-semibold ${isExtra ? "bg-primary/15 text-primary" : "bg-muted"}`}>
                             {i + 1}
                           </div>
@@ -532,61 +545,70 @@ function TreinoPage() {
                               placeholder="?"
                               value={loads[loadKey] ?? (r.load ? String(r.load) : "")}
                               onChange={(e) => setLoads((p) => ({ ...p, [loadKey]: e.target.value }))}
-                              className="h-9 rounded-md border border-primary/60 bg-transparent text-center text-sm font-semibold outline-none focus:border-primary"
+                              className="h-10 rounded-lg border border-primary/60 bg-transparent text-center text-base font-bold text-primary placeholder:text-primary/60 outline-none focus:border-primary"
                             />
                           )}
-                          <input
-                            type="text"
-                            inputMode="numeric"
-                            placeholder={String(r.reps ?? 12)}
-                            value={reps[repsKey] ?? (r.reps ? String(r.reps) : "")}
-                            onChange={(e) => setReps((p) => ({ ...p, [repsKey]: e.target.value }))}
-                            className="h-9 rounded-md border border-primary/40 bg-transparent text-center text-sm font-semibold outline-none focus:border-primary"
-                          />
-                          <div className="grid h-9 place-items-center rounded-md bg-muted/40 text-sm font-semibold">
+                          <div className="relative">
+                            <input
+                              type="text"
+                              inputMode="numeric"
+                              placeholder={String(r.reps ?? 12)}
+                              value={reps[repsKey] ?? (r.reps ? String(r.reps) : "")}
+                              onChange={(e) => setReps((p) => ({ ...p, [repsKey]: e.target.value }))}
+                              className="h-10 w-full rounded-lg border border-border bg-muted/30 pl-3 pr-11 text-left text-base font-bold outline-none focus:border-primary"
+                            />
+                            <span className="pointer-events-none absolute inset-y-0 right-2 grid place-items-center text-[9px] font-bold uppercase tracking-widest text-muted-foreground">
+                              reps
+                            </span>
+                          </div>
+                          <div className="grid h-10 place-items-center rounded-lg bg-muted/40 text-sm font-semibold">
                             {restLabel}
                           </div>
                           <button
                             onClick={() => handleSetClick(r, i)}
-                            className={`grid h-9 place-items-center rounded-md text-xs font-bold uppercase tracking-widest transition ${
+                            aria-label={done ? "Desfazer série" : "Concluir série"}
+                            className={`grid h-10 w-10 place-items-center rounded-lg border transition ${
                               done
-                                ? "bg-primary/20 text-primary"
+                                ? "border-primary/60 bg-primary/20 text-primary"
                                 : isRunning
-                                  ? "bg-orange-500 text-white"
-                                  : "bg-primary text-primary-foreground hover:brightness-110"
+                                  ? "border-orange-500 bg-orange-500 text-white"
+                                  : "border-border bg-muted/60 text-muted-foreground hover:border-primary hover:text-primary"
                             }`}
                           >
-                            {done ? (
-                              <span className="inline-flex items-center gap-1">
-                                <Check className="h-3.5 w-3.5" strokeWidth={3} />
-                                {perms.allow_rpe && rpeVal != null ? `RPE ${rpeVal}` : "feito"}
+                            {isRunning ? (
+                              <span className="inline-flex items-center gap-1 text-[10px] font-bold tabular-nums">
+                                <Timer className="h-3.5 w-3.5" />
                               </span>
-                            ) : isRunning ? (
-                              <span className="inline-flex items-center gap-1 tabular-nums">
-                                <Timer className="h-3.5 w-3.5" /> {formatTimer(runningElapsed)}
-                              </span>
-                            ) : perms.track_set_time ? (
-                              "iniciar"
                             ) : (
-                              "concluir"
+                              <Check className="h-4 w-4" strokeWidth={3} />
+                            )}
+                            {perms.allow_rpe && done && rpeVal != null && (
+                              <span className="sr-only">RPE {rpeVal}</span>
                             )}
                           </button>
                         </div>
                       );
                     })}
 
-                    <div className="mt-3 flex items-center justify-between gap-3">
-                      <button className="inline-flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground">
-                        <MessageSquare className="h-3.5 w-3.5" /> Observações
+                    {perms.allow_add_sets && (
+                      <button
+                        onClick={() => addExtraSet(r.id)}
+                        className="mt-2 flex w-full items-center justify-center gap-1.5 rounded-lg py-2 text-xs font-semibold text-muted-foreground hover:text-primary"
+                      >
+                        <Plus className="h-3.5 w-3.5" /> Adicionar série
                       </button>
-                      {perms.allow_add_sets && (
-                        <button
-                          onClick={() => addExtraSet(r.id)}
-                          className="inline-flex items-center gap-1.5 rounded-full border border-dashed border-primary/50 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/5"
-                        >
-                          <Plus className="h-3.5 w-3.5" /> Adicionar série
-                        </button>
-                      )}
+                    )}
+
+                    <div className="mt-3 flex items-center justify-between gap-3 border-t border-border/60 pt-3">
+                      <button
+                        onClick={() => completeAll(r)}
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:brightness-110"
+                      >
+                        <CheckCheck className="h-3.5 w-3.5" /> Completar tudo
+                      </button>
+                      <button className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground">
+                        <MessageSquare className="h-3.5 w-3.5" /> Adicionar observação
+                      </button>
                     </div>
                   </div>
                 )}
