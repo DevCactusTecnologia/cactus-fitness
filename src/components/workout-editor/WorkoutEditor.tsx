@@ -443,6 +443,8 @@ export function WorkoutEditor({
             level: tpl.level ?? "",
             goal: tpl.goal ?? "",
             periodize: Boolean(tpl.periodize),
+            duration_weeks: (tpl as any).duration_weeks ?? null,
+            start_date: (tpl as any).start_date ?? null,
           },
         });
         // Replace sessions by dispatching a full swap: use dispatch pattern below
