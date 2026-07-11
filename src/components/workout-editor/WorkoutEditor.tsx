@@ -512,7 +512,9 @@ export function WorkoutEditor({
             periodize: state.periodize,
             level: state.level || null,
             goal: state.goal || null,
-          })
+            duration_weeks: state.duration_weeks ?? null,
+            start_date: state.start_date ?? null,
+          } as never)
           .eq("id", workingTemplateId);
         if (uErr) throw uErr;
         const { error: dErr } = await supabase
@@ -530,6 +532,8 @@ export function WorkoutEditor({
             periodize: state.periodize,
             level: state.level || null,
             goal: state.goal || null,
+            duration_weeks: state.duration_weeks ?? null,
+            start_date: state.start_date ?? null,
             personal_id: userRes.user.id,
             aluno_id: alunoId ?? null,
           } as never)
