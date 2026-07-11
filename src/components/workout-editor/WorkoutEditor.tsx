@@ -2186,7 +2186,7 @@ function ExerciseDetailSheet({
                       setDragSetIdx(null);
                       setDragOverSetIdx(null);
                     }}
-                    className={`grid grid-cols-[20px_150px_minmax(48px,1fr)_80px_32px] items-center gap-2 rounded-lg py-1 transition-colors ${
+                    className={`grid grid-cols-[20px_150px_minmax(24px,0.5fr)_80px_32px] items-center gap-2 rounded-lg py-1 transition-colors ${
                       dragOverSetIdx === i && dragSetIdx !== null && dragSetIdx !== i
                         ? "bg-primary/10 ring-1 ring-primary/40"
                         : ""
