@@ -44,21 +44,40 @@ import {
 import { IconRail } from "@/components/IconRail";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useMutation } from "@tanstack/react-query";
+import { duplicatePlan, saveAsTemplate } from "@/lib/workout-templates.functions";
 
 
 export function TreinoPlanoPage({ scope }: { scope: Scope }) {
-  const { planoId } = useParams({ strict: false }) as { planoId: string };
+  const { slug } = useParams({ strict: false }) as { slug: string };
   const alunosBase = scope === "academia" ? "/dashboard/academia/alunos" : "/dashboard/personal/alunos";
   const navigate = useNavigate();
 
-  // planoId is either an aluno.id (solo plan) or `${alunoId}__tpl_${templateId}`
-  const [alunoId, templateId] = planoId.includes("__tpl_")
-    ? (planoId.split("__tpl_") as [string, string])
-    : [planoId, null];
-
   const { data, isLoading, error } = useQuery({
-    queryKey: ["plano-detail", planoId],
+    queryKey: ["plano-detail", slug],
     queryFn: async () => {
+      // Try to resolve slug as a workout_templates.slug (kind='plan') first.
+      const { data: tpl, error: tplErr } = await supabase
+        .from("workout_templates")
+        .select("id, slug, aluno_id, kind")
+        .eq("slug", slug)
+        .maybeSingle();
+      if (tplErr) throw tplErr;
+
+      let alunoId: string;
+      let templateId: string | null;
+      let templateSlug: string | null;
+      if (tpl && tpl.kind === "plan" && tpl.aluno_id) {
+        alunoId = tpl.aluno_id;
+        templateId = tpl.id;
+        templateSlug = tpl.slug;
+      } else {
+        // Fallback: slug is an aluno id (legacy solo plan)
+        alunoId = slug;
+        templateId = null;
+        templateSlug = null;
+      }
+
       let query = supabase
         .from("student_workouts")
         .select(PLANO_SELECT)
@@ -76,25 +95,32 @@ export function TreinoPlanoPage({ scope }: { scope: Scope }) {
       if (workoutsRes.error) throw workoutsRes.error;
       if (!alunoRes.data) return null;
       const plano = buildPlano(alunoRes.data, (workoutsRes.data ?? []) as unknown as StudentWorkoutRow[]);
-      return { aluno: alunoRes.data, plano };
+      return { aluno: alunoRes.data, plano, alunoId, templateId, templateSlug };
     },
   });
+
+  const alunoId = data?.alunoId ?? slug;
+  const templateId = data?.templateId ?? null;
+  const templateSlug = data?.templateSlug ?? null;
 
   const backToAluno = () => navigate({
     to: `${alunosBase}/$alunoId` as "/dashboard/personal/alunos/$alunoId",
     params: { alunoId },
   });
 
+
   return (
-    <div className="relative flex min-h-screen bg-background [background-image:none]">
-      <IconRail scope={scope} />
-      <div className="flex-1 min-w-0 pb-20 md:pb-0 md:pl-[72px] bg-background">
-        <header className="sticky top-0 z-40 border-b border-border/60 bg-background/70 p-4 backdrop-blur-md supports-[backdrop-filter]:bg-background/60 md:p-6">
+    <div className="relative flex min-h-screen bg-background [background-image:none] print:bg-white print:text-black">
+      <div className="print:hidden">
+        <IconRail scope={scope} />
+      </div>
+      <div className="flex-1 min-w-0 pb-20 md:pb-0 md:pl-[72px] bg-background print:pb-0 print:pl-0 print:bg-white">
+        <header className="sticky top-0 z-40 border-b border-border/60 bg-background/70 p-4 backdrop-blur-md supports-[backdrop-filter]:bg-background/60 md:p-6 print:static print:border-black/20 print:bg-white print:backdrop-blur-0">
           <div className="mx-auto max-w-6xl">
             <div className="mb-2 flex items-center gap-3">
               <button
                 onClick={backToAluno}
-                className="p-1 text-fg-muted hover:text-foreground"
+                className="p-1 text-fg-muted hover:text-foreground print:hidden"
                 aria-label="Voltar"
               >
                 <ArrowLeft className="h-5 w-5" />
@@ -105,13 +131,13 @@ export function TreinoPlanoPage({ scope }: { scope: Scope }) {
                     {data?.plano?.name ?? (isLoading ? "Carregando…" : "Plano de Treino")}
                   </h1>
                   {data?.plano?.isActive ? (
-                    <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-green-500/30 bg-green-500/15 px-2 py-0.5 text-xs font-semibold text-green-400">
+                    <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-green-500/30 bg-green-500/15 px-2 py-0.5 text-xs font-semibold text-green-400 print:hidden">
                       Ativo
                     </span>
                   ) : null}
                 </div>
                 {data?.aluno ? (
-                  <p className="mt-0.5 text-xs text-fg-muted">Aluno: {data.aluno.full_name}</p>
+                  <p className="mt-0.5 text-xs text-fg-muted print:text-black">Aluno: {data.aluno.full_name}</p>
                 ) : null}
               </div>
             </div>
@@ -119,7 +145,7 @@ export function TreinoPlanoPage({ scope }: { scope: Scope }) {
         </header>
 
         <main className="p-4 md:p-6">
-          <div className="mx-auto max-w-6xl space-y-6 lg:grid lg:grid-cols-3 lg:gap-6 lg:space-y-0">
+          <div className="mx-auto max-w-6xl space-y-6 lg:grid lg:grid-cols-3 lg:gap-6 lg:space-y-0 print:block">
             <div className="space-y-6 lg:col-span-2">
               {isLoading ? (
                 <div className="rounded-xl border border-border bg-surface-1 p-8 text-center text-sm text-fg-muted">
@@ -141,19 +167,25 @@ export function TreinoPlanoPage({ scope }: { scope: Scope }) {
               )}
             </div>
 
-            <ActionsSidebar
-              scope={scope}
-              alunoId={alunoId}
-              templateId={templateId}
-              planoName={data?.plano?.name ?? "este plano"}
-              onDeleted={backToAluno}
-              onArchived={backToAluno}
-            />
+            <div className="print:hidden">
+              <ActionsSidebar
+                scope={scope}
+                alunoId={alunoId}
+                templateId={templateId}
+                templateSlug={templateSlug}
+                planoName={data?.plano?.name ?? "este plano"}
+                onDeleted={backToAluno}
+                onArchived={backToAluno}
+              />
+            </div>
           </div>
         </main>
       </div>
-      <MobileBottomNav scope={scope} />
+      <div className="print:hidden">
+        <MobileBottomNav scope={scope} />
+      </div>
     </div>
+
   );
 }
 
@@ -480,6 +512,7 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
   );
 }
 
+
 const ACTIONS = [
   { icon: Pencil, label: "Editar" },
   { icon: Copy, label: "Duplicar" },
@@ -491,6 +524,7 @@ function ActionsSidebar({
   scope,
   alunoId,
   templateId,
+  templateSlug,
   planoName,
   onDeleted,
   onArchived,
@@ -498,6 +532,7 @@ function ActionsSidebar({
   scope: Scope;
   alunoId: string;
   templateId: string | null;
+  templateSlug: string | null;
   planoName: string;
   onDeleted: () => void;
   onArchived: () => void;
@@ -509,6 +544,7 @@ function ActionsSidebar({
   const [archiveOpen, setArchiveOpen] = useState(false);
   const [archiving, setArchiving] = useState(false);
   const [editing, setEditing] = useState(false);
+
 
   const invalidateAluno = () => {
     queryClient.invalidateQueries({ queryKey: ["aluno-student-workouts", alunoId] });
@@ -592,6 +628,79 @@ function ActionsSidebar({
     }
   };
 
+  const duplicateMut = useMutation({
+    mutationFn: async () => {
+      if (!templateSlug) throw new Error("Este plano não pode ser duplicado.");
+      return duplicatePlan({ data: { sourceSlug: templateSlug } });
+    },
+    onSuccess: (res) => {
+      toast.success("Plano duplicado", { description: "Uma cópia editável foi criada." });
+      invalidateAluno();
+      const planoBase =
+        scope === "academia"
+          ? "/dashboard/academia/treinos/plano/$slug"
+          : "/dashboard/personal/treinos/plano/$slug";
+      navigate({
+        to: planoBase as "/dashboard/personal/treinos/plano/$slug",
+        params: { slug: res.slug },
+      });
+    },
+    onError: (err) => {
+      toast.error("Não foi possível duplicar", {
+        description: err instanceof Error ? err.message : undefined,
+      });
+    },
+  });
+
+  const saveTemplateMut = useMutation({
+    mutationFn: async () => {
+      if (!templateSlug) throw new Error("Este plano não pode ser salvo como modelo.");
+      return saveAsTemplate({ data: { sourceSlug: templateSlug } });
+    },
+    onSuccess: (res) => {
+      queryClient.invalidateQueries({ queryKey: ["workout_templates"] });
+      const modeloBase =
+        scope === "academia"
+          ? "/dashboard/academia/treinos/modelo/$modeloId"
+          : "/dashboard/personal/treinos/modelo/$modeloId";
+      toast.success("Modelo criado", {
+        description: "Disponível na biblioteca de modelos da academia.",
+        action: {
+          label: "Ver modelo",
+          onClick: () =>
+            navigate({
+              to: modeloBase as "/dashboard/personal/treinos/modelo/$modeloId",
+              params: { modeloId: res.slug },
+            }),
+        },
+      });
+    },
+    onError: (err) => {
+      toast.error("Não foi possível salvar como modelo", {
+        description: err instanceof Error ? err.message : undefined,
+      });
+    },
+  });
+
+  const handleExportPdf = () => {
+    if (typeof window !== "undefined") window.print();
+  };
+
+  const disabledByNoTemplate = !templateSlug;
+
+  const actions: Array<{
+    icon: typeof Pencil;
+    label: string;
+    onClick: () => void;
+    disabled?: boolean;
+    loading?: boolean;
+  }> = [
+    { icon: Pencil, label: "Editar", onClick: handleEdit, disabled: editing || !templateId, loading: editing },
+    { icon: Copy, label: "Duplicar", onClick: () => duplicateMut.mutate(), disabled: disabledByNoTemplate || duplicateMut.isPending, loading: duplicateMut.isPending },
+    { icon: Save, label: "Salvar como Template", onClick: () => saveTemplateMut.mutate(), disabled: disabledByNoTemplate || saveTemplateMut.isPending, loading: saveTemplateMut.isPending },
+    { icon: FileDown, label: "Exportar PDF", onClick: handleExportPdf },
+  ];
+
   return (
     <aside className="lg:sticky lg:top-24 lg:self-start">
       <div className="h-px w-full bg-border lg:hidden" />
@@ -599,22 +708,18 @@ function ActionsSidebar({
         Ações
       </h2>
       <div className="flex flex-col gap-2">
-        {ACTIONS.map(({ icon: Icon, label }) => {
-          const isEdit = label === "Editar";
-          const disabled = isEdit && (editing || !templateId);
-          return (
-            <button
-              key={label}
-              type="button"
-              onClick={isEdit ? handleEdit : undefined}
-              disabled={disabled}
-              className="inline-flex h-12 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border border-border bg-transparent px-6 py-2.5 text-sm font-semibold text-foreground transition-all hover:border-primary hover:text-primary active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <Icon className="h-4 w-4" />
-              {isEdit && editing ? "Abrindo…" : label}
-            </button>
-          );
-        })}
+        {actions.map(({ icon: Icon, label, onClick, disabled, loading }) => (
+          <button
+            key={label}
+            type="button"
+            onClick={onClick}
+            disabled={disabled}
+            className="inline-flex h-12 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border border-border bg-transparent px-6 py-2.5 text-sm font-semibold text-foreground transition-all hover:border-primary hover:text-primary active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <Icon className="h-4 w-4" />
+            {loading ? "Processando…" : label}
+          </button>
+        ))}
         <button
           type="button"
           onClick={() => setArchiveOpen(true)}
@@ -632,6 +737,7 @@ function ActionsSidebar({
           Excluir
         </button>
       </div>
+
 
       <AlertDialog open={archiveOpen} onOpenChange={setArchiveOpen}>
         <AlertDialogContent>

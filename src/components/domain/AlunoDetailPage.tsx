@@ -895,8 +895,9 @@ function PlanoCard({ plano }: { plano: Plano }) {
   const treinosBase = scope === "academia" ? "/dashboard/academia/treinos" : "/dashboard/personal/treinos";
   return (
     <Link
-      to={`${treinosBase}/plano/$planoId` as "/dashboard/personal/treinos/plano/$planoId"}
-      params={{ planoId: plano.id }}
+      to={`${treinosBase}/plano/$slug` as "/dashboard/personal/treinos/plano/$slug"}
+      params={{ slug: plano.id }}
+
       className="block cursor-pointer rounded-lg border border-border bg-surface-2/30 p-4 transition-colors hover:bg-surface-2/50"
     >
       <div className="flex min-h-[56px] items-center gap-3">

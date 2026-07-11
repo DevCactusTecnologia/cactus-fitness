@@ -13,6 +13,12 @@ const saveAsTemplateInput = z.object({
   name: z.string().trim().min(1).max(160).optional(),
 });
 
+const duplicatePlanInput = z.object({
+  sourceSlug: z.string().min(1),
+  name: z.string().trim().min(1).max(160).optional(),
+});
+
+
 const TEMPLATE_COLUMNS =
   "id, name, description, kind, category, duration_min, level, goal, periodize, allow_rpe, allow_add_sets, track_set_time, allow_pdf, start_date, duration_weeks, organization_id";
 
@@ -159,3 +165,88 @@ export const saveAsTemplate = createServerFn({ method: "POST" })
 
     return { id: created.id, slug: created.slug as string };
   });
+
+/**
+ * Duplica um plano de aluno como um novo plano do MESMO aluno (cópia limpa).
+ * Copia exercícios e as sessões (student_workouts) preservando datas.
+ */
+export const duplicatePlan = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((data: unknown) => duplicatePlanInput.parse(data))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+
+    const { data: srcRaw, error: srcErr } = await supabase
+      .from("workout_templates")
+      .select(`${TEMPLATE_COLUMNS}, aluno_id`)
+      .eq("slug", data.sourceSlug)
+      .maybeSingle();
+    if (srcErr) throw srcErr;
+    if (!srcRaw) throw new Error("Plano não encontrado");
+    const src = srcRaw as any;
+
+    if (src.kind !== "plan" || !src.aluno_id) {
+      throw new Error("Só é possível duplicar um plano de aluno");
+    }
+
+    const name = data.name?.trim() || `${src.name} (cópia)`;
+
+    const { data: created, error: insErr } = await supabase
+      .from("workout_templates")
+      .insert({
+        personal_id: userId,
+        aluno_id: src.aluno_id,
+        name,
+        description: src.description,
+        kind: "plan",
+        category: src.category,
+        duration_min: src.duration_min,
+        level: src.level,
+        goal: src.goal,
+        periodize: src.periodize,
+        allow_rpe: src.allow_rpe,
+        allow_add_sets: src.allow_add_sets,
+        track_set_time: src.track_set_time,
+        allow_pdf: src.allow_pdf,
+        start_date: src.start_date,
+        duration_weeks: src.duration_weeks,
+      })
+      .select("id, slug")
+      .single();
+    if (insErr || !created) throw insErr ?? new Error("Falha ao duplicar plano");
+
+    await copyExercises(supabase, src.id, created.id);
+
+    // Copia as sessões (student_workouts) do plano origem preservando datas.
+    const { data: sessions, error: sErr } = await supabase
+      .from("student_workouts")
+      .select("name, scheduled_for, status")
+      .eq("aluno_id", src.aluno_id)
+      .eq("template_id", src.id);
+    if (sErr) throw sErr;
+    if (sessions && sessions.length > 0) {
+      const { error: insSwErr } = await supabase.from("student_workouts").insert(
+        sessions.map((s: any) => ({
+          personal_id: userId,
+          aluno_id: src.aluno_id,
+          template_id: created.id,
+          name: s.name ?? name,
+          scheduled_for: s.scheduled_for,
+          status: s.status ?? "planned",
+        })),
+      );
+      if (insSwErr) throw insSwErr;
+    } else {
+      // Fallback: pelo menos vincula uma sessão para o plano aparecer.
+      const { error: insSwErr } = await supabase.from("student_workouts").insert({
+        personal_id: userId,
+        aluno_id: src.aluno_id,
+        template_id: created.id,
+        name,
+      });
+      if (insSwErr) throw insSwErr;
+    }
+
+    return { id: created.id, slug: created.slug as string };
+  });
+
