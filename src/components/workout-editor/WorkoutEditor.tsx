@@ -828,7 +828,7 @@ function TemplateBlocksCard({
       <div className="rounded-2xl border border-border/60 bg-card/40 p-2.5">
         <button
           onClick={() => onPickTarget(soleBlock.id)}
-          className="flex w-full items-center gap-2 rounded-xl border border-dashed border-border/70 px-4 py-3 text-sm font-medium text-muted-foreground hover:bg-muted"
+          className="flex w-full items-center gap-2 rounded-xl border border-dashed border-border/70 px-4 py-3 text-sm font-medium text-muted-foreground transition-colors hover:border-primary hover:text-primary hover:bg-muted"
         >
           <Plus className="h-4 w-4" /> Adicionar exercício
         </button>
