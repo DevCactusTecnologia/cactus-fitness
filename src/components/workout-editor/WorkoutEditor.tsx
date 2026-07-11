@@ -763,7 +763,7 @@ export function WorkoutEditor({
 
           {/* Sessions row */}
           {kind === "plan" ? (
-            <div className="sessions-scroll mt-4 flex items-start gap-3 overflow-x-auto overflow-y-visible pb-3 -mx-1 px-1 sm:flex-nowrap">
+            <div className="sessions-scroll mt-4 flex items-start gap-3 overflow-x-auto overflow-y-visible pb-3 -mx-1 px-1 sm:flex-nowrap sm:min-h-[calc(100dvh-240px)]">
               {state.sessions.map((s, i) => (
                 <div key={s.id} className="w-full sm:w-auto sm:flex-none">
                   <SessionCard
