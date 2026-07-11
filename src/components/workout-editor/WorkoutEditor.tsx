@@ -1520,7 +1520,68 @@ export function WorkoutEditor({
           </div>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={archiveConfirmOpen} onOpenChange={setArchiveConfirmOpen}>
+        <AlertDialogContent className="max-w-md">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Arquivar plano?</AlertDialogTitle>
+            <AlertDialogDescription>
+              <span className="font-semibold text-foreground">{state.name || "Este plano"}</span> será desativado e não aparecerá mais no painel do aluno.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="mt-2 flex-row justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setArchiveConfirmOpen(false)}
+              disabled={archiveMut.isPending}
+              className="inline-flex h-10 items-center justify-center rounded-full border border-border bg-card px-5 text-sm font-semibold text-foreground hover:bg-muted disabled:opacity-50"
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              onClick={() => { archiveMut.mutate(); setArchiveConfirmOpen(false); }}
+              disabled={archiveMut.isPending}
+              className="inline-flex h-10 items-center justify-center gap-1.5 rounded-full bg-[oklch(0.92_0.19_115)] px-5 text-sm font-semibold text-[oklch(0.2_0.05_115)] hover:brightness-105 disabled:opacity-50"
+            >
+              {archiveMut.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+              Arquivar plano
+            </button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <AlertDialogContent className="max-w-md">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir definitivamente?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Todas as sessões deste plano serão removidas do aluno e não poderão ser recuperadas.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="mt-2 flex-row justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setDeleteConfirmOpen(false)}
+              disabled={deleteMut.isPending}
+              className="inline-flex h-10 items-center justify-center rounded-full border border-border bg-card px-5 text-sm font-semibold text-foreground hover:bg-muted disabled:opacity-50"
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              onClick={() => { deleteMut.mutate(); setDeleteConfirmOpen(false); }}
+              disabled={deleteMut.isPending}
+              className="inline-flex h-10 items-center justify-center gap-1.5 rounded-full border border-destructive/60 bg-destructive/10 px-5 text-sm font-semibold text-destructive hover:bg-destructive/20 disabled:opacity-50"
+            >
+              {deleteMut.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+              Excluir definitivamente
+            </button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
+
   );
 }
 
