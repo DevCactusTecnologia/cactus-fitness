@@ -251,7 +251,7 @@ function reducer(state: State, action: Action): State {
                       id: uid(),
                       exercise_id: action.exercise.id,
                       name: action.exercise.name,
-                      sets: 3, reps: "10", rest_seconds: 60, load: "", notes: "",
+                      sets: 3, reps: "10", rest_seconds: 60, load: "", use_load: true, notes: "",
                       muscles_primary: action.exercise.muscles_primary,
                     }],
                   }
