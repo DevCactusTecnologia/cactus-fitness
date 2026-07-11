@@ -13,6 +13,12 @@ const saveAsTemplateInput = z.object({
   name: z.string().trim().min(1).max(160).optional(),
 });
 
+const duplicatePlanInput = z.object({
+  sourceSlug: z.string().min(1),
+  name: z.string().trim().min(1).max(160).optional(),
+});
+
+
 const TEMPLATE_COLUMNS =
   "id, name, description, kind, category, duration_min, level, goal, periodize, allow_rpe, allow_add_sets, track_set_time, allow_pdf, start_date, duration_weeks, organization_id";
 
