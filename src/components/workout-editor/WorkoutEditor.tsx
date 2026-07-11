@@ -1899,18 +1899,23 @@ function BlockCard({
 
 
 
-        {block.exercises.map((e, ei) => (
-          <ExerciseRow
-            key={e.id}
-            item={e}
-            index={ei}
-            total={block.exercises.length}
-            onChange={(patch) => dispatch({ type: "UPDATE_EXERCISE", sessionId, blockId: block.id, exerciseId: e.id, patch })}
-            onRemove={() => dispatch({ type: "REMOVE_EXERCISE", sessionId, blockId: block.id, exerciseId: e.id })}
-            onUp={() => dispatch({ type: "MOVE_EXERCISE", sessionId, blockId: block.id, exerciseId: e.id, dir: -1 })}
-            onDown={() => dispatch({ type: "MOVE_EXERCISE", sessionId, blockId: block.id, exerciseId: e.id, dir: 1 })}
-          />
-        ))}
+        <SortableExerciseList
+          exercises={block.exercises}
+          onReorder={(orderedIds) => dispatch({ type: "REORDER_EXERCISES", sessionId, blockId: block.id, orderedIds })}
+          renderRow={(e, ei) => (
+            <SortableExerciseRow
+              key={e.id}
+              id={e.id}
+              item={e}
+              index={ei}
+              total={block.exercises.length}
+              onChange={(patch) => dispatch({ type: "UPDATE_EXERCISE", sessionId, blockId: block.id, exerciseId: e.id, patch })}
+              onRemove={() => dispatch({ type: "REMOVE_EXERCISE", sessionId, blockId: block.id, exerciseId: e.id })}
+              onUp={() => dispatch({ type: "MOVE_EXERCISE", sessionId, blockId: block.id, exerciseId: e.id, dir: -1 })}
+              onDown={() => dispatch({ type: "MOVE_EXERCISE", sessionId, blockId: block.id, exerciseId: e.id, dir: 1 })}
+            />
+          )}
+        />
         <button
           onClick={onPickTarget}
           className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-border/70 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:border-primary hover:text-primary hover:bg-muted"
