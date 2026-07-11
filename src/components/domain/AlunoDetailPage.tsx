@@ -10,7 +10,7 @@ import {
 
 import { useServerFn } from "@tanstack/react-start";
 import { changeAlunoPassword } from "@/lib/aluno-password.functions";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/sonner";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
