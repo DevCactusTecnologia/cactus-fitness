@@ -1164,6 +1164,25 @@ function ExerciseDetailSheet({
   const diff = difficultyStyle(meta?.difficulty);
   const setsCount = Math.max(item.sets ?? 0, 0);
   const rows = Array.from({ length: setsCount }, (_, i) => i);
+  const [dragSetIdx, setDragSetIdx] = useState<number | null>(null);
+  const [dragOverSetIdx, setDragOverSetIdx] = useState<number | null>(null);
+  const reorderSet = (from: number, to: number) => {
+    if (from === to || from < 0 || to < 0 || from >= setsCount || to >= setsCount) return;
+    const move = <T,>(arr: T[] | undefined, fill: T): T[] => {
+      const a = [...(arr ?? [])];
+      while (a.length < setsCount) a.push(fill);
+      const [x] = a.splice(from, 1);
+      a.splice(to, 0, x);
+      return a.slice(0, setsCount);
+    };
+    onChange({
+      set_types: move(item.set_types, "normal" as SetType),
+      reps_by_set: move(item.reps_by_set, item.reps),
+      rest_by_set: move(item.rest_by_set, item.rest_seconds ?? 60),
+      load_by_set: move(item.load_by_set, item.load ?? ""),
+      count_by_set: move(item.count_by_set, "1"),
+    });
+  };
   const addSet = () => onChange({ sets: (item.sets ?? 0) + 1 });
   const removeSet = () => onChange({ sets: Math.max(0, (item.sets ?? 0) - 1) });
 
@@ -1254,8 +1273,9 @@ function ExerciseDetailSheet({
           <div className="space-y-2">
             <h4 className="px-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Configuração de cada série</h4>
             <div className="-mx-1 overflow-x-auto px-1">
-              <div className="min-w-[520px] space-y-1">
-                <div className="grid grid-cols-[150px_64px_minmax(48px,1fr)_100px_80px_32px] gap-2 px-1 pb-0.5">
+              <div className="min-w-[540px] space-y-1">
+                <div className="grid grid-cols-[20px_150px_64px_minmax(48px,1fr)_100px_80px_32px] gap-2 px-1 pb-0.5">
+              <span />
               <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Tipo</span>
               <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Série</span>
               <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Alvo</span>
@@ -1322,7 +1342,44 @@ function ExerciseDetailSheet({
                   });
                 };
                 return (
-                  <div key={i} className="grid grid-cols-[150px_64px_minmax(48px,1fr)_100px_80px_32px] items-center gap-2 py-1">
+                  <div
+                    key={i}
+                    draggable
+                    onDragStart={(e) => {
+                      setDragSetIdx(i);
+                      e.dataTransfer.effectAllowed = "move";
+                    }}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      e.dataTransfer.dropEffect = "move";
+                      if (dragOverSetIdx !== i) setDragOverSetIdx(i);
+                    }}
+                    onDragLeave={() => {
+                      if (dragOverSetIdx === i) setDragOverSetIdx(null);
+                    }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      if (dragSetIdx !== null) reorderSet(dragSetIdx, i);
+                      setDragSetIdx(null);
+                      setDragOverSetIdx(null);
+                    }}
+                    onDragEnd={() => {
+                      setDragSetIdx(null);
+                      setDragOverSetIdx(null);
+                    }}
+                    className={`grid grid-cols-[20px_150px_64px_minmax(48px,1fr)_100px_80px_32px] items-center gap-2 rounded-lg py-1 transition-colors ${
+                      dragOverSetIdx === i && dragSetIdx !== null && dragSetIdx !== i
+                        ? "bg-primary/10 ring-1 ring-primary/40"
+                        : ""
+                    } ${dragSetIdx === i ? "opacity-50" : ""}`}
+                  >
+                    <div
+                      className="grid h-8 w-5 cursor-grab place-items-center text-muted-foreground/60 hover:text-foreground active:cursor-grabbing"
+                      aria-label="Arrastar série"
+                      title="Arrastar para reordenar"
+                    >
+                      <GripVertical className="h-4 w-4" />
+                    </div>
                     <SetTypePickerButton
                       index={i}
                       currentType={currentType}
