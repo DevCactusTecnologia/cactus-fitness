@@ -328,6 +328,18 @@ function TreinoPage() {
     setExtraSets((prev) => ({ ...prev, [rowId]: (prev[rowId] ?? 0) + 1 }));
   }
 
+  async function completeAll(row: ExerciseRow) {
+    const total = (row.sets || 0) + (extraSets[row.id] ?? 0);
+    for (let i = 0; i < total; i++) {
+      const key = `${row.id}:${i}`;
+      if (doneSets.has(key)) continue;
+      const isExtra = i >= row.sets;
+      const ok = await saveSetLog(row, i, { isExtra });
+      if (!ok) return;
+      setDoneSets((prev) => new Set(prev).add(key));
+    }
+  }
+
   async function finish() {
     if (sessionId) {
       const dur = Math.floor((Date.now() - startedAtRef.current) / 1000);
