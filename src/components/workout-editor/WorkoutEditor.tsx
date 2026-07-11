@@ -10,7 +10,7 @@ import {
 import { toast } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useScope } from "@/lib/scope";
-import { duplicateTemplateAsPlan, saveAsTemplate } from "@/lib/workout-templates.functions";
+import { duplicatePlan, duplicateTemplateAsPlan, saveAsTemplate } from "@/lib/workout-templates.functions";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
