@@ -180,6 +180,7 @@ type Action =
   | { type: "ADD_EXERCISE"; sessionId: string; blockId: string; exercise: { id: number | null; name: string; muscles_primary?: string[] } }
   | { type: "REMOVE_EXERCISE"; sessionId: string; blockId: string; exerciseId: string }
   | { type: "MOVE_EXERCISE"; sessionId: string; blockId: string; exerciseId: string; dir: -1 | 1 }
+  | { type: "REORDER_EXERCISES"; sessionId: string; blockId: string; orderedIds: string[] }
   | { type: "UPDATE_EXERCISE"; sessionId: string; blockId: string; exerciseId: string; patch: Partial<ExerciseItem> };
 
 function move<T>(arr: T[], idx: number, dir: -1 | 1): T[] {
