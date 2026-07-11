@@ -402,6 +402,7 @@ export function WorkoutEditor({
             reps: e.reps ?? "",
             rest_seconds: e.rest_seconds,
             load: e.load ?? "",
+            use_load: typeof (ps as any)?.use_load === "boolean" ? (ps as any).use_load : true,
             notes: e.notes ?? "",
             set_types: Array.isArray(ps?.types) ? (ps!.types as SetType[]) : undefined,
             reps_by_set: Array.isArray(ps?.reps) ? ps!.reps : undefined,
