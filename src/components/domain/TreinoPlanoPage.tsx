@@ -559,6 +559,7 @@ function ActionsSidebar({
       if (error) throw error;
       toast.success("Plano excluído dos treinos do aluno");
       setConfirmOpen(false);
+      invalidateAluno();
       onDeleted();
     } catch (err) {
       toast.error("Não foi possível excluir o plano", {
