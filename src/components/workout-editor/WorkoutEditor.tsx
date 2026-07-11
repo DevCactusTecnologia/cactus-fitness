@@ -708,6 +708,7 @@ export function WorkoutEditor({
               <div className="flex-1 space-y-1">
                 <div className="group relative rounded-lg border border-border/50 bg-card/40 px-4 py-3 transition hover:border-border focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/40">
                   <Input
+                    ref={nameInputRef}
                     value={state.name}
                     onChange={(e) => dispatch({ type: "SET_META", patch: { name: e.target.value } })}
                     placeholder={nameLabel}
