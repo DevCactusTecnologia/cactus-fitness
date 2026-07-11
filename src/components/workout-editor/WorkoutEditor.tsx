@@ -2921,7 +2921,7 @@ function ExercisePicker({
       }
       return true;
     });
-  }, [q, catalog, difficultyFilter]);
+  }, [deferredQ, catalog, difficultyFilter]);
 
 
   const target = resolveTarget(state, activeTarget);
