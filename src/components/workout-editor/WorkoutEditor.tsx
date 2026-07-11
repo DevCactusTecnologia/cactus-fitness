@@ -2471,7 +2471,7 @@ function AlvoPickerButton({
       <button
         type="button"
         onClick={openDialog}
-        className="flex h-10 items-center justify-center rounded-full border border-border bg-muted px-4 text-sm font-semibold transition-colors hover:border-foreground/30"
+        className="flex h-10 items-center justify-center whitespace-nowrap rounded-full border border-border bg-muted px-4 text-sm font-semibold transition-colors hover:border-foreground/30"
       >
         {label}
       </button>
