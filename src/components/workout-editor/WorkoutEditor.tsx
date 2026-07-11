@@ -646,7 +646,7 @@ export function WorkoutEditor({
                 </span>
               )}
               <button
-                onClick={handleSave}
+                onClick={() => handleSave()}
                 disabled={!canSave}
                 className="inline-flex h-9 items-center gap-1.5 rounded-full bg-[oklch(0.92_0.19_115)] px-4 text-sm font-semibold text-[oklch(0.2_0.05_115)] hover:brightness-105 disabled:opacity-50"
               >
