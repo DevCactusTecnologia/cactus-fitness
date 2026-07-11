@@ -1,6 +1,7 @@
 import { useNavigate, useParams } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import type { Scope } from "@/lib/scope";
-import { useState, type ReactNode } from "react";
+import { useState, useMemo, type ReactNode } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowLeft,
@@ -13,10 +14,16 @@ import {
   Dumbbell,
   Layers,
   Loader2,
+  Send,
   Video,
+  Search,
 } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { duplicateTemplateAsPlan } from "@/lib/workout-templates.functions";
+import { IconRail } from "@/components/IconRail";
+import { MobileBottomNav } from "@/components/MobileBottomNav";
+import { formatRest } from "@/lib/plano";
 import { IconRail } from "@/components/IconRail";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { formatRest } from "@/lib/plano";
