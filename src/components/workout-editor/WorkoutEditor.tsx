@@ -3292,7 +3292,7 @@ function LoadChip({ value, onSave }: { value: string; onSave: (v: string) => voi
       <button
         type="button"
         onClick={(e) => { e.stopPropagation(); setOpen(true); }}
-        className={`inline-flex h-6 items-center gap-1 rounded-full border px-2.5 text-[11px] font-semibold leading-none transition-colors ${
+        className={`inline-flex h-7 min-w-[62px] items-center justify-center gap-1 rounded-md border px-2.5 text-[11px] font-semibold leading-none transition-colors ${
           hasValue
             ? "border-primary/40 bg-primary/10 text-primary"
             : "border-dashed border-border/70 text-muted-foreground hover:border-primary/60 hover:text-primary"
@@ -3375,9 +3375,9 @@ function LoadPickerDialog({
           onClick={(e) => e.stopPropagation()}
           onPointerDown={(e) => e.stopPropagation()}
           onMouseDown={(e) => e.stopPropagation()}
-          className="fixed left-[50%] top-[50%] z-[10011] w-full max-w-sm translate-x-[-50%] translate-y-[-50%] rounded-2xl border border-border bg-surface-1 p-5 shadow-[0_24px_60px_-12px_rgba(0,0,0,0.7),0_0_0_1px_rgba(215,242,5,0.06)] duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 focus:outline-none sm:p-6"
+          className="fixed left-[50%] top-[50%] z-[10011] w-full max-w-[384px] translate-x-[-50%] translate-y-[-50%] rounded-2xl border border-border bg-surface-1 px-6 pb-6 pt-7 shadow-[0_24px_60px_-12px_rgba(0,0,0,0.7),0_0_0_1px_rgba(215,242,5,0.06)] duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 focus:outline-none"
         >
-          <div className="flex flex-col items-center gap-2.5 pt-1">
+          <div className="flex flex-col items-center gap-2 pt-0">
           <div className="flex size-10 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 shadow-glow">
             <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256" className="size-5 text-primary" aria-hidden="true">
               <path d="M244,116V88a20,20,0,0,0-20-20H208V64a20,20,0,0,0-20-20H164a20,20,0,0,0-20,20v52H112V64A20,20,0,0,0,92,44H68A20,20,0,0,0,48,64v4H32A20,20,0,0,0,12,88v28a12,12,0,0,0,0,24v28a20,20,0,0,0,20,20H48v4a20,20,0,0,0,20,20H92a20,20,0,0,0,20-20V140h32v52a20,20,0,0,0,20,20h24a20,20,0,0,0,20-20v-4h16a20,20,0,0,0,20-20V140a12,12,0,0,0,0-24ZM36,164V92H48v72Zm52,24H72V68H88Zm96,0H168V68h16Zm36-24H208V92h12Z" />
@@ -3393,8 +3393,8 @@ function LoadPickerDialog({
           <span className="sr-only">Fechar</span>
         </DialogPrimitive.Close>
 
-        <div className="mt-4 mb-5">
-          <div className="flex flex-col items-center gap-4 py-5">
+        <div className="mb-5 mt-7">
+          <div className="flex flex-col items-center gap-4">
             <div className="flex items-center gap-3">
               <button
                 type="button"
@@ -3404,7 +3404,7 @@ function LoadPickerDialog({
               >
                 −
               </button>
-              <div className="relative flex min-w-[180px] items-baseline justify-center gap-2 rounded-2xl border border-border bg-surface-2 px-5 py-3 transition-colors">
+              <div className="relative flex h-[50px] min-w-[180px] items-center justify-center gap-2 rounded-2xl border border-border bg-surface-2 px-5 transition-colors">
                 <input
                   type="text"
                   inputMode="decimal"
@@ -3415,10 +3415,10 @@ function LoadPickerDialog({
                     const n = parseFloat(raw);
                     setNum(Number.isFinite(n) ? clamp(n) : 0);
                   }}
-                  className="w-24 bg-transparent text-center font-mono text-[2.5rem] font-bold leading-none tabular-nums text-foreground outline-none selection:bg-primary/30"
+                  className="w-24 bg-transparent text-center font-mono text-base font-bold leading-none tabular-nums text-foreground outline-none selection:bg-primary/30"
                   aria-label="Carga em kg"
                 />
-                <span className="text-base font-semibold uppercase tracking-wider text-fg-muted">kg</span>
+                <span className="text-sm font-semibold uppercase tracking-wider text-fg-muted">kg</span>
               </div>
               <button
                 type="button"
