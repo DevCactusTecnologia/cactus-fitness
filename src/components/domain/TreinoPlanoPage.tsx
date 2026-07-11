@@ -503,11 +503,18 @@ function ActionsSidebar({
   onArchived: () => void;
 }) {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [archiveOpen, setArchiveOpen] = useState(false);
   const [archiving, setArchiving] = useState(false);
   const [editing, setEditing] = useState(false);
+
+  const invalidateAluno = () => {
+    queryClient.invalidateQueries({ queryKey: ["aluno-student-workouts", alunoId] });
+    queryClient.invalidateQueries({ queryKey: ["aluno", alunoId] });
+    queryClient.invalidateQueries({ queryKey: ["plano-detail"] });
+  };
 
   const handleEdit = async () => {
     if (!templateId) {
