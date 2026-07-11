@@ -1331,11 +1331,21 @@ function ExerciseDetailSheet({
                       aria-label={`Carga da série ${i + 1}`}
                       className="h-10 w-full rounded-lg border border-border bg-background px-2 text-center text-sm text-foreground caret-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/40"
                     />
-                    <DescansoPickerButton
-                      index={i}
-                      seconds={perRest}
-                      onSave={setRest}
-                    />
+                    {currentType === "drop" ? (
+                      <div
+                        aria-label="Sem descanso em Drop Set"
+                        title="Drop Set não usa descanso"
+                        className="grid h-10 w-full place-items-center rounded-lg border border-dashed border-border bg-surface-2/40 text-sm text-muted-foreground"
+                      >
+                        —
+                      </div>
+                    ) : (
+                      <DescansoPickerButton
+                        index={i}
+                        seconds={perRest}
+                        onSave={setRest}
+                      />
+                    )}
                     <button
                       type="button"
                       onClick={removeThisSet}
