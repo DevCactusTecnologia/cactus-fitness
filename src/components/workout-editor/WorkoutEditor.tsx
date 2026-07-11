@@ -1745,10 +1745,10 @@ function BlockCard({
   const totalMin = Math.max(1, Math.round(totalSeconds / 60));
   return (
     <div
-      className={`overflow-hidden rounded-lg border ${isActive ? "ring-1 ring-primary/40" : ""}`}
+      className={`overflow-hidden rounded-lg ${isExplicitBlock ? "border" : ""} ${isActive ? "ring-1 ring-primary/40" : ""}`}
       style={{
-        borderColor: isActive ? undefined : `${color}40`,
-        backgroundColor: isExplicitBlock ? `color-mix(in oklab, ${color} 10%, hsl(var(--card)))` : "hsl(var(--card) / 0.4)",
+        borderColor: isExplicitBlock ? (isActive ? undefined : `${color}40`) : undefined,
+        backgroundColor: isExplicitBlock ? `color-mix(in oklab, ${color} 10%, hsl(var(--card)))` : "transparent",
       }}
     >
       {isExplicitBlock && (
