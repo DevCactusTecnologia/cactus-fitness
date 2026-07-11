@@ -13,6 +13,14 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+} from "@/components/ui/alert-dialog";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -304,6 +312,35 @@ export function WorkoutEditor({
   const [templateId, setTemplateId] = useState<string | null>(null);
   const [loadingEdit, setLoadingEdit] = useState(isEdit);
   const hydratedRef = useRef(false);
+  const nameInputRef = useRef<HTMLInputElement>(null);
+  const [leaveOpen, setLeaveOpen] = useState(false);
+
+  const backHref = kind === "plan"
+    ? (alunoId ? `/dashboard/personal/alunos/${alunoId}` : "/dashboard/personal/treinos")
+    : "/dashboard/personal/treinos";
+
+  const isDirty = useMemo(() => {
+    if (isEdit) return false;
+    if (state.name.trim().length > 0) return true;
+    if (state.description.trim().length > 0) return true;
+    if (state.sessions.length > 1) return true;
+    for (const s of state.sessions) {
+      if (s.blocks.length > 1) return true;
+      for (const b of s.blocks) {
+        if (b.exercises.length > 0) return true;
+        if ((b.label ?? "").trim().length > 0) return true;
+      }
+    }
+    return false;
+  }, [isEdit, state]);
+
+  const handleBack = () => {
+    if (isDirty) {
+      setLeaveOpen(true);
+      return;
+    }
+    navigate({ to: backHref });
+  };
 
   useEffect(() => {
     if (!editSlug || hydratedRef.current) return;
@@ -589,7 +626,7 @@ export function WorkoutEditor({
           <div className="flex items-center justify-between gap-3 px-4 py-3 md:px-6">
             <div className="flex min-w-0 items-center gap-3">
               <button
-                onClick={() => navigate({ to: "/dashboard/personal/treinos" })}
+                onClick={handleBack}
                 className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
               >
                 <ChevronUp className="h-4 w-4 -rotate-90" />
@@ -671,6 +708,7 @@ export function WorkoutEditor({
               <div className="flex-1 space-y-1">
                 <div className="group relative rounded-lg border border-border/50 bg-card/40 px-4 py-3 transition hover:border-border focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/40">
                   <Input
+                    ref={nameInputRef}
                     value={state.name}
                     onChange={(e) => dispatch({ type: "SET_META", patch: { name: e.target.value } })}
                     placeholder={nameLabel}
@@ -719,6 +757,7 @@ export function WorkoutEditor({
             <>
               <div className="space-y-1">
                 <Input
+                  ref={kind === "template" ? nameInputRef : undefined}
                   value={state.name}
                   onChange={(e) => dispatch({ type: "SET_META", patch: { name: e.target.value } })}
                   placeholder="Nome do modelo (ex: Peito e Triceps — Hipertrofia)"
@@ -803,6 +842,43 @@ export function WorkoutEditor({
         </main>
       </div>
       <MobileBottomNav />
+
+      <AlertDialog open={leaveOpen} onOpenChange={setLeaveOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Sair sem salvar?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {state.name.trim().length === 0
+                ? `Você ainda não nomeou o ${kind === "plan" ? "plano" : "modelo"} — sem um nome, ele não pode ser salvo. Adicione um nome agora pra preservar o trabalho ou descarte tudo.`
+                : `Você tem alterações não salvas. Se sair agora, o trabalho será perdido.`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <button
+              type="button"
+              onClick={() => {
+                setLeaveOpen(false);
+                navigate({ to: backHref });
+              }}
+              className="inline-flex h-10 items-center justify-center rounded-full bg-destructive px-5 text-sm font-semibold text-destructive-foreground shadow-[0_0_20px_-4px_hsl(var(--destructive)/0.6)] hover:bg-destructive/90"
+            >
+              {kind === "plan" ? "Descartar plano" : "Descartar modelo"}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setLeaveOpen(false);
+                if (state.name.trim().length === 0) {
+                  setTimeout(() => nameInputRef.current?.focus(), 50);
+                }
+              }}
+              className="inline-flex h-10 items-center justify-center rounded-full border border-border bg-card px-5 text-sm font-semibold text-foreground hover:bg-muted"
+            >
+              {state.name.trim().length === 0 ? "Adicionar nome agora" : "Continuar editando"}
+            </button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
