@@ -158,7 +158,7 @@ type Action =
   | { type: "REMOVE_BLOCK"; sessionId: string; blockId: string }
   | { type: "MOVE_BLOCK"; sessionId: string; blockId: string; dir: -1 | 1 }
   | { type: "RENAME_BLOCK"; sessionId: string; blockId: string; label: string }
-  | { type: "ADD_EXERCISE"; sessionId: string; blockId: string; exercise: { id: number | null; name: string } }
+  | { type: "ADD_EXERCISE"; sessionId: string; blockId: string; exercise: { id: number | null; name: string; muscles_primary?: string[] } }
   | { type: "REMOVE_EXERCISE"; sessionId: string; blockId: string; exerciseId: string }
   | { type: "MOVE_EXERCISE"; sessionId: string; blockId: string; exerciseId: string; dir: -1 | 1 }
   | { type: "UPDATE_EXERCISE"; sessionId: string; blockId: string; exerciseId: string; patch: Partial<ExerciseItem> };
