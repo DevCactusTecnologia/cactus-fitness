@@ -1224,9 +1224,11 @@ function ExerciseDetailSheet({
           {/* Per-series config */}
           <div className="space-y-2">
             <h4 className="px-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Configuração de cada série</h4>
-            <div className="grid grid-cols-[130px_minmax(0,1fr)_80px_32px] gap-2 px-1 pb-0.5">
+            <div className="grid grid-cols-[130px_44px_minmax(0,1fr)_84px_80px_32px] gap-2 px-1 pb-0.5">
               <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Tipo</span>
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground text-center">Série</span>
               <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Alvo</span>
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Carga</span>
               <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Descanso</span>
               <span />
             </div>
@@ -1235,6 +1237,7 @@ function ExerciseDetailSheet({
                 const currentType = (item.set_types?.[i] ?? "normal") as SetType;
                 const perReps = item.reps_by_set?.[i] ?? item.reps;
                 const perRest = item.rest_by_set?.[i] ?? (item.rest_seconds ?? 60);
+                const perLoad = item.load_by_set?.[i] ?? item.load ?? "";
                 const setType = (t: SetType) => {
                   const arr = [...(item.set_types ?? [])];
                   while (arr.length < setsCount) arr.push("normal");
@@ -1253,32 +1256,53 @@ function ExerciseDetailSheet({
                   arr[i] = s;
                   onChange({ rest_by_set: arr.slice(0, setsCount) });
                 };
+                const setLoad = (v: string) => {
+                  const arr = [...(item.load_by_set ?? [])];
+                  while (arr.length < setsCount) arr.push(item.load ?? "");
+                  arr[i] = v;
+                  onChange({ load_by_set: arr.slice(0, setsCount) });
+                };
                 const removeThisSet = () => {
                   const types = [...(item.set_types ?? [])];
                   const reps = [...(item.reps_by_set ?? [])];
                   const rests = [...(item.rest_by_set ?? [])];
+                  const loads = [...(item.load_by_set ?? [])];
                   types.splice(i, 1);
                   reps.splice(i, 1);
                   rests.splice(i, 1);
+                  loads.splice(i, 1);
                   onChange({
                     sets: Math.max(0, (item.sets ?? 0) - 1),
                     set_types: types,
                     reps_by_set: reps,
                     rest_by_set: rests,
+                    load_by_set: loads,
                   });
                 };
                 return (
-                  <div key={i} className="grid grid-cols-[130px_minmax(0,1fr)_80px_32px] items-center gap-2 py-1">
+                  <div key={i} className="grid grid-cols-[130px_44px_minmax(0,1fr)_84px_80px_32px] items-center gap-2 py-1">
                     <SetTypePickerButton
                       index={i}
                       currentType={currentType}
                       onSelect={setType}
                       onRemoveSet={removeThisSet}
                     />
+                    <div className="grid h-9 w-11 place-items-center rounded-lg bg-surface-2 text-sm font-semibold tabular-nums text-foreground">
+                      {i + 1}
+                    </div>
                     <AlvoPickerButton
                       index={i}
                       value={perReps}
                       onSave={setReps}
+                    />
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      value={perLoad}
+                      onChange={(e) => setLoad(e.target.value)}
+                      placeholder="—"
+                      aria-label={`Carga da série ${i + 1}`}
+                      className="h-9 w-full rounded-lg border border-border bg-background px-2 text-center text-sm text-foreground caret-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/40"
                     />
                     <DescansoPickerButton
                       index={i}
