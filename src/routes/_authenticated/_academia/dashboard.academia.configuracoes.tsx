@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "@/components/ui/sonner";
+import { confirmDialog } from "@/components/ui/confirm-dialog";
 import {
   Building2, Users, Trash2, Loader2, Crown, Shield, Dumbbell, Check,
 } from "lucide-react";
@@ -184,8 +185,14 @@ function MembersCard({ members, canManage }: { members: any[]; canManage: boolea
               {canManage && r !== "owner" && (
                 <button
                   type="button"
-                  onClick={() => {
-                    if (confirm(`Remover ${name} da academia?`)) removeMut.mutate(m.user_id);
+                  onClick={async () => {
+                    const ok = await confirmDialog({
+                      title: "Remover membro?",
+                      description: `Remover ${name} da academia?`,
+                      confirmLabel: "Remover",
+                      destructive: true,
+                    });
+                    if (ok) removeMut.mutate(m.user_id);
                   }}
                   disabled={removeMut.isPending}
                   title="Remover"

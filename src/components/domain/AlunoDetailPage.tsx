@@ -11,6 +11,7 @@ import {
 import { useServerFn } from "@tanstack/react-start";
 import { changeAlunoPassword } from "@/lib/aluno-password.functions";
 import { toast } from "@/components/ui/sonner";
+import { confirmDialog } from "@/components/ui/confirm-dialog";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
 } from "@/components/ui/dialog";
@@ -1590,8 +1591,14 @@ function AvaliacoesTab({ alunoId, scope }: { alunoId: string; scope: Scope }) {
               </Link>
               <button
                 type="button"
-                onClick={() => {
-                  if (confirm("Excluir esta avaliação?")) deleteAvaliacao.mutate(av.id);
+                onClick={async () => {
+                  const ok = await confirmDialog({
+                    title: "Excluir avaliação?",
+                    description: "Essa ação não pode ser desfeita.",
+                    confirmLabel: "Excluir",
+                    destructive: true,
+                  });
+                  if (ok) deleteAvaliacao.mutate(av.id);
                 }}
                 className="grid h-8 w-8 place-items-center rounded-lg text-destructive hover:bg-destructive/10"
                 aria-label="Excluir"

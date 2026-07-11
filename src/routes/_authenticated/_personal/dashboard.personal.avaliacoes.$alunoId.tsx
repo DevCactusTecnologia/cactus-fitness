@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { IconRail } from "@/components/IconRail";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { toast } from "@/components/ui/sonner";
+import { confirmDialog } from "@/components/ui/confirm-dialog";
 
 export const Route = createFileRoute("/_authenticated/_personal/dashboard/personal/avaliacoes/$alunoId")({
   head: () => ({
@@ -201,8 +202,14 @@ function AvaliacoesAlunoPage() {
                   </Link>
                   <button
                     type="button"
-                    onClick={() => {
-                      if (confirm("Excluir esta avaliação?")) deleteAvaliacao.mutate(av.id);
+                    onClick={async () => {
+                      const ok = await confirmDialog({
+                        title: "Excluir avaliação?",
+                        description: "Essa ação não pode ser desfeita.",
+                        confirmLabel: "Excluir",
+                        destructive: true,
+                      });
+                      if (ok) deleteAvaliacao.mutate(av.id);
                     }}
                     className="grid h-9 w-9 place-items-center rounded-lg border border-border/60 text-destructive hover:bg-destructive/10"
                     aria-label="Excluir"

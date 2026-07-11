@@ -16,6 +16,7 @@ import { MobileBottomNav } from "@/components/MobileBottomNav";
 
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/components/ui/sonner";
+import { confirmDialog } from "@/components/ui/confirm-dialog";
 
 export const Route = createFileRoute("/_authenticated/_personal/dashboard/personal/desafios")({
   head: () => ({
@@ -137,7 +138,15 @@ function DesafiosPage() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => { if (confirm("Excluir este desafio?")) deleteDesafio.mutate(d.id); }}
+                    onClick={async () => {
+                      const ok = await confirmDialog({
+                        title: "Excluir desafio?",
+                        description: "Essa ação não pode ser desfeita.",
+                        confirmLabel: "Excluir",
+                        destructive: true,
+                      });
+                      if (ok) deleteDesafio.mutate(d.id);
+                    }}
                     className="grid h-9 w-9 place-items-center rounded-lg text-destructive hover:bg-destructive/10"
                     aria-label="Excluir"
                   >
