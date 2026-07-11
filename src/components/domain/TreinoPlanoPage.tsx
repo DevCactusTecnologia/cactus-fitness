@@ -519,10 +519,18 @@ const ACTIONS = [
   { icon: FileDown, label: "Exportar PDF" },
 ] as const;
 
+const ACTIONS = [
+  { icon: Pencil, label: "Editar" },
+  { icon: Copy, label: "Duplicar" },
+  { icon: Save, label: "Salvar como Template" },
+  { icon: FileDown, label: "Exportar PDF" },
+] as const;
+
 function ActionsSidebar({
   scope,
   alunoId,
   templateId,
+  templateSlug,
   planoName,
   onDeleted,
   onArchived,
@@ -530,6 +538,7 @@ function ActionsSidebar({
   scope: Scope;
   alunoId: string;
   templateId: string | null;
+  templateSlug: string | null;
   planoName: string;
   onDeleted: () => void;
   onArchived: () => void;
@@ -541,6 +550,7 @@ function ActionsSidebar({
   const [archiveOpen, setArchiveOpen] = useState(false);
   const [archiving, setArchiving] = useState(false);
   const [editing, setEditing] = useState(false);
+
 
   const invalidateAluno = () => {
     queryClient.invalidateQueries({ queryKey: ["aluno-student-workouts", alunoId] });
