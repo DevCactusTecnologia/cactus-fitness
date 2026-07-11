@@ -457,8 +457,8 @@ export function WorkoutEditor({
 
   const canSave = state.name.trim().length > 0 && !saving && !loadingEdit;
 
-  async function handleSave() {
-    if (!canSave) return;
+  async function handleSave(opts: { skipNavigate?: boolean } = {}): Promise<boolean> {
+    if (!canSave) return false;
 
     // Bloqueia salvar se alguma sessão está sem exercícios
     const emptySession = state.sessions.find(
