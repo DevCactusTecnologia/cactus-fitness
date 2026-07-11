@@ -142,6 +142,7 @@ export function TreinoPlanoPage({ scope }: { scope: Scope }) {
             </div>
 
             <ActionsSidebar
+              scope={scope}
               alunoId={alunoId}
               templateId={templateId}
               planoName={data?.plano?.name ?? "este plano"}
