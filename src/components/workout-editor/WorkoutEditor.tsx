@@ -298,6 +298,20 @@ function reducer(state: State, action: Action): State {
             }) }
           : s),
       };
+    case "REORDER_EXERCISES":
+      return {
+        ...state,
+        sessions: state.sessions.map(s => s.id === action.sessionId
+          ? { ...s, blocks: s.blocks.map(b => {
+              if (b.id !== action.blockId) return b;
+              const map = new Map(b.exercises.map(e => [e.id, e]));
+              const reordered = action.orderedIds.map(id => map.get(id)).filter(Boolean) as typeof b.exercises;
+              // Append any exercises not in orderedIds (safety fallback).
+              for (const e of b.exercises) if (!action.orderedIds.includes(e.id)) reordered.push(e);
+              return { ...b, exercises: reordered };
+            }) }
+          : s),
+      };
     case "UPDATE_EXERCISE":
       return {
         ...state,
