@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { TreinoPlanoPage } from "@/components/domain/TreinoPlanoPage";
 
-export const Route = createFileRoute("/_authenticated/_personal/dashboard/personal/treinos/plano/$planoId")({
+export const Route = createFileRoute("/_authenticated/_personal/dashboard/personal/treinos/plano/$slug")({
   head: () => ({
     meta: [
       { title: "Plano de Treino · cactusfitness" },

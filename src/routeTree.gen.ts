@@ -54,10 +54,10 @@ import { Route as AuthenticatedAcademiaDashboardAcademiaTreinosNovoPlanoRouteImp
 import { Route as AuthenticatedAcademiaDashboardAcademiaPersonaisPersonalIdRouteImport } from './routes/_authenticated/_academia/dashboard.academia.personais.$personalId'
 import { Route as AuthenticatedAcademiaDashboardAcademiaAvaliacaoAvaliacaoIdRouteImport } from './routes/_authenticated/_academia/dashboard.academia.avaliacao.$avaliacaoId'
 import { Route as AuthenticatedAcademiaDashboardAcademiaAlunosAlunoIdRouteImport } from './routes/_authenticated/_academia/dashboard.academia.alunos.$alunoId'
-import { Route as AuthenticatedPersonalDashboardPersonalTreinosPlanoPlanoIdRouteImport } from './routes/_authenticated/_personal/dashboard.personal.treinos.plano.$planoId'
+import { Route as AuthenticatedPersonalDashboardPersonalTreinosPlanoSlugRouteImport } from './routes/_authenticated/_personal/dashboard.personal.treinos.plano.$slug'
 import { Route as AuthenticatedPersonalDashboardPersonalTreinosModeloModeloIdRouteImport } from './routes/_authenticated/_personal/dashboard.personal.treinos.modelo.$modeloId'
 import { Route as AuthenticatedPersonalDashboardPersonalTreinosEditarSlugRouteImport } from './routes/_authenticated/_personal/dashboard.personal.treinos.editar.$slug'
-import { Route as AuthenticatedAcademiaDashboardAcademiaTreinosPlanoPlanoIdRouteImport } from './routes/_authenticated/_academia/dashboard.academia.treinos.plano.$planoId'
+import { Route as AuthenticatedAcademiaDashboardAcademiaTreinosPlanoSlugRouteImport } from './routes/_authenticated/_academia/dashboard.academia.treinos.plano.$slug'
 import { Route as AuthenticatedAcademiaDashboardAcademiaTreinosModeloModeloIdRouteImport } from './routes/_authenticated/_academia/dashboard.academia.treinos.modelo.$modeloId'
 import { Route as AuthenticatedAcademiaDashboardAcademiaTreinosEditarSlugRouteImport } from './routes/_authenticated/_academia/dashboard.academia.treinos.editar.$slug'
 
@@ -316,10 +316,10 @@ const AuthenticatedAcademiaDashboardAcademiaAlunosAlunoIdRoute =
     path: '/dashboard/academia/alunos/$alunoId',
     getParentRoute: () => AuthenticatedAcademiaRouteRoute,
   } as any)
-const AuthenticatedPersonalDashboardPersonalTreinosPlanoPlanoIdRoute =
-  AuthenticatedPersonalDashboardPersonalTreinosPlanoPlanoIdRouteImport.update({
-    id: '/dashboard/personal/treinos/plano/$planoId',
-    path: '/dashboard/personal/treinos/plano/$planoId',
+const AuthenticatedPersonalDashboardPersonalTreinosPlanoSlugRoute =
+  AuthenticatedPersonalDashboardPersonalTreinosPlanoSlugRouteImport.update({
+    id: '/dashboard/personal/treinos/plano/$slug',
+    path: '/dashboard/personal/treinos/plano/$slug',
     getParentRoute: () => AuthenticatedPersonalRouteRoute,
   } as any)
 const AuthenticatedPersonalDashboardPersonalTreinosModeloModeloIdRoute =
@@ -336,10 +336,10 @@ const AuthenticatedPersonalDashboardPersonalTreinosEditarSlugRoute =
     path: '/dashboard/personal/treinos/editar/$slug',
     getParentRoute: () => AuthenticatedPersonalRouteRoute,
   } as any)
-const AuthenticatedAcademiaDashboardAcademiaTreinosPlanoPlanoIdRoute =
-  AuthenticatedAcademiaDashboardAcademiaTreinosPlanoPlanoIdRouteImport.update({
-    id: '/dashboard/academia/treinos/plano/$planoId',
-    path: '/dashboard/academia/treinos/plano/$planoId',
+const AuthenticatedAcademiaDashboardAcademiaTreinosPlanoSlugRoute =
+  AuthenticatedAcademiaDashboardAcademiaTreinosPlanoSlugRouteImport.update({
+    id: '/dashboard/academia/treinos/plano/$slug',
+    path: '/dashboard/academia/treinos/plano/$slug',
     getParentRoute: () => AuthenticatedAcademiaRouteRoute,
   } as any)
 const AuthenticatedAcademiaDashboardAcademiaTreinosModeloModeloIdRoute =
@@ -401,10 +401,10 @@ export interface FileRoutesByFullPath {
   '/dashboard/personal/treinos/': typeof AuthenticatedPersonalDashboardPersonalTreinosIndexRoute
   '/dashboard/academia/treinos/editar/$slug': typeof AuthenticatedAcademiaDashboardAcademiaTreinosEditarSlugRoute
   '/dashboard/academia/treinos/modelo/$modeloId': typeof AuthenticatedAcademiaDashboardAcademiaTreinosModeloModeloIdRoute
-  '/dashboard/academia/treinos/plano/$planoId': typeof AuthenticatedAcademiaDashboardAcademiaTreinosPlanoPlanoIdRoute
+  '/dashboard/academia/treinos/plano/$slug': typeof AuthenticatedAcademiaDashboardAcademiaTreinosPlanoSlugRoute
   '/dashboard/personal/treinos/editar/$slug': typeof AuthenticatedPersonalDashboardPersonalTreinosEditarSlugRoute
   '/dashboard/personal/treinos/modelo/$modeloId': typeof AuthenticatedPersonalDashboardPersonalTreinosModeloModeloIdRoute
-  '/dashboard/personal/treinos/plano/$planoId': typeof AuthenticatedPersonalDashboardPersonalTreinosPlanoPlanoIdRoute
+  '/dashboard/personal/treinos/plano/$slug': typeof AuthenticatedPersonalDashboardPersonalTreinosPlanoSlugRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
@@ -450,10 +450,10 @@ export interface FileRoutesByTo {
   '/dashboard/personal/treinos': typeof AuthenticatedPersonalDashboardPersonalTreinosIndexRoute
   '/dashboard/academia/treinos/editar/$slug': typeof AuthenticatedAcademiaDashboardAcademiaTreinosEditarSlugRoute
   '/dashboard/academia/treinos/modelo/$modeloId': typeof AuthenticatedAcademiaDashboardAcademiaTreinosModeloModeloIdRoute
-  '/dashboard/academia/treinos/plano/$planoId': typeof AuthenticatedAcademiaDashboardAcademiaTreinosPlanoPlanoIdRoute
+  '/dashboard/academia/treinos/plano/$slug': typeof AuthenticatedAcademiaDashboardAcademiaTreinosPlanoSlugRoute
   '/dashboard/personal/treinos/editar/$slug': typeof AuthenticatedPersonalDashboardPersonalTreinosEditarSlugRoute
   '/dashboard/personal/treinos/modelo/$modeloId': typeof AuthenticatedPersonalDashboardPersonalTreinosModeloModeloIdRoute
-  '/dashboard/personal/treinos/plano/$planoId': typeof AuthenticatedPersonalDashboardPersonalTreinosPlanoPlanoIdRoute
+  '/dashboard/personal/treinos/plano/$slug': typeof AuthenticatedPersonalDashboardPersonalTreinosPlanoSlugRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -504,10 +504,10 @@ export interface FileRoutesById {
   '/_authenticated/_personal/dashboard/personal/treinos/': typeof AuthenticatedPersonalDashboardPersonalTreinosIndexRoute
   '/_authenticated/_academia/dashboard/academia/treinos/editar/$slug': typeof AuthenticatedAcademiaDashboardAcademiaTreinosEditarSlugRoute
   '/_authenticated/_academia/dashboard/academia/treinos/modelo/$modeloId': typeof AuthenticatedAcademiaDashboardAcademiaTreinosModeloModeloIdRoute
-  '/_authenticated/_academia/dashboard/academia/treinos/plano/$planoId': typeof AuthenticatedAcademiaDashboardAcademiaTreinosPlanoPlanoIdRoute
+  '/_authenticated/_academia/dashboard/academia/treinos/plano/$slug': typeof AuthenticatedAcademiaDashboardAcademiaTreinosPlanoSlugRoute
   '/_authenticated/_personal/dashboard/personal/treinos/editar/$slug': typeof AuthenticatedPersonalDashboardPersonalTreinosEditarSlugRoute
   '/_authenticated/_personal/dashboard/personal/treinos/modelo/$modeloId': typeof AuthenticatedPersonalDashboardPersonalTreinosModeloModeloIdRoute
-  '/_authenticated/_personal/dashboard/personal/treinos/plano/$planoId': typeof AuthenticatedPersonalDashboardPersonalTreinosPlanoPlanoIdRoute
+  '/_authenticated/_personal/dashboard/personal/treinos/plano/$slug': typeof AuthenticatedPersonalDashboardPersonalTreinosPlanoSlugRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -555,10 +555,10 @@ export interface FileRouteTypes {
     | '/dashboard/personal/treinos/'
     | '/dashboard/academia/treinos/editar/$slug'
     | '/dashboard/academia/treinos/modelo/$modeloId'
-    | '/dashboard/academia/treinos/plano/$planoId'
+    | '/dashboard/academia/treinos/plano/$slug'
     | '/dashboard/personal/treinos/editar/$slug'
     | '/dashboard/personal/treinos/modelo/$modeloId'
-    | '/dashboard/personal/treinos/plano/$planoId'
+    | '/dashboard/personal/treinos/plano/$slug'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
@@ -604,10 +604,10 @@ export interface FileRouteTypes {
     | '/dashboard/personal/treinos'
     | '/dashboard/academia/treinos/editar/$slug'
     | '/dashboard/academia/treinos/modelo/$modeloId'
-    | '/dashboard/academia/treinos/plano/$planoId'
+    | '/dashboard/academia/treinos/plano/$slug'
     | '/dashboard/personal/treinos/editar/$slug'
     | '/dashboard/personal/treinos/modelo/$modeloId'
-    | '/dashboard/personal/treinos/plano/$planoId'
+    | '/dashboard/personal/treinos/plano/$slug'
   id:
     | '__root__'
     | '/_authenticated'
@@ -657,10 +657,10 @@ export interface FileRouteTypes {
     | '/_authenticated/_personal/dashboard/personal/treinos/'
     | '/_authenticated/_academia/dashboard/academia/treinos/editar/$slug'
     | '/_authenticated/_academia/dashboard/academia/treinos/modelo/$modeloId'
-    | '/_authenticated/_academia/dashboard/academia/treinos/plano/$planoId'
+    | '/_authenticated/_academia/dashboard/academia/treinos/plano/$slug'
     | '/_authenticated/_personal/dashboard/personal/treinos/editar/$slug'
     | '/_authenticated/_personal/dashboard/personal/treinos/modelo/$modeloId'
-    | '/_authenticated/_personal/dashboard/personal/treinos/plano/$planoId'
+    | '/_authenticated/_personal/dashboard/personal/treinos/plano/$slug'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -986,11 +986,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAcademiaDashboardAcademiaAlunosAlunoIdRouteImport
       parentRoute: typeof AuthenticatedAcademiaRouteRoute
     }
-    '/_authenticated/_personal/dashboard/personal/treinos/plano/$planoId': {
-      id: '/_authenticated/_personal/dashboard/personal/treinos/plano/$planoId'
-      path: '/dashboard/personal/treinos/plano/$planoId'
-      fullPath: '/dashboard/personal/treinos/plano/$planoId'
-      preLoaderRoute: typeof AuthenticatedPersonalDashboardPersonalTreinosPlanoPlanoIdRouteImport
+    '/_authenticated/_personal/dashboard/personal/treinos/plano/$slug': {
+      id: '/_authenticated/_personal/dashboard/personal/treinos/plano/$slug'
+      path: '/dashboard/personal/treinos/plano/$slug'
+      fullPath: '/dashboard/personal/treinos/plano/$slug'
+      preLoaderRoute: typeof AuthenticatedPersonalDashboardPersonalTreinosPlanoSlugRouteImport
       parentRoute: typeof AuthenticatedPersonalRouteRoute
     }
     '/_authenticated/_personal/dashboard/personal/treinos/modelo/$modeloId': {
@@ -1007,11 +1007,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPersonalDashboardPersonalTreinosEditarSlugRouteImport
       parentRoute: typeof AuthenticatedPersonalRouteRoute
     }
-    '/_authenticated/_academia/dashboard/academia/treinos/plano/$planoId': {
-      id: '/_authenticated/_academia/dashboard/academia/treinos/plano/$planoId'
-      path: '/dashboard/academia/treinos/plano/$planoId'
-      fullPath: '/dashboard/academia/treinos/plano/$planoId'
-      preLoaderRoute: typeof AuthenticatedAcademiaDashboardAcademiaTreinosPlanoPlanoIdRouteImport
+    '/_authenticated/_academia/dashboard/academia/treinos/plano/$slug': {
+      id: '/_authenticated/_academia/dashboard/academia/treinos/plano/$slug'
+      path: '/dashboard/academia/treinos/plano/$slug'
+      fullPath: '/dashboard/academia/treinos/plano/$slug'
+      preLoaderRoute: typeof AuthenticatedAcademiaDashboardAcademiaTreinosPlanoSlugRouteImport
       parentRoute: typeof AuthenticatedAcademiaRouteRoute
     }
     '/_authenticated/_academia/dashboard/academia/treinos/modelo/$modeloId': {
@@ -1048,7 +1048,7 @@ interface AuthenticatedAcademiaRouteRouteChildren {
   AuthenticatedAcademiaDashboardAcademiaTreinosIndexRoute: typeof AuthenticatedAcademiaDashboardAcademiaTreinosIndexRoute
   AuthenticatedAcademiaDashboardAcademiaTreinosEditarSlugRoute: typeof AuthenticatedAcademiaDashboardAcademiaTreinosEditarSlugRoute
   AuthenticatedAcademiaDashboardAcademiaTreinosModeloModeloIdRoute: typeof AuthenticatedAcademiaDashboardAcademiaTreinosModeloModeloIdRoute
-  AuthenticatedAcademiaDashboardAcademiaTreinosPlanoPlanoIdRoute: typeof AuthenticatedAcademiaDashboardAcademiaTreinosPlanoPlanoIdRoute
+  AuthenticatedAcademiaDashboardAcademiaTreinosPlanoSlugRoute: typeof AuthenticatedAcademiaDashboardAcademiaTreinosPlanoSlugRoute
 }
 
 const AuthenticatedAcademiaRouteRouteChildren: AuthenticatedAcademiaRouteRouteChildren =
@@ -1085,8 +1085,8 @@ const AuthenticatedAcademiaRouteRouteChildren: AuthenticatedAcademiaRouteRouteCh
       AuthenticatedAcademiaDashboardAcademiaTreinosEditarSlugRoute,
     AuthenticatedAcademiaDashboardAcademiaTreinosModeloModeloIdRoute:
       AuthenticatedAcademiaDashboardAcademiaTreinosModeloModeloIdRoute,
-    AuthenticatedAcademiaDashboardAcademiaTreinosPlanoPlanoIdRoute:
-      AuthenticatedAcademiaDashboardAcademiaTreinosPlanoPlanoIdRoute,
+    AuthenticatedAcademiaDashboardAcademiaTreinosPlanoSlugRoute:
+      AuthenticatedAcademiaDashboardAcademiaTreinosPlanoSlugRoute,
   }
 
 const AuthenticatedAcademiaRouteRouteWithChildren =
@@ -1127,7 +1127,7 @@ interface AuthenticatedPersonalRouteRouteChildren {
   AuthenticatedPersonalDashboardPersonalTreinosIndexRoute: typeof AuthenticatedPersonalDashboardPersonalTreinosIndexRoute
   AuthenticatedPersonalDashboardPersonalTreinosEditarSlugRoute: typeof AuthenticatedPersonalDashboardPersonalTreinosEditarSlugRoute
   AuthenticatedPersonalDashboardPersonalTreinosModeloModeloIdRoute: typeof AuthenticatedPersonalDashboardPersonalTreinosModeloModeloIdRoute
-  AuthenticatedPersonalDashboardPersonalTreinosPlanoPlanoIdRoute: typeof AuthenticatedPersonalDashboardPersonalTreinosPlanoPlanoIdRoute
+  AuthenticatedPersonalDashboardPersonalTreinosPlanoSlugRoute: typeof AuthenticatedPersonalDashboardPersonalTreinosPlanoSlugRoute
 }
 
 const AuthenticatedPersonalRouteRouteChildren: AuthenticatedPersonalRouteRouteChildren =
@@ -1166,8 +1166,8 @@ const AuthenticatedPersonalRouteRouteChildren: AuthenticatedPersonalRouteRouteCh
       AuthenticatedPersonalDashboardPersonalTreinosEditarSlugRoute,
     AuthenticatedPersonalDashboardPersonalTreinosModeloModeloIdRoute:
       AuthenticatedPersonalDashboardPersonalTreinosModeloModeloIdRoute,
-    AuthenticatedPersonalDashboardPersonalTreinosPlanoPlanoIdRoute:
-      AuthenticatedPersonalDashboardPersonalTreinosPlanoPlanoIdRoute,
+    AuthenticatedPersonalDashboardPersonalTreinosPlanoSlugRoute:
+      AuthenticatedPersonalDashboardPersonalTreinosPlanoSlugRoute,
   }
 
 const AuthenticatedPersonalRouteRouteWithChildren =
