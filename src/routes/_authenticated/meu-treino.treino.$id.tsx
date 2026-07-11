@@ -401,8 +401,8 @@ function TreinoPage() {
   }
 
   const runningElapsed = runningSet ? Math.floor((Date.now() - runningSet.startedAt) / 1000) : 0;
-  // usa nowTick para forçar re-render
-  void nowTick;
+  void nowTick; void runningElapsed;
+
 
   return (
     <div className="min-h-screen bg-background text-foreground">
