@@ -495,11 +495,13 @@ export function WorkoutEditor({
               reps?: string[];
               rest?: number[];
               load?: string[];
+              counts?: string[];
             } = {};
             if (Array.isArray(e.set_types) && e.set_types.length > 0) perSet.types = e.set_types;
             if (Array.isArray(e.reps_by_set) && e.reps_by_set.length > 0) perSet.reps = e.reps_by_set;
             if (Array.isArray(e.rest_by_set) && e.rest_by_set.length > 0) perSet.rest = e.rest_by_set;
             if (Array.isArray(e.load_by_set) && e.load_by_set.length > 0) perSet.load = e.load_by_set;
+            if (Array.isArray(e.count_by_set) && e.count_by_set.length > 0) perSet.counts = e.count_by_set;
             rows.push({
               template_id: workingTemplateId!,
               exercise_id: e.exercise_id,
