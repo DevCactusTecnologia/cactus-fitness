@@ -599,14 +599,18 @@ export function WorkoutEditor({
         await qc.invalidateQueries({ queryKey: ["aluno-student-workouts", alunoId] });
       }
       toast.success(isEdit ? "Modelo atualizado" : alunoId ? "Plano criado para o aluno" : "Modelo salvo");
-      if (alunoId && !isEdit) {
-        navigate({ to: "/dashboard/personal/alunos/$alunoId", params: { alunoId } });
-      } else {
-        navigate({ to: "/dashboard/personal/treinos" });
+      if (!opts.skipNavigate) {
+        if (alunoId && !isEdit) {
+          navigate({ to: "/dashboard/personal/alunos/$alunoId", params: { alunoId } });
+        } else {
+          navigate({ to: "/dashboard/personal/treinos" });
+        }
       }
+      return true;
     } catch (err) {
       console.error(err);
       toast.error(err instanceof Error ? err.message : "Erro ao salvar");
+      return false;
     } finally {
       setSaving(false);
     }
