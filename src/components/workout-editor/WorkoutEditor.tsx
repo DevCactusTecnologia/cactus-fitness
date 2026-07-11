@@ -1329,7 +1329,7 @@ function ExerciseDetailSheet({
                       onChange={(e) => setLoad(e.target.value)}
                       placeholder="—"
                       aria-label={`Carga da série ${i + 1}`}
-                      className="h-9 w-full rounded-lg border border-border bg-background px-2 text-center text-sm text-foreground caret-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/40"
+                      className="h-10 w-full rounded-lg border border-border bg-background px-2 text-center text-sm text-foreground caret-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/40"
                     />
                     <DescansoPickerButton
                       index={i}
