@@ -2443,8 +2443,8 @@ function AddBlockButton({
 }) {
   const [open, setOpen] = useState(false);
   const cls = size === "lg"
-    ? "inline-flex w-full items-center justify-center gap-2 rounded-full border border-dashed border-border/70 py-2.5 text-sm font-medium text-muted-foreground hover:bg-muted"
-    : "inline-flex w-full items-center justify-center gap-2 rounded-full border border-dashed border-border/70 py-2 text-xs font-medium text-muted-foreground hover:bg-muted";
+    ? "inline-flex w-full items-center justify-center gap-2 rounded-full border border-dashed border-border/70 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:border-primary hover:text-primary hover:bg-muted"
+    : "inline-flex w-full items-center justify-center gap-2 rounded-full border border-dashed border-border/70 py-2 text-xs font-medium text-muted-foreground transition-colors hover:border-primary hover:text-primary hover:bg-muted";
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
