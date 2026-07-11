@@ -176,13 +176,15 @@ export const duplicatePlan = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
 
-    const { data: src, error: srcErr } = await supabase
+    const { data: srcRaw, error: srcErr } = await supabase
       .from("workout_templates")
-      .select(TEMPLATE_COLUMNS + ", aluno_id")
+      .select(`${TEMPLATE_COLUMNS}, aluno_id`)
       .eq("slug", data.sourceSlug)
       .maybeSingle();
     if (srcErr) throw srcErr;
-    if (!src) throw new Error("Plano não encontrado");
+    if (!srcRaw) throw new Error("Plano não encontrado");
+    const src = srcRaw as any;
+
     if (src.kind !== "plan" || !src.aluno_id) {
       throw new Error("Só é possível duplicar um plano de aluno");
     }
