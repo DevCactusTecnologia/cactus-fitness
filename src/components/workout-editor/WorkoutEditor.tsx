@@ -1223,12 +1223,10 @@ function ExerciseDetailSheet({
           <div className="space-y-2">
             <h4 className="px-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Configuração do exercício</h4>
             <div className="grid grid-cols-2 gap-2">
-              <NumberField
+              <NumField
                 label="Séries"
                 value={item.sets ?? 0}
-                min={0}
-                max={20}
-                onChange={(n) => onChange({ sets: n })}
+                onChange={(n) => onChange({ sets: Math.max(0, Math.min(20, n ?? 0)) })}
               />
               <TextField
                 label="Repetições"
@@ -1242,13 +1240,10 @@ function ExerciseDetailSheet({
                 onChange={(v) => onChange({ load: v })}
                 placeholder="—"
               />
-              <NumberField
+              <NumField
                 label="Descanso (s)"
                 value={item.rest_seconds ?? 60}
-                min={0}
-                max={600}
-                step={5}
-                onChange={(n) => onChange({ rest_seconds: n })}
+                onChange={(n) => onChange({ rest_seconds: Math.max(0, Math.min(600, n ?? 0)) })}
               />
             </div>
           </div>
