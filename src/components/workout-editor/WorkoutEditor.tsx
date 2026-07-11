@@ -2693,7 +2693,7 @@ function ExercisePicker({
 }: {
   state: State;
   activeTarget: { sessionId: string; blockId: string } | null;
-  onCommit: (list: { id: number | null; name: string }[]) => void;
+  onCommit: (list: { id: number | null; name: string; muscles_primary?: string[] }[]) => void;
 }) {
   const [q, setQ] = useState("");
   const [difficultyFilter, setDifficultyFilter] = useState<string | null>(null);
