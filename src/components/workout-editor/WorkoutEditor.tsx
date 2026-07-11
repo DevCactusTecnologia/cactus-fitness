@@ -67,7 +67,8 @@ type ExerciseItem = {
   sets: number | null;
   reps: string;
   rest_seconds: number | null;
-  load: string;
+  load: string; // carga sugerida
+  use_load: boolean; // "Usar carga"
   notes: string;
   set_types?: SetType[];
   reps_by_set?: string[];
