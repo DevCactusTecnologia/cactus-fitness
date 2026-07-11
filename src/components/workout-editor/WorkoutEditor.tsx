@@ -1541,7 +1541,7 @@ function AlvoPickerButton({
   const openDialog = () => {
     const m = detectMode(value || "12");
     setMode(m);
-    if (m === "rep") setRep(value || "12");
+    if (m === "rep") setReps(parseReps(value));
     else if (m === "faixa") {
       const [a, b] = (value || "8-12").split("-");
       setFaixaMin(a?.trim() || "8");
@@ -1555,8 +1555,10 @@ function AlvoPickerButton({
   };
 
   const confirm = () => {
-    if (mode === "rep") onSave(rep.trim() || "0");
-    else if (mode === "faixa") onSave(`${faixaMin.trim() || "0"}-${faixaMax.trim() || "0"}`);
+    if (mode === "rep") {
+      const cleaned = reps.map((r) => r.trim()).filter(Boolean);
+      onSave(cleaned.length > 0 ? cleaned.join("/") : "0");
+    } else if (mode === "faixa") onSave(`${faixaMin.trim() || "0"}-${faixaMax.trim() || "0"}`);
     else onSave(`${tempoMin * 60 + tempoSeg}s`);
     setOpen(false);
   };
@@ -1569,8 +1571,13 @@ function AlvoPickerButton({
     const s = n % 60;
     return s === 0 ? `${m}min` : `${m}min ${s}s`;
   };
+  const formatReps = (v: string) => {
+    const parts = v.split("/").map((s) => s.trim()).filter(Boolean);
+    if (parts.length <= 1) return `${v} reps`;
+    return `${parts.join("/ ")} reps`;
+  };
   const label = value
-    ? (detectMode(value) === "tempo" ? formatTempo(value) : `${value} reps`)
+    ? (detectMode(value) === "tempo" ? formatTempo(value) : formatReps(value))
     : "— reps";
 
   return (
