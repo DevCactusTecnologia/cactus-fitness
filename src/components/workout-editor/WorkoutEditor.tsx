@@ -3033,7 +3033,8 @@ function ExercisePicker({
   const [q, setQ] = useState("");
   const deferredQ = useDeferredValue(q);
   const [difficultyFilter, setDifficultyFilter] = useState<string | null>(null);
-  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const selectedIdSet = useMemo(() => new Set(selectedIds), [selectedIds]);
   const [customPicks, setCustomPicks] = useState<{ id: null; name: string }[]>([]);
   const { data: catalog = [], isLoading } = useQuery({
     queryKey: ["exercises-catalog"],
