@@ -474,7 +474,7 @@ export function WorkoutEditor({
       toast.warning("Sessão sem exercícios", {
         description: `Adicione exercícios ou remova: ${label}.`,
       });
-      return;
+      return false;
     }
 
     setSaving(true);
