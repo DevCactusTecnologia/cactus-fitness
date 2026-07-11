@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { jsPDF } from "jspdf";
 
-export const Route = createFileRoute("/_authenticated/meu-treino/treino/$id")({
+export const Route = createFileRoute("/_authenticated/meu-treino_/treino/$id")({
   head: () => ({ meta: [{ title: "Treino · cactusfitness" }] }),
   component: TreinoPage,
 });
