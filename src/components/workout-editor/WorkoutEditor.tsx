@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useReducer, useRef, useState } from "react";
+import { useEffect, useMemo, useReducer, useRef, useState, useDeferredValue } from "react";
 import { useNavigate, useBlocker } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
@@ -67,7 +67,8 @@ type ExerciseItem = {
   sets: number | null;
   reps: string;
   rest_seconds: number | null;
-  load: string;
+  load: string; // carga sugerida
+  use_load: boolean; // "Usar carga"
   notes: string;
   set_types?: SetType[];
   reps_by_set?: string[];
@@ -250,7 +251,7 @@ function reducer(state: State, action: Action): State {
                       id: uid(),
                       exercise_id: action.exercise.id,
                       name: action.exercise.name,
-                      sets: 3, reps: "10", rest_seconds: 60, load: "", notes: "",
+                      sets: 3, reps: "10", rest_seconds: 60, load: "", use_load: true, notes: "",
                       muscles_primary: action.exercise.muscles_primary,
                     }],
                   }
@@ -341,6 +342,42 @@ export function WorkoutEditor({
     return () => clearTimeout(id);
   }, [loadingEdit]);
 
+  // Prefetch da biblioteca de exercícios: o sheet abre sem trava.
+  useEffect(() => {
+    qc.prefetchQuery({
+      queryKey: ["exercises-catalog"],
+      staleTime: 5 * 60_000,
+      queryFn: async () => {
+        const pageSize = 1000;
+        const rows: any[] = [];
+        for (let from = 0; ; from += pageSize) {
+          const { data, error } = await supabase
+            .from("exercises")
+            .select("id, name, difficulty, image_path, muscles_primary, muscles_secondary, exercise_groups(name)")
+            .order("name", { ascending: true })
+            .range(from, from + pageSize - 1);
+          if (error) throw error;
+          if (!data || data.length === 0) break;
+          rows.push(...data);
+          if (data.length < pageSize) break;
+        }
+        return rows.map((r) => {
+          const g = r.exercise_groups as any;
+          const name = Array.isArray(g) ? (g[0]?.name ?? null) : (g?.name ?? null);
+          return {
+            id: r.id as number,
+            name: r.name as string,
+            group: name,
+            difficulty: (r.difficulty as string | null) ?? null,
+            image_path: (r.image_path as string | null) ?? null,
+            muscles_primary: (r.muscles_primary as string[] | null) ?? [],
+            muscles_secondary: (r.muscles_secondary as string[] | null) ?? [],
+          };
+        });
+      },
+    });
+  }, [qc]);
+
   const backHref = kind === "plan"
     ? (alunoId ? `/dashboard/${scope === "academia" ? "academia" : "personal"}/alunos/${alunoId}` : scopeBase)
     : scopeBase;
@@ -401,6 +438,7 @@ export function WorkoutEditor({
             reps: e.reps ?? "",
             rest_seconds: e.rest_seconds,
             load: e.load ?? "",
+            use_load: typeof (ps as any)?.use_load === "boolean" ? (ps as any).use_load : true,
             notes: e.notes ?? "",
             set_types: Array.isArray(ps?.types) ? (ps!.types as SetType[]) : undefined,
             reps_by_set: Array.isArray(ps?.reps) ? ps!.reps : undefined,
@@ -564,6 +602,8 @@ export function WorkoutEditor({
           reps?: string[];
           rest?: number[];
           load?: string[];
+          counts?: string[];
+          use_load?: boolean;
         } | null;
       }> = [];
 
@@ -577,19 +617,21 @@ export function WorkoutEditor({
               rest?: number[];
               load?: string[];
               counts?: string[];
+              use_load?: boolean;
             } = {};
             if (Array.isArray(e.set_types) && e.set_types.length > 0) perSet.types = e.set_types;
             if (Array.isArray(e.reps_by_set) && e.reps_by_set.length > 0) perSet.reps = e.reps_by_set;
             if (Array.isArray(e.rest_by_set) && e.rest_by_set.length > 0) perSet.rest = e.rest_by_set;
             if (Array.isArray(e.load_by_set) && e.load_by_set.length > 0) perSet.load = e.load_by_set;
             if (Array.isArray(e.count_by_set) && e.count_by_set.length > 0) perSet.counts = e.count_by_set;
+            perSet.use_load = e.use_load !== false;
             rows.push({
               template_id: workingTemplateId!,
               exercise_id: e.exercise_id,
               sets: e.sets,
               reps: e.reps || null,
               rest_seconds: e.rest_seconds,
-              load: e.load || null,
+              load: e.use_load === false ? null : (e.load || null),
               notes: e.notes || null,
               position: flat++,
               block_position: bi,
@@ -1877,7 +1919,15 @@ function ExerciseRow({
           <div className="line-clamp-2 break-words text-[13px] font-medium leading-snug text-foreground" title={item.name}>
             {item.name}
           </div>
-          <div className="text-[10px] text-muted-foreground">{summary}</div>
+          <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+            <span>{summary}</span>
+            {item.use_load !== false && (
+              <LoadChip
+                value={item.load}
+                onSave={(v) => onChange({ load: v })}
+              />
+            )}
+          </div>
         </div>
         <div onClick={(e) => e.stopPropagation()}>
           <button
@@ -2043,13 +2093,11 @@ function ExerciseDetailSheet({
           <div className="space-y-2">
             <h4 className="px-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Configuração de cada série</h4>
             <div className="-mx-1 overflow-x-auto px-1">
-              <div className="min-w-[540px] space-y-1">
-                <div className="grid grid-cols-[20px_150px_64px_minmax(48px,1fr)_100px_80px_32px] gap-2 px-1 pb-0.5">
+              <div className="min-w-[360px] space-y-1">
+                <div className="grid grid-cols-[20px_150px_minmax(48px,1fr)_80px_32px] gap-2 px-1 pb-0.5">
               <span />
               <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Tipo</span>
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Série</span>
               <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Alvo</span>
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Carga</span>
               <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Descanso</span>
               <span />
             </div>
@@ -2137,7 +2185,7 @@ function ExerciseDetailSheet({
                       setDragSetIdx(null);
                       setDragOverSetIdx(null);
                     }}
-                    className={`grid grid-cols-[20px_150px_64px_minmax(48px,1fr)_100px_80px_32px] items-center gap-2 rounded-lg py-1 transition-colors ${
+                    className={`grid grid-cols-[20px_150px_minmax(48px,1fr)_80px_32px] items-center gap-2 rounded-lg py-1 transition-colors ${
                       dragOverSetIdx === i && dragSetIdx !== null && dragSetIdx !== i
                         ? "bg-primary/10 ring-1 ring-primary/40"
                         : ""
@@ -2156,28 +2204,10 @@ function ExerciseDetailSheet({
                       onSelect={setType}
                       onRemoveSet={removeThisSet}
                     />
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      value={perCount}
-                      onChange={(e) => setCount(e.target.value)}
-                      aria-label={`Número da série ${i + 1}`}
-                      className="h-10 w-full rounded-lg bg-surface-2 px-2 text-center text-sm font-semibold tabular-nums text-foreground caret-primary focus:outline-none focus:ring-2 focus:ring-primary/40"
-                    />
                     <AlvoPickerButton
                       index={i}
                       value={perReps}
                       onSave={setReps}
-                    />
-                    <input
-                      type="text"
-                      inputMode="decimal"
-                      value={perLoad}
-                      onChange={(e) => setLoad(e.target.value)}
-                      placeholder="—"
-                      aria-label={`Carga da série ${i + 1}`}
-                      className="h-10 w-full rounded-lg border border-border bg-background px-2 text-center text-sm text-foreground caret-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/40"
                     />
                     {currentType === "drop" ? (
                       <div
@@ -2215,6 +2245,32 @@ function ExerciseDetailSheet({
             >
               <Plus className="h-4 w-4" /> Adicionar série
             </button>
+          </div>
+
+          {/* Usar carga / Carga sugerida */}
+          <div className="space-y-2 rounded-2xl border border-border/60 bg-surface-1/40 p-2">
+            <div className="flex items-start gap-3 rounded-xl border border-border/60 bg-surface-2/60 px-3 py-3">
+              <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-muted text-muted-foreground">
+                <Dumbbell className="h-4 w-4" />
+              </div>
+              <div className="min-w-0 flex-1">
+                <div className="text-sm font-semibold text-foreground">Usar carga</div>
+                <p className="text-[11px] leading-snug text-muted-foreground">
+                  Desligue em exercícios de peso corporal (abdominais, alongamentos).
+                </p>
+              </div>
+              <Switch
+                checked={item.use_load !== false}
+                onCheckedChange={(v) => onChange({ use_load: v })}
+                aria-label="Usar carga"
+              />
+            </div>
+            {item.use_load !== false && (
+              <SuggestedLoadCard
+                value={item.load}
+                onSave={(v) => onChange({ load: v })}
+              />
+            )}
           </div>
 
           {/* Notes */}
@@ -2849,11 +2905,14 @@ function ExercisePicker({
   onCommit: (list: { id: number | null; name: string; muscles_primary?: string[] }[]) => void;
 }) {
   const [q, setQ] = useState("");
+  const deferredQ = useDeferredValue(q);
   const [difficultyFilter, setDifficultyFilter] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [customPicks, setCustomPicks] = useState<{ id: null; name: string }[]>([]);
   const { data: catalog = [], isLoading } = useQuery({
     queryKey: ["exercises-catalog"],
+    staleTime: 5 * 60_000,
+    gcTime: 30 * 60_000,
     queryFn: async (): Promise<ExerciseCatalog[]> => {
       const pageSize = 1000;
       const rows: any[] = [];
@@ -2887,7 +2946,7 @@ function ExercisePicker({
   });
 
   const filtered = useMemo(() => {
-    const s = q.trim().toLowerCase();
+    const s = deferredQ.trim().toLowerCase();
     return catalog.filter((e) => {
       if (s && !(e.name.toLowerCase().includes(s) || (e.group ?? "").toLowerCase().includes(s))) return false;
       if (difficultyFilter) {
@@ -2898,7 +2957,7 @@ function ExercisePicker({
       }
       return true;
     });
-  }, [q, catalog, difficultyFilter]);
+  }, [deferredQ, catalog, difficultyFilter]);
 
 
   const target = resolveTarget(state, activeTarget);
@@ -3221,5 +3280,161 @@ function AddBlockButton({
         </div>
       </PopoverContent>
     </Popover>
+  );
+}
+
+function LoadChip({ value, onSave }: { value: string; onSave: (v: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const hasValue = !!(value && value.trim());
+  return (
+    <>
+      <button
+        type="button"
+        onClick={(e) => { e.stopPropagation(); setOpen(true); }}
+        className={`inline-flex h-5 items-center gap-1 rounded-full border px-2 text-[10px] font-medium transition-colors ${
+          hasValue
+            ? "border-primary/40 bg-primary/10 text-primary"
+            : "border-dashed border-border/70 text-muted-foreground hover:border-primary/60 hover:text-primary"
+        }`}
+        aria-label="Definir carga"
+      >
+        {hasValue ? `${value} kg` : (<><Plus className="h-2.5 w-2.5" /> carga</>)}
+      </button>
+      <LoadPickerDialog
+        open={open}
+        onOpenChange={setOpen}
+        value={value}
+        onSave={(v) => { onSave(v); setOpen(false); }}
+      />
+    </>
+  );
+}
+
+function SuggestedLoadCard({ value, onSave }: { value: string; onSave: (v: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const hasValue = !!(value && value.trim());
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="flex w-full items-start gap-3 rounded-xl border border-border/60 bg-surface-2/60 px-3 py-3 text-left transition-colors hover:border-primary/40 hover:bg-surface-2"
+      >
+        <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-muted text-muted-foreground">
+          <Dumbbell className="h-4 w-4" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Carga sugerida</div>
+          {hasValue ? (
+            <div className="text-sm font-semibold text-foreground">{value} kg</div>
+          ) : (
+            <div className="text-sm italic text-muted-foreground">Aluno define na primeira execução</div>
+          )}
+        </div>
+      </button>
+      <LoadPickerDialog
+        open={open}
+        onOpenChange={setOpen}
+        value={value}
+        onSave={(v) => { onSave(v); setOpen(false); }}
+      />
+    </>
+  );
+}
+
+function LoadPickerDialog({
+  open, onOpenChange, value, onSave,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  value: string;
+  onSave: (v: string) => void;
+}) {
+  const parse = (v: string) => {
+    const n = parseFloat((v ?? "").toString().replace(",", "."));
+    return Number.isFinite(n) ? n : 0;
+  };
+  const [num, setNum] = useState<number>(() => parse(value));
+  useEffect(() => { if (open) setNum(parse(value)); }, [open, value]);
+  const clamp = (n: number) => Math.max(0, Math.round(n * 100) / 100);
+  const format = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed(2).replace(/\.?0+$/, ""));
+  const bump = (delta: number) => setNum((prev) => clamp(prev + delta));
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-sm gap-0 rounded-2xl border border-border bg-surface-1 p-5 shadow-2xl sm:p-6">
+        <div className="flex flex-col items-center gap-3 pt-1">
+          <div className="flex size-10 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 shadow-glow">
+            <Dumbbell className="size-5 text-primary" strokeWidth={2.5} />
+          </div>
+          <DialogTitle className="text-center font-display text-base font-bold leading-tight">Carga sugerida</DialogTitle>
+          <DialogDescription className="sr-only">Definir carga sugerida em kg</DialogDescription>
+        </div>
+        <div className="mt-5 flex items-center justify-center gap-3">
+          <button
+            type="button"
+            onClick={() => bump(-1)}
+            className="grid h-11 w-11 place-items-center rounded-full border border-border bg-muted text-lg font-bold text-foreground hover:bg-surface-2"
+            aria-label="Diminuir 1 kg"
+          >
+            −
+          </button>
+          <div className="flex h-11 min-w-[140px] items-center justify-between gap-1 rounded-full border border-border bg-background px-4">
+            <input
+              type="text"
+              inputMode="decimal"
+              value={format(num)}
+              onChange={(e) => {
+                const raw = e.target.value.replace(",", ".").replace(/[^0-9.]/g, "");
+                const n = parseFloat(raw);
+                setNum(Number.isFinite(n) ? clamp(n) : 0);
+              }}
+              className="w-full bg-transparent text-center text-lg font-bold tabular-nums text-foreground focus:outline-none"
+              aria-label="Carga em kg"
+            />
+            <span className="text-xs font-semibold uppercase text-muted-foreground">kg</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => bump(1)}
+            className="grid h-11 w-11 place-items-center rounded-full bg-primary text-lg font-bold text-primary-foreground hover:brightness-110"
+            aria-label="Aumentar 1 kg"
+          >
+            +
+          </button>
+        </div>
+        <div className="mt-3 flex items-center justify-center gap-2">
+          {[-5, -0.5, 0.5, 5].map((d) => (
+            <button
+              key={d}
+              type="button"
+              onClick={() => bump(d)}
+              className={`h-8 min-w-[52px] rounded-full px-3 text-xs font-semibold transition-colors ${
+                d > 0
+                  ? "bg-primary/15 text-primary hover:bg-primary/25"
+                  : "border border-border bg-muted text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {d > 0 ? `+${d}` : d}
+            </button>
+          ))}
+        </div>
+        <div className="mt-6 flex items-center justify-between gap-3">
+          <button
+            type="button"
+            onClick={() => onOpenChange(false)}
+            className="h-11 flex-1 rounded-full border border-border bg-transparent px-4 text-sm font-semibold text-foreground hover:bg-muted"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            onClick={() => onSave(num > 0 ? format(num) : "")}
+            className="h-11 flex-1 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground hover:brightness-110"
+          >
+            Confirmar
+          </button>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
