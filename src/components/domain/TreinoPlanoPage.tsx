@@ -55,6 +55,8 @@ export function TreinoPlanoPage({ scope }: { scope: Scope }) {
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["plano-detail", slug],
+    staleTime: 30_000,
+    gcTime: 5 * 60_000,
     queryFn: async () => {
       // Try to resolve slug as a workout_templates.slug (kind='plan') first.
       const { data: tpl, error: tplErr } = await supabase
@@ -94,10 +96,13 @@ export function TreinoPlanoPage({ scope }: { scope: Scope }) {
       if (alunoRes.error) throw alunoRes.error;
       if (workoutsRes.error) throw workoutsRes.error;
       if (!alunoRes.data) return null;
-      const plano = buildPlano(alunoRes.data, (workoutsRes.data ?? []) as unknown as StudentWorkoutRow[]);
-      return { aluno: alunoRes.data, plano, alunoId, templateId, templateSlug };
+      const rows = (workoutsRes.data ?? []) as unknown as StudentWorkoutRow[];
+      const plano = buildPlano(alunoRes.data, rows);
+      const isArchived = rows.length > 0 && rows.every((r) => !!r.archived_at);
+      return { aluno: alunoRes.data, plano, alunoId, templateId, templateSlug, isArchived };
     },
   });
+
 
   const alunoId = data?.alunoId ?? slug;
   const templateId = data?.templateId ?? null;
