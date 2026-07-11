@@ -3096,27 +3096,26 @@ function ExercisePicker({
       })()
     : "—";
 
-  const totalSelected = selectedIds.size + customPicks.length;
+  const totalSelected = selectedIds.length + customPicks.length;
 
   const toggle = (id: number) => {
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
-      return next;
-    });
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
   };
 
   const handleCommit = () => {
     if (totalSelected === 0) return;
+    const catalogMap = new Map(catalog.map((e) => [e.id, e]));
     const picks: { id: number | null; name: string; muscles_primary?: string[] }[] = [];
-    catalog.forEach((e) => {
-      if (selectedIds.has(e.id)) picks.push({ id: e.id, name: e.name, muscles_primary: e.muscles_primary });
+    selectedIds.forEach((id) => {
+      const e = catalogMap.get(id);
+      if (e) picks.push({ id: e.id, name: e.name, muscles_primary: e.muscles_primary });
     });
     customPicks.forEach((c) => picks.push(c));
     onCommit(picks);
-    setSelectedIds(new Set());
+    setSelectedIds([]);
     setCustomPicks([]);
   };
+
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
