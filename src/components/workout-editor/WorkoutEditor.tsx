@@ -1348,6 +1348,8 @@ function ExerciseDetailSheet({
                 );
               })}
             </div>
+              </div>
+            </div>
             <button
               type="button"
               onClick={addSet}
