@@ -1897,13 +1897,20 @@ function ExercisePicker({
   const { data: catalog = [], isLoading } = useQuery({
     queryKey: ["exercises-catalog"],
     queryFn: async (): Promise<ExerciseCatalog[]> => {
-      const { data, error } = await supabase
-        .from("exercises")
-        .select("id, name, difficulty, image_path, muscles_primary, muscles_secondary, exercise_groups(name)")
-        .order("name", { ascending: true })
-        .limit(500);
-      if (error) throw error;
-      return (data ?? []).map((r) => {
+      const pageSize = 1000;
+      const rows: any[] = [];
+      for (let from = 0; ; from += pageSize) {
+        const { data, error } = await supabase
+          .from("exercises")
+          .select("id, name, difficulty, image_path, muscles_primary, muscles_secondary, exercise_groups(name)")
+          .order("name", { ascending: true })
+          .range(from, from + pageSize - 1);
+        if (error) throw error;
+        if (!data || data.length === 0) break;
+        rows.push(...data);
+        if (data.length < pageSize) break;
+      }
+      return rows.map((r) => {
         type GroupRef = { name: string | null } | { name: string | null }[] | null;
         const g = r.exercise_groups as GroupRef;
         const name = Array.isArray(g) ? (g[0]?.name ?? null) : (g?.name ?? null);
@@ -1918,6 +1925,7 @@ function ExercisePicker({
         };
       });
     },
+
   });
 
   const filtered = useMemo(() => {
