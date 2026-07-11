@@ -127,7 +127,17 @@
   --destructive-foreground: 0 0% 100%;
   --destructive-dim: rgba(239,68,68,0.15);
 
+  --warning: 38 96% 56%;
+  --warning-dim: rgba(251,191,36,0.15);
+  --success: 153 76% 48%;
+  --success-dim: rgba(34,197,94,0.15);
+
   --radius: 0.5rem;
+}
+
+@keyframes toast-progress {
+  from { width: 100%; }
+  to { width: 0%; }
 }
 
 @layer base {
