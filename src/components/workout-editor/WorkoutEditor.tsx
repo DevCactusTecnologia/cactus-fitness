@@ -1018,7 +1018,7 @@ export function WorkoutEditor({
                     <PopoverTrigger asChild>
                       <button
                         disabled={loadingEdit}
-                        className="inline-flex h-8 items-center gap-1.5 rounded-full border border-border/70 bg-card/60 px-3 text-xs font-medium text-foreground hover:bg-muted"
+                        className="inline-flex h-7 items-center gap-1.5 rounded-full border border-border/70 bg-card/60 px-2.5 text-[11px] font-medium text-foreground hover:bg-muted"
                       >
                         <Clock className="h-3.5 w-3.5 text-muted-foreground" />
                         {state.duration_weeks
@@ -1073,7 +1073,7 @@ export function WorkoutEditor({
                     <PopoverTrigger asChild>
                       <button
                         disabled={loadingEdit}
-                        className="inline-flex h-8 items-center gap-1.5 rounded-full border border-border/70 bg-card/60 px-3 text-xs font-medium text-foreground hover:bg-muted"
+                        className="inline-flex h-7 items-center gap-1.5 rounded-full border border-border/70 bg-card/60 px-2.5 text-[11px] font-medium text-foreground hover:bg-muted"
                       >
                         <CalendarDays className="h-3.5 w-3.5 text-muted-foreground" />
                         {formattedStartDate ? `Início: ${formattedStartDate}` : "Definir início"}
@@ -1106,7 +1106,7 @@ export function WorkoutEditor({
 
                   <Sheet open={configOpen} onOpenChange={setConfigOpen}>
                     <SheetTrigger asChild>
-                      <button className="inline-flex h-8 items-center gap-1.5 rounded-full border border-border/70 bg-card/60 px-3 text-xs font-medium text-foreground hover:bg-muted">
+                      <button className="inline-flex h-7 items-center gap-1.5 rounded-full border border-border/70 bg-card/60 px-2.5 text-[11px] font-medium text-foreground hover:bg-muted">
                         <Settings className="h-3.5 w-3.5 text-muted-foreground" />
                         Configurações
                       </button>
@@ -1136,7 +1136,7 @@ export function WorkoutEditor({
                   {alunoProfileHref && planHeaderQuery.data?.alunoNome && (
                     <a
                       href={alunoProfileHref}
-                      className="inline-flex h-8 max-w-[220px] items-center gap-1.5 rounded-full border border-border/70 bg-card/60 px-3 text-xs font-medium text-foreground hover:bg-muted"
+                      className="inline-flex h-7 max-w-[220px] items-center gap-1.5 rounded-full border border-border/70 bg-card/60 px-2.5 text-[11px] font-medium text-foreground hover:bg-muted"
                       title={`Ver perfil de ${planHeaderQuery.data.alunoNome}`}
                     >
                       <AtSign className="h-3.5 w-3.5 text-muted-foreground" />
@@ -1146,12 +1146,12 @@ export function WorkoutEditor({
 
                   {isEdit && alunoId && planHeaderQuery.data && (
                     planHeaderQuery.data.isActive ? (
-                      <span className="inline-flex h-8 items-center gap-1.5 rounded-full border border-[oklch(0.75_0.15_150)]/40 bg-[oklch(0.75_0.15_150)]/10 px-3 text-xs font-semibold uppercase tracking-wide text-[oklch(0.75_0.15_150)]">
+                      <span className="inline-flex h-7 items-center gap-1.5 rounded-full border border-[oklch(0.75_0.15_150)]/40 bg-[oklch(0.75_0.15_150)]/10 px-2.5 text-[11px] font-semibold uppercase tracking-wide text-[oklch(0.75_0.15_150)]">
                         <CheckCircle2 className="h-3.5 w-3.5" />
                         Ativo
                       </span>
                     ) : (
-                      <span className="inline-flex h-8 items-center gap-1.5 rounded-full border border-border bg-muted/60 px-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                      <span className="inline-flex h-7 items-center gap-1.5 rounded-full border border-border bg-muted/60 px-2.5 text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">
                         <Archive className="h-3.5 w-3.5" />
                         Arquivado
                       </span>
@@ -1216,7 +1216,7 @@ export function WorkoutEditor({
               {planVolume.totalSets > 0 && (
                 <Popover>
                   <PopoverTrigger asChild>
-                    <button className="inline-flex h-8 items-center gap-1.5 rounded-full border border-border/70 bg-card/60 px-3 text-xs font-medium text-foreground hover:bg-muted">
+                    <button className="inline-flex h-7 items-center gap-1.5 rounded-full border border-border/70 bg-card/60 px-2.5 text-[11px] font-medium text-foreground hover:bg-muted">
                       <BarChart3 className="h-3.5 w-3.5 text-primary/80" />
                       <span className="font-semibold">{planVolume.totalSets}</span>
                       <span className="text-muted-foreground">séries · {planVolume.groupsCount} {planVolume.groupsCount === 1 ? "grupo" : "grupos"}</span>
