@@ -445,16 +445,21 @@ function PlanConfigDialog({
       if (swErr) throw swErr;
       return tpl.slug as string;
     },
-    onSuccess: (slug) => {
-      queryClient.invalidateQueries({ queryKey: ["aluno-student-workouts", aluno.id] });
-      onOpenChange(false);
+    onSuccess: async (slug) => {
       toast.success("Plano criado");
       const editBase =
         scope === "academia"
           ? "/dashboard/academia/treinos/editar/$slug"
           : "/dashboard/personal/treinos/editar/$slug";
-      navigate({ to: editBase as "/dashboard/personal/treinos/editar/$slug", params: { slug } });
-
+      // Navigate first so the builder mounts before the dialog unmounts and
+      // the parent profile refetches. Then close the dialog and invalidate.
+      await navigate({
+        to: editBase as "/dashboard/personal/treinos/editar/$slug",
+        params: { slug },
+        replace: true,
+      });
+      onOpenChange(false);
+      queryClient.invalidateQueries({ queryKey: ["aluno-student-workouts", aluno.id] });
     },
     onError: (e: Error) => toast.error(e.message),
   });
