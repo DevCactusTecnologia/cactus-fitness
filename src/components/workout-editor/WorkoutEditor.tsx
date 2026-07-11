@@ -404,6 +404,7 @@ export function WorkoutEditor({
             rest_by_set: Array.isArray(ps?.rest) ? ps!.rest : undefined,
             load_by_set: Array.isArray(ps?.load) ? ps!.load : undefined,
             count_by_set: Array.isArray((ps as any)?.counts) ? (ps as any).counts : undefined,
+            muscles_primary: Array.isArray((e as any).exercises?.muscles_primary) ? (e as any).exercises.muscles_primary : undefined,
           });
           if (e.session_label) sessionLabels.set(sPos, e.session_label);
         }
