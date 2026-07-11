@@ -1,7 +1,7 @@
 import { Link, useNavigate, useParams } from "@tanstack/react-router";
 import type { Scope } from "@/lib/scope";
 import { useState, type ReactNode } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "@/components/ui/sonner";
 import {
   AlertDialog,
@@ -503,11 +503,18 @@ function ActionsSidebar({
   onArchived: () => void;
 }) {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [archiveOpen, setArchiveOpen] = useState(false);
   const [archiving, setArchiving] = useState(false);
   const [editing, setEditing] = useState(false);
+
+  const invalidateAluno = () => {
+    queryClient.invalidateQueries({ queryKey: ["aluno-student-workouts", alunoId] });
+    queryClient.invalidateQueries({ queryKey: ["aluno", alunoId] });
+    queryClient.invalidateQueries({ queryKey: ["plano-detail"] });
+  };
 
   const handleEdit = async () => {
     if (!templateId) {
@@ -552,6 +559,7 @@ function ActionsSidebar({
       if (error) throw error;
       toast.success("Plano excluído dos treinos do aluno");
       setConfirmOpen(false);
+      invalidateAluno();
       onDeleted();
     } catch (err) {
       toast.error("Não foi possível excluir o plano", {
@@ -573,6 +581,7 @@ function ActionsSidebar({
         description: "O plano não aparecerá mais no painel do aluno.",
       });
       setArchiveOpen(false);
+      invalidateAluno();
       onArchived();
     } catch (err) {
       toast.error("Não foi possível arquivar o plano", {
