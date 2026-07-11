@@ -581,6 +581,7 @@ function ActionsSidebar({
         description: "O plano não aparecerá mais no painel do aluno.",
       });
       setArchiveOpen(false);
+      invalidateAluno();
       onArchived();
     } catch (err) {
       toast.error("Não foi possível arquivar o plano", {
