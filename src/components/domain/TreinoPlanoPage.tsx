@@ -740,9 +740,10 @@ function ActionsSidebar({
           onClick={() => setArchiveOpen(true)}
           className="inline-flex h-12 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border border-border bg-transparent px-6 py-2.5 text-sm font-semibold text-foreground transition-all hover:border-primary hover:text-primary active:scale-[0.97]"
         >
-          <Archive className="h-4 w-4" />
-          Arquivar
+          {isArchived ? <CheckCircle2 className="h-4 w-4" /> : <Archive className="h-4 w-4" />}
+          {isArchived ? "Ativar" : "Arquivar"}
         </button>
+
         <button
           type="button"
           onClick={() => setConfirmOpen(true)}
