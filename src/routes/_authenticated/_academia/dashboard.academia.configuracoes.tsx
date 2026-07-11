@@ -3,6 +3,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { toast } from "@/components/ui/sonner";
+import { confirmDialog } from "@/components/ui/confirm-dialog";
 import {
   Building2, Users, Trash2, Loader2, Crown, Shield, Dumbbell, Check,
 } from "lucide-react";
