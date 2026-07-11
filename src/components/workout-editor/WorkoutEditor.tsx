@@ -1314,7 +1314,7 @@ function ExerciseDetailSheet({
                       onSelect={setType}
                       onRemoveSet={removeThisSet}
                     />
-                    <div className="grid h-9 w-11 place-items-center rounded-lg bg-surface-2 text-sm font-semibold tabular-nums text-foreground">
+                    <div className="grid h-10 w-12 place-items-center rounded-lg bg-surface-2 text-sm font-semibold tabular-nums text-foreground">
                       {i + 1}
                     </div>
                     <AlvoPickerButton
