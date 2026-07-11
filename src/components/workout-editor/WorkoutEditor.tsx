@@ -869,11 +869,67 @@ export function WorkoutEditor({
               <button
                 onClick={() => handleSave()}
                 disabled={!canSave}
-                className="inline-flex h-9 items-center gap-1.5 rounded-full bg-[oklch(0.92_0.19_115)] px-4 text-sm font-semibold text-[oklch(0.2_0.05_115)] hover:brightness-105 disabled:opacity-50 lg:hidden"
+                className="inline-flex h-9 items-center gap-1.5 rounded-full bg-[oklch(0.92_0.19_115)] px-4 text-sm font-semibold text-[oklch(0.2_0.05_115)] hover:brightness-105 disabled:opacity-50"
               >
                 {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                 Salvar
               </button>
+              <button
+                type="button"
+                onClick={() => setPickerOpen(true)}
+                className="hidden sm:inline-flex h-9 items-center gap-1.5 rounded-full border border-border bg-card px-4 text-sm font-medium text-foreground hover:bg-muted"
+              >
+                <CheckSquare className="h-4 w-4" />
+                Selecionar exercícios
+              </button>
+              {kind === "plan" && isEdit && (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <button
+                      type="button"
+                      aria-label="Mais ações"
+                      className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-border bg-card text-foreground hover:bg-muted"
+                    >
+                      <MoreHorizontal className="h-4 w-4" />
+                    </button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuItem
+                      onSelect={(e) => { e.preventDefault(); duplicatePlanMut.mutate(); }}
+                      disabled={duplicatePlanMut.isPending || !editSlug}
+                    >
+                      {duplicatePlanMut.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Copy className="mr-2 h-4 w-4" />}
+                      Duplicar
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onSelect={(e) => { e.preventDefault(); saveAsTemplateMut.mutate(); }}
+                      disabled={!canSaveAsTemplate || saveAsTemplateMut.isPending}
+                    >
+                      {saveAsTemplateMut.isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LayoutTemplate className="mr-2 h-4 w-4" />}
+                      Salvar como Template
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onSelect={(e) => { e.preventDefault(); handleExportPdf(); }}>
+                      <FileDown className="mr-2 h-4 w-4" />
+                      Exportar PDF
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onSelect={(e) => { e.preventDefault(); setArchiveConfirmOpen(true); }}
+                      disabled={!alunoId || !templateId}
+                    >
+                      <Archive className="mr-2 h-4 w-4" />
+                      Arquivar
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      onSelect={(e) => { e.preventDefault(); setDeleteConfirmOpen(true); }}
+                      disabled={!alunoId || !templateId}
+                      className="text-destructive focus:text-destructive"
+                    >
+                      <Trash2 className="mr-2 h-4 w-4" />
+                      Excluir
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              )}
             </div>
           </div>
         </header>
@@ -912,8 +968,9 @@ export function WorkoutEditor({
 
 
         <main className="px-3 py-4 sm:px-4 sm:py-5 md:px-8">
-          <div className="mx-auto max-w-6xl space-y-6 lg:grid lg:grid-cols-3 lg:gap-6 lg:space-y-0">
-            <div className="space-y-4 lg:col-span-2">
+          <div className="mx-auto max-w-6xl space-y-6">
+            <div className="space-y-4">
+
 
           {canStartFromTemplate && (
             <div className="mb-4 flex flex-col gap-2 rounded-xl border border-dashed border-primary/40 bg-primary/5 p-3 sm:flex-row sm:items-center sm:justify-between">
@@ -1272,89 +1329,6 @@ export function WorkoutEditor({
           )}
             </div>
 
-            {/* Right-side Ações sidebar */}
-            <aside className="lg:col-span-1 lg:sticky lg:top-24 lg:self-start print:hidden">
-              <div className="h-px w-full bg-border lg:hidden" />
-              <h2 className="mb-3 mt-4 text-sm font-semibold uppercase tracking-wider text-muted-foreground lg:mt-0">
-                Ações
-              </h2>
-              <div className="flex flex-col gap-2">
-                <button
-                  type="button"
-                  onClick={() => handleSave()}
-                  disabled={!canSave}
-                  className="inline-flex h-12 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[oklch(0.92_0.19_115)] px-6 py-2.5 text-sm font-semibold text-[oklch(0.2_0.05_115)] transition-all hover:brightness-105 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-                  {saving ? "Salvando…" : "Salvar"}
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setPickerOpen(true)}
-                  className="inline-flex h-12 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border border-border bg-transparent px-6 py-2.5 text-sm font-semibold text-foreground transition-all hover:border-primary hover:text-primary active:scale-[0.97]"
-                >
-                  <CheckSquare className="h-4 w-4" />
-                  Selecionar exercícios
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setConfigOpen(true)}
-                  className="inline-flex h-12 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border border-border bg-transparent px-6 py-2.5 text-sm font-semibold text-foreground transition-all hover:border-primary hover:text-primary active:scale-[0.97]"
-                >
-                  <Settings className="h-4 w-4" />
-                  Configurações
-                </button>
-                {kind === "plan" && isEdit && (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() => duplicatePlanMut.mutate()}
-                      disabled={duplicatePlanMut.isPending || !editSlug}
-                      className="inline-flex h-12 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border border-border bg-transparent px-6 py-2.5 text-sm font-semibold text-foreground transition-all hover:border-primary hover:text-primary active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      {duplicatePlanMut.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Copy className="h-4 w-4" />}
-                      Duplicar
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => saveAsTemplateMut.mutate()}
-                      disabled={!canSaveAsTemplate || saveAsTemplateMut.isPending}
-                      title={isDirty ? "Salve as alterações antes de converter em modelo" : "Cria uma cópia deste plano como modelo pronto"}
-                      className="inline-flex h-12 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border border-border bg-transparent px-6 py-2.5 text-sm font-semibold text-foreground transition-all hover:border-primary hover:text-primary active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      {saveAsTemplateMut.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <LayoutTemplate className="h-4 w-4" />}
-                      Salvar como Template
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleExportPdf}
-                      className="inline-flex h-12 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border border-border bg-transparent px-6 py-2.5 text-sm font-semibold text-foreground transition-all hover:border-primary hover:text-primary active:scale-[0.97]"
-                    >
-                      <FileDown className="h-4 w-4" />
-                      Exportar PDF
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setArchiveConfirmOpen(true)}
-                      disabled={!alunoId || !templateId}
-                      className="inline-flex h-12 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border border-border bg-transparent px-6 py-2.5 text-sm font-semibold text-foreground transition-all hover:border-primary hover:text-primary active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      <Archive className="h-4 w-4" />
-                      Arquivar
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setDeleteConfirmOpen(true)}
-                      disabled={!alunoId || !templateId}
-                      className="inline-flex h-12 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border border-border bg-transparent px-6 py-2.5 text-sm font-semibold text-destructive transition-all hover:border-destructive hover:text-destructive active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                      Excluir
-                    </button>
-                  </>
-                )}
-              </div>
-            </aside>
           </div>
         </main>
 
