@@ -1901,13 +1901,13 @@ function ExerciseRow({
 }) {
   const [open, setOpen] = useState(false);
   const reps = (item.reps ?? "").toString().trim();
-  const perSetReps = Array.isArray(item.reps_by_set)
-    ? item.reps_by_set.map((r) => (r ?? "").toString().trim()).filter(Boolean)
-    : [];
-  const hasVariedReps =
-    perSetReps.length > 0 &&
-    (perSetReps.length !== (item.sets ?? 0) || !perSetReps.every((r) => r === perSetReps[0]));
-  const repsDisplay = hasVariedReps ? perSetReps.join("/") : reps;
+  const configuredReps = Array.from({ length: Math.max(item.sets ?? 0, 0) }, (_, i) => {
+    const perSetValue = item.reps_by_set?.[i]?.toString().trim();
+    return perSetValue || reps;
+  }).filter(Boolean);
+  const hasConfiguredPerSetReps = Array.isArray(item.reps_by_set) && item.reps_by_set.some((r) => (r ?? "").toString().trim());
+  const hasVariedReps = configuredReps.length > 0 && !configuredReps.every((r) => r === configuredReps[0]);
+  const repsDisplay = hasConfiguredPerSetReps ? (hasVariedReps ? configuredReps.join("/") : configuredReps[0]) : reps;
   const summary = item.sets && repsDisplay ? `${item.sets}×${repsDisplay}` : item.sets ? `${item.sets} séries` : repsDisplay ? repsDisplay : "—";
   return (
     <>
