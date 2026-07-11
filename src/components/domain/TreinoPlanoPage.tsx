@@ -590,16 +590,22 @@ function ActionsSidebar({
         Ações
       </h2>
       <div className="flex flex-col gap-2">
-        {ACTIONS.map(({ icon: Icon, label }) => (
-          <button
-            key={label}
-            type="button"
-            className="inline-flex h-12 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border border-border bg-transparent px-6 py-2.5 text-sm font-semibold text-foreground transition-all hover:border-primary hover:text-primary active:scale-[0.97]"
-          >
-            <Icon className="h-4 w-4" />
-            {label}
-          </button>
-        ))}
+        {ACTIONS.map(({ icon: Icon, label }) => {
+          const isEdit = label === "Editar";
+          const disabled = isEdit && (editing || !templateId);
+          return (
+            <button
+              key={label}
+              type="button"
+              onClick={isEdit ? handleEdit : undefined}
+              disabled={disabled}
+              className="inline-flex h-12 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border border-border bg-transparent px-6 py-2.5 text-sm font-semibold text-foreground transition-all hover:border-primary hover:text-primary active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <Icon className="h-4 w-4" />
+              {isEdit && editing ? "Abrindo…" : label}
+            </button>
+          );
+        })}
         <button
           type="button"
           onClick={() => setArchiveOpen(true)}
