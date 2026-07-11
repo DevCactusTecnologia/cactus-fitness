@@ -1055,6 +1055,73 @@ export function WorkoutEditor({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Partir de um modelo — dialog */}
+      <Dialog open={templatePickerOpen} onOpenChange={setTemplatePickerOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <LayoutTemplate className="h-5 w-5 text-primary" />
+              Partir de um modelo
+            </DialogTitle>
+            <DialogDescription>
+              Copiamos todas as sessões e exercícios pro plano deste aluno. Depois é
+              só ajustar. O modelo original não é afetado.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="mt-2 max-h-[60vh] overflow-y-auto">
+            {templatesQuery.isLoading ? (
+              <div className="grid place-items-center py-10 text-sm text-muted-foreground">
+                <Loader2 className="mb-2 h-5 w-5 animate-spin" />
+                Carregando modelos…
+              </div>
+            ) : (templatesQuery.data ?? []).length === 0 ? (
+              <div className="rounded-lg border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+                Nenhum modelo pronto disponível ainda.<br />
+                Crie um modelo em Treinos › Novo modelo.
+              </div>
+            ) : (
+              <ul className="flex flex-col gap-2">
+                {(templatesQuery.data ?? []).map((t: any) => {
+                  const count = Array.isArray(t.workout_template_exercises)
+                    ? (t.workout_template_exercises[0]?.count ?? 0)
+                    : 0;
+                  return (
+                    <li key={t.id}>
+                      <button
+                        type="button"
+                        disabled={duplicateMut.isPending}
+                        onClick={() => duplicateMut.mutate(t.slug ?? t.id)}
+                        className="flex w-full items-start gap-3 rounded-lg border border-border bg-card p-3 text-left transition hover:border-primary hover:bg-muted disabled:opacity-50"
+                      >
+                        <div className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
+                          <FileText className="h-4 w-4" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="truncate text-sm font-semibold text-foreground">{t.name}</div>
+                          {t.description ? (
+                            <div className="truncate text-xs text-muted-foreground">{t.description}</div>
+                          ) : null}
+                          <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+                            {t.level ? <span className="rounded-full bg-muted px-2 py-0.5">{t.level}</span> : null}
+                            {t.goal ? <span className="rounded-full bg-muted px-2 py-0.5">{t.goal}</span> : null}
+                            <span className="inline-flex items-center gap-1">
+                              <Dumbbell className="h-3 w-3" /> {count} {count === 1 ? "exercício" : "exercícios"}
+                            </span>
+                          </div>
+                        </div>
+                        {duplicateMut.isPending && duplicateMut.variables === (t.slug ?? t.id) ? (
+                          <Loader2 className="mt-1 h-4 w-4 shrink-0 animate-spin text-primary" />
+                        ) : null}
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
