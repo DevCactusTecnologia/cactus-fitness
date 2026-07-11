@@ -1692,26 +1692,34 @@ function SessionCard({
         )}
         <button
           onClick={startEdit}
-          className="grid h-7 w-7 place-items-center rounded text-muted-foreground/70 hover:bg-muted hover:text-foreground"
+          className="grid h-7 w-7 place-items-center rounded text-muted-foreground/40 hover:bg-muted hover:text-foreground"
           aria-label="Editar nome"
         >
-          <Pencil className="h-4 w-4" />
+          <Pencil className="h-3.5 w-3.5" />
         </button>
-        <button
-          onClick={() => dispatch({ type: "DUPLICATE_SESSION", sessionId: session.id })}
-          className="grid h-7 w-7 place-items-center rounded text-muted-foreground/70 hover:bg-muted hover:text-foreground"
-          aria-label="Duplicar sessão"
-          title="Duplicar sessão"
-        >
-          <Copy className="h-4 w-4" />
-        </button>
-        <button
-          onClick={() => dispatch({ type: "REMOVE_SESSION", sessionId: session.id })}
-          className="grid h-7 w-7 place-items-center rounded text-muted-foreground/70 hover:bg-muted hover:text-destructive"
-          aria-label="Remover sessão"
-        >
-          <Trash2 className="h-4 w-4" />
-        </button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              className="grid h-7 w-7 place-items-center rounded text-muted-foreground/70 hover:bg-muted hover:text-foreground"
+              aria-label="Mais opções"
+            >
+              <MoreHorizontal className="h-4 w-4" />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuItem onSelect={() => dispatch({ type: "DUPLICATE_SESSION", sessionId: session.id })}>
+              Duplicar sessão
+            </DropdownMenuItem>
+            <DropdownMenuItem disabled>Importar modelo de sessão</DropdownMenuItem>
+            <DropdownMenuItem disabled>Salvar sessão como modelo</DropdownMenuItem>
+            <DropdownMenuItem
+              onSelect={() => dispatch({ type: "REMOVE_SESSION", sessionId: session.id })}
+              className="text-destructive focus:text-destructive"
+            >
+              Remover sessão
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       {totalSets > 0 && (
