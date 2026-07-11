@@ -967,8 +967,9 @@ export function WorkoutEditor({
         </Sheet>
 
 
-        <main className="px-3 py-4 sm:px-4 sm:py-5 md:px-8">
-          <div className="mx-auto max-w-6xl space-y-6">
+        <main className="px-3 py-4 sm:px-4 sm:py-5 md:px-6">
+          <div className="w-full space-y-6">
+
             <div className="space-y-4">
 
 
