@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useReducer, useRef, useState } from "react";
-import { useNavigate } from "@tanstack/react-router";
+import { useNavigate, useBlocker } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   ChevronDown, ChevronUp, Copy, GripVertical, Loader2, MoreHorizontal, CheckSquare,
-  Play, Plus, Save, Search, Settings, Trash2, X, Dumbbell, Pencil, Check, Filter, ChevronLeft, ChevronRight, Clock, BarChart3, Hash, AlertCircle,
+  Play, Plus, Save, Search, Settings, Trash2, X, Dumbbell, Pencil, Check, Filter, ChevronLeft, ChevronRight, Clock, BarChart3, Hash, AlertCircle, AlertTriangle, Info,
 } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
