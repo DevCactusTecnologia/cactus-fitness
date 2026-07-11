@@ -628,6 +628,79 @@ function ActionsSidebar({
     }
   };
 
+  const duplicateMut = useMutation({
+    mutationFn: async () => {
+      if (!templateSlug) throw new Error("Este plano não pode ser duplicado.");
+      return duplicatePlan({ data: { sourceSlug: templateSlug } });
+    },
+    onSuccess: (res) => {
+      toast.success("Plano duplicado", { description: "Uma cópia editável foi criada." });
+      invalidateAluno();
+      const planoBase =
+        scope === "academia"
+          ? "/dashboard/academia/treinos/plano/$slug"
+          : "/dashboard/personal/treinos/plano/$slug";
+      navigate({
+        to: planoBase as "/dashboard/personal/treinos/plano/$slug",
+        params: { slug: res.slug },
+      });
+    },
+    onError: (err) => {
+      toast.error("Não foi possível duplicar", {
+        description: err instanceof Error ? err.message : undefined,
+      });
+    },
+  });
+
+  const saveTemplateMut = useMutation({
+    mutationFn: async () => {
+      if (!templateSlug) throw new Error("Este plano não pode ser salvo como modelo.");
+      return saveAsTemplate({ data: { sourceSlug: templateSlug } });
+    },
+    onSuccess: (res) => {
+      queryClient.invalidateQueries({ queryKey: ["workout_templates"] });
+      const modeloBase =
+        scope === "academia"
+          ? "/dashboard/academia/treinos/modelo/$modeloId"
+          : "/dashboard/personal/treinos/modelo/$modeloId";
+      toast.success("Modelo criado", {
+        description: "Disponível na biblioteca de modelos da academia.",
+        action: {
+          label: "Ver modelo",
+          onClick: () =>
+            navigate({
+              to: modeloBase as "/dashboard/personal/treinos/modelo/$modeloId",
+              params: { modeloId: res.slug },
+            }),
+        },
+      });
+    },
+    onError: (err) => {
+      toast.error("Não foi possível salvar como modelo", {
+        description: err instanceof Error ? err.message : undefined,
+      });
+    },
+  });
+
+  const handleExportPdf = () => {
+    if (typeof window !== "undefined") window.print();
+  };
+
+  const disabledByNoTemplate = !templateSlug;
+
+  const actions: Array<{
+    icon: typeof Pencil;
+    label: string;
+    onClick: () => void;
+    disabled?: boolean;
+    loading?: boolean;
+  }> = [
+    { icon: Pencil, label: "Editar", onClick: handleEdit, disabled: editing || !templateId, loading: editing },
+    { icon: Copy, label: "Duplicar", onClick: () => duplicateMut.mutate(), disabled: disabledByNoTemplate || duplicateMut.isPending, loading: duplicateMut.isPending },
+    { icon: Save, label: "Salvar como Template", onClick: () => saveTemplateMut.mutate(), disabled: disabledByNoTemplate || saveTemplateMut.isPending, loading: saveTemplateMut.isPending },
+    { icon: FileDown, label: "Exportar PDF", onClick: handleExportPdf },
+  ];
+
   return (
     <aside className="lg:sticky lg:top-24 lg:self-start">
       <div className="h-px w-full bg-border lg:hidden" />
@@ -635,22 +708,18 @@ function ActionsSidebar({
         Ações
       </h2>
       <div className="flex flex-col gap-2">
-        {ACTIONS.map(({ icon: Icon, label }) => {
-          const isEdit = label === "Editar";
-          const disabled = isEdit && (editing || !templateId);
-          return (
-            <button
-              key={label}
-              type="button"
-              onClick={isEdit ? handleEdit : undefined}
-              disabled={disabled}
-              className="inline-flex h-12 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border border-border bg-transparent px-6 py-2.5 text-sm font-semibold text-foreground transition-all hover:border-primary hover:text-primary active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              <Icon className="h-4 w-4" />
-              {isEdit && editing ? "Abrindo…" : label}
-            </button>
-          );
-        })}
+        {actions.map(({ icon: Icon, label, onClick, disabled, loading }) => (
+          <button
+            key={label}
+            type="button"
+            onClick={onClick}
+            disabled={disabled}
+            className="inline-flex h-12 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border border-border bg-transparent px-6 py-2.5 text-sm font-semibold text-foreground transition-all hover:border-primary hover:text-primary active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <Icon className="h-4 w-4" />
+            {loading ? "Processando…" : label}
+          </button>
+        ))}
         <button
           type="button"
           onClick={() => setArchiveOpen(true)}
@@ -668,6 +737,7 @@ function ActionsSidebar({
           Excluir
         </button>
       </div>
+
 
       <AlertDialog open={archiveOpen} onOpenChange={setArchiveOpen}>
         <AlertDialogContent>
