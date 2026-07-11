@@ -32,6 +32,23 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Calendar } from "@/components/ui/calendar";
 import { IconRail } from "@/components/IconRail";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
+import {
+  DndContext,
+  closestCenter,
+  PointerSensor,
+  KeyboardSensor,
+  useSensor,
+  useSensors,
+  type DragEndEvent,
+} from "@dnd-kit/core";
+import {
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+  arrayMove,
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 export type EditorKind = "plan" | "template";
 
@@ -163,6 +180,7 @@ type Action =
   | { type: "ADD_EXERCISE"; sessionId: string; blockId: string; exercise: { id: number | null; name: string; muscles_primary?: string[] } }
   | { type: "REMOVE_EXERCISE"; sessionId: string; blockId: string; exerciseId: string }
   | { type: "MOVE_EXERCISE"; sessionId: string; blockId: string; exerciseId: string; dir: -1 | 1 }
+  | { type: "REORDER_EXERCISES"; sessionId: string; blockId: string; orderedIds: string[] }
   | { type: "UPDATE_EXERCISE"; sessionId: string; blockId: string; exerciseId: string; patch: Partial<ExerciseItem> };
 
 function move<T>(arr: T[], idx: number, dir: -1 | 1): T[] {
@@ -277,6 +295,20 @@ function reducer(state: State, action: Action): State {
               if (b.id !== action.blockId) return b;
               const idx = b.exercises.findIndex(e => e.id === action.exerciseId);
               return { ...b, exercises: move(b.exercises, idx, action.dir) };
+            }) }
+          : s),
+      };
+    case "REORDER_EXERCISES":
+      return {
+        ...state,
+        sessions: state.sessions.map(s => s.id === action.sessionId
+          ? { ...s, blocks: s.blocks.map(b => {
+              if (b.id !== action.blockId) return b;
+              const map = new Map(b.exercises.map(e => [e.id, e]));
+              const reordered = action.orderedIds.map(id => map.get(id)).filter(Boolean) as typeof b.exercises;
+              // Append any exercises not in orderedIds (safety fallback).
+              for (const e of b.exercises) if (!action.orderedIds.includes(e.id)) reordered.push(e);
+              return { ...b, exercises: reordered };
             }) }
           : s),
       };
@@ -1867,18 +1899,23 @@ function BlockCard({
 
 
 
-        {block.exercises.map((e, ei) => (
-          <ExerciseRow
-            key={e.id}
-            item={e}
-            index={ei}
-            total={block.exercises.length}
-            onChange={(patch) => dispatch({ type: "UPDATE_EXERCISE", sessionId, blockId: block.id, exerciseId: e.id, patch })}
-            onRemove={() => dispatch({ type: "REMOVE_EXERCISE", sessionId, blockId: block.id, exerciseId: e.id })}
-            onUp={() => dispatch({ type: "MOVE_EXERCISE", sessionId, blockId: block.id, exerciseId: e.id, dir: -1 })}
-            onDown={() => dispatch({ type: "MOVE_EXERCISE", sessionId, blockId: block.id, exerciseId: e.id, dir: 1 })}
-          />
-        ))}
+        <SortableExerciseList
+          exercises={block.exercises}
+          onReorder={(orderedIds) => dispatch({ type: "REORDER_EXERCISES", sessionId, blockId: block.id, orderedIds })}
+          renderRow={(e, ei) => (
+            <SortableExerciseRow
+              key={e.id}
+              id={e.id}
+              item={e}
+              index={ei}
+              total={block.exercises.length}
+              onChange={(patch) => dispatch({ type: "UPDATE_EXERCISE", sessionId, blockId: block.id, exerciseId: e.id, patch })}
+              onRemove={() => dispatch({ type: "REMOVE_EXERCISE", sessionId, blockId: block.id, exerciseId: e.id })}
+              onUp={() => dispatch({ type: "MOVE_EXERCISE", sessionId, blockId: block.id, exerciseId: e.id, dir: -1 })}
+              onDown={() => dispatch({ type: "MOVE_EXERCISE", sessionId, blockId: block.id, exerciseId: e.id, dir: 1 })}
+            />
+          )}
+        />
         <button
           onClick={onPickTarget}
           className="inline-flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-border/70 py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:border-primary hover:text-primary hover:bg-muted"
@@ -1891,13 +1928,83 @@ function BlockCard({
 }
 
 
+function SortableExerciseList({
+  exercises,
+  onReorder,
+  renderRow,
+}: {
+  exercises: ExerciseItem[];
+  onReorder: (orderedIds: string[]) => void;
+  renderRow: (e: ExerciseItem, ei: number) => React.ReactNode;
+}) {
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+  const ids = exercises.map((e) => e.id);
+  return (
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragEnd={(event: DragEndEvent) => {
+        const { active, over } = event;
+        if (!over || active.id === over.id) return;
+        const oldIndex = ids.indexOf(String(active.id));
+        const newIndex = ids.indexOf(String(over.id));
+        if (oldIndex < 0 || newIndex < 0) return;
+        onReorder(arrayMove(ids, oldIndex, newIndex));
+      }}
+    >
+      <SortableContext items={ids} strategy={verticalListSortingStrategy}>
+        {exercises.map((e, ei) => renderRow(e, ei))}
+      </SortableContext>
+    </DndContext>
+  );
+}
+
+function SortableExerciseRow(props: {
+  id: string;
+  item: ExerciseItem;
+  index: number;
+  total: number;
+  onChange: (patch: Partial<ExerciseItem>) => void;
+  onRemove: () => void;
+  onUp: () => void;
+  onDown: () => void;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: props.id });
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.6 : 1,
+    zIndex: isDragging ? 10 : undefined,
+  };
+  return (
+    <ExerciseRow
+      item={props.item}
+      index={props.index}
+      total={props.total}
+      onChange={props.onChange}
+      onRemove={props.onRemove}
+      onUp={props.onUp}
+      onDown={props.onDown}
+      dragRef={setNodeRef}
+      dragStyle={style}
+      dragHandleProps={{ ...attributes, ...listeners }}
+    />
+  );
+}
+
 function ExerciseRow({
-  item, index, total, onChange, onRemove, onUp, onDown,
+  item, index, total, onChange, onRemove, onUp, onDown, dragRef, dragStyle, dragHandleProps,
 }: {
   item: ExerciseItem; index: number; total: number;
   onChange: (patch: Partial<ExerciseItem>) => void;
   onRemove: () => void;
   onUp: () => void; onDown: () => void;
+  dragRef?: (node: HTMLElement | null) => void;
+  dragStyle?: React.CSSProperties;
+  dragHandleProps?: Record<string, unknown>;
 }) {
   const [open, setOpen] = useState(false);
   const reps = (item.reps ?? "").toString().trim();
@@ -1912,6 +2019,8 @@ function ExerciseRow({
   return (
     <>
       <div
+        ref={dragRef}
+        style={dragStyle}
         role="button"
         tabIndex={0}
         onClick={() => setOpen(true)}
@@ -1921,7 +2030,8 @@ function ExerciseRow({
         <button
           type="button"
           onClick={(e) => e.stopPropagation()}
-          className="-m-1 shrink-0 cursor-grab p-1 text-muted-foreground/40 group-hover:text-muted-foreground active:cursor-grabbing"
+          {...(dragHandleProps ?? {})}
+          className="-m-1 shrink-0 cursor-grab touch-none p-1 text-muted-foreground/40 group-hover:text-muted-foreground active:cursor-grabbing"
           aria-label="Arrastar exercício"
         >
           <GripVertical className="h-4 w-4" />
