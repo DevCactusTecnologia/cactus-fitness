@@ -295,6 +295,8 @@ export function WorkoutEditor({
 }) {
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const scope = useScope();
+  const scopeBase = scope === "academia" ? "/dashboard/academia/treinos" : "/dashboard/personal/treinos";
   const isEdit = Boolean(editSlug);
 
   const initial: State = useMemo(() => ({
