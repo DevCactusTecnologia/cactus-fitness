@@ -142,6 +142,7 @@ export function TreinoPlanoPage({ scope }: { scope: Scope }) {
             </div>
 
             <ActionsSidebar
+              scope={scope}
               alunoId={alunoId}
               templateId={templateId}
               planoName={data?.plano?.name ?? "este plano"}
@@ -487,22 +488,56 @@ const ACTIONS = [
 ] as const;
 
 function ActionsSidebar({
+  scope,
   alunoId,
   templateId,
   planoName,
   onDeleted,
   onArchived,
 }: {
+  scope: Scope;
   alunoId: string;
   templateId: string | null;
   planoName: string;
   onDeleted: () => void;
   onArchived: () => void;
 }) {
+  const navigate = useNavigate();
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [archiveOpen, setArchiveOpen] = useState(false);
   const [archiving, setArchiving] = useState(false);
+  const [editing, setEditing] = useState(false);
+
+  const handleEdit = async () => {
+    if (!templateId) {
+      toast.error("Este plano não pode ser editado no builder.");
+      return;
+    }
+    setEditing(true);
+    try {
+      const { data, error } = await supabase
+        .from("workout_templates")
+        .select("slug")
+        .eq("id", templateId)
+        .maybeSingle();
+      if (error) throw error;
+      if (!data?.slug) throw new Error("Plano não encontrado.");
+      const editBase =
+        scope === "academia"
+          ? "/dashboard/academia/treinos/editar/$slug"
+          : "/dashboard/personal/treinos/editar/$slug";
+      navigate({
+        to: editBase as "/dashboard/personal/treinos/editar/$slug",
+        params: { slug: data.slug },
+      });
+    } catch (err) {
+      toast.error("Não foi possível abrir o editor", {
+        description: err instanceof Error ? err.message : undefined,
+      });
+      setEditing(false);
+    }
+  };
 
   const scopedQuery = <T extends { eq: (col: string, val: any) => T; is: (col: string, val: any) => T }>(q: T): T => {
     let out = q.eq("aluno_id", alunoId);
@@ -555,16 +590,22 @@ function ActionsSidebar({
         Ações
       </h2>
       <div className="flex flex-col gap-2">
-        {ACTIONS.map(({ icon: Icon, label }) => (
-          <button
-            key={label}
-            type="button"
-            className="inline-flex h-12 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border border-border bg-transparent px-6 py-2.5 text-sm font-semibold text-foreground transition-all hover:border-primary hover:text-primary active:scale-[0.97]"
-          >
-            <Icon className="h-4 w-4" />
-            {label}
-          </button>
-        ))}
+        {ACTIONS.map(({ icon: Icon, label }) => {
+          const isEdit = label === "Editar";
+          const disabled = isEdit && (editing || !templateId);
+          return (
+            <button
+              key={label}
+              type="button"
+              onClick={isEdit ? handleEdit : undefined}
+              disabled={disabled}
+              className="inline-flex h-12 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border border-border bg-transparent px-6 py-2.5 text-sm font-semibold text-foreground transition-all hover:border-primary hover:text-primary active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
+            >
+              <Icon className="h-4 w-4" />
+              {isEdit && editing ? "Abrindo…" : label}
+            </button>
+          );
+        })}
         <button
           type="button"
           onClick={() => setArchiveOpen(true)}
