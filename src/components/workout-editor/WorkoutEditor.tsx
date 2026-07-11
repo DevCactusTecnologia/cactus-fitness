@@ -332,6 +332,10 @@ export function WorkoutEditor({
           const blocks = sessionMap.get(sPos)!;
           if (!blocks.has(bPos)) blocks.set(bPos, { label: e.block_label ?? "", exercises: [] });
           const blk = blocks.get(bPos)!;
+          const ps = (e as any).per_set as
+            | { types?: string[]; reps?: string[]; rest?: number[]; load?: string[] }
+            | null
+            | undefined;
           blk.exercises.push({
             id: uid(),
             exercise_id: e.exercise_id,
@@ -341,6 +345,10 @@ export function WorkoutEditor({
             rest_seconds: e.rest_seconds,
             load: e.load ?? "",
             notes: e.notes ?? "",
+            set_types: Array.isArray(ps?.types) ? (ps!.types as SetType[]) : undefined,
+            reps_by_set: Array.isArray(ps?.reps) ? ps!.reps : undefined,
+            rest_by_set: Array.isArray(ps?.rest) ? ps!.rest : undefined,
+            load_by_set: Array.isArray(ps?.load) ? ps!.load : undefined,
           });
           if (e.session_label) sessionLabels.set(sPos, e.session_label);
         }
