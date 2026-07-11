@@ -1745,7 +1745,7 @@ function BlockCard({
   const totalMin = Math.max(1, Math.round(totalSeconds / 60));
   return (
     <div
-      className={`overflow-hidden rounded-lg ${isExplicitBlock ? "border" : ""} ${isActive ? "ring-1 ring-primary/40" : ""}`}
+      className={`overflow-hidden rounded-lg border border-border/60 ${isActive ? "ring-1 ring-primary/40" : ""}`}
       style={{
         borderColor: isExplicitBlock ? (isActive ? undefined : `${color}40`) : undefined,
         backgroundColor: isExplicitBlock ? `color-mix(in oklab, ${color} 10%, hsl(var(--card)))` : "transparent",
@@ -1852,7 +1852,7 @@ function ExerciseRow({
         tabIndex={0}
         onClick={() => setOpen(true)}
         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpen(true); } }}
-        className="group relative flex cursor-pointer items-center gap-2 rounded-lg bg-muted/40 px-2 py-1.5 text-sm transition-colors hover:bg-muted"
+        className="group relative flex cursor-pointer items-center gap-2 rounded-lg border border-border/60 bg-muted/40 px-2 py-1.5 text-sm transition-colors hover:bg-muted"
       >
         <button
           type="button"
