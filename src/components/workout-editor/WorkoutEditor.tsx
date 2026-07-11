@@ -305,7 +305,7 @@ export function WorkoutEditor({
       : [{ id: uid(), label: "__single__", blocks: [emptyBlock(0)] }],
   }), [kind]);
 
-  const [state, dispatch] = useReducer(reducer, initial);
+  const [state, rawDispatch] = useReducer(reducer, initial);
   const [activeTarget, setActiveTarget] = useState<{ sessionId: string; blockId: string } | null>(null);
   const [saving, setSaving] = useState(false);
   const [mobilePanelOpen, setMobilePanelOpen] = useState(false);
@@ -313,32 +313,38 @@ export function WorkoutEditor({
   const [loadingEdit, setLoadingEdit] = useState(isEdit);
   const hydratedRef = useRef(false);
   const nameInputRef = useRef<HTMLInputElement>(null);
+  const suppressDirtyRef = useRef(true);
+  const [touched, setTouched] = useState(false);
   const [leaveOpen, setLeaveOpen] = useState(false);
+
+  const dispatch = useMemo<React.Dispatch<Action>>(() => (action) => {
+    if (!suppressDirtyRef.current) setTouched(true);
+    rawDispatch(action);
+  }, []);
+
+  useEffect(() => {
+    if (loadingEdit) return;
+    const id = setTimeout(() => { suppressDirtyRef.current = false; }, 0);
+    return () => clearTimeout(id);
+  }, [loadingEdit]);
 
   const backHref = kind === "plan"
     ? (alunoId ? `/dashboard/personal/alunos/${alunoId}` : "/dashboard/personal/treinos")
     : "/dashboard/personal/treinos";
 
-  const isDirty = useMemo(() => {
-    if (isEdit) return false;
-    if (state.name.trim().length > 0) return true;
-    if (state.description.trim().length > 0) return true;
-    if (state.sessions.length > 1) return true;
-    for (const s of state.sessions) {
-      if (s.blocks.length > 1) return true;
-      for (const b of s.blocks) {
-        if (b.exercises.length > 0) return true;
-        if ((b.label ?? "").trim().length > 0) return true;
-      }
-    }
-    return false;
-  }, [isEdit, state]);
+  const isDirty = touched && !saving;
+
+  const blocker = useBlocker({
+    shouldBlockFn: () => isDirty,
+    withResolver: true,
+    enableBeforeUnload: () => isDirty,
+  });
+
+  useEffect(() => {
+    if (blocker.status === "blocked") setLeaveOpen(true);
+  }, [blocker.status]);
 
   const handleBack = () => {
-    if (isDirty) {
-      setLeaveOpen(true);
-      return;
-    }
     navigate({ to: backHref });
   };
 
