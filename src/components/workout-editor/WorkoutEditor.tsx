@@ -422,6 +422,24 @@ export function WorkoutEditor({
 
   async function handleSave() {
     if (!canSave) return;
+
+    // Bloqueia salvar se alguma sessão está sem exercícios
+    const emptySession = state.sessions.find(
+      (s) => s.blocks.every((b) => b.exercises.length === 0),
+    );
+    if (emptySession) {
+      const label =
+        kind === "plan"
+          ? emptySession.label && emptySession.label !== "__single__"
+            ? emptySession.label
+            : "Treino"
+          : state.name.trim() || "Treino";
+      toast.warning("Sessão sem exercícios", {
+        description: `Adicione exercícios ou remova: ${label}.`,
+      });
+      return;
+    }
+
     setSaving(true);
     try {
       const { data: userRes } = await supabase.auth.getUser();
