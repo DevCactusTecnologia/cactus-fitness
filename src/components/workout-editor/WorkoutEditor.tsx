@@ -757,6 +757,7 @@ export function WorkoutEditor({
             <>
               <div className="space-y-1">
                 <Input
+                  ref={kind === "template" ? nameInputRef : undefined}
                   value={state.name}
                   onChange={(e) => dispatch({ type: "SET_META", patch: { name: e.target.value } })}
                   placeholder="Nome do modelo (ex: Peito e Triceps — Hipertrofia)"
