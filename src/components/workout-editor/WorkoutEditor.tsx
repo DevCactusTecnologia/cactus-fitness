@@ -3184,7 +3184,7 @@ function ExercisePicker({
             {filtered.map((e) => {
               const diff = difficultyStyle(e.difficulty);
               const groups = [e.group, ...e.muscles_secondary].filter(Boolean) as string[];
-              const isSelected = selectedIds.has(e.id);
+              const isSelected = selectedIdSet.has(e.id);
               return (
                 <button
                   key={e.id}
