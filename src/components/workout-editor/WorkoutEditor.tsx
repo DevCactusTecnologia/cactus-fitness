@@ -1626,7 +1626,7 @@ function SessionCard({
     <div className="w-full sm:w-[360px] overflow-hidden rounded-xl border border-border/60 bg-card/60">
       <div className="flex items-center gap-2 border-b border-border/60 px-4 py-3">
         <GripVertical className="h-4 w-4 shrink-0 text-muted-foreground/60" />
-        <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[oklch(0.92_0.19_115)]/15 text-xs font-bold text-[oklch(0.92_0.19_115)]">
+        <span className="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-[oklch(0.92_0.19_115)]/15 text-[11px] font-bold text-[oklch(0.92_0.19_115)]">
           {letter}
         </span>
         {editing ? (
@@ -1636,10 +1636,10 @@ function SessionCard({
             onChange={(e) => dispatch({ type: "RENAME_SESSION", sessionId: session.id, label: e.target.value })}
             onBlur={() => { if (!session.label.trim()) dispatch({ type: "RENAME_SESSION", sessionId: session.id, label: "Treino" }); setEditing(false); }}
             onKeyDown={(e) => { if (e.key === "Enter" || e.key === "Escape") (e.target as HTMLInputElement).blur(); }}
-            className="min-w-0 flex-1 bg-transparent text-base font-semibold text-foreground outline-none"
+            className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-foreground outline-none"
           />
         ) : (
-          <span className="min-w-0 flex-1 truncate text-base font-semibold text-foreground">{displayName || "Sem nome"}</span>
+          <span className="min-w-0 flex-1 truncate text-sm font-semibold text-foreground">{displayName || "Sem nome"}</span>
         )}
         <button
           onClick={startEdit}
@@ -1852,7 +1852,7 @@ function ExerciseRow({
         tabIndex={0}
         onClick={() => setOpen(true)}
         onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpen(true); } }}
-        className="group relative flex cursor-pointer items-center gap-2 rounded-lg border border-border bg-muted/40 px-2 py-2 text-sm transition-colors hover:bg-muted"
+        className="group relative flex cursor-pointer items-center gap-2 rounded-lg bg-muted/40 px-2 py-1.5 text-sm transition-colors hover:bg-muted"
       >
         <button
           type="button"
@@ -1862,24 +1862,24 @@ function ExerciseRow({
         >
           <GripVertical className="h-4 w-4" />
         </button>
-        <span className="relative grid h-8 w-8 shrink-0 place-items-center overflow-hidden rounded-md bg-muted">
-          <span className="grid h-4 w-4 place-items-center rounded-full bg-primary shadow-sm">
+        <span className="relative grid h-7 w-7 shrink-0 place-items-center overflow-hidden rounded-md bg-muted">
+          <span className="grid h-3.5 w-3.5 place-items-center rounded-full bg-primary shadow-sm">
             <Play className="ml-px h-2 w-2 fill-primary-foreground text-primary-foreground" />
           </span>
         </span>
         <div className="min-w-0 flex-1">
-          <div className="line-clamp-2 break-words text-sm font-medium leading-snug text-foreground" title={item.name}>
+          <div className="line-clamp-2 break-words text-[13px] font-medium leading-snug text-foreground" title={item.name}>
             {item.name}
           </div>
-          <div className="text-[11px] text-muted-foreground">{summary}</div>
+          <div className="text-[10px] text-muted-foreground">{summary}</div>
         </div>
         <div onClick={(e) => e.stopPropagation()}>
           <button
             onClick={onRemove}
-            className="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-muted text-muted-foreground/60 transition-colors hover:bg-destructive/10 hover:text-destructive"
+            className="grid h-7 w-7 shrink-0 place-items-center rounded-md text-muted-foreground/60 transition-colors hover:bg-destructive/10 hover:text-destructive"
             aria-label="Remover exercício"
           >
-            <X className="h-4 w-4" />
+            <X className="h-3.5 w-3.5" />
           </button>
         </div>
       </div>
