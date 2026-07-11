@@ -9,7 +9,7 @@ import {
   Sparkles, RefreshCw,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/sonner";
 import { IconRail } from "@/components/IconRail";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { Input } from "@/components/ui/input";

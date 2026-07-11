@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { IconRail } from "@/components/IconRail";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/sonner";
 
 export const Route = createFileRoute("/_authenticated/_personal/dashboard/personal/avaliacoes/$alunoId")({
   head: () => ({

@@ -5,7 +5,7 @@ import {
   ChevronDown, ChevronUp, Copy, GripVertical, Loader2, MoreHorizontal, CheckSquare,
   Play, Plus, Save, Search, Settings, Trash2, X, Dumbbell, Pencil, Check, Filter, ChevronLeft, ChevronRight, Clock, BarChart3, Hash, AlertCircle,
 } from "lucide-react";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";

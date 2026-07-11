@@ -6,7 +6,7 @@ import {
   BadgeCheck, Users as UsersIcon, Pencil, KeyRound, Eye, EyeOff, Lock, Trash2, AlertTriangle,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { toast } from "sonner";
+import { toast } from "@/components/ui/sonner";
 import { useNavigate } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { IconRail } from "@/components/IconRail";
