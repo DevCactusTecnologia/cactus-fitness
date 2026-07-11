@@ -110,15 +110,17 @@ export function TreinoPlanoPage({ scope }: { scope: Scope }) {
 
 
   return (
-    <div className="relative flex min-h-screen bg-background [background-image:none]">
-      <IconRail scope={scope} />
-      <div className="flex-1 min-w-0 pb-20 md:pb-0 md:pl-[72px] bg-background">
-        <header className="sticky top-0 z-40 border-b border-border/60 bg-background/70 p-4 backdrop-blur-md supports-[backdrop-filter]:bg-background/60 md:p-6">
+    <div className="relative flex min-h-screen bg-background [background-image:none] print:bg-white print:text-black">
+      <div className="print:hidden">
+        <IconRail scope={scope} />
+      </div>
+      <div className="flex-1 min-w-0 pb-20 md:pb-0 md:pl-[72px] bg-background print:pb-0 print:pl-0 print:bg-white">
+        <header className="sticky top-0 z-40 border-b border-border/60 bg-background/70 p-4 backdrop-blur-md supports-[backdrop-filter]:bg-background/60 md:p-6 print:static print:border-black/20 print:bg-white print:backdrop-blur-0">
           <div className="mx-auto max-w-6xl">
             <div className="mb-2 flex items-center gap-3">
               <button
                 onClick={backToAluno}
-                className="p-1 text-fg-muted hover:text-foreground"
+                className="p-1 text-fg-muted hover:text-foreground print:hidden"
                 aria-label="Voltar"
               >
                 <ArrowLeft className="h-5 w-5" />
@@ -129,13 +131,13 @@ export function TreinoPlanoPage({ scope }: { scope: Scope }) {
                     {data?.plano?.name ?? (isLoading ? "Carregando…" : "Plano de Treino")}
                   </h1>
                   {data?.plano?.isActive ? (
-                    <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-green-500/30 bg-green-500/15 px-2 py-0.5 text-xs font-semibold text-green-400">
+                    <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-green-500/30 bg-green-500/15 px-2 py-0.5 text-xs font-semibold text-green-400 print:hidden">
                       Ativo
                     </span>
                   ) : null}
                 </div>
                 {data?.aluno ? (
-                  <p className="mt-0.5 text-xs text-fg-muted">Aluno: {data.aluno.full_name}</p>
+                  <p className="mt-0.5 text-xs text-fg-muted print:text-black">Aluno: {data.aluno.full_name}</p>
                 ) : null}
               </div>
             </div>
@@ -143,7 +145,7 @@ export function TreinoPlanoPage({ scope }: { scope: Scope }) {
         </header>
 
         <main className="p-4 md:p-6">
-          <div className="mx-auto max-w-6xl space-y-6 lg:grid lg:grid-cols-3 lg:gap-6 lg:space-y-0">
+          <div className="mx-auto max-w-6xl space-y-6 lg:grid lg:grid-cols-3 lg:gap-6 lg:space-y-0 print:block">
             <div className="space-y-6 lg:col-span-2">
               {isLoading ? (
                 <div className="rounded-xl border border-border bg-surface-1 p-8 text-center text-sm text-fg-muted">
@@ -165,19 +167,25 @@ export function TreinoPlanoPage({ scope }: { scope: Scope }) {
               )}
             </div>
 
-            <ActionsSidebar
-              scope={scope}
-              alunoId={alunoId}
-              templateId={templateId}
-              planoName={data?.plano?.name ?? "este plano"}
-              onDeleted={backToAluno}
-              onArchived={backToAluno}
-            />
+            <div className="print:hidden">
+              <ActionsSidebar
+                scope={scope}
+                alunoId={alunoId}
+                templateId={templateId}
+                templateSlug={templateSlug}
+                planoName={data?.plano?.name ?? "este plano"}
+                onDeleted={backToAluno}
+                onArchived={backToAluno}
+              />
+            </div>
           </div>
         </main>
       </div>
-      <MobileBottomNav scope={scope} />
+      <div className="print:hidden">
+        <MobileBottomNav scope={scope} />
+      </div>
     </div>
+
   );
 }
 
