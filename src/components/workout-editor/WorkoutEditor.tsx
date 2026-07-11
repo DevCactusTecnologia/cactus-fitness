@@ -1342,7 +1342,44 @@ function ExerciseDetailSheet({
                   });
                 };
                 return (
-                  <div key={i} className="grid grid-cols-[150px_64px_minmax(48px,1fr)_100px_80px_32px] items-center gap-2 py-1">
+                  <div
+                    key={i}
+                    draggable
+                    onDragStart={(e) => {
+                      setDragSetIdx(i);
+                      e.dataTransfer.effectAllowed = "move";
+                    }}
+                    onDragOver={(e) => {
+                      e.preventDefault();
+                      e.dataTransfer.dropEffect = "move";
+                      if (dragOverSetIdx !== i) setDragOverSetIdx(i);
+                    }}
+                    onDragLeave={() => {
+                      if (dragOverSetIdx === i) setDragOverSetIdx(null);
+                    }}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      if (dragSetIdx !== null) reorderSet(dragSetIdx, i);
+                      setDragSetIdx(null);
+                      setDragOverSetIdx(null);
+                    }}
+                    onDragEnd={() => {
+                      setDragSetIdx(null);
+                      setDragOverSetIdx(null);
+                    }}
+                    className={`grid grid-cols-[20px_150px_64px_minmax(48px,1fr)_100px_80px_32px] items-center gap-2 rounded-lg py-1 transition-colors ${
+                      dragOverSetIdx === i && dragSetIdx !== null && dragSetIdx !== i
+                        ? "bg-primary/10 ring-1 ring-primary/40"
+                        : ""
+                    } ${dragSetIdx === i ? "opacity-50" : ""}`}
+                  >
+                    <div
+                      className="grid h-8 w-5 cursor-grab place-items-center text-muted-foreground/60 hover:text-foreground active:cursor-grabbing"
+                      aria-label="Arrastar série"
+                      title="Arrastar para reordenar"
+                    >
+                      <GripVertical className="h-4 w-4" />
+                    </div>
                     <SetTypePickerButton
                       index={i}
                       currentType={currentType}
