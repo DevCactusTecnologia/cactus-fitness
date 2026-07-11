@@ -125,7 +125,29 @@ export function buildPlano(
       return new Date(y, m - 1, day).getDay();
     }),
   );
-  const perWeek = Math.max(1, weekdaySet.size);
+  // Prefer template-configured metadata when present
+  const tplWithMeta = sorted.find(
+    (s) => s.workout_templates?.duration_weeks || s.workout_templates?.start_date,
+  )?.workout_templates;
+  const tplWeeks = tplWithMeta?.duration_weeks ?? null;
+  const tplStart = tplWithMeta?.start_date ?? null;
+
+  // sessionsCount: distinct session_position across all template exercises
+  const sessionPositions = new Set<number>();
+  for (const s of sorted) {
+    for (const ex of s.workout_templates?.workout_template_exercises ?? []) {
+      if (ex.session_position != null) sessionPositions.add(ex.session_position);
+    }
+  }
+  const templateSessionsCount = sessionPositions.size;
+  const sessionsCount = templateSessionsCount > 0 ? templateSessionsCount : sorted.length;
+
+  const finalWeeks = tplWeeks ?? weeks;
+  const finalStart = tplStart ?? start;
+  // If we know sessions per plan and total weeks, perWeek = sessions / weeks
+  const derivedPerWeek = finalWeeks > 0 ? Math.max(1, Math.round(sessionsCount / finalWeeks)) : sessionsCount;
+  const finalPerWeek = tplWeeks ? derivedPerWeek : Math.max(perWeek, derivedPerWeek);
+
   const goal =
     sorted.find((s) => s.workout_templates?.goal)?.workout_templates?.goal ??
     sorted.find((s) => s.workout_templates?.category)?.workout_templates
@@ -137,17 +159,18 @@ export function buildPlano(
     name: `Plano de ${firstName}`,
     firstName,
     sessions: sorted,
-    sessionsCount: sorted.length,
-    perWeek,
-    weeks,
-    startDate: start,
-    startShort: formatStartShort(start),
-    startNumeric: formatStartNumeric(start),
+    sessionsCount,
+    perWeek: finalPerWeek,
+    weeks: finalWeeks,
+    startDate: finalStart,
+    startShort: formatStartShort(finalStart),
+    startNumeric: formatStartNumeric(finalStart),
     goal,
     isActive,
     isSimple: true,
   };
 }
+
 
 export function buildPlanos(
   aluno: { id: string; full_name: string },
