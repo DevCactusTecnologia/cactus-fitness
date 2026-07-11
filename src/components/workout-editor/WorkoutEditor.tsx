@@ -1862,24 +1862,24 @@ function ExerciseRow({
         >
           <GripVertical className="h-4 w-4" />
         </button>
-        <span className="relative grid h-8 w-8 shrink-0 place-items-center overflow-hidden rounded-md bg-muted">
-          <span className="grid h-4 w-4 place-items-center rounded-full bg-primary shadow-sm">
+        <span className="relative grid h-7 w-7 shrink-0 place-items-center overflow-hidden rounded-md bg-muted">
+          <span className="grid h-3.5 w-3.5 place-items-center rounded-full bg-primary shadow-sm">
             <Play className="ml-px h-2 w-2 fill-primary-foreground text-primary-foreground" />
           </span>
         </span>
         <div className="min-w-0 flex-1">
-          <div className="line-clamp-2 break-words text-sm font-medium leading-snug text-foreground" title={item.name}>
+          <div className="line-clamp-2 break-words text-[13px] font-medium leading-snug text-foreground" title={item.name}>
             {item.name}
           </div>
-          <div className="text-[11px] text-muted-foreground">{summary}</div>
+          <div className="text-[10px] text-muted-foreground">{summary}</div>
         </div>
         <div onClick={(e) => e.stopPropagation()}>
           <button
             onClick={onRemove}
-            className="grid h-8 w-8 shrink-0 place-items-center rounded-md bg-muted text-muted-foreground/60 transition-colors hover:bg-destructive/10 hover:text-destructive"
+            className="grid h-7 w-7 shrink-0 place-items-center rounded-md text-muted-foreground/60 transition-colors hover:bg-destructive/10 hover:text-destructive"
             aria-label="Remover exercício"
           >
-            <X className="h-4 w-4" />
+            <X className="h-3.5 w-3.5" />
           </button>
         </div>
       </div>
