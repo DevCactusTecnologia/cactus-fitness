@@ -1928,13 +1928,83 @@ function BlockCard({
 }
 
 
+function SortableExerciseList({
+  exercises,
+  onReorder,
+  renderRow,
+}: {
+  exercises: ExerciseItem[];
+  onReorder: (orderedIds: string[]) => void;
+  renderRow: (e: ExerciseItem, ei: number) => React.ReactNode;
+}) {
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates }),
+  );
+  const ids = exercises.map((e) => e.id);
+  return (
+    <DndContext
+      sensors={sensors}
+      collisionDetection={closestCenter}
+      onDragEnd={(event: DragEndEvent) => {
+        const { active, over } = event;
+        if (!over || active.id === over.id) return;
+        const oldIndex = ids.indexOf(String(active.id));
+        const newIndex = ids.indexOf(String(over.id));
+        if (oldIndex < 0 || newIndex < 0) return;
+        onReorder(arrayMove(ids, oldIndex, newIndex));
+      }}
+    >
+      <SortableContext items={ids} strategy={verticalListSortingStrategy}>
+        {exercises.map((e, ei) => renderRow(e, ei))}
+      </SortableContext>
+    </DndContext>
+  );
+}
+
+function SortableExerciseRow(props: {
+  id: string;
+  item: ExerciseItem;
+  index: number;
+  total: number;
+  onChange: (patch: Partial<ExerciseItem>) => void;
+  onRemove: () => void;
+  onUp: () => void;
+  onDown: () => void;
+}) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: props.id });
+  const style: React.CSSProperties = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.6 : 1,
+    zIndex: isDragging ? 10 : undefined,
+  };
+  return (
+    <ExerciseRow
+      item={props.item}
+      index={props.index}
+      total={props.total}
+      onChange={props.onChange}
+      onRemove={props.onRemove}
+      onUp={props.onUp}
+      onDown={props.onDown}
+      dragRef={setNodeRef}
+      dragStyle={style}
+      dragHandleProps={{ ...attributes, ...listeners }}
+    />
+  );
+}
+
 function ExerciseRow({
-  item, index, total, onChange, onRemove, onUp, onDown,
+  item, index, total, onChange, onRemove, onUp, onDown, dragRef, dragStyle, dragHandleProps,
 }: {
   item: ExerciseItem; index: number; total: number;
   onChange: (patch: Partial<ExerciseItem>) => void;
   onRemove: () => void;
   onUp: () => void; onDown: () => void;
+  dragRef?: (node: HTMLElement | null) => void;
+  dragStyle?: React.CSSProperties;
+  dragHandleProps?: Record<string, unknown>;
 }) {
   const [open, setOpen] = useState(false);
   const reps = (item.reps ?? "").toString().trim();
