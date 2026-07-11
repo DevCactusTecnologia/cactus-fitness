@@ -648,8 +648,10 @@ export type Database = {
         Row: {
           completed_at: string
           created_at: string
+          duration_seconds: number | null
           exercise_id: number | null
           id: string
+          is_extra: boolean
           load: number | null
           notes: string | null
           reps: number | null
@@ -657,13 +659,16 @@ export type Database = {
           rpe: number | null
           session_id: string
           set_index: number
+          started_at: string | null
           template_exercise_id: string | null
         }
         Insert: {
           completed_at?: string
           created_at?: string
+          duration_seconds?: number | null
           exercise_id?: number | null
           id?: string
+          is_extra?: boolean
           load?: number | null
           notes?: string | null
           reps?: number | null
@@ -671,13 +676,16 @@ export type Database = {
           rpe?: number | null
           session_id: string
           set_index: number
+          started_at?: string | null
           template_exercise_id?: string | null
         }
         Update: {
           completed_at?: string
           created_at?: string
+          duration_seconds?: number | null
           exercise_id?: number | null
           id?: string
+          is_extra?: boolean
           load?: number | null
           notes?: string | null
           reps?: number | null
@@ -685,6 +693,7 @@ export type Database = {
           rpe?: number | null
           session_id?: string
           set_index?: number
+          started_at?: string | null
           template_exercise_id?: string | null
         }
         Relationships: [
