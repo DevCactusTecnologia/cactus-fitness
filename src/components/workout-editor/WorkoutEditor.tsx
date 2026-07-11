@@ -1269,6 +1269,14 @@ function ExerciseDetailSheet({
                 const perReps = item.reps_by_set?.[i] ?? item.reps;
                 const perRest = item.rest_by_set?.[i] ?? (item.rest_seconds ?? 60);
                 const perLoad = item.load_by_set?.[i] ?? item.load ?? "";
+                const perCount = item.count_by_set?.[i] ?? "1";
+                const setCount = (v: string) => {
+                  const clean = v.replace(/\D/g, "");
+                  const arr = [...(item.count_by_set ?? [])];
+                  while (arr.length < setsCount) arr.push("1");
+                  arr[i] = clean;
+                  onChange({ count_by_set: arr.slice(0, setsCount) });
+                };
                 const setType = (t: SetType) => {
                   const arr = [...(item.set_types ?? [])];
                   while (arr.length < setsCount) arr.push("normal");
