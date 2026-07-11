@@ -1620,17 +1620,42 @@ function AlvoPickerButton({
           </div>
           <div className="mb-5 mt-4">
             {mode === "rep" && (
-              <div className="flex items-baseline justify-center gap-3 py-4">
-                <input
-                  type="number"
-                  inputMode="numeric"
-                  min={1}
-                  max={100}
-                  value={rep}
-                  onChange={(e) => setRep(e.target.value)}
-                  className="w-32 rounded-xl border border-border bg-surface-2 px-4 py-3 text-center font-mono text-4xl font-bold tabular-nums outline-none [appearance:textfield] focus:border-primary [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                />
-                <span className="text-base font-medium text-fg-muted">reps</span>
+              <div className="flex flex-col gap-2 py-2">
+                {reps.map((r, idx) => (
+                  <div key={idx} className="flex items-center justify-center gap-2">
+                    <input
+                      type="number"
+                      inputMode="numeric"
+                      min={1}
+                      max={100}
+                      value={r}
+                      onChange={(e) => {
+                        const next = [...reps];
+                        next[idx] = e.target.value;
+                        setReps(next);
+                      }}
+                      className="w-24 rounded-xl border border-border bg-surface-2 px-3 py-2 text-center font-mono text-2xl font-bold tabular-nums outline-none [appearance:textfield] focus:border-primary [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                    />
+                    <span className="text-sm font-medium text-fg-muted">reps</span>
+                    {reps.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => setReps(reps.filter((_, i) => i !== idx))}
+                        aria-label="Remover"
+                        className="grid size-8 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                      >
+                        <Trash2 className="size-4" />
+                      </button>
+                    )}
+                  </div>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => setReps([...reps, reps[reps.length - 1] || "12"])}
+                  className="mx-auto mt-1 inline-flex items-center gap-1.5 rounded-full border border-dashed border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground transition-colors hover:border-primary hover:text-primary"
+                >
+                  <Plus className="size-3.5" /> Adicionar rep
+                </button>
               </div>
             )}
             {mode === "faixa" && (
