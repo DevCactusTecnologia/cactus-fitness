@@ -968,8 +968,9 @@ export function WorkoutEditor({
 
 
         <main className="px-3 py-4 sm:px-4 sm:py-5 md:px-8">
-          <div className="mx-auto max-w-6xl space-y-6 lg:grid lg:grid-cols-3 lg:gap-6 lg:space-y-0">
-            <div className="space-y-4 lg:col-span-2">
+          <div className="mx-auto max-w-6xl space-y-6">
+            <div className="space-y-4">
+
 
           {canStartFromTemplate && (
             <div className="mb-4 flex flex-col gap-2 rounded-xl border border-dashed border-primary/40 bg-primary/5 p-3 sm:flex-row sm:items-center sm:justify-between">
