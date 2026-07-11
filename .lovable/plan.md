@@ -1,126 +1,85 @@
-# Plano: rotas segmentadas por papel com gates de segurança
+# Modelos Prontos ↔ Plano do Aluno
 
-Objetivo: reorganizar as rotas do dashboard em três árvores (`academia`, `personal`, `aluno`) com controle de acesso em três camadas (gate de rota → server function → RLS), preservando compatibilidade com URLs atuais via redirects.
+Regra confirmada:
+- **Modelo Pronto** (`workout_templates.kind='template'`, `aluno_id=NULL`): biblioteca global da academia, reutilizável.
+- **Plano do Aluno** (`workout_templates.kind='plan'`, `aluno_id=<uuid>`): exclusivo do aluno. Cópia limpa — sem vínculo com o modelo original. Editar o modelo NÃO afeta planos já criados, e vice-versa.
 
-## 1. Backend — fundação de RBAC
+## 1. Server functions novas (`src/lib/workout-templates.functions.ts`)
 
-### 1.1 Enum `app_role` (verificar/estender)
-Garantir valores: `owner`, `personal`, `staff`, `aluno`. Se `aluno` não existir, adicionar via migration `ALTER TYPE`.
+Todas com `requireSupabaseAuth` + validação Zod.
 
-### 1.2 Popular `user_roles`
-- Trigger que, ao inserir em `organization_members` com role `owner|personal|staff`, replica em `user_roles` para o mesmo `app_role`.
-- Trigger que, ao inserir/aceitar convite de aluno (tabela `alunos.user_id`), insere `('aluno')` em `user_roles`.
-- Backfill único no momento da migration para os registros existentes.
+### `duplicateTemplateAsPlan({ sourceSlug, alunoId, name? })`
+- Lê modelo origem (kind=template) + todos os `workout_template_exercises`.
+- Cria novo `workout_templates` com `kind='plan'`, `aluno_id=alunoId`, `personal_id=auth.uid()`, `organization_id=current_user_org_id()`, `name=name ?? "<nome do modelo>"`, copia demais campos (level, goal, category, duration_weeks, allow_rpe, allow_add_sets, track_set_time, allow_pdf, periodize).
+- Copia todos os exercícios (preservando session_position/block_position/position/labels/per_set/…).
+- Retorna `{ slug, id }` do novo plano.
 
-### 1.3 Função `current_user_primary_role()`
-`SECURITY DEFINER`, retorna o papel principal do usuário logado com prioridade `owner > staff > personal > aluno`. Usada pelo `/dashboard` para decidir redirect inicial.
+### `saveAsTemplate({ sourceSlug })`
+- Lê plano origem (kind=plan, do aluno).
+- Cria `workout_templates` novo com `kind='template'`, `aluno_id=NULL`, mesmo `organization_id`/`personal_id`, `name="<nome> (modelo)"` (usuário edita depois).
+- Copia exercícios idem.
+- Retorna `{ slug }` do modelo.
 
-## 2. Nova estrutura de rotas
+Sem vínculo persistido (rastreabilidade = "cópia limpa").
+
+## 2. Fluxo A — a partir do editor "Criar plano"
+
+Rota `/dashboard/{scope}/treinos/novo-plano?alunoId=...`.
+
+No `WorkoutEditor` (kind=plan, sem `editSlug`, com estado vazio), adicionar acima do input de nome um bloco:
 
 ```
-src/routes/_authenticated/
-  route.tsx                                    (já existe — gate de sessão)
-  index.tsx                                    → redireciona por papel
-
-  _academia/route.tsx                          gate: has_role owner|staff
-  _academia/dashboard.academia.index.tsx       → /dashboard/academia
-  _academia/dashboard.academia.alunos.index.tsx
-  _academia/dashboard.academia.alunos.$alunoId.tsx
-  _academia/dashboard.academia.personais.index.tsx
-  _academia/dashboard.academia.treinos.index.tsx
-  _academia/dashboard.academia.treinos.plano.$planoId.tsx
-  _academia/dashboard.academia.exercicios.tsx
-  _academia/dashboard.academia.avaliacoes.index.tsx
-  _academia/dashboard.academia.desafios.tsx
-  _academia/dashboard.academia.financeiro.tsx
-  _academia/dashboard.academia.configuracoes.tsx  (ex-"academia")
-
-  _personal/route.tsx                          gate: has_role personal|owner
-  _personal/dashboard.personal.index.tsx
-  _personal/dashboard.personal.alunos.index.tsx
-  _personal/dashboard.personal.alunos.$alunoId.tsx
-  _personal/dashboard.personal.treinos.*        (portar arquivos atuais)
-  _personal/dashboard.personal.exercicios.tsx
-  _personal/dashboard.personal.avaliacoes.*
-  _personal/dashboard.personal.desafios.tsx
-  _personal/dashboard.personal.financeiro.tsx
-
-  _aluno/route.tsx                             gate: has_role aluno
-  _aluno/dashboard.aluno.index.tsx
-  _aluno/dashboard.aluno.meu-plano.tsx
-  _aluno/dashboard.aluno.treinos.index.tsx
-  _aluno/dashboard.aluno.treinos.$planoId.tsx
-  _aluno/dashboard.aluno.avaliacoes.tsx
-  _aluno/dashboard.aluno.desafios.tsx
-
-  dashboard.perfil.tsx                         compartilhado
+┌───────────────────────────────────────────────┐
+│  Como você quer começar?                       │
+│  [ Começar do zero ] [ Partir de um modelo ▾ ] │
+└───────────────────────────────────────────────┘
 ```
 
-Convenção: sem acento, kebab-case. Todo `$param` (IDs) é validado no `beforeLoad` via server fn que checa se pertence ao escopo do usuário — devolve `notFound()` senão.
+Clicando "Partir de um modelo" abre um `Dialog` com lista de modelos (query `workout_templates where kind='template' and organization_id = ...`). Ao selecionar:
+1. Chama `duplicateTemplateAsPlan({ sourceSlug, alunoId })`.
+2. `navigate` para `/dashboard/{scope}/treinos/editar/<novo-slug>` — o editor recarrega já com tudo preenchido, o personal ajusta e salva normal.
 
-## 3. Gates por camada (defense in depth)
+O bloco some quando o editor já tem conteúdo (evita confusão).
 
-**Camada 1 — rota (`_academia/route.tsx` etc.):**
-```tsx
-beforeLoad: async ({ context, location }) => {
-  const roles = await getMyRoles(); // server fn com requireSupabaseAuth
-  if (!roles.some(r => ['owner','staff'].includes(r)))
-    throw redirect({ to: '/dashboard', search: { forbidden: 1 }});
-  return { activeRole: 'academia' };
-}
-```
+## 3. Fluxo B — a partir da página do modelo
 
-**Camada 2 — server functions:** toda mutation/query sensível chama `has_role(auth.uid(), 'x')` antes de operar, mesmo estando atrás do gate.
+`TreinoModeloPage` ganha botão **"Usar este modelo"** no header.
+Abre `Dialog` com:
+- Combo/busca de alunos da organização.
+- Campo opcional "Nome do plano" (default = nome do modelo).
+- Botão "Criar plano".
 
-**Camada 3 — RLS:** policies existentes continuam scoping por `organization_id` + `auth.uid()`. Nenhuma policy nova depende da rota.
+Ao confirmar: chama `duplicateTemplateAsPlan`, `navigate` para o editor do novo plano.
 
-## 4. Redirects de compatibilidade (1–2 releases)
+## 4. Fluxo inverso — "Salvar como modelo"
 
-Manter arquivos antigos (`dashboard.personal.alunos.index.tsx`, etc.) apenas com:
-```tsx
-beforeLoad: () => { throw redirect({ to: '/dashboard/personal/alunos', replace: true }); }
-```
-Após métricas confirmarem tráfego ≈0 nas rotas antigas (via analytics), remover.
+No `WorkoutEditor` quando `kind='plan'` e o plano já foi salvo (tem slug), adicionar item no menu de ações (`…`) do header:
+**"Salvar como modelo"** → chama `saveAsTemplate`, mostra toast "Modelo criado" com link "Ver modelo" que navega para `/dashboard/{scope}/treinos/modelo/<slug>`.
 
-## 5. Home `/dashboard` inteligente
+Bloqueado (com tooltip explicativo) se o plano ainda não foi salvo/tem alterações pendentes.
 
-`_authenticated/index.tsx` chama `current_user_primary_role()` no `beforeLoad` e redireciona:
-- `owner|staff` → `/dashboard/academia`
-- `personal` → `/dashboard/personal`
-- `aluno` → `/dashboard/aluno`
+## 5. Ajustes de UI menores
 
-## 6. UI shell por papel
+- Em `TreinosPage`, a aba "Modelos" ganha subtítulo curto: "Receitas reutilizáveis. Copie um modelo ao criar o plano de um aluno."
+- Em `AlunoDetailPage`, o botão existente "Novo plano" continua igual (leva ao editor, e lá dentro o personal escolhe modelo ou zero).
 
-- `IconRail` recebe prop `scope: 'academia'|'personal'|'aluno'` (lido via `Route.useRouteContext().activeRole` que o gate injetou) e renderiza só os itens do papel.
-- `MobileBottomNav` idem.
-- Componentes de lista (Alunos, Treinos, Financeiro) extraídos para `src/components/domain/` e reutilizados entre árvores com props de escopo — sem duplicação de lógica.
+## 6. Segurança
 
-## 7. Segurança e escala — invariantes
+- Cópia sempre respeita `organization_id` do usuário logado (via RLS + `current_user_org_id()`).
+- `duplicateTemplateAsPlan` valida que o `alunoId` pertence à mesma org (`alunos.organization_id = current_user_org_id()`).
+- `saveAsTemplate` só permitido quando o plano origem pertence à org do usuário (RLS já cobre, mas validamos explicitamente).
+- Nenhuma nova coluna, nenhuma migration — a estrutura atual já modela tudo (`kind` + `aluno_id` nullable).
 
-- IDs em URL: migrar `alunos.id`, `workout_templates.id` para `uuid` (já são) ou slugs opacos onde faltar. Nunca sequenciais.
-- Todo server fn de escrita: `requireSupabaseAuth` + `has_role` check + input validado com Zod.
-- Todo `$param` validado (existe + pertence ao tenant) no `beforeLoad`.
-- Log estruturado com `activeRole` + `organization_id` em cada server fn — pronto para agrupamento por papel em observabilidade.
-- Rate-limit por papel nas rotas mais quentes (financeiro, avaliações) via middleware de server fn — a implementar quando escalar.
+## 7. Fora de escopo (fica pra próxima iteração)
 
-## 8. Ordem de execução
+- Modelos privados por personal (hoje = globais da academia, mantido).
+- Rastrear "baseado em" (cópia limpa por decisão do usuário).
+- Sincronizar mudanças do modelo com planos derivados (proposital: são independentes).
 
-1. Migration: enum `aluno` em `app_role` + triggers `user_roles` + backfill + `current_user_primary_role()`.
-2. Server fns compartilhadas: `getMyRoles`, `getPrimaryRole`, validators de escopo por `$param`.
-3. Criar os três layouts gate (`_academia`, `_personal`, `_aluno`) — cada um só com `route.tsx` + um `index.tsx` mínimo.
-4. Portar árvore `personal` primeiro (é a maior; já existe). Renomear arquivos, ajustar `createFileRoute` paths, mover para `_personal/`.
-5. Portar árvore `academia` (novos arquivos, reusando componentes de `personal`).
-6. Portar árvore `aluno` (a partir de `meu-treino.tsx` atual).
-7. Redirects em cada arquivo antigo.
-8. Atualizar `IconRail` e `MobileBottomNav` para escopo por papel.
-9. Home `/dashboard` com redirect por papel.
-10. Verificação end-to-end com Playwright em cada papel: login → home → todas as rotas do escopo respondem 200, rotas de outro escopo respondem redirect.
+## Ordem de execução
 
-## Fora de escopo desta iteração
-
-- Feature flags por tenant.
-- Multi-organization switcher na topbar (usuário owner de várias academias).
-- Rate limiting em produção.
-- Auditoria/audit log em tabela dedicada.
-
-Todos previstos para iterações subsequentes, sem impactar a estrutura de rotas acima.
+1. `src/lib/workout-templates.functions.ts` com as duas server fns.
+2. `WorkoutEditor`: bloco "Começar do zero / Partir de um modelo" no topo quando plano vazio; item "Salvar como modelo" no menu quando plano salvo.
+3. `TreinoModeloPage`: botão "Usar este modelo" + dialog de escolha de aluno.
+4. Copy pequeno na `TreinosPage`.
+5. Verificar build + smoke test via Playwright dos dois caminhos.
