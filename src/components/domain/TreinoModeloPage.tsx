@@ -755,16 +755,35 @@ function ActionsSidebar({
   onEdit,
   onDuplicate,
   onDelete,
+  onUseAsPlan,
   duplicating,
   disabled,
 }: {
   onEdit: () => void;
   onDuplicate: () => void;
   onDelete: () => void;
+  onUseAsPlan?: () => void;
   duplicating: boolean;
   disabled: boolean;
 }) {
-  const actions = [
+  const actions: Array<{
+    icon: any;
+    label: string;
+    onClick: () => void;
+    loading: boolean;
+    primary?: true;
+    destructive?: true;
+  }> = [];
+  if (onUseAsPlan) {
+    actions.push({
+      icon: Send,
+      label: "Usar este modelo",
+      onClick: onUseAsPlan,
+      loading: false,
+      primary: true,
+    });
+  }
+  actions.push(
     { icon: Pencil, label: "Editar", onClick: onEdit, loading: false },
     {
       icon: duplicating ? Loader2 : Copy,
@@ -777,9 +796,9 @@ function ActionsSidebar({
       label: "Excluir",
       onClick: onDelete,
       loading: false,
-      destructive: true as const,
+      destructive: true,
     },
-  ];
+  );
 
   return (
     <aside className="lg:sticky lg:top-24 lg:self-start">
