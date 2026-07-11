@@ -60,6 +60,7 @@ type ExerciseItem = {
   reps_by_set?: string[];
   rest_by_set?: number[];
   load_by_set?: string[];
+  count_by_set?: string[];
 };
 
 
@@ -349,6 +350,7 @@ export function WorkoutEditor({
             reps_by_set: Array.isArray(ps?.reps) ? ps!.reps : undefined,
             rest_by_set: Array.isArray(ps?.rest) ? ps!.rest : undefined,
             load_by_set: Array.isArray(ps?.load) ? ps!.load : undefined,
+            count_by_set: Array.isArray((ps as any)?.counts) ? (ps as any).counts : undefined,
           });
           if (e.session_label) sessionLabels.set(sPos, e.session_label);
         }
@@ -493,11 +495,13 @@ export function WorkoutEditor({
               reps?: string[];
               rest?: number[];
               load?: string[];
+              counts?: string[];
             } = {};
             if (Array.isArray(e.set_types) && e.set_types.length > 0) perSet.types = e.set_types;
             if (Array.isArray(e.reps_by_set) && e.reps_by_set.length > 0) perSet.reps = e.reps_by_set;
             if (Array.isArray(e.rest_by_set) && e.rest_by_set.length > 0) perSet.rest = e.rest_by_set;
             if (Array.isArray(e.load_by_set) && e.load_by_set.length > 0) perSet.load = e.load_by_set;
+            if (Array.isArray(e.count_by_set) && e.count_by_set.length > 0) perSet.counts = e.count_by_set;
             rows.push({
               template_id: workingTemplateId!,
               exercise_id: e.exercise_id,
@@ -1251,7 +1255,7 @@ function ExerciseDetailSheet({
             <h4 className="px-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Configuração de cada série</h4>
             <div className="-mx-1 overflow-x-auto px-1">
               <div className="min-w-[520px] space-y-1">
-                <div className="grid grid-cols-[150px_48px_minmax(56px,1fr)_100px_80px_32px] gap-2 px-1 pb-0.5">
+                <div className="grid grid-cols-[150px_64px_minmax(48px,1fr)_100px_80px_32px] gap-2 px-1 pb-0.5">
               <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Tipo</span>
               <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground text-center">Série</span>
               <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Alvo</span>
@@ -1265,6 +1269,14 @@ function ExerciseDetailSheet({
                 const perReps = item.reps_by_set?.[i] ?? item.reps;
                 const perRest = item.rest_by_set?.[i] ?? (item.rest_seconds ?? 60);
                 const perLoad = item.load_by_set?.[i] ?? item.load ?? "";
+                const perCount = item.count_by_set?.[i] ?? "1";
+                const setCount = (v: string) => {
+                  const clean = v.replace(/\D/g, "");
+                  const arr = [...(item.count_by_set ?? [])];
+                  while (arr.length < setsCount) arr.push("1");
+                  arr[i] = clean;
+                  onChange({ count_by_set: arr.slice(0, setsCount) });
+                };
                 const setType = (t: SetType) => {
                   const arr = [...(item.set_types ?? [])];
                   while (arr.length < setsCount) arr.push("normal");
@@ -1294,29 +1306,38 @@ function ExerciseDetailSheet({
                   const reps = [...(item.reps_by_set ?? [])];
                   const rests = [...(item.rest_by_set ?? [])];
                   const loads = [...(item.load_by_set ?? [])];
+                  const counts = [...(item.count_by_set ?? [])];
                   types.splice(i, 1);
                   reps.splice(i, 1);
                   rests.splice(i, 1);
                   loads.splice(i, 1);
+                  counts.splice(i, 1);
                   onChange({
                     sets: Math.max(0, (item.sets ?? 0) - 1),
                     set_types: types,
                     reps_by_set: reps,
                     rest_by_set: rests,
                     load_by_set: loads,
+                    count_by_set: counts,
                   });
                 };
                 return (
-                  <div key={i} className="grid grid-cols-[150px_48px_minmax(56px,1fr)_100px_80px_32px] items-center gap-2 py-1">
+                  <div key={i} className="grid grid-cols-[150px_64px_minmax(48px,1fr)_100px_80px_32px] items-center gap-2 py-1">
                     <SetTypePickerButton
                       index={i}
                       currentType={currentType}
                       onSelect={setType}
                       onRemoveSet={removeThisSet}
                     />
-                    <div className="grid h-10 w-12 place-items-center rounded-lg bg-surface-2 text-sm font-semibold tabular-nums text-foreground">
-                      {i + 1}
-                    </div>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      value={perCount}
+                      onChange={(e) => setCount(e.target.value)}
+                      aria-label={`Número da série ${i + 1}`}
+                      className="h-10 w-full rounded-lg bg-surface-2 px-2 text-center text-sm font-semibold tabular-nums text-foreground caret-primary focus:outline-none focus:ring-2 focus:ring-primary/40"
+                    />
                     <AlvoPickerButton
                       index={i}
                       value={perReps}
