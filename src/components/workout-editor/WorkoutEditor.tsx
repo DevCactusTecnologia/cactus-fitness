@@ -842,6 +842,43 @@ export function WorkoutEditor({
         </main>
       </div>
       <MobileBottomNav />
+
+      <AlertDialog open={leaveOpen} onOpenChange={setLeaveOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Sair sem salvar?</AlertDialogTitle>
+            <AlertDialogDescription>
+              {state.name.trim().length === 0
+                ? `Você ainda não nomeou o ${kind === "plan" ? "plano" : "modelo"} — sem um nome, ele não pode ser salvo. Adicione um nome agora pra preservar o trabalho ou descarte tudo.`
+                : `Você tem alterações não salvas. Se sair agora, o trabalho será perdido.`}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <button
+              type="button"
+              onClick={() => {
+                setLeaveOpen(false);
+                navigate({ to: backHref });
+              }}
+              className="inline-flex h-10 items-center justify-center rounded-full bg-destructive px-5 text-sm font-semibold text-destructive-foreground shadow-[0_0_20px_-4px_hsl(var(--destructive)/0.6)] hover:bg-destructive/90"
+            >
+              {kind === "plan" ? "Descartar plano" : "Descartar modelo"}
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                setLeaveOpen(false);
+                if (state.name.trim().length === 0) {
+                  setTimeout(() => nameInputRef.current?.focus(), 50);
+                }
+              }}
+              className="inline-flex h-10 items-center justify-center rounded-full border border-border bg-card px-5 text-sm font-semibold text-foreground hover:bg-muted"
+            >
+              {state.name.trim().length === 0 ? "Adicionar nome agora" : "Continuar editando"}
+            </button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
