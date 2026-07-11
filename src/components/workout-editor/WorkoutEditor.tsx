@@ -987,9 +987,201 @@ export function WorkoutEditor({
             </>
           )}
 
+          {/* Metadata toolbar (chips) */}
+          {kind === "plan" && (
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              {/* Duração em semanas */}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button
+                    disabled={loadingEdit}
+                    className="inline-flex h-8 items-center gap-1.5 rounded-full border border-border/70 bg-card/60 px-3 text-xs font-medium text-foreground hover:bg-muted"
+                  >
+                    <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+                    {state.duration_weeks
+                      ? `${state.duration_weeks} ${state.duration_weeks === 1 ? "semana" : "semanas"}`
+                      : "Definir duração"}
+                    <Pencil className="h-3 w-3 text-muted-foreground/70" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent align="start" className="w-56 space-y-3 p-3">
+                  <div>
+                    <Label className="text-xs">Duração (semanas)</Label>
+                    <Input
+                      type="number"
+                      min={1}
+                      max={52}
+                      value={state.duration_weeks ?? ""}
+                      onChange={(e) => {
+                        const raw = e.target.value;
+                        const n = raw === "" ? null : Math.max(1, Math.min(52, parseInt(raw, 10) || 1));
+                        dispatch({ type: "SET_META", patch: { duration_weeks: n } });
+                      }}
+                      className="mt-1 h-9"
+                    />
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {[2, 4, 6, 8, 12].map((n) => (
+                      <button
+                        key={n}
+                        onClick={() => dispatch({ type: "SET_META", patch: { duration_weeks: n } })}
+                        className={`h-7 rounded-full border px-2.5 text-xs ${
+                          state.duration_weeks === n
+                            ? "border-primary bg-primary/10 text-primary"
+                            : "border-border text-muted-foreground hover:bg-muted"
+                        }`}
+                      >
+                        {n}
+                      </button>
+                    ))}
+                  </div>
+                  {state.duration_weeks !== null && (
+                    <button
+                      onClick={() => dispatch({ type: "SET_META", patch: { duration_weeks: null } })}
+                      className="text-xs text-muted-foreground hover:text-foreground"
+                    >
+                      Limpar
+                    </button>
+                  )}
+                </PopoverContent>
+              </Popover>
+
+              {/* Data de início */}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button
+                    disabled={loadingEdit}
+                    className="inline-flex h-8 items-center gap-1.5 rounded-full border border-border/70 bg-card/60 px-3 text-xs font-medium text-foreground hover:bg-muted"
+                  >
+                    <CalendarDays className="h-3.5 w-3.5 text-muted-foreground" />
+                    {formattedStartDate ? `Início: ${formattedStartDate}` : "Definir início"}
+                    <Pencil className="h-3 w-3 text-muted-foreground/70" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent align="start" className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={state.start_date ? new Date(`${state.start_date}T12:00:00`) : undefined}
+                    onSelect={(d) => {
+                      if (!d) return;
+                      const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+                      dispatch({ type: "SET_META", patch: { start_date: iso } });
+                    }}
+                    className="pointer-events-auto p-3"
+                  />
+                  {state.start_date && (
+                    <div className="border-t border-border p-2">
+                      <button
+                        onClick={() => dispatch({ type: "SET_META", patch: { start_date: null } })}
+                        className="w-full rounded-md px-2 py-1 text-left text-xs text-muted-foreground hover:bg-muted hover:text-foreground"
+                      >
+                        Limpar data
+                      </button>
+                    </div>
+                  )}
+                </PopoverContent>
+              </Popover>
+
+              {/* Configurações */}
+              <button
+                onClick={() => setConfigOpen(true)}
+                className="inline-flex h-8 items-center gap-1.5 rounded-full border border-border/70 bg-card/60 px-3 text-xs font-medium text-foreground hover:bg-muted"
+              >
+                <Settings className="h-3.5 w-3.5 text-muted-foreground" />
+                Configurações
+              </button>
+
+              {/* Aluno vinculado */}
+              {alunoProfileHref && planHeaderQuery.data?.alunoNome && (
+                <a
+                  href={alunoProfileHref}
+                  className="inline-flex h-8 max-w-[220px] items-center gap-1.5 rounded-full border border-border/70 bg-card/60 px-3 text-xs font-medium text-foreground hover:bg-muted"
+                  title={`Ver perfil de ${planHeaderQuery.data.alunoNome}`}
+                >
+                  <AtSign className="h-3.5 w-3.5 text-muted-foreground" />
+                  <span className="truncate">{planHeaderQuery.data.alunoNome}</span>
+                </a>
+              )}
+
+              {/* Status ATIVO / ARQUIVADO */}
+              {isEdit && alunoId && planHeaderQuery.data && (
+                planHeaderQuery.data.isActive ? (
+                  <span className="inline-flex h-8 items-center gap-1.5 rounded-full border border-[oklch(0.75_0.15_150)]/40 bg-[oklch(0.75_0.15_150)]/10 px-3 text-xs font-semibold uppercase tracking-wide text-[oklch(0.75_0.15_150)]">
+                    <CheckCircle2 className="h-3.5 w-3.5" />
+                    Ativo
+                  </span>
+                ) : (
+                  <span className="inline-flex h-8 items-center gap-1.5 rounded-full border border-border bg-muted/60 px-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    <Archive className="h-3.5 w-3.5" />
+                    Arquivado
+                  </span>
+                )
+              )}
+
+              {/* Volume do plano */}
+              {planVolume.totalSets > 0 && (
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button className="ml-auto inline-flex h-8 items-center gap-1.5 rounded-full border border-border/70 bg-card/60 px-3 text-xs font-medium text-foreground hover:bg-muted">
+                      <BarChart3 className="h-3.5 w-3.5 text-primary/80" />
+                      <span className="font-semibold">{planVolume.totalSets}</span>
+                      <span className="text-muted-foreground">séries · {planVolume.groupsCount} {planVolume.groupsCount === 1 ? "grupo" : "grupos"}</span>
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent align="end" className="w-80 p-0">
+                    <div className="border-b border-border px-4 py-3">
+                      <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                        Volume do plano
+                      </div>
+                      <div className="mt-2 flex items-baseline gap-3 text-sm">
+                        <span className="text-2xl font-bold text-foreground">{planVolume.totalSets}</span>
+                        <span className="text-xs text-muted-foreground">séries</span>
+                        <span className="text-muted-foreground/40">·</span>
+                        <span className="text-2xl font-bold text-foreground">{planVolume.groupsCount}</span>
+                        <span className="text-xs text-muted-foreground">grupamentos</span>
+                        <span className="text-muted-foreground/40">·</span>
+                        <span className="text-lg font-bold text-foreground">~{planVolume.perSession}</span>
+                        <span className="text-xs text-muted-foreground">/sessão</span>
+                      </div>
+                    </div>
+                    <div className="max-h-[300px] space-y-2 overflow-y-auto px-4 py-3">
+                      {planVolume.groups.length === 0 && (
+                        <p className="text-xs text-muted-foreground">
+                          Adicione exercícios com grupamento definido para ver o detalhamento.
+                        </p>
+                      )}
+                      {planVolume.groups.map((g) => {
+                        const pct = planVolume.totalSets > 0 ? Math.round((g.sets / planVolume.totalSets) * 100) : 0;
+                        return (
+                          <div key={g.muscle} className="space-y-1">
+                            <div className="flex items-baseline justify-between text-xs">
+                              <span className="font-medium capitalize text-foreground">{g.muscle}</span>
+                              <span className="text-muted-foreground">
+                                {pct}% <span className="ml-1 font-semibold text-foreground">{g.sets}</span>
+                              </span>
+                            </div>
+                            <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                              <div
+                                className="h-full rounded-full bg-primary"
+                                style={{ width: `${planVolume.max > 0 ? Math.max(6, Math.round((g.sets / planVolume.max) * 100)) : 0}%` }}
+                              />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <div className="border-t border-border px-4 py-2 text-[10px] text-muted-foreground">
+                      Conta apenas grupamentos <strong className="text-foreground">primários</strong> de cada exercício.
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              )}
+            </div>
+          )}
+
           {/* Periodizar chip */}
           {kind === "plan" && (
-            <div className="mt-5 border-y border-border/50 py-3">
+            <div className="mt-4 border-y border-border/50 py-3">
               <button
                 onClick={() => dispatch({ type: "SET_META", patch: { periodize: !state.periodize } })}
                 className={`inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-sm ${state.periodize ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
@@ -998,6 +1190,7 @@ export function WorkoutEditor({
               </button>
             </div>
           )}
+
 
           {/* Sessions row */}
           {kind === "plan" ? (
