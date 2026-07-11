@@ -1219,99 +1219,132 @@ function ExerciseDetailSheet({
             </div>
           )}
 
-          {/* Series config */}
+          {/* Simple exercise config */}
           <div className="space-y-2">
-            <div className="flex items-center justify-between gap-2 px-1">
-              <h4 className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Configuração de cada série</h4>
+            <h4 className="px-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Configuração do exercício</h4>
+            <div className="grid grid-cols-2 gap-2">
+              <NumberField
+                label="Séries"
+                value={item.sets ?? 0}
+                min={0}
+                max={20}
+                onChange={(n) => onChange({ sets: n })}
+              />
+              <TextField
+                label="Repetições"
+                value={item.reps}
+                onChange={(v) => onChange({ reps: v })}
+                placeholder="10"
+              />
+              <TextField
+                label="Carga"
+                value={item.load}
+                onChange={(v) => onChange({ load: v })}
+                placeholder="—"
+              />
+              <NumberField
+                label="Descanso (s)"
+                value={item.rest_seconds ?? 60}
+                min={0}
+                max={600}
+                step={5}
+                onChange={(n) => onChange({ rest_seconds: n })}
+              />
             </div>
-            <div className="grid grid-cols-[130px_minmax(0,1fr)_80px_32px] gap-2 px-1 pb-0.5">
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Tipo</span>
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Alvo</span>
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Descanso</span>
-              <span />
-            </div>
-            <div className="space-y-1">
-              {rows.map((i) => {
-                const currentType = (item.set_types?.[i] ?? "normal") as SetType;
-                const perReps = item.reps_by_set?.[i] ?? item.reps;
-                const perRest = item.rest_by_set?.[i] ?? (item.rest_seconds ?? 60);
-                const setType = (t: SetType) => {
-                  const arr = [...(item.set_types ?? [])];
-                  while (arr.length < setsCount) arr.push("normal");
-                  arr[i] = t;
-                  onChange({ set_types: arr.slice(0, setsCount) });
-                };
-                const setReps = (v: string) => {
-                  const arr = [...(item.reps_by_set ?? [])];
-                  while (arr.length < setsCount) arr.push(item.reps);
-                  arr[i] = v;
-                  onChange({ reps_by_set: arr.slice(0, setsCount) });
-                };
-                const setRest = (s: number) => {
-                  const arr = [...(item.rest_by_set ?? [])];
-                  while (arr.length < setsCount) arr.push(item.rest_seconds ?? 60);
-                  arr[i] = s;
-                  onChange({ rest_by_set: arr.slice(0, setsCount) });
-                };
-                const removeThisSet = () => {
-                  const types = [...(item.set_types ?? [])];
-                  const reps = [...(item.reps_by_set ?? [])];
-                  const rests = [...(item.rest_by_set ?? [])];
-                  types.splice(i, 1);
-                  reps.splice(i, 1);
-                  rests.splice(i, 1);
-                  onChange({
-                    sets: Math.max(0, (item.sets ?? 0) - 1),
-                    set_types: types,
-                    reps_by_set: reps,
-                    rest_by_set: rests,
-                  });
-                };
-                return (
-                  <div key={i} className="grid grid-cols-[130px_minmax(0,1fr)_80px_32px] items-center gap-2 py-1">
-                    <SetTypePickerButton
-                      index={i}
-                      currentType={currentType}
-                      onSelect={setType}
-                      onRemoveSet={removeThisSet}
-                    />
-                    <AlvoPickerButton
-                      index={i}
-                      value={perReps}
-                      onSave={setReps}
-                    />
-                    <DescansoPickerButton
-                      index={i}
-                      seconds={perRest}
-                      onSave={setRest}
-                    />
-
-                    <button
-                      type="button"
-                      onClick={removeThisSet}
-                      aria-label="Remover série"
-                      className="grid h-8 w-8 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
-                  </div>
-                );
-              })}
-
-            </div>
-
-            <button
-              type="button"
-              onClick={addSet}
-              className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-border py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
-            >
-              <Plus className="h-4 w-4" /> Adicionar série
-            </button>
           </div>
 
-          {/* Load + notes */}
+          {/* Advanced per-series config */}
+          <details className="group rounded-lg border border-border bg-surface-2/40">
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-2 px-3 py-2.5 text-[11px] font-bold uppercase tracking-wider text-muted-foreground hover:text-foreground">
+              <span>Ajustes avançados por série</span>
+              <ChevronRight className="h-3.5 w-3.5 transition-transform group-open:rotate-90" />
+            </summary>
+            <div className="space-y-2 border-t border-border px-3 py-3">
+              <div className="grid grid-cols-[130px_minmax(0,1fr)_80px_32px] gap-2 px-1 pb-0.5">
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Tipo</span>
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Alvo</span>
+                <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Descanso</span>
+                <span />
+              </div>
+              <div className="space-y-1">
+                {rows.map((i) => {
+                  const currentType = (item.set_types?.[i] ?? "normal") as SetType;
+                  const perReps = item.reps_by_set?.[i] ?? item.reps;
+                  const perRest = item.rest_by_set?.[i] ?? (item.rest_seconds ?? 60);
+                  const setType = (t: SetType) => {
+                    const arr = [...(item.set_types ?? [])];
+                    while (arr.length < setsCount) arr.push("normal");
+                    arr[i] = t;
+                    onChange({ set_types: arr.slice(0, setsCount) });
+                  };
+                  const setReps = (v: string) => {
+                    const arr = [...(item.reps_by_set ?? [])];
+                    while (arr.length < setsCount) arr.push(item.reps);
+                    arr[i] = v;
+                    onChange({ reps_by_set: arr.slice(0, setsCount) });
+                  };
+                  const setRest = (s: number) => {
+                    const arr = [...(item.rest_by_set ?? [])];
+                    while (arr.length < setsCount) arr.push(item.rest_seconds ?? 60);
+                    arr[i] = s;
+                    onChange({ rest_by_set: arr.slice(0, setsCount) });
+                  };
+                  const removeThisSet = () => {
+                    const types = [...(item.set_types ?? [])];
+                    const reps = [...(item.reps_by_set ?? [])];
+                    const rests = [...(item.rest_by_set ?? [])];
+                    types.splice(i, 1);
+                    reps.splice(i, 1);
+                    rests.splice(i, 1);
+                    onChange({
+                      sets: Math.max(0, (item.sets ?? 0) - 1),
+                      set_types: types,
+                      reps_by_set: reps,
+                      rest_by_set: rests,
+                    });
+                  };
+                  return (
+                    <div key={i} className="grid grid-cols-[130px_minmax(0,1fr)_80px_32px] items-center gap-2 py-1">
+                      <SetTypePickerButton
+                        index={i}
+                        currentType={currentType}
+                        onSelect={setType}
+                        onRemoveSet={removeThisSet}
+                      />
+                      <AlvoPickerButton
+                        index={i}
+                        value={perReps}
+                        onSave={setReps}
+                      />
+                      <DescansoPickerButton
+                        index={i}
+                        seconds={perRest}
+                        onSave={setRest}
+                      />
+                      <button
+                        type="button"
+                        onClick={removeThisSet}
+                        aria-label="Remover série"
+                        className="grid h-8 w-8 place-items-center rounded-lg text-muted-foreground transition-colors hover:bg-destructive/10 hover:text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+              <button
+                type="button"
+                onClick={addSet}
+                className="flex w-full items-center justify-center gap-2 rounded-lg border border-dashed border-border py-2.5 text-sm font-medium text-muted-foreground transition-colors hover:border-primary/40 hover:text-foreground"
+              >
+                <Plus className="h-4 w-4" /> Adicionar série
+              </button>
+            </div>
+          </details>
+
+          {/* Notes */}
           <div className="space-y-2">
-            <TextField label="Carga" value={item.load} onChange={(v) => onChange({ load: v })} placeholder="—" />
             <label className="flex flex-col gap-1 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
               Observações
               <Textarea
