@@ -2910,7 +2910,7 @@ function ExercisePicker({
   });
 
   const filtered = useMemo(() => {
-    const s = q.trim().toLowerCase();
+    const s = deferredQ.trim().toLowerCase();
     return catalog.filter((e) => {
       if (s && !(e.name.toLowerCase().includes(s) || (e.group ?? "").toLowerCase().includes(s))) return false;
       if (difficultyFilter) {
