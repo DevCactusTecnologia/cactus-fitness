@@ -611,10 +611,11 @@ export function WorkoutEditor({
       }
       toast.success(isEdit ? "Modelo atualizado" : alunoId ? "Plano criado para o aluno" : "Modelo salvo");
       if (!opts.skipNavigate) {
-        if (alunoId && !isEdit) {
-          navigate({ to: "/dashboard/personal/alunos/$alunoId", params: { alunoId } });
+        const alunoBase = scope === "academia" ? "/dashboard/academia/alunos/$alunoId" : "/dashboard/personal/alunos/$alunoId";
+        if (alunoId) {
+          navigate({ to: alunoBase, params: { alunoId } });
         } else {
-          navigate({ to: "/dashboard/personal/treinos" });
+          navigate({ to: scopeBase });
         }
       }
       return true;
