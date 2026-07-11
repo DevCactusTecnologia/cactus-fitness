@@ -5,6 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   ChevronDown, ChevronUp, Copy, GripVertical, Loader2, MoreHorizontal, CheckSquare,
   Play, Plus, Save, Search, Settings, Trash2, X, Dumbbell, Pencil, Check, Filter, ChevronLeft, ChevronRight, Clock, BarChart3, Hash, AlertCircle, AlertTriangle, Info, Sparkles, FileText, LayoutTemplate,
+  CalendarDays, AtSign, CheckCircle2, Archive,
 } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -27,6 +28,7 @@ import {
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Calendar } from "@/components/ui/calendar";
 import { IconRail } from "@/components/IconRail";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 
@@ -72,6 +74,7 @@ type ExerciseItem = {
   rest_by_set?: number[];
   load_by_set?: string[];
   count_by_set?: string[];
+  muscles_primary?: string[];
 };
 
 
@@ -115,6 +118,8 @@ type State = {
   level: string;
   goal: string;
   periodize: boolean;
+  duration_weeks: number | null;
+  start_date: string | null; // ISO YYYY-MM-DD
   sessions: Session[]; // for template kind, always exactly one session
 };
 
@@ -153,7 +158,7 @@ type Action =
   | { type: "REMOVE_BLOCK"; sessionId: string; blockId: string }
   | { type: "MOVE_BLOCK"; sessionId: string; blockId: string; dir: -1 | 1 }
   | { type: "RENAME_BLOCK"; sessionId: string; blockId: string; label: string }
-  | { type: "ADD_EXERCISE"; sessionId: string; blockId: string; exercise: { id: number | null; name: string } }
+  | { type: "ADD_EXERCISE"; sessionId: string; blockId: string; exercise: { id: number | null; name: string; muscles_primary?: string[] } }
   | { type: "REMOVE_EXERCISE"; sessionId: string; blockId: string; exerciseId: string }
   | { type: "MOVE_EXERCISE"; sessionId: string; blockId: string; exerciseId: string; dir: -1 | 1 }
   | { type: "UPDATE_EXERCISE"; sessionId: string; blockId: string; exerciseId: string; patch: Partial<ExerciseItem> };
@@ -246,6 +251,7 @@ function reducer(state: State, action: Action): State {
                       exercise_id: action.exercise.id,
                       name: action.exercise.name,
                       sets: 3, reps: "10", rest_seconds: 60, load: "", notes: "",
+                      muscles_primary: action.exercise.muscles_primary,
                     }],
                   }
                 : b),
@@ -305,6 +311,8 @@ export function WorkoutEditor({
     level: "",
     goal: "",
     periodize: false,
+    duration_weeks: null,
+    start_date: null,
     sessions: kind === "plan"
       ? [emptySession(0)]
       : [{ id: uid(), label: "__single__", blocks: [emptyBlock(0)] }],
@@ -362,7 +370,7 @@ export function WorkoutEditor({
         const { data: tpl, error } = await supabase
           .from("workout_templates")
           .select(
-            "id, name, description, kind, level, goal, periodize, workout_template_exercises ( id, exercise_id, sets, reps, load, rest_seconds, notes, position, block_position, session_position, block_label, session_label, per_set, exercises ( name ) )",
+            "id, name, description, kind, level, goal, periodize, duration_weeks, start_date, workout_template_exercises ( id, exercise_id, sets, reps, load, rest_seconds, notes, position, block_position, session_position, block_label, session_label, per_set, exercises ( name, muscles_primary ) )",
           )
           .eq("slug", editSlug)
           .maybeSingle();
@@ -399,6 +407,7 @@ export function WorkoutEditor({
             rest_by_set: Array.isArray(ps?.rest) ? ps!.rest : undefined,
             load_by_set: Array.isArray(ps?.load) ? ps!.load : undefined,
             count_by_set: Array.isArray((ps as any)?.counts) ? (ps as any).counts : undefined,
+            muscles_primary: Array.isArray((e as any).exercises?.muscles_primary) ? (e as any).exercises.muscles_primary : undefined,
           });
           if (e.session_label) sessionLabels.set(sPos, e.session_label);
         }
@@ -437,6 +446,8 @@ export function WorkoutEditor({
             level: tpl.level ?? "",
             goal: tpl.goal ?? "",
             periodize: Boolean(tpl.periodize),
+            duration_weeks: (tpl as any).duration_weeks ?? null,
+            start_date: (tpl as any).start_date ?? null,
           },
         });
         // Replace sessions by dispatching a full swap: use dispatch pattern below
@@ -504,7 +515,9 @@ export function WorkoutEditor({
             periodize: state.periodize,
             level: state.level || null,
             goal: state.goal || null,
-          })
+            duration_weeks: state.duration_weeks ?? null,
+            start_date: state.start_date ?? null,
+          } as never)
           .eq("id", workingTemplateId);
         if (uErr) throw uErr;
         const { error: dErr } = await supabase
@@ -522,6 +535,8 @@ export function WorkoutEditor({
             periodize: state.periodize,
             level: state.level || null,
             goal: state.goal || null,
+            duration_weeks: state.duration_weeks ?? null,
+            start_date: state.start_date ?? null,
             personal_id: userRes.user.id,
             aluno_id: alunoId ?? null,
           } as never)
@@ -693,6 +708,70 @@ export function WorkoutEditor({
   });
 
   const canSaveAsTemplate = kind === "plan" && isEdit && !isDirty;
+
+  // Header meta (nome do aluno + status do plano)
+  const planHeaderQuery = useQuery({
+    queryKey: ["plan-header", editSlug, alunoId, templateId],
+    enabled: isEdit && kind === "plan" && !!alunoId && !!templateId,
+    queryFn: async () => {
+      const [alunoRes, swRes] = await Promise.all([
+        supabase.from("alunos").select("id, full_name").eq("id", alunoId!).maybeSingle(),
+        supabase.from("student_workouts").select("archived_at").eq("template_id", templateId!),
+      ]);
+      if (alunoRes.error) throw alunoRes.error;
+      if (swRes.error) throw swRes.error;
+      const rows = swRes.data ?? [];
+      return {
+        alunoNome: alunoRes.data?.full_name ?? null,
+        isActive: rows.length === 0 ? true : rows.some((r: any) => !r.archived_at),
+        hasSessions: rows.length > 0,
+      };
+    },
+  });
+
+  // Agregados de volume do plano (soma total de séries + grupos primários)
+  const planVolume = useMemo(() => {
+    const perMuscle = new Map<string, number>();
+    let totalSets = 0;
+    for (const s of state.sessions) {
+      for (const b of s.blocks) {
+        for (const e of b.exercises) {
+          const sets = e.sets ?? 0;
+          totalSets += sets;
+          const muscles = (e.muscles_primary ?? []).filter(Boolean);
+          if (muscles.length === 0) continue;
+          for (const m of muscles) {
+            perMuscle.set(m, (perMuscle.get(m) ?? 0) + sets);
+          }
+        }
+      }
+    }
+    const groups = [...perMuscle.entries()]
+      .map(([muscle, sets]) => ({ muscle, sets }))
+      .sort((a, b) => b.sets - a.sets);
+    const sessionsCount = state.sessions.filter(
+      (s) => s.blocks.some((b) => b.exercises.length > 0),
+    ).length || 1;
+    return {
+      totalSets,
+      groupsCount: groups.length,
+      perSession: Math.round(totalSets / sessionsCount),
+      groups,
+      max: groups[0]?.sets ?? 0,
+    };
+  }, [state.sessions]);
+
+  const alunoProfileHref =
+    alunoId
+      ? scope === "academia"
+        ? `/dashboard/academia/alunos/${alunoId}`
+        : `/dashboard/personal/alunos/${alunoId}`
+      : null;
+
+  const formattedStartDate = state.start_date
+    ? new Date(`${state.start_date}T12:00:00`).toLocaleDateString("pt-BR")
+    : null;
+
 
 
   return (
@@ -909,9 +988,201 @@ export function WorkoutEditor({
             </>
           )}
 
+          {/* Metadata toolbar (chips) */}
+          {kind === "plan" && (
+            <div className="mt-4 flex flex-wrap items-center gap-2">
+              {/* Duração em semanas */}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button
+                    disabled={loadingEdit}
+                    className="inline-flex h-8 items-center gap-1.5 rounded-full border border-border/70 bg-card/60 px-3 text-xs font-medium text-foreground hover:bg-muted"
+                  >
+                    <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+                    {state.duration_weeks
+                      ? `${state.duration_weeks} ${state.duration_weeks === 1 ? "semana" : "semanas"}`
+                      : "Definir duração"}
+                    <Pencil className="h-3 w-3 text-muted-foreground/70" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent align="start" className="w-56 space-y-3 p-3">
+                  <div>
+                    <Label className="text-xs">Duração (semanas)</Label>
+                    <Input
+                      type="number"
+                      min={1}
+                      max={52}
+                      value={state.duration_weeks ?? ""}
+                      onChange={(e) => {
+                        const raw = e.target.value;
+                        const n = raw === "" ? null : Math.max(1, Math.min(52, parseInt(raw, 10) || 1));
+                        dispatch({ type: "SET_META", patch: { duration_weeks: n } });
+                      }}
+                      className="mt-1 h-9"
+                    />
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {[2, 4, 6, 8, 12].map((n) => (
+                      <button
+                        key={n}
+                        onClick={() => dispatch({ type: "SET_META", patch: { duration_weeks: n } })}
+                        className={`h-7 rounded-full border px-2.5 text-xs ${
+                          state.duration_weeks === n
+                            ? "border-primary bg-primary/10 text-primary"
+                            : "border-border text-muted-foreground hover:bg-muted"
+                        }`}
+                      >
+                        {n}
+                      </button>
+                    ))}
+                  </div>
+                  {state.duration_weeks !== null && (
+                    <button
+                      onClick={() => dispatch({ type: "SET_META", patch: { duration_weeks: null } })}
+                      className="text-xs text-muted-foreground hover:text-foreground"
+                    >
+                      Limpar
+                    </button>
+                  )}
+                </PopoverContent>
+              </Popover>
+
+              {/* Data de início */}
+              <Popover>
+                <PopoverTrigger asChild>
+                  <button
+                    disabled={loadingEdit}
+                    className="inline-flex h-8 items-center gap-1.5 rounded-full border border-border/70 bg-card/60 px-3 text-xs font-medium text-foreground hover:bg-muted"
+                  >
+                    <CalendarDays className="h-3.5 w-3.5 text-muted-foreground" />
+                    {formattedStartDate ? `Início: ${formattedStartDate}` : "Definir início"}
+                    <Pencil className="h-3 w-3 text-muted-foreground/70" />
+                  </button>
+                </PopoverTrigger>
+                <PopoverContent align="start" className="w-auto p-0">
+                  <Calendar
+                    mode="single"
+                    selected={state.start_date ? new Date(`${state.start_date}T12:00:00`) : undefined}
+                    onSelect={(d) => {
+                      if (!d) return;
+                      const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+                      dispatch({ type: "SET_META", patch: { start_date: iso } });
+                    }}
+                    className="pointer-events-auto p-3"
+                  />
+                  {state.start_date && (
+                    <div className="border-t border-border p-2">
+                      <button
+                        onClick={() => dispatch({ type: "SET_META", patch: { start_date: null } })}
+                        className="w-full rounded-md px-2 py-1 text-left text-xs text-muted-foreground hover:bg-muted hover:text-foreground"
+                      >
+                        Limpar data
+                      </button>
+                    </div>
+                  )}
+                </PopoverContent>
+              </Popover>
+
+              {/* Configurações */}
+              <button
+                onClick={() => setConfigOpen(true)}
+                className="inline-flex h-8 items-center gap-1.5 rounded-full border border-border/70 bg-card/60 px-3 text-xs font-medium text-foreground hover:bg-muted"
+              >
+                <Settings className="h-3.5 w-3.5 text-muted-foreground" />
+                Configurações
+              </button>
+
+              {/* Aluno vinculado */}
+              {alunoProfileHref && planHeaderQuery.data?.alunoNome && (
+                <a
+                  href={alunoProfileHref}
+                  className="inline-flex h-8 max-w-[220px] items-center gap-1.5 rounded-full border border-border/70 bg-card/60 px-3 text-xs font-medium text-foreground hover:bg-muted"
+                  title={`Ver perfil de ${planHeaderQuery.data.alunoNome}`}
+                >
+                  <AtSign className="h-3.5 w-3.5 text-muted-foreground" />
+                  <span className="truncate">{planHeaderQuery.data.alunoNome}</span>
+                </a>
+              )}
+
+              {/* Status ATIVO / ARQUIVADO */}
+              {isEdit && alunoId && planHeaderQuery.data && (
+                planHeaderQuery.data.isActive ? (
+                  <span className="inline-flex h-8 items-center gap-1.5 rounded-full border border-[oklch(0.75_0.15_150)]/40 bg-[oklch(0.75_0.15_150)]/10 px-3 text-xs font-semibold uppercase tracking-wide text-[oklch(0.75_0.15_150)]">
+                    <CheckCircle2 className="h-3.5 w-3.5" />
+                    Ativo
+                  </span>
+                ) : (
+                  <span className="inline-flex h-8 items-center gap-1.5 rounded-full border border-border bg-muted/60 px-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                    <Archive className="h-3.5 w-3.5" />
+                    Arquivado
+                  </span>
+                )
+              )}
+
+              {/* Volume do plano */}
+              {planVolume.totalSets > 0 && (
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button className="ml-auto inline-flex h-8 items-center gap-1.5 rounded-full border border-border/70 bg-card/60 px-3 text-xs font-medium text-foreground hover:bg-muted">
+                      <BarChart3 className="h-3.5 w-3.5 text-primary/80" />
+                      <span className="font-semibold">{planVolume.totalSets}</span>
+                      <span className="text-muted-foreground">séries · {planVolume.groupsCount} {planVolume.groupsCount === 1 ? "grupo" : "grupos"}</span>
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent align="end" className="w-80 p-0">
+                    <div className="border-b border-border px-4 py-3">
+                      <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                        Volume do plano
+                      </div>
+                      <div className="mt-2 flex items-baseline gap-3 text-sm">
+                        <span className="text-2xl font-bold text-foreground">{planVolume.totalSets}</span>
+                        <span className="text-xs text-muted-foreground">séries</span>
+                        <span className="text-muted-foreground/40">·</span>
+                        <span className="text-2xl font-bold text-foreground">{planVolume.groupsCount}</span>
+                        <span className="text-xs text-muted-foreground">grupamentos</span>
+                        <span className="text-muted-foreground/40">·</span>
+                        <span className="text-lg font-bold text-foreground">~{planVolume.perSession}</span>
+                        <span className="text-xs text-muted-foreground">/sessão</span>
+                      </div>
+                    </div>
+                    <div className="max-h-[300px] space-y-2 overflow-y-auto px-4 py-3">
+                      {planVolume.groups.length === 0 && (
+                        <p className="text-xs text-muted-foreground">
+                          Adicione exercícios com grupamento definido para ver o detalhamento.
+                        </p>
+                      )}
+                      {planVolume.groups.map((g) => {
+                        const pct = planVolume.totalSets > 0 ? Math.round((g.sets / planVolume.totalSets) * 100) : 0;
+                        return (
+                          <div key={g.muscle} className="space-y-1">
+                            <div className="flex items-baseline justify-between text-xs">
+                              <span className="font-medium capitalize text-foreground">{g.muscle}</span>
+                              <span className="text-muted-foreground">
+                                {pct}% <span className="ml-1 font-semibold text-foreground">{g.sets}</span>
+                              </span>
+                            </div>
+                            <div className="h-1.5 w-full overflow-hidden rounded-full bg-muted">
+                              <div
+                                className="h-full rounded-full bg-primary"
+                                style={{ width: `${planVolume.max > 0 ? Math.max(6, Math.round((g.sets / planVolume.max) * 100)) : 0}%` }}
+                              />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                    <div className="border-t border-border px-4 py-2 text-[10px] text-muted-foreground">
+                      Conta apenas grupamentos <strong className="text-foreground">primários</strong> de cada exercício.
+                    </div>
+                  </PopoverContent>
+                </Popover>
+              )}
+            </div>
+          )}
+
           {/* Periodizar chip */}
           {kind === "plan" && (
-            <div className="mt-5 border-y border-border/50 py-3">
+            <div className="mt-4 border-y border-border/50 py-3">
               <button
                 onClick={() => dispatch({ type: "SET_META", patch: { periodize: !state.periodize } })}
                 className={`inline-flex items-center gap-1.5 rounded-md px-2 py-1 text-sm ${state.periodize ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
@@ -920,6 +1191,7 @@ export function WorkoutEditor({
               </button>
             </div>
           )}
+
 
           {/* Sessions row */}
           {kind === "plan" ? (
@@ -2421,7 +2693,7 @@ function ExercisePicker({
 }: {
   state: State;
   activeTarget: { sessionId: string; blockId: string } | null;
-  onCommit: (list: { id: number | null; name: string }[]) => void;
+  onCommit: (list: { id: number | null; name: string; muscles_primary?: string[] }[]) => void;
 }) {
   const [q, setQ] = useState("");
   const [difficultyFilter, setDifficultyFilter] = useState<string | null>(null);
@@ -2497,9 +2769,9 @@ function ExercisePicker({
 
   const handleCommit = () => {
     if (totalSelected === 0) return;
-    const picks: { id: number | null; name: string }[] = [];
+    const picks: { id: number | null; name: string; muscles_primary?: string[] }[] = [];
     catalog.forEach((e) => {
-      if (selectedIds.has(e.id)) picks.push({ id: e.id, name: e.name });
+      if (selectedIds.has(e.id)) picks.push({ id: e.id, name: e.name, muscles_primary: e.muscles_primary });
     });
     customPicks.forEach((c) => picks.push(c));
     onCommit(picks);

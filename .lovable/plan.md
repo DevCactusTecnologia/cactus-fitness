@@ -1,85 +1,52 @@
-# Modelos Prontos ↔ Plano do Aluno
+# Barra de metadados no editor de plano/modelo
 
-Regra confirmada:
-- **Modelo Pronto** (`workout_templates.kind='template'`, `aluno_id=NULL`): biblioteca global da academia, reutilizável.
-- **Plano do Aluno** (`workout_templates.kind='plan'`, `aluno_id=<uuid>`): exclusivo do aluno. Cópia limpa — sem vínculo com o modelo original. Editar o modelo NÃO afeta planos já criados, e vice-versa.
+## O que a imagem representa
 
-## 1. Server functions novas (`src/lib/workout-templates.functions.ts`)
+Um "pill toolbar" logo abaixo do cabeçalho, mostrando, em chips clicáveis:
 
-Todas com `requireSupabaseAuth` + validação Zod.
+- **Duração** (`duration_weeks`) — ex.: *"2 semanas"* + lápis
+- **Início** (`start_date`) — ex.: *"Início: 10/07/2026"* + calendário
+- **Configurações** — abre o Sheet já existente
+- **Aluno vinculado** (`@nome`) — só em plano de aluno, leva ao perfil
+- **Status** — `ATIVO` (verde) / `ARQUIVADO` (cinza), derivado de `student_workouts.archived_at`
 
-### `duplicateTemplateAsPlan({ sourceSlug, alunoId, name? })`
-- Lê modelo origem (kind=template) + todos os `workout_template_exercises`.
-- Cria novo `workout_templates` com `kind='plan'`, `aluno_id=alunoId`, `personal_id=auth.uid()`, `organization_id=current_user_org_id()`, `name=name ?? "<nome do modelo>"`, copia demais campos (level, goal, category, duration_weeks, allow_rpe, allow_add_sets, track_set_time, allow_pdf, periodize).
-- Copia todos os exercícios (preservando session_position/block_position/position/labels/per_set/…).
-- Retorna `{ slug, id }` do novo plano.
+E um popover **"Volume do plano"** (o card que aparece à direita na imagem) somando séries e agrupamentos musculares de todas as sessões.
 
-### `saveAsTemplate({ sourceSlug })`
-- Lê plano origem (kind=plan, do aluno).
-- Cria `workout_templates` novo com `kind='template'`, `aluno_id=NULL`, mesmo `organization_id`/`personal_id`, `name="<nome> (modelo)"` (usuário edita depois).
-- Copia exercícios idem.
-- Retorna `{ slug }` do modelo.
+## Escopo desta iteração
 
-Sem vínculo persistido (rastreabilidade = "cópia limpa").
+Aplicar somente no editor (`WorkoutEditor.tsx`), tanto no fluxo `kind="plan"` (aluno) quanto no `kind="template"` (modelo global). No modelo, o chip de aluno e o de status ficam ocultos — só faz sentido em plano.
 
-## 2. Fluxo A — a partir do editor "Criar plano"
+## Regras de negócio
 
-Rota `/dashboard/{scope}/treinos/novo-plano?alunoId=...`.
+1. **`duration_weeks`** — inteiro ≥ 1. Default: vazio (não obriga). Aceita edição inline via popover com input numérico + presets (2, 4, 6, 8, 12).
+2. **`start_date`** — `date`. Default: vazio. Editor com calendário (`Popover` + `Calendar` shadcn). Pode ser limpo.
+3. **Status** — apenas leitura no chip. `ATIVO` se existe `student_workouts` do plano sem `archived_at`; `ARQUIVADO` caso contrário. Fonte única = `student_workouts` (sem duplicar em `workout_templates`).
+4. **Aluno** — leitura. Vem do `workout_templates.aluno_id` → `alunos.nome`. Chip vira link para o perfil.
+5. **Volume** — calculado em memória a partir do `state.sessions` (mesma lógica já usada em `SessionCard`), agregando por sessão. Grupo muscular vem de `exercises.primary_muscle` (query lateral quando hidratar).
 
-No `WorkoutEditor` (kind=plan, sem `editSlug`, com estado vazio), adicionar acima do input de nome um bloco:
+## Persistência
 
-```
-┌───────────────────────────────────────────────┐
-│  Como você quer começar?                       │
-│  [ Começar do zero ] [ Partir de um modelo ▾ ] │
-└───────────────────────────────────────────────┘
-```
+- Adicionar `duration_weeks` e `start_date` ao `State`, ao `SET_META`, ao `SELECT` de hidratação e ao `UPDATE/INSERT` de `handleSave` (as colunas já existem no schema, sem migração).
+- `archived_at` continua sendo escrito pela ação de "Arquivar" no `TreinoPlanoPage` — nada muda no fluxo de arquivamento.
+- Nenhuma mudança de RLS/GRANT: tudo já é coberto pelas policies existentes de `workout_templates`, `student_workouts` e `alunos`.
 
-Clicando "Partir de um modelo" abre um `Dialog` com lista de modelos (query `workout_templates where kind='template' and organization_id = ...`). Ao selecionar:
-1. Chama `duplicateTemplateAsPlan({ sourceSlug, alunoId })`.
-2. `navigate` para `/dashboard/{scope}/treinos/editar/<novo-slug>` — o editor recarrega já com tudo preenchido, o personal ajusta e salva normal.
+## UX / segurança
 
-O bloco some quando o editor já tem conteúdo (evita confusão).
+- Chips desabilitam quando `loadingEdit=true` para evitar edição em estado meio hidratado.
+- Ao alterar `duration_weeks`/`start_date`, `dispatch(SET_META)` marca `touched=true` → o blocker "sair sem salvar" já cobre.
+- Chip de status é somente leitura — arquivar/desarquivar continua acontecendo na página de detalhes do plano, evitando dois pontos de mutação para o mesmo estado.
+- Chip de aluno usa `<Link>` tipado do TanStack Router (nada de `href` interpolado).
 
-## 3. Fluxo B — a partir da página do modelo
+## Detalhes técnicos
 
-`TreinoModeloPage` ganha botão **"Usar este modelo"** no header.
-Abre `Dialog` com:
-- Combo/busca de alunos da organização.
-- Campo opcional "Nome do plano" (default = nome do modelo).
-- Botão "Criar plano".
+- **Arquivo alterado**: `src/components/workout-editor/WorkoutEditor.tsx`.
+- **Query lateral** (aluno + status) em `useQuery(["plan-header", editSlug])` só quando `isEdit && kind==="plan" && !!alunoId`; retorna `{ alunoNome, isActive }`. Faz `.select("nome").eq("id", alunoId)` em `alunos` e `.select("archived_at").eq("template_id", templateId)` em `student_workouts`. `isActive = rows.some(r => !r.archived_at)`.
+- **Volume popover**: componente local que recebe `state.sessions` + mapa `exerciseId → primary_muscle` (buscado em batch quando a lista de exercícios muda). Mostra total de séries, nº de grupamentos e barra por grupo — mesma estética dos cards atuais.
+- **Chips**: reutilizam `Button variant="outline" size="sm"` + `rounded-full`; ícones do `lucide-react` (`CalendarDays`, `Clock`, `Settings`, `AtSign`, `CheckCircle2`).
 
-Ao confirmar: chama `duplicateTemplateAsPlan`, `navigate` para o editor do novo plano.
+## Fora de escopo
 
-## 4. Fluxo inverso — "Salvar como modelo"
-
-No `WorkoutEditor` quando `kind='plan'` e o plano já foi salvo (tem slug), adicionar item no menu de ações (`…`) do header:
-**"Salvar como modelo"** → chama `saveAsTemplate`, mostra toast "Modelo criado" com link "Ver modelo" que navega para `/dashboard/{scope}/treinos/modelo/<slug>`.
-
-Bloqueado (com tooltip explicativo) se o plano ainda não foi salvo/tem alterações pendentes.
-
-## 5. Ajustes de UI menores
-
-- Em `TreinosPage`, a aba "Modelos" ganha subtítulo curto: "Receitas reutilizáveis. Copie um modelo ao criar o plano de um aluno."
-- Em `AlunoDetailPage`, o botão existente "Novo plano" continua igual (leva ao editor, e lá dentro o personal escolhe modelo ou zero).
-
-## 6. Segurança
-
-- Cópia sempre respeita `organization_id` do usuário logado (via RLS + `current_user_org_id()`).
-- `duplicateTemplateAsPlan` valida que o `alunoId` pertence à mesma org (`alunos.organization_id = current_user_org_id()`).
-- `saveAsTemplate` só permitido quando o plano origem pertence à org do usuário (RLS já cobre, mas validamos explicitamente).
-- Nenhuma nova coluna, nenhuma migration — a estrutura atual já modela tudo (`kind` + `aluno_id` nullable).
-
-## 7. Fora de escopo (fica pra próxima iteração)
-
-- Modelos privados por personal (hoje = globais da academia, mantido).
-- Rastrear "baseado em" (cópia limpa por decisão do usuário).
-- Sincronizar mudanças do modelo com planos derivados (proposital: são independentes).
-
-## Ordem de execução
-
-1. `src/lib/workout-templates.functions.ts` com as duas server fns.
-2. `WorkoutEditor`: bloco "Começar do zero / Partir de um modelo" no topo quando plano vazio; item "Salvar como modelo" no menu quando plano salvo.
-3. `TreinoModeloPage`: botão "Usar este modelo" + dialog de escolha de aluno.
-4. Copy pequeno na `TreinosPage`.
-5. Verificar build + smoke test via Playwright dos dois caminhos.
+- Alterar o comportamento de arquivar/desarquivar.
+- Migrar campos para outra tabela.
+- Redesenhar cards de sessão / volume por sessão (já existem).
+- Aplicar a barra no `TreinoPlanoPage` (visualização) — pode ser uma iteração seguinte se você quiser paridade lá também.
