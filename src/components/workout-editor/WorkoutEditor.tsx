@@ -2769,9 +2769,9 @@ function ExercisePicker({
 
   const handleCommit = () => {
     if (totalSelected === 0) return;
-    const picks: { id: number | null; name: string }[] = [];
+    const picks: { id: number | null; name: string; muscles_primary?: string[] }[] = [];
     catalog.forEach((e) => {
-      if (selectedIds.has(e.id)) picks.push({ id: e.id, name: e.name });
+      if (selectedIds.has(e.id)) picks.push({ id: e.id, name: e.name, muscles_primary: e.muscles_primary });
     });
     customPicks.forEach((c) => picks.push(c));
     onCommit(picks);
