@@ -1223,28 +1223,28 @@ function ExerciseDetailSheet({
                   <span className="text-[11px] text-muted-foreground">{meta.group}</span>
                 )}
               </div>
-              {meta.muscles_primary.length > 0 && (
-                <div className="space-y-1.5">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Principais</p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {meta.muscles_primary.map((m, i) => (
-                      <span key={`p-${i}`} className="inline-flex items-center rounded-full bg-primary/15 px-2 py-0.5 text-[11px] font-medium text-primary">
-                        {m}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {meta.muscles_secondary.length > 0 && (
-                <div className="space-y-1.5">
-                  <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Auxiliares</p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {meta.muscles_secondary.map((m, i) => (
-                      <span key={`s-${i}`} className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">
-                        {m}
-                      </span>
-                    ))}
-                  </div>
+              {(meta.muscles_primary.length > 0 || meta.muscles_secondary.length > 0) && (
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+                  {meta.muscles_primary.length > 0 && (
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Principais</p>
+                      {meta.muscles_primary.map((m, i) => (
+                        <span key={`p-${i}`} className="inline-flex items-center rounded-full bg-primary/15 px-2 py-0.5 text-[11px] font-medium text-primary">
+                          {m}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+                  {meta.muscles_secondary.length > 0 && (
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <p className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Auxiliares</p>
+                      {meta.muscles_secondary.map((m, i) => (
+                        <span key={`s-${i}`} className="inline-flex items-center rounded-full bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">
+                          {m}
+                        </span>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
