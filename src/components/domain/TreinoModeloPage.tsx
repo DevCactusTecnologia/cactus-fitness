@@ -359,6 +359,92 @@ export function TreinoModeloPage({ scope }: { scope: Scope }) {
         </AlertDialogContent>
       </AlertDialog>
 
+      <Dialog
+        open={useOpen}
+        onOpenChange={(v) => {
+          setUseOpen(v);
+          if (!v) { setSelectedAlunoId(null); setAlunoSearch(""); }
+        }}
+      >
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Send className="h-5 w-5 text-primary" />
+              Usar este modelo
+            </DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            Escolha um aluno. Uma cópia deste modelo será criada como plano exclusivo
+            dele. Você pode ajustar tudo em seguida.
+          </p>
+          <div className="mt-2">
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <input
+                value={alunoSearch}
+                onChange={(e) => setAlunoSearch(e.target.value)}
+                placeholder="Buscar aluno"
+                className="h-10 w-full rounded-lg border border-border bg-background pl-9 pr-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/30"
+              />
+            </div>
+          </div>
+          <div className="mt-3 max-h-[45vh] overflow-y-auto">
+            {alunosQuery.isLoading ? (
+              <div className="grid place-items-center py-8 text-sm text-muted-foreground">
+                <Loader2 className="mb-2 h-5 w-5 animate-spin" /> Carregando alunos…
+              </div>
+            ) : filteredAlunos.length === 0 ? (
+              <div className="rounded-lg border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+                Nenhum aluno encontrado.
+              </div>
+            ) : (
+              <ul className="flex flex-col gap-1">
+                {filteredAlunos.map((a: any) => {
+                  const isSel = selectedAlunoId === a.id;
+                  return (
+                    <li key={a.id}>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedAlunoId(a.id)}
+                        className={`flex w-full items-center gap-3 rounded-lg border px-3 py-2 text-left text-sm transition ${
+                          isSel
+                            ? "border-primary bg-primary/10 text-foreground"
+                            : "border-border bg-card text-foreground hover:border-primary/40 hover:bg-muted"
+                        }`}
+                      >
+                        <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-muted text-xs font-semibold uppercase text-muted-foreground">
+                          {a.full_name?.[0] ?? "?"}
+                        </span>
+                        <span className="min-w-0 flex-1 truncate font-medium">{a.full_name}</span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </div>
+          <div className="mt-4 flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setUseOpen(false)}
+              disabled={useTemplateMut.isPending}
+              className="inline-flex h-10 items-center rounded-full border border-border bg-transparent px-4 text-sm font-medium text-foreground hover:bg-muted disabled:opacity-50"
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              onClick={() => useTemplateMut.mutate()}
+              disabled={!selectedAlunoId || useTemplateMut.isPending}
+              className="inline-flex h-10 items-center gap-1.5 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground hover:brightness-110 disabled:opacity-50"
+            >
+              {useTemplateMut.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+              Criar plano
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <MobileBottomNav scope={scope} />
     </div>
   );
