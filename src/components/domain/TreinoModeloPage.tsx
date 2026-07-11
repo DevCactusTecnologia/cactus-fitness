@@ -322,6 +322,7 @@ export function TreinoModeloPage({ scope }: { scope: Scope }) {
               onEdit={handleEdit}
               onDuplicate={() => duplicateMut.mutate()}
               onDelete={() => setConfirmDelete(true)}
+              onUseAsPlan={data && !data.isPlan ? () => setUseOpen(true) : undefined}
               duplicating={duplicateMut.isPending}
               disabled={!data}
             />
