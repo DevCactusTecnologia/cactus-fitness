@@ -2049,13 +2049,11 @@ function ExerciseDetailSheet({
           <div className="space-y-2">
             <h4 className="px-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Configuração de cada série</h4>
             <div className="-mx-1 overflow-x-auto px-1">
-              <div className="min-w-[540px] space-y-1">
-                <div className="grid grid-cols-[20px_150px_64px_minmax(48px,1fr)_100px_80px_32px] gap-2 px-1 pb-0.5">
+              <div className="min-w-[360px] space-y-1">
+                <div className="grid grid-cols-[20px_150px_minmax(48px,1fr)_80px_32px] gap-2 px-1 pb-0.5">
               <span />
               <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Tipo</span>
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Série</span>
               <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Alvo</span>
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Carga</span>
               <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Descanso</span>
               <span />
             </div>
