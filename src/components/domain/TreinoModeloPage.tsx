@@ -807,14 +807,18 @@ function ActionsSidebar({
         Ações
       </h2>
       <div className="flex flex-col gap-2">
-        {actions.map(({ icon: Icon, label, onClick, loading, destructive }) => (
+        {actions.map(({ icon: Icon, label, onClick, loading, destructive, primary }) => (
           <button
             key={label}
             type="button"
             onClick={onClick}
             disabled={disabled || loading}
-            className={`inline-flex h-12 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border border-border bg-transparent px-6 py-2.5 text-sm font-semibold transition-all hover:border-primary hover:text-primary active:scale-[0.97] disabled:opacity-50 ${
-              destructive ? "text-destructive hover:border-destructive hover:text-destructive" : "text-foreground"
+            className={`inline-flex h-12 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full px-6 py-2.5 text-sm font-semibold transition-all active:scale-[0.97] disabled:opacity-50 ${
+              primary
+                ? "border border-primary bg-primary text-primary-foreground hover:brightness-110"
+                : destructive
+                  ? "border border-border bg-transparent text-destructive hover:border-destructive hover:text-destructive"
+                  : "border border-border bg-transparent text-foreground hover:border-primary hover:text-primary"
             }`}
           >
             <Icon className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
