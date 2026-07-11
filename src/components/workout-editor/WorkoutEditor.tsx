@@ -5,12 +5,12 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   ChevronDown, ChevronUp, Copy, GripVertical, Loader2, MoreHorizontal, CheckSquare,
   Play, Plus, Save, Search, Settings, Trash2, X, Dumbbell, Pencil, Check, Filter, ChevronLeft, ChevronRight, Clock, BarChart3, Hash, AlertCircle, AlertTriangle, Info, Sparkles, FileText, LayoutTemplate,
-  CalendarDays, AtSign, CheckCircle2, Archive,
+  CalendarDays, AtSign, CheckCircle2, Archive, FileDown,
 } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useScope } from "@/lib/scope";
-import { duplicateTemplateAsPlan, saveAsTemplate } from "@/lib/workout-templates.functions";
+import { duplicatePlan, duplicateTemplateAsPlan, saveAsTemplate } from "@/lib/workout-templates.functions";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -771,10 +771,78 @@ export function WorkoutEditor({
   const formattedStartDate = state.start_date
     ? new Date(`${state.start_date}T12:00:00`).toLocaleDateString("pt-BR")
     : null;
-
-
+  // Plan-only sidebar actions
+  const [archiveConfirmOpen, setArchiveConfirmOpen] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const duplicatePlanFn = useServerFn(duplicatePlan);
+  const duplicatePlanMut = useMutation({
+    mutationFn: () => {
+      if (!editSlug) throw new Error("Salve o plano antes de duplicar");
+      return duplicatePlanFn({ data: { sourceSlug: editSlug } });
+    },
+    onSuccess: (res) => {
+      if (alunoId) qc.invalidateQueries({ queryKey: ["aluno-student-workouts", alunoId] });
+      toast.success("Plano duplicado", { description: "Uma cópia editável foi criada." });
+      navigate({
+        to: `${scopeBase}/plano/$slug` as "/dashboard/personal/treinos/plano/$slug",
+        params: { slug: res.slug },
+      });
+    },
+    onError: (err) => toast.error(err instanceof Error ? err.message : "Erro ao duplicar plano"),
+  });
+  const archiveMut = useMutation({
+    mutationFn: async () => {
+      if (!alunoId || !templateId) throw new Error("Plano sem aluno vinculado");
+      const { error } = await supabase
+        .from("student_workouts")
+        .update({ archived_at: new Date().toISOString() })
+        .eq("aluno_id", alunoId)
+        .eq("template_id", templateId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Plano arquivado");
+      qc.invalidateQueries({ queryKey: ["plan-header"] });
+      if (alunoId) {
+        qc.invalidateQueries({ queryKey: ["aluno-student-workouts", alunoId] });
+        navigate({
+          to: (scope === "academia"
+            ? "/dashboard/academia/alunos/$alunoId"
+            : "/dashboard/personal/alunos/$alunoId") as "/dashboard/personal/alunos/$alunoId",
+          params: { alunoId },
+        });
+      }
+    },
+    onError: (err) => toast.error(err instanceof Error ? err.message : "Erro ao arquivar"),
+  });
+  const deleteMut = useMutation({
+    mutationFn: async () => {
+      if (!alunoId || !templateId) throw new Error("Plano sem aluno vinculado");
+      const { error } = await supabase
+        .from("student_workouts")
+        .delete()
+        .eq("aluno_id", alunoId)
+        .eq("template_id", templateId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Plano excluído");
+      if (alunoId) {
+        qc.invalidateQueries({ queryKey: ["aluno-student-workouts", alunoId] });
+        navigate({
+          to: (scope === "academia"
+            ? "/dashboard/academia/alunos/$alunoId"
+            : "/dashboard/personal/alunos/$alunoId") as "/dashboard/personal/alunos/$alunoId",
+          params: { alunoId },
+        });
+      }
+    },
+    onError: (err) => toast.error(err instanceof Error ? err.message : "Erro ao excluir"),
+  });
+  const handleExportPdf = () => { if (typeof window !== "undefined") window.print(); };
 
   return (
+
     <div className="min-h-screen bg-background text-foreground">
       <IconRail />
       <div className="pb-24 md:pl-[72px] md:pb-0">
@@ -801,82 +869,52 @@ export function WorkoutEditor({
               <button
                 onClick={() => handleSave()}
                 disabled={!canSave}
-                className="inline-flex h-9 items-center gap-1.5 rounded-full bg-[oklch(0.92_0.19_115)] px-4 text-sm font-semibold text-[oklch(0.2_0.05_115)] hover:brightness-105 disabled:opacity-50"
+                className="inline-flex h-9 items-center gap-1.5 rounded-full bg-[oklch(0.92_0.19_115)] px-4 text-sm font-semibold text-[oklch(0.2_0.05_115)] hover:brightness-105 disabled:opacity-50 lg:hidden"
               >
                 {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                 Salvar
               </button>
-              <Sheet open={pickerOpen} onOpenChange={setPickerOpen}>
-                <SheetTrigger asChild>
-                  <button className="hidden md:inline-flex h-9 items-center gap-1.5 rounded-full border border-border bg-card px-4 text-sm font-medium text-foreground hover:bg-muted">
-                    <CheckSquare className="h-4 w-4" />
-                    Selecionar exercícios
-                  </button>
-                </SheetTrigger>
-                <SheetContent side="right" className="flex w-full flex-col gap-0 p-0 sm:max-w-[440px]">
-                  <SheetHeader className="shrink-0 border-b border-border px-5 py-3 text-left">
-                    <SheetTitle className="flex items-center gap-2 text-lg font-semibold">
-                      <Dumbbell className="h-5 w-5 text-primary" />
-                      Biblioteca de exercícios
-                    </SheetTitle>
-                  </SheetHeader>
-                  <div className="flex min-h-0 flex-1 flex-col">
-                    <ExercisePicker
-                      state={state}
-                      activeTarget={activeTarget}
-                      onCommit={(list) => {
-                        const target = resolveTarget(state, activeTarget);
-                        if (!target) { toast("Selecione um bloco antes de adicionar exercícios."); return; }
-                        list.forEach((ex) => {
-                          dispatch({ type: "ADD_EXERCISE", sessionId: target.sessionId, blockId: target.blockId, exercise: ex });
-                        });
-                        const sess = state.sessions.find((s) => s.id === target.sessionId);
-                        const sessLabel = sess && sess.label && sess.label !== "__single__" ? sess.label : "treino";
-                        toast.success(
-                          `${list.length} ${list.length === 1 ? "exercício adicionado" : "exercícios adicionados"}`,
-                          { description: `Em ${sessLabel}` },
-                        );
-                        setPickerOpen(false);
-                      }}
-                    />
-                  </div>
-                </SheetContent>
-              </Sheet>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className="grid h-9 w-9 place-items-center rounded-full border border-border text-muted-foreground hover:bg-muted" aria-label="Mais opções">
-                    <MoreHorizontal className="h-4 w-4" />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuItem onClick={() => setConfigOpen(true)}>
-                    <Settings className="mr-2 h-4 w-4" /> Configurações
-                  </DropdownMenuItem>
-                  {kind === "plan" && isEdit && (
-                    <DropdownMenuItem
-                      disabled={!canSaveAsTemplate || saveAsTemplateMut.isPending}
-                      onClick={() => saveAsTemplateMut.mutate()}
-                      title={
-                        isDirty
-                          ? "Salve as alterações antes de converter em modelo"
-                          : "Cria uma cópia deste plano como modelo pronto"
-                      }
-                    >
-                      {saveAsTemplateMut.isPending ? (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      ) : (
-                        <LayoutTemplate className="mr-2 h-4 w-4" />
-                      )}
-                      Salvar como modelo
-                    </DropdownMenuItem>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
             </div>
           </div>
         </header>
 
+        {/* Exercise picker sheet (controlled, triggered from sidebar or block "Adicionar exercício") */}
+        <Sheet open={pickerOpen} onOpenChange={setPickerOpen}>
+          <SheetContent side="right" className="flex w-full flex-col gap-0 p-0 sm:max-w-[440px]">
+            <SheetHeader className="shrink-0 border-b border-border px-5 py-3 text-left">
+              <SheetTitle className="flex items-center gap-2 text-lg font-semibold">
+                <Dumbbell className="h-5 w-5 text-primary" />
+                Biblioteca de exercícios
+              </SheetTitle>
+            </SheetHeader>
+            <div className="flex min-h-0 flex-1 flex-col">
+              <ExercisePicker
+                state={state}
+                activeTarget={activeTarget}
+                onCommit={(list) => {
+                  const target = resolveTarget(state, activeTarget);
+                  if (!target) { toast("Selecione um bloco antes de adicionar exercícios."); return; }
+                  list.forEach((ex) => {
+                    dispatch({ type: "ADD_EXERCISE", sessionId: target.sessionId, blockId: target.blockId, exercise: ex });
+                  });
+                  const sess = state.sessions.find((s) => s.id === target.sessionId);
+                  const sessLabel = sess && sess.label && sess.label !== "__single__" ? sess.label : "treino";
+                  toast.success(
+                    `${list.length} ${list.length === 1 ? "exercício adicionado" : "exercícios adicionados"}`,
+                    { description: `Em ${sessLabel}` },
+                  );
+                  setPickerOpen(false);
+                }}
+              />
+            </div>
+          </SheetContent>
+        </Sheet>
+
+
         <main className="px-3 py-4 sm:px-4 sm:py-5 md:px-8">
+          <div className="mx-auto max-w-6xl space-y-6 lg:grid lg:grid-cols-3 lg:gap-6 lg:space-y-0">
+            <div className="space-y-4 lg:col-span-2">
+
           {canStartFromTemplate && (
             <div className="mb-4 flex flex-col gap-2 rounded-xl border border-dashed border-primary/40 bg-primary/5 p-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex items-start gap-2.5">
@@ -1232,7 +1270,94 @@ export function WorkoutEditor({
               />
             </div>
           )}
+            </div>
+
+            {/* Right-side Ações sidebar */}
+            <aside className="lg:col-span-1 lg:sticky lg:top-24 lg:self-start print:hidden">
+              <div className="h-px w-full bg-border lg:hidden" />
+              <h2 className="mb-3 mt-4 text-sm font-semibold uppercase tracking-wider text-muted-foreground lg:mt-0">
+                Ações
+              </h2>
+              <div className="flex flex-col gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleSave()}
+                  disabled={!canSave}
+                  className="inline-flex h-12 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full bg-[oklch(0.92_0.19_115)] px-6 py-2.5 text-sm font-semibold text-[oklch(0.2_0.05_115)] transition-all hover:brightness-105 active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+                  {saving ? "Salvando…" : "Salvar"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPickerOpen(true)}
+                  className="inline-flex h-12 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border border-border bg-transparent px-6 py-2.5 text-sm font-semibold text-foreground transition-all hover:border-primary hover:text-primary active:scale-[0.97]"
+                >
+                  <CheckSquare className="h-4 w-4" />
+                  Selecionar exercícios
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setConfigOpen(true)}
+                  className="inline-flex h-12 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border border-border bg-transparent px-6 py-2.5 text-sm font-semibold text-foreground transition-all hover:border-primary hover:text-primary active:scale-[0.97]"
+                >
+                  <Settings className="h-4 w-4" />
+                  Configurações
+                </button>
+                {kind === "plan" && isEdit && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => duplicatePlanMut.mutate()}
+                      disabled={duplicatePlanMut.isPending || !editSlug}
+                      className="inline-flex h-12 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border border-border bg-transparent px-6 py-2.5 text-sm font-semibold text-foreground transition-all hover:border-primary hover:text-primary active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      {duplicatePlanMut.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Copy className="h-4 w-4" />}
+                      Duplicar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => saveAsTemplateMut.mutate()}
+                      disabled={!canSaveAsTemplate || saveAsTemplateMut.isPending}
+                      title={isDirty ? "Salve as alterações antes de converter em modelo" : "Cria uma cópia deste plano como modelo pronto"}
+                      className="inline-flex h-12 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border border-border bg-transparent px-6 py-2.5 text-sm font-semibold text-foreground transition-all hover:border-primary hover:text-primary active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      {saveAsTemplateMut.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <LayoutTemplate className="h-4 w-4" />}
+                      Salvar como Template
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleExportPdf}
+                      className="inline-flex h-12 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border border-border bg-transparent px-6 py-2.5 text-sm font-semibold text-foreground transition-all hover:border-primary hover:text-primary active:scale-[0.97]"
+                    >
+                      <FileDown className="h-4 w-4" />
+                      Exportar PDF
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setArchiveConfirmOpen(true)}
+                      disabled={!alunoId || !templateId}
+                      className="inline-flex h-12 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border border-border bg-transparent px-6 py-2.5 text-sm font-semibold text-foreground transition-all hover:border-primary hover:text-primary active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <Archive className="h-4 w-4" />
+                      Arquivar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setDeleteConfirmOpen(true)}
+                      disabled={!alunoId || !templateId}
+                      className="inline-flex h-12 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border border-border bg-transparent px-6 py-2.5 text-sm font-semibold text-destructive transition-all hover:border-destructive hover:text-destructive active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      Excluir
+                    </button>
+                  </>
+                )}
+              </div>
+            </aside>
+          </div>
         </main>
+
       </div>
       <MobileBottomNav />
 
@@ -1395,7 +1520,68 @@ export function WorkoutEditor({
           </div>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={archiveConfirmOpen} onOpenChange={setArchiveConfirmOpen}>
+        <AlertDialogContent className="max-w-md">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Arquivar plano?</AlertDialogTitle>
+            <AlertDialogDescription>
+              <span className="font-semibold text-foreground">{state.name || "Este plano"}</span> será desativado e não aparecerá mais no painel do aluno.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="mt-2 flex-row justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setArchiveConfirmOpen(false)}
+              disabled={archiveMut.isPending}
+              className="inline-flex h-10 items-center justify-center rounded-full border border-border bg-card px-5 text-sm font-semibold text-foreground hover:bg-muted disabled:opacity-50"
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              onClick={() => { archiveMut.mutate(); setArchiveConfirmOpen(false); }}
+              disabled={archiveMut.isPending}
+              className="inline-flex h-10 items-center justify-center gap-1.5 rounded-full bg-[oklch(0.92_0.19_115)] px-5 text-sm font-semibold text-[oklch(0.2_0.05_115)] hover:brightness-105 disabled:opacity-50"
+            >
+              {archiveMut.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+              Arquivar plano
+            </button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <AlertDialogContent className="max-w-md">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Excluir definitivamente?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Todas as sessões deste plano serão removidas do aluno e não poderão ser recuperadas.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="mt-2 flex-row justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setDeleteConfirmOpen(false)}
+              disabled={deleteMut.isPending}
+              className="inline-flex h-10 items-center justify-center rounded-full border border-border bg-card px-5 text-sm font-semibold text-foreground hover:bg-muted disabled:opacity-50"
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              onClick={() => { deleteMut.mutate(); setDeleteConfirmOpen(false); }}
+              disabled={deleteMut.isPending}
+              className="inline-flex h-10 items-center justify-center gap-1.5 rounded-full border border-destructive/60 bg-destructive/10 px-5 text-sm font-semibold text-destructive hover:bg-destructive/20 disabled:opacity-50"
+            >
+              {deleteMut.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : null}
+              Excluir definitivamente
+            </button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
+
   );
 }
 
