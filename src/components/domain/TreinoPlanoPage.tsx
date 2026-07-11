@@ -760,10 +760,12 @@ function ActionsSidebar({
       <AlertDialog open={archiveOpen} onOpenChange={setArchiveOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Arquivar plano?</AlertDialogTitle>
+            <AlertDialogTitle>{isArchived ? "Ativar plano?" : "Arquivar plano?"}</AlertDialogTitle>
             <AlertDialogDescription>
-              <span className="font-semibold text-foreground">{planoName}</span> será desativado e não
-              aparecerá mais no painel do aluno. Você pode restaurá-lo depois, se necessário.
+              <span className="font-semibold text-foreground">{planoName}</span>{" "}
+              {isArchived
+                ? "voltará a aparecer no painel do aluno."
+                : "será desativado e não aparecerá mais no painel do aluno. Você pode restaurá-lo depois, se necessário."}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -775,11 +777,14 @@ function ActionsSidebar({
                 handleArchive();
               }}
             >
-              {archiving ? "Arquivando…" : "Arquivar plano"}
+              {archiving
+                ? (isArchived ? "Ativando…" : "Arquivando…")
+                : (isArchived ? "Ativar plano" : "Arquivar plano")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
 
 
       <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
