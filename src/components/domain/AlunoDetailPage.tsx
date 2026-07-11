@@ -382,6 +382,185 @@ export function AlunoDetailPage({ scope }: { scope: Scope }) {
   );
 }
 
+function PlanConfigDialog({
+  open, onOpenChange, aluno, onBack,
+}: { open: boolean; onOpenChange: (o: boolean) => void; aluno: Aluno; onBack: () => void }) {
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+  const firstName = aluno.full_name.split(" ")[0];
+  const today = new Date().toISOString().slice(0, 10);
+  const [name, setName] = useState(`Plano de ${firstName}`);
+  const [startDate, setStartDate] = useState(today);
+  const [durationWeeks, setDurationWeeks] = useState(4);
+  const [allowRpe, setAllowRpe] = useState(false);
+  const [allowAddSets, setAllowAddSets] = useState(true);
+  const [trackSetTime, setTrackSetTime] = useState(false);
+  const [allowPdf, setAllowPdf] = useState(true);
+
+  useEffect(() => {
+    if (open) {
+      setName(`Plano de ${firstName}`);
+      setStartDate(today);
+      setDurationWeeks(4);
+      setAllowRpe(false);
+      setAllowAddSets(true);
+      setTrackSetTime(false);
+      setAllowPdf(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
+  const createPlan = useMutation({
+    mutationFn: async () => {
+      const trimmed = name.trim();
+      if (!trimmed) throw new Error("Informe o nome do plano.");
+      const { data: userRes, error: uErr } = await supabase.auth.getUser();
+      if (uErr || !userRes.user) throw uErr ?? new Error("Sessão expirada.");
+      const { data: tpl, error: tErr } = await supabase
+        .from("workout_templates")
+        .insert({
+          name: trimmed,
+          kind: "plan",
+          personal_id: userRes.user.id,
+          aluno_id: aluno.id,
+          start_date: startDate || null,
+          duration_weeks: durationWeeks,
+          allow_rpe: allowRpe,
+          allow_add_sets: allowAddSets,
+          track_set_time: trackSetTime,
+          allow_pdf: allowPdf,
+        } as never)
+        .select("id, slug")
+        .single();
+      if (tErr || !tpl) throw tErr ?? new Error("Falha ao criar plano.");
+      const { error: swErr } = await supabase.from("student_workouts").insert({
+        personal_id: userRes.user.id,
+        aluno_id: aluno.id,
+        template_id: tpl.id,
+        name: trimmed,
+      } as never);
+      if (swErr) throw swErr;
+      return tpl.slug as string;
+    },
+    onSuccess: (slug) => {
+      queryClient.invalidateQueries({ queryKey: ["aluno-student-workouts", aluno.id] });
+      onOpenChange(false);
+      toast.success("Plano criado");
+      navigate({
+        to: "/dashboard/personal/treinos/editar/$slug",
+        params: { slug },
+      });
+    },
+    onError: (e: Error) => toast.error(e.message),
+  });
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-xl gap-0 p-0">
+        <DialogHeader className="border-b border-border p-5">
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={onBack}
+              className="grid h-8 w-8 place-items-center rounded-full hover:bg-accent"
+              aria-label="Voltar"
+            >
+              <ArrowLeft className="h-4 w-4" />
+            </button>
+            <div className="min-w-0">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                Novo plano · {aluno.full_name}
+              </p>
+              <DialogTitle className="font-display text-lg">Configurações do plano</DialogTitle>
+            </div>
+          </div>
+          <DialogDescription className="sr-only">Configurações do plano</DialogDescription>
+        </DialogHeader>
+        <div className="max-h-[70vh] space-y-6 overflow-y-auto p-5">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+            <div className="md:col-span-3">
+              <Label className="text-xs">Nome do plano</Label>
+              <Input
+                className="mt-1.5"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+            </div>
+            <div>
+              <Label className="text-xs">Início</Label>
+              <Input
+                className="mt-1.5"
+                type="date"
+                value={startDate}
+                onChange={(e) => setStartDate(e.target.value)}
+              />
+            </div>
+            <div>
+              <Label className="text-xs">Duração (semanas)</Label>
+              <Input
+                className="mt-1.5"
+                type="number"
+                min={1}
+                value={durationWeeks}
+                onChange={(e) => setDurationWeeks(Math.max(1, Number(e.target.value) || 1))}
+              />
+            </div>
+          </div>
+          <div className="space-y-3">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Permissões na execução
+              </p>
+              <p className="mt-1 text-xs text-muted-foreground">
+                Defina como o aluno vai interagir com o treino durante a execução.
+              </p>
+            </div>
+            <div className="space-y-2">
+              <PermissionRow
+                title="Solicitar RPE por exercício"
+                description="O aluno deverá informar o nível de esforço percebido (1 a 10) após cada exercício."
+                checked={allowRpe}
+                onCheckedChange={setAllowRpe}
+              />
+              <PermissionRow
+                title="Permitir adicionar séries"
+                description="O aluno poderá adicionar séries extras além do prescrito durante o treino."
+                checked={allowAddSets}
+                onCheckedChange={setAllowAddSets}
+              />
+              <PermissionRow
+                title="Rastrear tempo das séries"
+                description="O aluno usa um botão Iniciar e o cronômetro registra o tempo até concluir cada série."
+                checked={trackSetTime}
+                onCheckedChange={setTrackSetTime}
+              />
+              <PermissionRow
+                title="Permitir baixar o treino em PDF"
+                description="O aluno pode exportar o treino em PDF. Desligue para manter o PDF só com você."
+                checked={allowPdf}
+                onCheckedChange={setAllowPdf}
+              />
+            </div>
+          </div>
+        </div>
+        <DialogFooter className="border-t border-border p-4">
+          <button
+            type="button"
+            onClick={() => createPlan.mutate()}
+            disabled={createPlan.isPending}
+            className="inline-flex items-center justify-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 disabled:opacity-60"
+          >
+            {createPlan.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
+            Continuar para o builder
+          </button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+
+
 function InformacoesTab({
   aluno, onEdit, onToggle, onDelete,
 }: { aluno: Aluno; onEdit: () => void; onToggle: () => void; onDelete: () => void }) {
