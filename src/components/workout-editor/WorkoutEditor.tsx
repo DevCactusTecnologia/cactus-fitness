@@ -712,14 +712,14 @@ export function WorkoutEditor({
     enabled: isEdit && kind === "plan" && !!alunoId && !!templateId,
     queryFn: async () => {
       const [alunoRes, swRes] = await Promise.all([
-        supabase.from("alunos").select("id, nome").eq("id", alunoId!).maybeSingle(),
+        supabase.from("alunos").select("id, full_name").eq("id", alunoId!).maybeSingle(),
         supabase.from("student_workouts").select("archived_at").eq("template_id", templateId!),
       ]);
       if (alunoRes.error) throw alunoRes.error;
       if (swRes.error) throw swRes.error;
       const rows = swRes.data ?? [];
       return {
-        alunoNome: alunoRes.data?.nome ?? null,
+        alunoNome: alunoRes.data?.full_name ?? null,
         isActive: rows.length === 0 ? true : rows.some((r: any) => !r.archived_at),
         hasSessions: rows.length > 0,
       };
