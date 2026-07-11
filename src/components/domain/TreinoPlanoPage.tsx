@@ -533,6 +533,7 @@ function ActionsSidebar({
   templateId,
   templateSlug,
   planoName,
+  isArchived,
   onDeleted,
   onArchived,
 }: {
@@ -541,6 +542,7 @@ function ActionsSidebar({
   templateId: string | null;
   templateSlug: string | null;
   planoName: string;
+  isArchived: boolean;
   onDeleted: () => void;
   onArchived: () => void;
 }) {
@@ -551,6 +553,7 @@ function ActionsSidebar({
   const [archiveOpen, setArchiveOpen] = useState(false);
   const [archiving, setArchiving] = useState(false);
   const [editing, setEditing] = useState(false);
+
 
 
   const invalidateAluno = () => {
