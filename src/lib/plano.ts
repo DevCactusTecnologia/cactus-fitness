@@ -125,6 +125,7 @@ export function buildPlano(
     sorted.find((s) => s.workout_templates?.category)?.workout_templates
       ?.category ??
     null;
+  const isActive = sorted.some((s) => !s.archived_at);
   return {
     id: aluno.id,
     name: `Plano de ${firstName}`,
@@ -137,7 +138,7 @@ export function buildPlano(
     startShort: formatStartShort(start),
     startNumeric: formatStartNumeric(start),
     goal,
-    isActive: true,
+    isActive,
     isSimple: true,
   };
 }
