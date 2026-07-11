@@ -999,9 +999,9 @@ export function WorkoutEditor({
           )}
           {/* Name / description */}
           {kind === "plan" ? (
-            <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-start">
-              <div className="flex-1 space-y-1">
-                <div className="group relative rounded-lg border border-border/50 bg-card/40 px-4 py-3 transition hover:border-border focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/40">
+            <div className="space-y-1">
+              <div className="flex flex-col items-stretch gap-3 lg:flex-row lg:items-center">
+                <div className="group relative flex-1 rounded-lg border border-border/50 bg-card/40 px-4 py-3 transition hover:border-border focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/40">
                   <Input
                     ref={nameInputRef}
                     value={state.name}
@@ -1012,42 +1012,162 @@ export function WorkoutEditor({
                   <Pencil className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60 opacity-0 transition group-hover:opacity-100" />
                 </div>
 
-                <Textarea
-                  value={state.description}
-                  onChange={(e) => dispatch({ type: "SET_META", patch: { description: e.target.value } })}
-                  placeholder="Adicionar descrição"
-                  className="min-h-[36px] resize-none border-0 bg-transparent px-4 py-1 text-base text-muted-foreground placeholder:text-muted-foreground/70 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
-                />
-              </div>
-              <Sheet open={configOpen} onOpenChange={setConfigOpen}>
-                <SheetTrigger asChild>
-                  <button className="mt-1 inline-flex h-9 shrink-0 items-center gap-1.5 rounded-full border border-border bg-card px-4 text-sm font-medium text-foreground hover:bg-muted">
-                    <Settings className="h-4 w-4" />
-                    Configurações
-                  </button>
-                </SheetTrigger>
-                <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
-                  <SheetHeader><SheetTitle>Configurações</SheetTitle></SheetHeader>
-                  <div className="mt-4 space-y-4">
-                    <div className="flex items-center justify-between rounded-lg border border-border p-3">
+                {/* Metadata chips — mesma linha do nome */}
+                <div className="flex flex-wrap items-center gap-2 lg:shrink-0">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button
+                        disabled={loadingEdit}
+                        className="inline-flex h-8 items-center gap-1.5 rounded-full border border-border/70 bg-card/60 px-3 text-xs font-medium text-foreground hover:bg-muted"
+                      >
+                        <Clock className="h-3.5 w-3.5 text-muted-foreground" />
+                        {state.duration_weeks
+                          ? `${state.duration_weeks} ${state.duration_weeks === 1 ? "semana" : "semanas"}`
+                          : "Definir duração"}
+                        <Pencil className="h-3 w-3 text-muted-foreground/70" />
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent align="start" className="w-56 space-y-3 p-3">
                       <div>
-                        <div className="text-sm font-medium">Periodizar</div>
-                        <div className="text-xs text-muted-foreground">Variação de estímulos por semana</div>
+                        <Label className="text-xs">Duração (semanas)</Label>
+                        <Input
+                          type="number"
+                          min={1}
+                          max={52}
+                          value={state.duration_weeks ?? ""}
+                          onChange={(e) => {
+                            const raw = e.target.value;
+                            const n = raw === "" ? null : Math.max(1, Math.min(52, parseInt(raw, 10) || 1));
+                            dispatch({ type: "SET_META", patch: { duration_weeks: n } });
+                          }}
+                          className="mt-1 h-9"
+                        />
                       </div>
-                      <Switch checked={state.periodize} onCheckedChange={(v) => dispatch({ type: "SET_META", patch: { periodize: v } })} />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="wt-level">Nível</Label>
-                      <Input id="wt-level" value={state.level} onChange={(e) => dispatch({ type: "SET_META", patch: { level: e.target.value } })} placeholder="Iniciante, Intermediário, Avançado" />
-                    </div>
-                    <div className="space-y-2">
-                      <Label htmlFor="wt-goal">Objetivo</Label>
-                      <Input id="wt-goal" value={state.goal} onChange={(e) => dispatch({ type: "SET_META", patch: { goal: e.target.value } })} placeholder="Hipertrofia, força, resistência..." />
-                    </div>
-                  </div>
-                </SheetContent>
-              </Sheet>
+                      <div className="flex flex-wrap gap-1.5">
+                        {[2, 4, 6, 8, 12].map((n) => (
+                          <button
+                            key={n}
+                            onClick={() => dispatch({ type: "SET_META", patch: { duration_weeks: n } })}
+                            className={`h-7 rounded-full border px-2.5 text-xs ${
+                              state.duration_weeks === n
+                                ? "border-primary bg-primary/10 text-primary"
+                                : "border-border text-muted-foreground hover:bg-muted"
+                            }`}
+                          >
+                            {n}
+                          </button>
+                        ))}
+                      </div>
+                      {state.duration_weeks !== null && (
+                        <button
+                          onClick={() => dispatch({ type: "SET_META", patch: { duration_weeks: null } })}
+                          className="text-xs text-muted-foreground hover:text-foreground"
+                        >
+                          Limpar
+                        </button>
+                      )}
+                    </PopoverContent>
+                  </Popover>
+
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button
+                        disabled={loadingEdit}
+                        className="inline-flex h-8 items-center gap-1.5 rounded-full border border-border/70 bg-card/60 px-3 text-xs font-medium text-foreground hover:bg-muted"
+                      >
+                        <CalendarDays className="h-3.5 w-3.5 text-muted-foreground" />
+                        {formattedStartDate ? `Início: ${formattedStartDate}` : "Definir início"}
+                        <Pencil className="h-3 w-3 text-muted-foreground/70" />
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent align="start" className="w-auto p-0">
+                      <Calendar
+                        mode="single"
+                        selected={state.start_date ? new Date(`${state.start_date}T12:00:00`) : undefined}
+                        onSelect={(d) => {
+                          if (!d) return;
+                          const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+                          dispatch({ type: "SET_META", patch: { start_date: iso } });
+                        }}
+                        className="pointer-events-auto p-3"
+                      />
+                      {state.start_date && (
+                        <div className="border-t border-border p-2">
+                          <button
+                            onClick={() => dispatch({ type: "SET_META", patch: { start_date: null } })}
+                            className="w-full rounded-md px-2 py-1 text-left text-xs text-muted-foreground hover:bg-muted hover:text-foreground"
+                          >
+                            Limpar data
+                          </button>
+                        </div>
+                      )}
+                    </PopoverContent>
+                  </Popover>
+
+                  <Sheet open={configOpen} onOpenChange={setConfigOpen}>
+                    <SheetTrigger asChild>
+                      <button className="inline-flex h-8 items-center gap-1.5 rounded-full border border-border/70 bg-card/60 px-3 text-xs font-medium text-foreground hover:bg-muted">
+                        <Settings className="h-3.5 w-3.5 text-muted-foreground" />
+                        Configurações
+                      </button>
+                    </SheetTrigger>
+                    <SheetContent side="right" className="w-full sm:max-w-md overflow-y-auto">
+                      <SheetHeader><SheetTitle>Configurações</SheetTitle></SheetHeader>
+                      <div className="mt-4 space-y-4">
+                        <div className="flex items-center justify-between rounded-lg border border-border p-3">
+                          <div>
+                            <div className="text-sm font-medium">Periodizar</div>
+                            <div className="text-xs text-muted-foreground">Variação de estímulos por semana</div>
+                          </div>
+                          <Switch checked={state.periodize} onCheckedChange={(v) => dispatch({ type: "SET_META", patch: { periodize: v } })} />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="wt-level">Nível</Label>
+                          <Input id="wt-level" value={state.level} onChange={(e) => dispatch({ type: "SET_META", patch: { level: e.target.value } })} placeholder="Iniciante, Intermediário, Avançado" />
+                        </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="wt-goal">Objetivo</Label>
+                          <Input id="wt-goal" value={state.goal} onChange={(e) => dispatch({ type: "SET_META", patch: { goal: e.target.value } })} placeholder="Hipertrofia, força, resistência..." />
+                        </div>
+                      </div>
+                    </SheetContent>
+                  </Sheet>
+
+                  {alunoProfileHref && planHeaderQuery.data?.alunoNome && (
+                    <a
+                      href={alunoProfileHref}
+                      className="inline-flex h-8 max-w-[220px] items-center gap-1.5 rounded-full border border-border/70 bg-card/60 px-3 text-xs font-medium text-foreground hover:bg-muted"
+                      title={`Ver perfil de ${planHeaderQuery.data.alunoNome}`}
+                    >
+                      <AtSign className="h-3.5 w-3.5 text-muted-foreground" />
+                      <span className="truncate">{planHeaderQuery.data.alunoNome}</span>
+                    </a>
+                  )}
+
+                  {isEdit && alunoId && planHeaderQuery.data && (
+                    planHeaderQuery.data.isActive ? (
+                      <span className="inline-flex h-8 items-center gap-1.5 rounded-full border border-[oklch(0.75_0.15_150)]/40 bg-[oklch(0.75_0.15_150)]/10 px-3 text-xs font-semibold uppercase tracking-wide text-[oklch(0.75_0.15_150)]">
+                        <CheckCircle2 className="h-3.5 w-3.5" />
+                        Ativo
+                      </span>
+                    ) : (
+                      <span className="inline-flex h-8 items-center gap-1.5 rounded-full border border-border bg-muted/60 px-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                        <Archive className="h-3.5 w-3.5" />
+                        Arquivado
+                      </span>
+                    )
+                  )}
+                </div>
+              </div>
+
+              <Textarea
+                value={state.description}
+                onChange={(e) => dispatch({ type: "SET_META", patch: { description: e.target.value } })}
+                placeholder="Adicionar descrição"
+                className="min-h-[36px] resize-none border-0 bg-transparent px-4 py-1 text-base text-muted-foreground placeholder:text-muted-foreground/70 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
+              />
             </div>
+
           ) : (
             <>
               <div className="space-y-1">
