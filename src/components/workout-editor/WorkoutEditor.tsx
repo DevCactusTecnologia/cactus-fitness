@@ -334,8 +334,8 @@ export function WorkoutEditor({
   }, [loadingEdit]);
 
   const backHref = kind === "plan"
-    ? (alunoId ? `/dashboard/personal/alunos/${alunoId}` : "/dashboard/personal/treinos")
-    : "/dashboard/personal/treinos";
+    ? (alunoId ? `/dashboard/${scope === "academia" ? "academia" : "personal"}/alunos/${alunoId}` : scopeBase)
+    : scopeBase;
 
   const isDirty = touched && !saving;
 
