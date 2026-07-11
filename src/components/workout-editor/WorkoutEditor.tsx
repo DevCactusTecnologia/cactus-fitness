@@ -1504,7 +1504,11 @@ function AlvoPickerButton({
     return "rep";
   };
   const [mode, setMode] = useState<"rep" | "faixa" | "tempo">(detectMode(value || "12"));
-  const [rep, setRep] = useState<string>(() => (mode === "rep" ? (value || "12") : "12"));
+  const parseReps = (v: string) => {
+    const parts = (v || "12").split("/").map((s) => s.trim()).filter(Boolean);
+    return parts.length > 0 ? parts : ["12"];
+  };
+  const [reps, setReps] = useState<string[]>(() => (mode === "rep" ? parseReps(value) : ["12"]));
   const [faixaMin, setFaixaMin] = useState<string>(() => {
     if (mode === "faixa") {
       const [a] = value.split("-");
