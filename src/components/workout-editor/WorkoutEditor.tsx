@@ -1014,6 +1014,8 @@ export function WorkoutEditor({
 
                 {/* Metadata chips — mesma linha do nome */}
                 <div className="flex flex-wrap items-center gap-2 lg:shrink-0">
+                  {isEdit && alunoId && (
+                    <>
                   <Popover>
                     <PopoverTrigger asChild>
                       <button
@@ -1103,6 +1105,9 @@ export function WorkoutEditor({
                       )}
                     </PopoverContent>
                   </Popover>
+                    </>
+                  )}
+
 
                   <Sheet open={configOpen} onOpenChange={setConfigOpen}>
                     <SheetTrigger asChild>
