@@ -476,12 +476,28 @@ export function WorkoutEditor({
         session_position: number;
         block_label: string | null;
         session_label: string | null;
+        per_set: {
+          types?: SetType[];
+          reps?: string[];
+          rest?: number[];
+          load?: string[];
+        } | null;
       }> = [];
 
       let flat = 0;
       state.sessions.forEach((s, si) => {
         s.blocks.forEach((b, bi) => {
           b.exercises.forEach((e) => {
+            const perSet: {
+              types?: SetType[];
+              reps?: string[];
+              rest?: number[];
+              load?: string[];
+            } = {};
+            if (Array.isArray(e.set_types) && e.set_types.length > 0) perSet.types = e.set_types;
+            if (Array.isArray(e.reps_by_set) && e.reps_by_set.length > 0) perSet.reps = e.reps_by_set;
+            if (Array.isArray(e.rest_by_set) && e.rest_by_set.length > 0) perSet.rest = e.rest_by_set;
+            if (Array.isArray(e.load_by_set) && e.load_by_set.length > 0) perSet.load = e.load_by_set;
             rows.push({
               template_id: workingTemplateId!,
               exercise_id: e.exercise_id,
@@ -495,6 +511,7 @@ export function WorkoutEditor({
               session_position: si,
               block_label: b.label,
               session_label: kind === "plan" ? s.label : null,
+              per_set: Object.keys(perSet).length > 0 ? perSet : null,
             });
           });
         });
