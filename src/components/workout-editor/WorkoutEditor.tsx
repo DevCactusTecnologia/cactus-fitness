@@ -1306,29 +1306,38 @@ function ExerciseDetailSheet({
                   const reps = [...(item.reps_by_set ?? [])];
                   const rests = [...(item.rest_by_set ?? [])];
                   const loads = [...(item.load_by_set ?? [])];
+                  const counts = [...(item.count_by_set ?? [])];
                   types.splice(i, 1);
                   reps.splice(i, 1);
                   rests.splice(i, 1);
                   loads.splice(i, 1);
+                  counts.splice(i, 1);
                   onChange({
                     sets: Math.max(0, (item.sets ?? 0) - 1),
                     set_types: types,
                     reps_by_set: reps,
                     rest_by_set: rests,
                     load_by_set: loads,
+                    count_by_set: counts,
                   });
                 };
                 return (
-                  <div key={i} className="grid grid-cols-[150px_48px_minmax(56px,1fr)_100px_80px_32px] items-center gap-2 py-1">
+                  <div key={i} className="grid grid-cols-[150px_64px_minmax(48px,1fr)_100px_80px_32px] items-center gap-2 py-1">
                     <SetTypePickerButton
                       index={i}
                       currentType={currentType}
                       onSelect={setType}
                       onRemoveSet={removeThisSet}
                     />
-                    <div className="grid h-10 w-12 place-items-center rounded-lg bg-surface-2 text-sm font-semibold tabular-nums text-foreground">
-                      {i + 1}
-                    </div>
+                    <input
+                      type="text"
+                      inputMode="numeric"
+                      pattern="[0-9]*"
+                      value={perCount}
+                      onChange={(e) => setCount(e.target.value)}
+                      aria-label={`Número da série ${i + 1}`}
+                      className="h-10 w-full rounded-lg bg-surface-2 px-2 text-center text-sm font-semibold tabular-nums text-foreground caret-primary focus:outline-none focus:ring-2 focus:ring-primary/40"
+                    />
                     <AlvoPickerButton
                       index={i}
                       value={perReps}
