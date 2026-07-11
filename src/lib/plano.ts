@@ -146,7 +146,7 @@ export function buildPlano(
   const finalStart = tplStart ?? start;
   // If we know sessions per plan and total weeks, perWeek = sessions / weeks
   const derivedPerWeek = finalWeeks > 0 ? Math.max(1, Math.round(sessionsCount / finalWeeks)) : sessionsCount;
-  const finalPerWeek = tplWeeks ? derivedPerWeek : Math.max(perWeek, derivedPerWeek);
+  const finalPerWeek = tplWeeks ? derivedPerWeek : Math.max(weekdaySet.size || 1, derivedPerWeek);
 
   const goal =
     sorted.find((s) => s.workout_templates?.goal)?.workout_templates?.goal ??
