@@ -3370,67 +3370,77 @@ function LoadPickerDialog({
           <DialogTitle className="text-center font-display text-base font-bold leading-tight">Carga sugerida</DialogTitle>
           <DialogDescription className="sr-only">Definir carga sugerida em kg</DialogDescription>
         </div>
-        <div className="mt-5 flex items-center justify-center gap-3">
-          <button
-            type="button"
-            onClick={() => bump(-1)}
-            className="grid h-11 w-11 place-items-center rounded-full border border-border bg-muted text-lg font-bold text-foreground hover:bg-surface-2"
-            aria-label="Diminuir 1 kg"
-          >
-            −
-          </button>
-          <div className="flex h-11 min-w-[140px] items-center justify-between gap-1 rounded-full border border-border bg-background px-4">
-            <input
-              type="text"
-              inputMode="decimal"
-              value={format(num)}
-              onChange={(e) => {
-                const raw = e.target.value.replace(",", ".").replace(/[^0-9.]/g, "");
-                const n = parseFloat(raw);
-                setNum(Number.isFinite(n) ? clamp(n) : 0);
-              }}
-              className="w-full bg-transparent text-center text-lg font-bold tabular-nums text-foreground focus:outline-none"
-              aria-label="Carga em kg"
-            />
-            <span className="text-xs font-semibold uppercase text-muted-foreground">kg</span>
+
+        <div className="mt-4 mb-5">
+          <div className="flex flex-col items-center gap-4 py-5">
+            <div className="flex items-center gap-3">
+              <button
+                type="button"
+                onClick={() => bump(-1)}
+                aria-label="Diminuir 1 kg"
+                className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border border-border bg-surface-3 text-2xl font-bold text-foreground transition-all hover:border-border-strong hover:bg-surface-4 active:scale-95 active:bg-surface-4 focus:outline-none focus:ring-2 focus:ring-primary/40"
+              >
+                −
+              </button>
+              <div className="relative flex min-w-[180px] items-baseline justify-center gap-2 rounded-2xl border border-border bg-surface-2 px-5 py-3 transition-colors">
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  placeholder="0"
+                  value={format(num)}
+                  onChange={(e) => {
+                    const raw = e.target.value.replace(",", ".").replace(/[^0-9.]/g, "");
+                    const n = parseFloat(raw);
+                    setNum(Number.isFinite(n) ? clamp(n) : 0);
+                  }}
+                  className="w-24 bg-transparent text-center font-mono text-[2.5rem] font-bold leading-none tabular-nums text-foreground outline-none selection:bg-primary/30"
+                  aria-label="Carga em kg"
+                />
+                <span className="text-base font-semibold uppercase tracking-wider text-fg-muted">kg</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => bump(1)}
+                aria-label="Aumentar 1 kg"
+                className="flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border border-primary/30 bg-primary/10 text-2xl font-bold text-primary transition-all hover:border-primary/50 hover:bg-primary/20 active:scale-95 active:bg-primary/25 focus:outline-none focus:ring-2 focus:ring-primary/40"
+              >
+                +
+              </button>
+            </div>
+            <div className="flex flex-wrap items-center justify-center gap-1.5">
+              {[-5, -0.5, 0.5, 5].map((d) => {
+                const positive = d > 0;
+                return (
+                  <button
+                    key={d}
+                    type="button"
+                    onClick={() => bump(d)}
+                    className={`h-8 cursor-pointer rounded-full border px-3.5 font-body text-xs font-semibold tabular-nums transition-all active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary/30 ${
+                      positive
+                        ? "border-primary/20 bg-primary/5 text-primary hover:border-primary/40 hover:bg-primary/15"
+                        : "border-border bg-surface-2 text-fg-muted hover:border-border-strong hover:bg-surface-3 hover:text-foreground"
+                    }`}
+                  >
+                    {positive ? `+${d}` : d}
+                  </button>
+                );
+              })}
+            </div>
           </div>
-          <button
-            type="button"
-            onClick={() => bump(1)}
-            className="grid h-11 w-11 place-items-center rounded-full bg-primary text-lg font-bold text-primary-foreground hover:brightness-110"
-            aria-label="Aumentar 1 kg"
-          >
-            +
-          </button>
         </div>
-        <div className="mt-3 flex items-center justify-center gap-2">
-          {[-5, -0.5, 0.5, 5].map((d) => (
-            <button
-              key={d}
-              type="button"
-              onClick={() => bump(d)}
-              className={`h-8 min-w-[52px] rounded-full px-3 text-xs font-semibold transition-colors ${
-                d > 0
-                  ? "bg-primary/15 text-primary hover:bg-primary/25"
-                  : "border border-border bg-muted text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {d > 0 ? `+${d}` : d}
-            </button>
-          ))}
-        </div>
-        <div className="mt-6 flex items-center justify-between gap-3">
+
+        <div className="flex gap-2.5">
           <button
             type="button"
             onClick={() => onOpenChange(false)}
-            className="h-11 flex-1 rounded-full border border-border bg-transparent px-4 text-sm font-semibold text-foreground hover:bg-muted"
+            className="h-11 flex-1 rounded-full border border-border bg-surface-2 font-body text-sm font-semibold text-foreground transition-all hover:border-border-strong hover:bg-surface-3 active:scale-[0.98]"
           >
             Cancelar
           </button>
           <button
             type="button"
             onClick={() => onSave(num > 0 ? format(num) : "")}
-            className="h-11 flex-1 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground hover:brightness-110"
+            className="h-11 flex-[1.6] rounded-full bg-primary font-body text-sm font-semibold text-primary-foreground shadow-glow transition-all hover:brightness-110 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-40 disabled:shadow-none disabled:hover:brightness-100"
           >
             Confirmar
           </button>
@@ -3439,3 +3449,4 @@ function LoadPickerDialog({
     </Dialog>
   );
 }
+
