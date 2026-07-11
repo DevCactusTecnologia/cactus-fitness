@@ -908,7 +908,11 @@ function PlanoCard({ plano }: { plano: Plano }) {
                 <span className="inline-flex items-center gap-1 rounded-full border border-green-500/30 bg-green-500/15 px-3 py-0.5 text-[0.625rem] font-semibold text-green-500">
                   Ativo
                 </span>
-              ) : null}
+              ) : (
+                <span className="inline-flex items-center gap-1 rounded-full border border-border bg-muted/40 px-3 py-0.5 text-[0.625rem] font-semibold text-muted-foreground">
+                  Arquivado
+                </span>
+              )}
               {plano.isSimple ? (
                 <span className="inline-flex items-center gap-1.5 rounded-full border border-green-500/30 bg-green-500/10 px-3 py-0.5 text-[0.625rem] font-semibold text-green-400">
                   Simples
