@@ -50,4 +50,3 @@ function EditarModeloPage() {
   const kind = data.kind === "plan" ? "plan" : "template";
   return <WorkoutEditor kind={kind} editSlug={slug} alunoId={data.aluno_id ?? null} />;
 }
-}
