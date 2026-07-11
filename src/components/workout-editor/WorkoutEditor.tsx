@@ -2259,6 +2259,11 @@ function ExerciseDetailSheet({
                 <p className="text-[11px] leading-snug text-muted-foreground">
                   Desligue em exercícios de peso corporal (abdominais, alongamentos).
                 </p>
+                {item.use_load === false && (
+                  <p className="mt-1 text-[11px] font-medium leading-snug text-primary">
+                    Ajuste só neste plano.
+                  </p>
+                )}
               </div>
               <Switch
                 checked={item.use_load !== false}
