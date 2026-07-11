@@ -771,10 +771,78 @@ export function WorkoutEditor({
   const formattedStartDate = state.start_date
     ? new Date(`${state.start_date}T12:00:00`).toLocaleDateString("pt-BR")
     : null;
-
-
+  // Plan-only sidebar actions
+  const [archiveConfirmOpen, setArchiveConfirmOpen] = useState(false);
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+  const duplicatePlanFn = useServerFn(duplicatePlan);
+  const duplicatePlanMut = useMutation({
+    mutationFn: () => {
+      if (!editSlug) throw new Error("Salve o plano antes de duplicar");
+      return duplicatePlanFn({ data: { sourceSlug: editSlug } });
+    },
+    onSuccess: (res) => {
+      if (alunoId) qc.invalidateQueries({ queryKey: ["aluno-student-workouts", alunoId] });
+      toast.success("Plano duplicado", { description: "Uma cópia editável foi criada." });
+      navigate({
+        to: `${scopeBase}/plano/$slug` as "/dashboard/personal/treinos/plano/$slug",
+        params: { slug: res.slug },
+      });
+    },
+    onError: (err) => toast.error(err instanceof Error ? err.message : "Erro ao duplicar plano"),
+  });
+  const archiveMut = useMutation({
+    mutationFn: async () => {
+      if (!alunoId || !templateId) throw new Error("Plano sem aluno vinculado");
+      const { error } = await supabase
+        .from("student_workouts")
+        .update({ archived_at: new Date().toISOString() })
+        .eq("aluno_id", alunoId)
+        .eq("template_id", templateId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Plano arquivado");
+      qc.invalidateQueries({ queryKey: ["plan-header"] });
+      if (alunoId) {
+        qc.invalidateQueries({ queryKey: ["aluno-student-workouts", alunoId] });
+        navigate({
+          to: (scope === "academia"
+            ? "/dashboard/academia/alunos/$alunoId"
+            : "/dashboard/personal/alunos/$alunoId") as "/dashboard/personal/alunos/$alunoId",
+          params: { alunoId },
+        });
+      }
+    },
+    onError: (err) => toast.error(err instanceof Error ? err.message : "Erro ao arquivar"),
+  });
+  const deleteMut = useMutation({
+    mutationFn: async () => {
+      if (!alunoId || !templateId) throw new Error("Plano sem aluno vinculado");
+      const { error } = await supabase
+        .from("student_workouts")
+        .delete()
+        .eq("aluno_id", alunoId)
+        .eq("template_id", templateId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      toast.success("Plano excluído");
+      if (alunoId) {
+        qc.invalidateQueries({ queryKey: ["aluno-student-workouts", alunoId] });
+        navigate({
+          to: (scope === "academia"
+            ? "/dashboard/academia/alunos/$alunoId"
+            : "/dashboard/personal/alunos/$alunoId") as "/dashboard/personal/alunos/$alunoId",
+          params: { alunoId },
+        });
+      }
+    },
+    onError: (err) => toast.error(err instanceof Error ? err.message : "Erro ao excluir"),
+  });
+  const handleExportPdf = () => { if (typeof window !== "undefined") window.print(); };
 
   return (
+
     <div className="min-h-screen bg-background text-foreground">
       <IconRail />
       <div className="pb-24 md:pl-[72px] md:pb-0">
