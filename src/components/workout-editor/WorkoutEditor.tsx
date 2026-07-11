@@ -1626,7 +1626,7 @@ function SessionCard({
     <div className="w-full sm:w-[360px] overflow-hidden rounded-xl border border-border/60 bg-card/60">
       <div className="flex items-center gap-2 border-b border-border/60 px-4 py-3">
         <GripVertical className="h-4 w-4 shrink-0 text-muted-foreground/60" />
-        <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[oklch(0.92_0.19_115)]/15 text-xs font-bold text-[oklch(0.92_0.19_115)]">
+        <span className="grid h-7 w-7 shrink-0 place-items-center rounded-md bg-[oklch(0.92_0.19_115)]/15 text-[11px] font-bold text-[oklch(0.92_0.19_115)]">
           {letter}
         </span>
         {editing ? (
@@ -1636,10 +1636,10 @@ function SessionCard({
             onChange={(e) => dispatch({ type: "RENAME_SESSION", sessionId: session.id, label: e.target.value })}
             onBlur={() => { if (!session.label.trim()) dispatch({ type: "RENAME_SESSION", sessionId: session.id, label: "Treino" }); setEditing(false); }}
             onKeyDown={(e) => { if (e.key === "Enter" || e.key === "Escape") (e.target as HTMLInputElement).blur(); }}
-            className="min-w-0 flex-1 bg-transparent text-base font-semibold text-foreground outline-none"
+            className="min-w-0 flex-1 bg-transparent text-sm font-semibold text-foreground outline-none"
           />
         ) : (
-          <span className="min-w-0 flex-1 truncate text-base font-semibold text-foreground">{displayName || "Sem nome"}</span>
+          <span className="min-w-0 flex-1 truncate text-sm font-semibold text-foreground">{displayName || "Sem nome"}</span>
         )}
         <button
           onClick={startEdit}
