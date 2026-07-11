@@ -2019,6 +2019,8 @@ function ExerciseRow({
   return (
     <>
       <div
+        ref={dragRef}
+        style={dragStyle}
         role="button"
         tabIndex={0}
         onClick={() => setOpen(true)}
@@ -2028,7 +2030,8 @@ function ExerciseRow({
         <button
           type="button"
           onClick={(e) => e.stopPropagation()}
-          className="-m-1 shrink-0 cursor-grab p-1 text-muted-foreground/40 group-hover:text-muted-foreground active:cursor-grabbing"
+          {...(dragHandleProps ?? {})}
+          className="-m-1 shrink-0 cursor-grab touch-none p-1 text-muted-foreground/40 group-hover:text-muted-foreground active:cursor-grabbing"
           aria-label="Arrastar exercício"
         >
           <GripVertical className="h-4 w-4" />
