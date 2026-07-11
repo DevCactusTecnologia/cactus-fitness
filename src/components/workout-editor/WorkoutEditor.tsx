@@ -1164,6 +1164,25 @@ function ExerciseDetailSheet({
   const diff = difficultyStyle(meta?.difficulty);
   const setsCount = Math.max(item.sets ?? 0, 0);
   const rows = Array.from({ length: setsCount }, (_, i) => i);
+  const [dragSetIdx, setDragSetIdx] = useState<number | null>(null);
+  const [dragOverSetIdx, setDragOverSetIdx] = useState<number | null>(null);
+  const reorderSet = (from: number, to: number) => {
+    if (from === to || from < 0 || to < 0 || from >= setsCount || to >= setsCount) return;
+    const move = <T,>(arr: T[] | undefined, fill: T): T[] => {
+      const a = [...(arr ?? [])];
+      while (a.length < setsCount) a.push(fill);
+      const [x] = a.splice(from, 1);
+      a.splice(to, 0, x);
+      return a.slice(0, setsCount);
+    };
+    onChange({
+      set_types: move(item.set_types, "normal" as SetType),
+      reps_by_set: move(item.reps_by_set, item.reps),
+      rest_by_set: move(item.rest_by_set, item.rest_seconds ?? 60),
+      load_by_set: move(item.load_by_set, item.load ?? ""),
+      count_by_set: move(item.count_by_set, "1"),
+    });
+  };
   const addSet = () => onChange({ sets: (item.sets ?? 0) + 1 });
   const removeSet = () => onChange({ sets: Math.max(0, (item.sets ?? 0) - 1) });
 
