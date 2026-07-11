@@ -60,6 +60,7 @@ type ExerciseItem = {
   reps_by_set?: string[];
   rest_by_set?: number[];
   load_by_set?: string[];
+  count_by_set?: string[];
 };
 
 
