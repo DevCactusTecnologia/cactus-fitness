@@ -22,6 +22,8 @@ import {
   Pencil,
   FileDown,
   Archive,
+  CheckCircle2,
+
   Trash2,
   Save,
   Dumbbell,
