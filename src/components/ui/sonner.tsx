@@ -11,17 +11,17 @@ const Toaster = ({ ...props }: ToasterProps) => {
       expand
       visibleToasts={4}
       icons={{
-        success: <CheckCircle2 className="h-5 w-5 text-primary" strokeWidth={2.2} />,
-        error: <XCircle className="h-5 w-5 text-rose-400" strokeWidth={2.2} />,
-        warning: <AlertTriangle className="h-5 w-5 text-amber-400" strokeWidth={2.2} />,
-        info: <Info className="h-5 w-5 text-primary" strokeWidth={2.2} />,
-        loading: <Loader2 className="h-5 w-5 animate-spin text-primary" strokeWidth={2.2} />,
+        success: <CheckCircle2 className="h-4 w-4 text-primary" strokeWidth={2.2} />,
+        error: <XCircle className="h-4 w-4 text-rose-400" strokeWidth={2.2} />,
+        warning: <AlertTriangle className="h-4 w-4 text-amber-400" strokeWidth={2.2} />,
+        info: <Info className="h-4 w-4 text-primary" strokeWidth={2.2} />,
+        loading: <Loader2 className="h-4 w-4 animate-spin text-primary" strokeWidth={2.2} />,
       }}
       toastOptions={{
         unstyled: false,
         classNames: {
           toast: [
-            "group toast relative flex items-center gap-3 overflow-hidden",
+            "group toast relative flex items-start gap-3 overflow-hidden",
             "rounded-2xl border border-white/10 bg-[hsl(0_0%_6%/0.92)] px-4 py-3.5 pr-10",
             "text-foreground shadow-[0_20px_60px_-15px_rgba(0,0,0,0.75)]",
             "backdrop-blur-2xl backdrop-saturate-150",
@@ -36,7 +36,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
           ].join(" "),
           title: "text-sm font-semibold tracking-tight text-foreground",
           description: "text-xs text-muted-foreground",
-          icon: "flex h-9 w-9 items-center justify-center rounded-full bg-white/[0.04] ring-1 ring-white/10 shrink-0",
+          icon: "flex h-4 w-4 items-center justify-center shrink-0 mt-0.5 m-0",
           actionButton:
             "!bg-primary !text-primary-foreground rounded-lg px-3 py-1.5 text-xs font-medium shadow-sm hover:!bg-primary/90 transition-colors",
           cancelButton:
