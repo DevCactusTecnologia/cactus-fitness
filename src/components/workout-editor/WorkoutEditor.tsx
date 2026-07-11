@@ -2,6 +2,7 @@ import { useEffect, useMemo, useReducer, useRef, useState, useDeferredValue } fr
 import { useNavigate, useBlocker } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import * as DialogPrimitive from "@radix-ui/react-dialog";
 import {
   ChevronDown, ChevronUp, Copy, GripVertical, Loader2, MoreHorizontal, CheckSquare,
   Play, Plus, Save, Search, Settings, Trash2, X, Dumbbell, Pencil, Check, Filter, ChevronLeft, ChevronRight, Clock, BarChart3, Hash, AlertCircle, AlertTriangle, Info, Sparkles, FileText, LayoutTemplate,
@@ -3291,14 +3292,14 @@ function LoadChip({ value, onSave }: { value: string; onSave: (v: string) => voi
       <button
         type="button"
         onClick={(e) => { e.stopPropagation(); setOpen(true); }}
-        className={`inline-flex h-4 items-center gap-0.5 rounded-full border px-1.5 text-[9px] font-medium leading-none transition-colors ${
+        className={`inline-flex h-6 items-center gap-1 rounded-full border px-2.5 text-[11px] font-semibold leading-none transition-colors ${
           hasValue
             ? "border-primary/40 bg-primary/10 text-primary"
             : "border-dashed border-border/70 text-muted-foreground hover:border-primary/60 hover:text-primary"
         }`}
         aria-label="Definir carga"
       >
-        {hasValue ? `${value} kg` : (<><Plus className="h-2 w-2" /> carga</>)}
+        {hasValue ? `${value} kg` : (<><Plus className="h-3 w-3" /> Carga</>)}
       </button>
 
       <LoadPickerDialog
@@ -3361,15 +3362,28 @@ function LoadPickerDialog({
   const format = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed(2).replace(/\.?0+$/, ""));
   const bump = (delta: number) => setNum((prev) => clamp(prev + delta));
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-sm gap-0 rounded-2xl border border-border bg-surface-1 p-5 shadow-2xl sm:p-6">
-        <div className="flex flex-col items-center gap-3 pt-1">
+    <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
+      <DialogPrimitive.Portal>
+        <DialogPrimitive.Overlay className="fixed inset-0 z-[10010] bg-black/70 backdrop-blur-sm data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
+        <DialogPrimitive.Content
+          data-value-picker="content"
+          className="fixed left-[50%] top-[50%] z-[10011] w-full max-w-sm translate-x-[-50%] translate-y-[-50%] rounded-2xl border border-border bg-surface-1 p-5 shadow-[0_24px_60px_-12px_rgba(0,0,0,0.7),0_0_0_1px_rgba(215,242,5,0.06)] duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95 focus:outline-none sm:p-6"
+        >
+          <div className="flex flex-col items-center gap-2.5 pt-1">
           <div className="flex size-10 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 shadow-glow">
-            <Dumbbell className="size-5 text-primary" strokeWidth={2.5} />
+            <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256" className="size-5 text-primary" aria-hidden="true">
+              <path d="M244,116V88a20,20,0,0,0-20-20H208V64a20,20,0,0,0-20-20H164a20,20,0,0,0-20,20v52H112V64A20,20,0,0,0,92,44H68A20,20,0,0,0,48,64v4H32A20,20,0,0,0,12,88v28a12,12,0,0,0,0,24v28a20,20,0,0,0,20,20H48v4a20,20,0,0,0,20,20H92a20,20,0,0,0,20-20V140h32v52a20,20,0,0,0,20,20h24a20,20,0,0,0,20-20v-4h16a20,20,0,0,0,20-20V140a12,12,0,0,0,0-24ZM36,164V92H48v72Zm52,24H72V68H88Zm96,0H168V68h16Zm36-24H208V92h12Z" />
+            </svg>
           </div>
-          <DialogTitle className="text-center font-display text-base font-bold leading-tight">Carga sugerida</DialogTitle>
-          <DialogDescription className="sr-only">Definir carga sugerida em kg</DialogDescription>
+          <DialogPrimitive.Title className="text-center font-display text-base font-bold leading-tight">Carga sugerida</DialogPrimitive.Title>
+          <DialogPrimitive.Description className="sr-only">Definir carga sugerida em kg</DialogPrimitive.Description>
         </div>
+        <DialogPrimitive.Close className="absolute right-3 top-3 rounded-lg p-1.5 text-fg-muted transition-colors hover:bg-surface-2 hover:text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40" aria-label="Fechar">
+          <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256" className="h-4 w-4" aria-hidden="true">
+            <path d="M208.49,191.51a12,12,0,0,1-17,17L128,145,64.49,208.49a12,12,0,0,1-17-17L111,128,47.51,64.49a12,12,0,0,1,17-17L128,111l63.51-63.52a12,12,0,0,1,17,17L145,128Z" />
+          </svg>
+          <span className="sr-only">Fechar</span>
+        </DialogPrimitive.Close>
 
         <div className="mt-4 mb-5">
           <div className="flex flex-col items-center gap-4 py-5">
@@ -3445,8 +3459,9 @@ function LoadPickerDialog({
             Confirmar
           </button>
         </div>
-      </DialogContent>
-    </Dialog>
+        </DialogPrimitive.Content>
+      </DialogPrimitive.Portal>
+    </DialogPrimitive.Root>
   );
 }
 
