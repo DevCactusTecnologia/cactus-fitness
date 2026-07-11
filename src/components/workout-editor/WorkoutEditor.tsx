@@ -1257,7 +1257,7 @@ function ExerciseDetailSheet({
               <div className="min-w-[520px] space-y-1">
                 <div className="grid grid-cols-[150px_64px_minmax(48px,1fr)_100px_80px_32px] gap-2 px-1 pb-0.5">
               <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Tipo</span>
-              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground text-center">Série</span>
+              <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Série</span>
               <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Alvo</span>
               <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Carga</span>
               <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Descanso</span>
