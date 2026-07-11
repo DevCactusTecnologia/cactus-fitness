@@ -768,10 +768,28 @@ export function WorkoutEditor({
                     <MoreHorizontal className="h-4 w-4" />
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuItem onClick={() => setConfigOpen(true)}>
                     <Settings className="mr-2 h-4 w-4" /> Configurações
                   </DropdownMenuItem>
+                  {kind === "plan" && isEdit && (
+                    <DropdownMenuItem
+                      disabled={!canSaveAsTemplate || saveAsTemplateMut.isPending}
+                      onClick={() => saveAsTemplateMut.mutate()}
+                      title={
+                        isDirty
+                          ? "Salve as alterações antes de converter em modelo"
+                          : "Cria uma cópia deste plano como modelo pronto"
+                      }
+                    >
+                      {saveAsTemplateMut.isPending ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <LayoutTemplate className="mr-2 h-4 w-4" />
+                      )}
+                      Salvar como modelo
+                    </DropdownMenuItem>
+                  )}
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
