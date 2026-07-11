@@ -797,6 +797,31 @@ export function WorkoutEditor({
         </header>
 
         <main className="px-3 py-4 sm:px-4 sm:py-5 md:px-8">
+          {canStartFromTemplate && (
+            <div className="mb-4 flex flex-col gap-2 rounded-xl border border-dashed border-primary/40 bg-primary/5 p-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-start gap-2.5">
+                <div className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-full bg-primary/15 text-primary">
+                  <Sparkles className="h-4 w-4" />
+                </div>
+                <div className="min-w-0">
+                  <div className="text-sm font-semibold text-foreground">Como você quer começar?</div>
+                  <div className="text-xs text-muted-foreground">
+                    Copie um modelo pronto e ajuste pro aluno, ou monte do zero.
+                  </div>
+                </div>
+              </div>
+              <div className="flex shrink-0 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setTemplatePickerOpen(true)}
+                  className="inline-flex h-9 items-center gap-1.5 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground hover:brightness-110"
+                >
+                  <Copy className="h-4 w-4" />
+                  Partir de um modelo
+                </button>
+              </div>
+            </div>
+          )}
           {/* Name / description */}
           {kind === "plan" ? (
             <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-start">
