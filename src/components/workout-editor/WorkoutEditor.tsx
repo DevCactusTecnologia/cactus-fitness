@@ -1537,7 +1537,16 @@ function AlvoPickerButton({
   };
 
 
-  const label = value ? (detectMode(value) === "tempo" ? value : `${value} reps`) : "— reps";
+  const formatTempo = (raw: string) => {
+    const n = parseInt(raw.replace(/s$/i, "").trim() || "0", 10) || 0;
+    if (n < 60) return `${n}s`;
+    const m = Math.floor(n / 60);
+    const s = n % 60;
+    return s === 0 ? `${m}min` : `${m}min ${s}s`;
+  };
+  const label = value
+    ? (detectMode(value) === "tempo" ? formatTempo(value) : `${value} reps`)
+    : "— reps";
 
   return (
     <>
