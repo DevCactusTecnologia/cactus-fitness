@@ -706,6 +706,70 @@ export function WorkoutEditor({
 
   const canSaveAsTemplate = kind === "plan" && isEdit && !isDirty;
 
+  // Header meta (nome do aluno + status do plano)
+  const planHeaderQuery = useQuery({
+    queryKey: ["plan-header", editSlug, alunoId, templateId],
+    enabled: isEdit && kind === "plan" && !!alunoId && !!templateId,
+    queryFn: async () => {
+      const [alunoRes, swRes] = await Promise.all([
+        supabase.from("alunos").select("id, nome").eq("id", alunoId!).maybeSingle(),
+        supabase.from("student_workouts").select("archived_at").eq("template_id", templateId!),
+      ]);
+      if (alunoRes.error) throw alunoRes.error;
+      if (swRes.error) throw swRes.error;
+      const rows = swRes.data ?? [];
+      return {
+        alunoNome: alunoRes.data?.nome ?? null,
+        isActive: rows.length === 0 ? true : rows.some((r: any) => !r.archived_at),
+        hasSessions: rows.length > 0,
+      };
+    },
+  });
+
+  // Agregados de volume do plano (soma total de séries + grupos primários)
+  const planVolume = useMemo(() => {
+    const perMuscle = new Map<string, number>();
+    let totalSets = 0;
+    for (const s of state.sessions) {
+      for (const b of s.blocks) {
+        for (const e of b.exercises) {
+          const sets = e.sets ?? 0;
+          totalSets += sets;
+          const muscles = (e.muscles_primary ?? []).filter(Boolean);
+          if (muscles.length === 0) continue;
+          for (const m of muscles) {
+            perMuscle.set(m, (perMuscle.get(m) ?? 0) + sets);
+          }
+        }
+      }
+    }
+    const groups = [...perMuscle.entries()]
+      .map(([muscle, sets]) => ({ muscle, sets }))
+      .sort((a, b) => b.sets - a.sets);
+    const sessionsCount = state.sessions.filter(
+      (s) => s.blocks.some((b) => b.exercises.length > 0),
+    ).length || 1;
+    return {
+      totalSets,
+      groupsCount: groups.length,
+      perSession: Math.round(totalSets / sessionsCount),
+      groups,
+      max: groups[0]?.sets ?? 0,
+    };
+  }, [state.sessions]);
+
+  const alunoProfileHref =
+    alunoId
+      ? scope === "academia"
+        ? `/dashboard/academia/alunos/${alunoId}`
+        : `/dashboard/personal/alunos/${alunoId}`
+      : null;
+
+  const formattedStartDate = state.start_date
+    ? new Date(`${state.start_date}T12:00:00`).toLocaleDateString("pt-BR")
+    : null;
+
+
 
   return (
     <div className="min-h-screen bg-background text-foreground">
