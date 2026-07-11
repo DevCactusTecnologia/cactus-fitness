@@ -614,15 +614,6 @@ function TreinoPage() {
           <button onClick={() => navigate({ to: "/meu-treino" })} className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-muted-foreground hover:bg-accent" aria-label="Voltar">
             <ChevronLeft className="h-5 w-5" />
           </button>
-          {perms.allow_pdf && (
-            <button
-              onClick={downloadPdf}
-              className="sm:hidden inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-2.5 text-xs font-semibold text-muted-foreground hover:text-foreground"
-              aria-label="Baixar PDF"
-            >
-              <FileDown className="h-4 w-4" /> PDF
-            </button>
-          )}
           <button onClick={finish} className="flex flex-1 items-center justify-center gap-2 rounded-full border border-orange-500/60 py-3 font-display text-sm font-bold text-orange-500 hover:bg-orange-500/10">
             <AlertTriangle className="h-4 w-4" /> Finalizar mesmo assim
           </button>
