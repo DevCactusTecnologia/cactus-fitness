@@ -801,80 +801,47 @@ export function WorkoutEditor({
               <button
                 onClick={() => handleSave()}
                 disabled={!canSave}
-                className="inline-flex h-9 items-center gap-1.5 rounded-full bg-[oklch(0.92_0.19_115)] px-4 text-sm font-semibold text-[oklch(0.2_0.05_115)] hover:brightness-105 disabled:opacity-50"
+                className="inline-flex h-9 items-center gap-1.5 rounded-full bg-[oklch(0.92_0.19_115)] px-4 text-sm font-semibold text-[oklch(0.2_0.05_115)] hover:brightness-105 disabled:opacity-50 lg:hidden"
               >
                 {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                 Salvar
               </button>
-              <Sheet open={pickerOpen} onOpenChange={setPickerOpen}>
-                <SheetTrigger asChild>
-                  <button className="hidden md:inline-flex h-9 items-center gap-1.5 rounded-full border border-border bg-card px-4 text-sm font-medium text-foreground hover:bg-muted">
-                    <CheckSquare className="h-4 w-4" />
-                    Selecionar exercícios
-                  </button>
-                </SheetTrigger>
-                <SheetContent side="right" className="flex w-full flex-col gap-0 p-0 sm:max-w-[440px]">
-                  <SheetHeader className="shrink-0 border-b border-border px-5 py-3 text-left">
-                    <SheetTitle className="flex items-center gap-2 text-lg font-semibold">
-                      <Dumbbell className="h-5 w-5 text-primary" />
-                      Biblioteca de exercícios
-                    </SheetTitle>
-                  </SheetHeader>
-                  <div className="flex min-h-0 flex-1 flex-col">
-                    <ExercisePicker
-                      state={state}
-                      activeTarget={activeTarget}
-                      onCommit={(list) => {
-                        const target = resolveTarget(state, activeTarget);
-                        if (!target) { toast("Selecione um bloco antes de adicionar exercícios."); return; }
-                        list.forEach((ex) => {
-                          dispatch({ type: "ADD_EXERCISE", sessionId: target.sessionId, blockId: target.blockId, exercise: ex });
-                        });
-                        const sess = state.sessions.find((s) => s.id === target.sessionId);
-                        const sessLabel = sess && sess.label && sess.label !== "__single__" ? sess.label : "treino";
-                        toast.success(
-                          `${list.length} ${list.length === 1 ? "exercício adicionado" : "exercícios adicionados"}`,
-                          { description: `Em ${sessLabel}` },
-                        );
-                        setPickerOpen(false);
-                      }}
-                    />
-                  </div>
-                </SheetContent>
-              </Sheet>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <button className="grid h-9 w-9 place-items-center rounded-full border border-border text-muted-foreground hover:bg-muted" aria-label="Mais opções">
-                    <MoreHorizontal className="h-4 w-4" />
-                  </button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-56">
-                  <DropdownMenuItem onClick={() => setConfigOpen(true)}>
-                    <Settings className="mr-2 h-4 w-4" /> Configurações
-                  </DropdownMenuItem>
-                  {kind === "plan" && isEdit && (
-                    <DropdownMenuItem
-                      disabled={!canSaveAsTemplate || saveAsTemplateMut.isPending}
-                      onClick={() => saveAsTemplateMut.mutate()}
-                      title={
-                        isDirty
-                          ? "Salve as alterações antes de converter em modelo"
-                          : "Cria uma cópia deste plano como modelo pronto"
-                      }
-                    >
-                      {saveAsTemplateMut.isPending ? (
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      ) : (
-                        <LayoutTemplate className="mr-2 h-4 w-4" />
-                      )}
-                      Salvar como modelo
-                    </DropdownMenuItem>
-                  )}
-                </DropdownMenuContent>
-              </DropdownMenu>
             </div>
           </div>
         </header>
+
+        {/* Exercise picker sheet (controlled, triggered from sidebar or block "Adicionar exercício") */}
+        <Sheet open={pickerOpen} onOpenChange={setPickerOpen}>
+          <SheetContent side="right" className="flex w-full flex-col gap-0 p-0 sm:max-w-[440px]">
+            <SheetHeader className="shrink-0 border-b border-border px-5 py-3 text-left">
+              <SheetTitle className="flex items-center gap-2 text-lg font-semibold">
+                <Dumbbell className="h-5 w-5 text-primary" />
+                Biblioteca de exercícios
+              </SheetTitle>
+            </SheetHeader>
+            <div className="flex min-h-0 flex-1 flex-col">
+              <ExercisePicker
+                state={state}
+                activeTarget={activeTarget}
+                onCommit={(list) => {
+                  const target = resolveTarget(state, activeTarget);
+                  if (!target) { toast("Selecione um bloco antes de adicionar exercícios."); return; }
+                  list.forEach((ex) => {
+                    dispatch({ type: "ADD_EXERCISE", sessionId: target.sessionId, blockId: target.blockId, exercise: ex });
+                  });
+                  const sess = state.sessions.find((s) => s.id === target.sessionId);
+                  const sessLabel = sess && sess.label && sess.label !== "__single__" ? sess.label : "treino";
+                  toast.success(
+                    `${list.length} ${list.length === 1 ? "exercício adicionado" : "exercícios adicionados"}`,
+                    { description: `Em ${sessLabel}` },
+                  );
+                  setPickerOpen(false);
+                }}
+              />
+            </div>
+          </SheetContent>
+        </Sheet>
+
 
         <main className="px-3 py-4 sm:px-4 sm:py-5 md:px-8">
           {canStartFromTemplate && (
