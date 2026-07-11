@@ -1009,15 +1009,15 @@ export function WorkoutEditor({
           </div>
         </header>
 
-        {/* Exercise picker sheet (controlled, triggered from sidebar or block "Adicionar exercício") */}
-        <Sheet open={pickerOpen} onOpenChange={setPickerOpen}>
-          <SheetContent side="right" className="flex w-full flex-col gap-0 p-0 sm:max-w-[440px]">
-            <SheetHeader className="shrink-0 border-b border-border px-5 py-3 text-left">
-              <SheetTitle className="flex items-center gap-2 text-lg font-semibold">
+        {/* Exercise picker dialog (centered, triggered from sidebar or block "Adicionar exercício") */}
+        <Dialog open={pickerOpen} onOpenChange={setPickerOpen}>
+          <DialogContent className="flex h-[85vh] max-h-[720px] w-[calc(100vw-2rem)] max-w-[560px] flex-col gap-0 overflow-hidden p-0 sm:max-w-[560px]">
+            <DialogHeader className="shrink-0 border-b border-border px-5 py-3 text-left">
+              <DialogTitle className="flex items-center gap-2 text-lg font-semibold">
                 <Dumbbell className="h-5 w-5 text-primary" />
                 Biblioteca de exercícios
-              </SheetTitle>
-            </SheetHeader>
+              </DialogTitle>
+            </DialogHeader>
             <div className="flex min-h-0 flex-1 flex-col">
               <ExercisePicker
                 state={state}
@@ -1038,8 +1038,9 @@ export function WorkoutEditor({
                 }}
               />
             </div>
-          </SheetContent>
-        </Sheet>
+          </DialogContent>
+        </Dialog>
+
 
 
         <main className="px-3 py-4 sm:px-4 sm:py-5 md:px-6">
