@@ -512,12 +512,6 @@ function Section({ title, children }: { title: string; children: ReactNode }) {
   );
 }
 
-const ACTIONS = [
-  { icon: Pencil, label: "Editar" },
-  { icon: Copy, label: "Duplicar" },
-  { icon: Save, label: "Salvar como Template" },
-  { icon: FileDown, label: "Exportar PDF" },
-] as const;
 
 const ACTIONS = [
   { icon: Pencil, label: "Editar" },
