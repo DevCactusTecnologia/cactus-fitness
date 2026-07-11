@@ -917,11 +917,15 @@ export type Database = {
       }
       workout_templates: {
         Row: {
+          allow_add_sets: boolean
+          allow_pdf: boolean
+          allow_rpe: boolean
           aluno_id: string | null
           category: string | null
           created_at: string
           description: string | null
           duration_min: number | null
+          duration_weeks: number | null
           goal: string | null
           id: string
           kind: string
@@ -931,14 +935,20 @@ export type Database = {
           periodize: boolean
           personal_id: string
           slug: string | null
+          start_date: string | null
+          track_set_time: boolean
           updated_at: string
         }
         Insert: {
+          allow_add_sets?: boolean
+          allow_pdf?: boolean
+          allow_rpe?: boolean
           aluno_id?: string | null
           category?: string | null
           created_at?: string
           description?: string | null
           duration_min?: number | null
+          duration_weeks?: number | null
           goal?: string | null
           id?: string
           kind?: string
@@ -948,14 +958,20 @@ export type Database = {
           periodize?: boolean
           personal_id: string
           slug?: string | null
+          start_date?: string | null
+          track_set_time?: boolean
           updated_at?: string
         }
         Update: {
+          allow_add_sets?: boolean
+          allow_pdf?: boolean
+          allow_rpe?: boolean
           aluno_id?: string | null
           category?: string | null
           created_at?: string
           description?: string | null
           duration_min?: number | null
+          duration_weeks?: number | null
           goal?: string | null
           id?: string
           kind?: string
@@ -965,6 +981,8 @@ export type Database = {
           periodize?: boolean
           personal_id?: string
           slug?: string | null
+          start_date?: string | null
+          track_set_time?: boolean
           updated_at?: string
         }
         Relationships: [
