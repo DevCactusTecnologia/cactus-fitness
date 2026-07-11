@@ -3033,7 +3033,8 @@ function ExercisePicker({
   const [q, setQ] = useState("");
   const deferredQ = useDeferredValue(q);
   const [difficultyFilter, setDifficultyFilter] = useState<string | null>(null);
-  const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
+  const [selectedIds, setSelectedIds] = useState<number[]>([]);
+  const selectedIdSet = useMemo(() => new Set(selectedIds), [selectedIds]);
   const [customPicks, setCustomPicks] = useState<{ id: null; name: string }[]>([]);
   const { data: catalog = [], isLoading } = useQuery({
     queryKey: ["exercises-catalog"],
@@ -3095,27 +3096,26 @@ function ExercisePicker({
       })()
     : "—";
 
-  const totalSelected = selectedIds.size + customPicks.length;
+  const totalSelected = selectedIds.length + customPicks.length;
 
   const toggle = (id: number) => {
-    setSelectedIds((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
-      return next;
-    });
+    setSelectedIds((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]));
   };
 
   const handleCommit = () => {
     if (totalSelected === 0) return;
+    const catalogMap = new Map(catalog.map((e) => [e.id, e]));
     const picks: { id: number | null; name: string; muscles_primary?: string[] }[] = [];
-    catalog.forEach((e) => {
-      if (selectedIds.has(e.id)) picks.push({ id: e.id, name: e.name, muscles_primary: e.muscles_primary });
+    selectedIds.forEach((id) => {
+      const e = catalogMap.get(id);
+      if (e) picks.push({ id: e.id, name: e.name, muscles_primary: e.muscles_primary });
     });
     customPicks.forEach((c) => picks.push(c));
     onCommit(picks);
-    setSelectedIds(new Set());
+    setSelectedIds([]);
     setCustomPicks([]);
   };
+
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
@@ -3184,7 +3184,7 @@ function ExercisePicker({
             {filtered.map((e) => {
               const diff = difficultyStyle(e.difficulty);
               const groups = [e.group, ...e.muscles_secondary].filter(Boolean) as string[];
-              const isSelected = selectedIds.has(e.id);
+              const isSelected = selectedIdSet.has(e.id);
               return (
                 <button
                   key={e.id}
@@ -3259,7 +3259,7 @@ function ExercisePicker({
                 </p>
               </SheetHeader>
               <div className="min-h-0 flex-1 space-y-2 overflow-y-auto px-4 py-3">
-                {catalog.filter((e) => selectedIds.has(e.id)).map((e) => {
+                {selectedIds.map((id) => catalog.find((e) => e.id === id)).filter(Boolean).map((e: any) => {
                   const diff = difficultyStyle(e.difficulty);
                   const muscles = [...(e.muscles_primary ?? []), ...(e.muscles_secondary ?? [])].slice(0, 3).join(" • ");
                   return (
