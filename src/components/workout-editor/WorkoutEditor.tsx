@@ -307,6 +307,8 @@ export function WorkoutEditor({
     level: "",
     goal: "",
     periodize: false,
+    duration_weeks: null,
+    start_date: null,
     sessions: kind === "plan"
       ? [emptySession(0)]
       : [{ id: uid(), label: "__single__", blocks: [emptyBlock(0)] }],
