@@ -615,15 +615,16 @@ export function WorkoutEditor({
           {kind === "plan" ? (
             <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-start">
               <div className="flex-1 space-y-1">
-                <div className="group relative rounded-lg border border-border/50 bg-card/40 px-4 py-3 transition hover:border-border">
+                <div className="group relative rounded-lg border border-border/50 bg-card/40 px-4 py-3 transition hover:border-border focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/40">
                   <Input
                     value={state.name}
                     onChange={(e) => dispatch({ type: "SET_META", patch: { name: e.target.value } })}
                     placeholder={nameLabel}
-                    className="h-auto border-0 bg-transparent p-0 text-xl font-semibold tracking-tight text-foreground placeholder:text-foreground/60 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
+                    className="h-auto border-0 bg-transparent p-0 pr-8 text-xl font-semibold tracking-tight text-foreground caret-primary placeholder:text-foreground/60 shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
                   />
                   <Pencil className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground/60 opacity-0 transition group-hover:opacity-100" />
                 </div>
+
                 <Textarea
                   value={state.description}
                   onChange={(e) => dispatch({ type: "SET_META", patch: { description: e.target.value } })}
