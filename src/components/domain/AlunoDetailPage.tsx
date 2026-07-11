@@ -347,11 +347,13 @@ export function AlunoDetailPage({ scope }: { scope: Scope }) {
         open={configOpen}
         onOpenChange={setConfigOpen}
         aluno={aluno}
+        scope={scope}
         onBack={() => {
           setConfigOpen(false);
           setNovoPlanoOpen(true);
         }}
       />
+
 
 
       <CopyPlanPickerDialog
