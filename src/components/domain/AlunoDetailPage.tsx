@@ -385,8 +385,9 @@ export function AlunoDetailPage({ scope }: { scope: Scope }) {
 }
 
 function PlanConfigDialog({
-  open, onOpenChange, aluno, onBack,
-}: { open: boolean; onOpenChange: (o: boolean) => void; aluno: Aluno; onBack: () => void }) {
+  open, onOpenChange, aluno, scope, onBack,
+}: { open: boolean; onOpenChange: (o: boolean) => void; aluno: Aluno; scope: Scope; onBack: () => void }) {
+
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const firstName = aluno.full_name.split(" ")[0];
