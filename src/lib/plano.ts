@@ -2,6 +2,9 @@ export type TemplateExerciseRow = {
   id: string;
   position: number;
   session_position: number | null;
+  block_position: number | null;
+  session_label: string | null;
+  block_label: string | null;
   sets: number | null;
   reps: string | null;
   load: string | null;
@@ -32,7 +35,8 @@ export type StudentWorkoutRow = {
 };
 
 export const PLANO_SELECT =
-  "id, name, status, scheduled_for, created_at, archived_at, template_id, workout_templates ( name, slug, category, duration_min, duration_weeks, start_date, level, goal, workout_template_exercises ( id, position, session_position, sets, reps, load, rest_seconds, notes, exercises ( id, name, image_path ) ) )";
+  "id, name, status, scheduled_for, created_at, archived_at, template_id, workout_templates ( name, slug, category, duration_min, duration_weeks, start_date, level, goal, workout_template_exercises ( id, position, session_position, block_position, session_label, block_label, sets, reps, load, rest_seconds, notes, exercises ( id, name, image_path ) ) )";
+
 
 
 

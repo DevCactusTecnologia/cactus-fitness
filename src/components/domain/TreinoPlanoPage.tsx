@@ -222,15 +222,69 @@ function Stat({ value, label }: { value: string; label: string }) {
   );
 }
 
+type VirtualSession = {
+  key: string;
+  label: string;
+  exercises: TemplateExerciseRow[];
+};
+
+function buildVirtualSessions(plano: Plano): VirtualSession[] {
+  // Collect all exercises across all student_workout rows in this plan.
+  const all: TemplateExerciseRow[] = [];
+  for (const s of plano.sessions) {
+    for (const ex of s.workout_templates?.workout_template_exercises ?? []) {
+      all.push(ex);
+    }
+  }
+
+  const hasSessionPositions = all.some((ex) => ex.session_position != null);
+
+  if (hasSessionPositions) {
+    // Group by session_position; each group becomes its own card.
+    const groups = new Map<number, TemplateExerciseRow[]>();
+    const labels = new Map<number, string>();
+    for (const ex of all) {
+      const sp = ex.session_position ?? 0;
+      if (!groups.has(sp)) groups.set(sp, []);
+      groups.get(sp)!.push(ex);
+      if (ex.session_label && !labels.has(sp)) labels.set(sp, ex.session_label);
+    }
+    const keys = [...groups.keys()].sort((a, b) => a - b);
+    return keys.map((sp, idx) => {
+      const exs = [...groups.get(sp)!].sort((a, b) => a.position - b.position);
+      const fallback = `Treino ${String.fromCharCode(65 + idx)}`;
+      return {
+        key: `sp-${sp}`,
+        label: labels.get(sp) || fallback,
+        exercises: exs,
+      };
+    });
+  }
+
+  // Legacy: one card per student_workout row.
+  return plano.sessions.map((s, idx) => {
+    const sched = formatScheduled(s.scheduled_for);
+    const exs = [...(s.workout_templates?.workout_template_exercises ?? [])].sort(
+      (a, b) => a.position - b.position,
+    );
+    return {
+      key: s.id,
+      label: sched?.weekday ?? s.name ?? `Treino ${String.fromCharCode(65 + idx)}`,
+      exercises: exs,
+    };
+  });
+}
+
 function SessionsList({ plano }: { plano: Plano }) {
+  const sessions = buildVirtualSessions(plano);
   return (
     <div>
       <h2 className="mb-3 text-sm font-semibold uppercase tracking-wider text-fg-muted">
         Sessões de Treino
       </h2>
       <div className="space-y-2">
-        {plano.sessions.map((s, idx) => (
-          <SessionCard key={s.id} idx={idx} session={s} defaultOpen={idx === 0} />
+        {sessions.map((s, idx) => (
+          <SessionCard key={s.key} idx={idx} label={s.label} exercises={s.exercises} defaultOpen={idx === 0} />
         ))}
       </div>
     </div>
@@ -238,20 +292,17 @@ function SessionsList({ plano }: { plano: Plano }) {
 }
 
 function SessionCard({
-  session,
+  label,
+  exercises,
   idx,
   defaultOpen,
 }: {
-  session: StudentWorkoutRow;
+  label: string;
+  exercises: TemplateExerciseRow[];
   idx: number;
   defaultOpen: boolean;
 }) {
   const [open, setOpen] = useState(defaultOpen);
-  const sched = formatScheduled(session.scheduled_for);
-  const exercises = [...(session.workout_templates?.workout_template_exercises ?? [])].sort(
-    (a, b) => a.position - b.position,
-  );
-  const label = sched?.weekday ?? session.name;
 
   return (
     <div className="overflow-hidden rounded-xl border border-border bg-surface-1">
@@ -282,27 +333,10 @@ function SessionCard({
           {exercises.length === 0 ? (
             <p className="text-xs text-fg-muted">Nenhum exercício cadastrado.</p>
           ) : (
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <div className="flex items-center gap-2 pt-1">
-                  <span
-                    className="inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-[0.625rem] font-bold uppercase tracking-wider"
-                    style={{ color: "hsl(var(--primary))", backgroundColor: "color-mix(in oklab, hsl(var(--primary)) 12%, transparent)" }}
-                  >
-                    <span className="h-1.5 w-1.5 rounded-full" style={{ backgroundColor: "hsl(var(--primary))" }} />
-                    Força
-                  </span>
-                  <div
-                    className="h-px flex-1"
-                    style={{ backgroundColor: "color-mix(in oklab, hsl(var(--primary)) 15%, transparent)" }}
-                  />
-                </div>
-                <div className="space-y-2">
-                  {exercises.map((ex, i) => (
-                    <ExerciseRow key={ex.id} ex={ex} idx={i} />
-                  ))}
-                </div>
-              </div>
+            <div className="space-y-2">
+              {exercises.map((ex, i) => (
+                <ExerciseRow key={ex.id} ex={ex} idx={i} />
+              ))}
             </div>
           )}
         </div>
@@ -310,6 +344,7 @@ function SessionCard({
     </div>
   );
 }
+
 
 function ExerciseRow({ ex, idx }: { ex: TemplateExerciseRow; idx: number }) {
   const [open, setOpen] = useState(false);
