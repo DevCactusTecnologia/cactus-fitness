@@ -350,6 +350,7 @@ export function WorkoutEditor({
             reps_by_set: Array.isArray(ps?.reps) ? ps!.reps : undefined,
             rest_by_set: Array.isArray(ps?.rest) ? ps!.rest : undefined,
             load_by_set: Array.isArray(ps?.load) ? ps!.load : undefined,
+            count_by_set: Array.isArray((ps as any)?.counts) ? (ps as any).counts : undefined,
           });
           if (e.session_label) sessionLabels.set(sPos, e.session_label);
         }
