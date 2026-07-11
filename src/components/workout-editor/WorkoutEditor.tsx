@@ -636,6 +636,12 @@ export function WorkoutEditor({
                         list.forEach((ex) => {
                           dispatch({ type: "ADD_EXERCISE", sessionId: target.sessionId, blockId: target.blockId, exercise: ex });
                         });
+                        const sess = state.sessions.find((s) => s.id === target.sessionId);
+                        const sessLabel = sess && sess.label && sess.label !== "__single__" ? sess.label : "treino";
+                        toast.success(
+                          `${list.length} ${list.length === 1 ? "exercício adicionado" : "exercícios adicionados"}`,
+                          { description: `Em ${sessLabel}` },
+                        );
                         setPickerOpen(false);
                       }}
                     />
