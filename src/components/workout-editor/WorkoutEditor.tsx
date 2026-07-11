@@ -3291,15 +3291,16 @@ function LoadChip({ value, onSave }: { value: string; onSave: (v: string) => voi
       <button
         type="button"
         onClick={(e) => { e.stopPropagation(); setOpen(true); }}
-        className={`inline-flex h-5 items-center gap-1 rounded-full border px-2 text-[10px] font-medium transition-colors ${
+        className={`inline-flex h-4 items-center gap-0.5 rounded-full border px-1.5 text-[9px] font-medium leading-none transition-colors ${
           hasValue
             ? "border-primary/40 bg-primary/10 text-primary"
             : "border-dashed border-border/70 text-muted-foreground hover:border-primary/60 hover:text-primary"
         }`}
         aria-label="Definir carga"
       >
-        {hasValue ? `${value} kg` : (<><Plus className="h-2.5 w-2.5" /> carga</>)}
+        {hasValue ? `${value} kg` : (<><Plus className="h-2 w-2" /> carga</>)}
       </button>
+
       <LoadPickerDialog
         open={open}
         onOpenChange={setOpen}
