@@ -1,12 +1,15 @@
 import { useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { useNavigate, useBlocker } from "@tanstack/react-router";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   ChevronDown, ChevronUp, Copy, GripVertical, Loader2, MoreHorizontal, CheckSquare,
-  Play, Plus, Save, Search, Settings, Trash2, X, Dumbbell, Pencil, Check, Filter, ChevronLeft, ChevronRight, Clock, BarChart3, Hash, AlertCircle, AlertTriangle, Info,
+  Play, Plus, Save, Search, Settings, Trash2, X, Dumbbell, Pencil, Check, Filter, ChevronLeft, ChevronRight, Clock, BarChart3, Hash, AlertCircle, AlertTriangle, Info, Sparkles, FileText, LayoutTemplate,
 } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { useScope } from "@/lib/scope";
+import { duplicateTemplateAsPlan, saveAsTemplate } from "@/lib/workout-templates.functions";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -292,6 +295,8 @@ export function WorkoutEditor({
 }) {
   const navigate = useNavigate();
   const qc = useQueryClient();
+  const scope = useScope();
+  const scopeBase = scope === "academia" ? "/dashboard/academia/treinos" : "/dashboard/personal/treinos";
   const isEdit = Boolean(editSlug);
 
   const initial: State = useMemo(() => ({
@@ -329,8 +334,8 @@ export function WorkoutEditor({
   }, [loadingEdit]);
 
   const backHref = kind === "plan"
-    ? (alunoId ? `/dashboard/personal/alunos/${alunoId}` : "/dashboard/personal/treinos")
-    : "/dashboard/personal/treinos";
+    ? (alunoId ? `/dashboard/${scope === "academia" ? "academia" : "personal"}/alunos/${alunoId}` : scopeBase)
+    : scopeBase;
 
   const isDirty = touched && !saving;
 
@@ -626,6 +631,68 @@ export function WorkoutEditor({
 
   const [pickerOpen, setPickerOpen] = useState(false);
   const [configOpen, setConfigOpen] = useState(false);
+  const [templatePickerOpen, setTemplatePickerOpen] = useState(false);
+
+  // Fluxo "Partir de um modelo" — só faz sentido criando plano novo pra aluno
+  const canStartFromTemplate = kind === "plan" && !isEdit && !touched && !!alunoId;
+
+  const templatesQuery = useQuery({
+    queryKey: ["workout_templates", "picker", "template"],
+    enabled: templatePickerOpen,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("workout_templates")
+        .select("id, slug, name, description, level, goal, workout_template_exercises(count)")
+        .eq("kind", "template")
+        .order("updated_at", { ascending: false });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  const duplicateFn = useServerFn(duplicateTemplateAsPlan);
+  const duplicateMut = useMutation({
+    mutationFn: (sourceSlug: string) =>
+      duplicateFn({ data: { sourceSlug, alunoId: alunoId! } }),
+    onSuccess: (created) => {
+      qc.invalidateQueries({ queryKey: ["workout_templates"] });
+      if (alunoId) qc.invalidateQueries({ queryKey: ["aluno-student-workouts", alunoId] });
+      toast.success("Plano criado a partir do modelo");
+      setTemplatePickerOpen(false);
+      suppressDirtyRef.current = true; // bypass unsaved-changes blocker
+      navigate({
+        to: `${scopeBase}/editar/$slug` as "/dashboard/personal/treinos/editar/$slug",
+        params: { slug: created.slug },
+      });
+    },
+    onError: (err) => toast.error(err instanceof Error ? err.message : "Erro ao copiar modelo"),
+  });
+
+  const saveAsTemplateFn = useServerFn(saveAsTemplate);
+  const saveAsTemplateMut = useMutation({
+    mutationFn: () => {
+      if (!editSlug) throw new Error("Salve o plano antes de convertê-lo em modelo");
+      return saveAsTemplateFn({ data: { sourceSlug: editSlug } });
+    },
+    onSuccess: (created) => {
+      qc.invalidateQueries({ queryKey: ["workout_templates"] });
+      toast.success("Modelo criado", {
+        description: "Disponível na biblioteca de modelos da academia.",
+        action: {
+          label: "Ver modelo",
+          onClick: () =>
+            navigate({
+              to: `${scopeBase}/modelo/$modeloId` as "/dashboard/personal/treinos/modelo/$modeloId",
+              params: { modeloId: created.slug },
+            }),
+        },
+      });
+    },
+    onError: (err) => toast.error(err instanceof Error ? err.message : "Erro ao salvar como modelo"),
+  });
+
+  const canSaveAsTemplate = kind === "plan" && isEdit && !isDirty;
+
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -701,10 +768,28 @@ export function WorkoutEditor({
                     <MoreHorizontal className="h-4 w-4" />
                   </button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuContent align="end" className="w-56">
                   <DropdownMenuItem onClick={() => setConfigOpen(true)}>
                     <Settings className="mr-2 h-4 w-4" /> Configurações
                   </DropdownMenuItem>
+                  {kind === "plan" && isEdit && (
+                    <DropdownMenuItem
+                      disabled={!canSaveAsTemplate || saveAsTemplateMut.isPending}
+                      onClick={() => saveAsTemplateMut.mutate()}
+                      title={
+                        isDirty
+                          ? "Salve as alterações antes de converter em modelo"
+                          : "Cria uma cópia deste plano como modelo pronto"
+                      }
+                    >
+                      {saveAsTemplateMut.isPending ? (
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      ) : (
+                        <LayoutTemplate className="mr-2 h-4 w-4" />
+                      )}
+                      Salvar como modelo
+                    </DropdownMenuItem>
+                  )}
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
@@ -712,6 +797,31 @@ export function WorkoutEditor({
         </header>
 
         <main className="px-3 py-4 sm:px-4 sm:py-5 md:px-8">
+          {canStartFromTemplate && (
+            <div className="mb-4 flex flex-col gap-2 rounded-xl border border-dashed border-primary/40 bg-primary/5 p-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-start gap-2.5">
+                <div className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-full bg-primary/15 text-primary">
+                  <Sparkles className="h-4 w-4" />
+                </div>
+                <div className="min-w-0">
+                  <div className="text-sm font-semibold text-foreground">Como você quer começar?</div>
+                  <div className="text-xs text-muted-foreground">
+                    Copie um modelo pronto e ajuste pro aluno, ou monte do zero.
+                  </div>
+                </div>
+              </div>
+              <div className="flex shrink-0 gap-2">
+                <button
+                  type="button"
+                  onClick={() => setTemplatePickerOpen(true)}
+                  className="inline-flex h-9 items-center gap-1.5 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground hover:brightness-110"
+                >
+                  <Copy className="h-4 w-4" />
+                  Partir de um modelo
+                </button>
+              </div>
+            </div>
+          )}
           {/* Name / description */}
           {kind === "plan" ? (
             <div className="flex flex-col items-stretch gap-3 sm:flex-row sm:items-start">
@@ -945,6 +1055,73 @@ export function WorkoutEditor({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Partir de um modelo — dialog */}
+      <Dialog open={templatePickerOpen} onOpenChange={setTemplatePickerOpen}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <LayoutTemplate className="h-5 w-5 text-primary" />
+              Partir de um modelo
+            </DialogTitle>
+            <DialogDescription>
+              Copiamos todas as sessões e exercícios pro plano deste aluno. Depois é
+              só ajustar. O modelo original não é afetado.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="mt-2 max-h-[60vh] overflow-y-auto">
+            {templatesQuery.isLoading ? (
+              <div className="grid place-items-center py-10 text-sm text-muted-foreground">
+                <Loader2 className="mb-2 h-5 w-5 animate-spin" />
+                Carregando modelos…
+              </div>
+            ) : (templatesQuery.data ?? []).length === 0 ? (
+              <div className="rounded-lg border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+                Nenhum modelo pronto disponível ainda.<br />
+                Crie um modelo em Treinos › Novo modelo.
+              </div>
+            ) : (
+              <ul className="flex flex-col gap-2">
+                {(templatesQuery.data ?? []).map((t: any) => {
+                  const count = Array.isArray(t.workout_template_exercises)
+                    ? (t.workout_template_exercises[0]?.count ?? 0)
+                    : 0;
+                  return (
+                    <li key={t.id}>
+                      <button
+                        type="button"
+                        disabled={duplicateMut.isPending}
+                        onClick={() => duplicateMut.mutate(t.slug ?? t.id)}
+                        className="flex w-full items-start gap-3 rounded-lg border border-border bg-card p-3 text-left transition hover:border-primary hover:bg-muted disabled:opacity-50"
+                      >
+                        <div className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
+                          <FileText className="h-4 w-4" />
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <div className="truncate text-sm font-semibold text-foreground">{t.name}</div>
+                          {t.description ? (
+                            <div className="truncate text-xs text-muted-foreground">{t.description}</div>
+                          ) : null}
+                          <div className="mt-1 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
+                            {t.level ? <span className="rounded-full bg-muted px-2 py-0.5">{t.level}</span> : null}
+                            {t.goal ? <span className="rounded-full bg-muted px-2 py-0.5">{t.goal}</span> : null}
+                            <span className="inline-flex items-center gap-1">
+                              <Dumbbell className="h-3 w-3" /> {count} {count === 1 ? "exercício" : "exercícios"}
+                            </span>
+                          </div>
+                        </div>
+                        {duplicateMut.isPending && duplicateMut.variables === (t.slug ?? t.id) ? (
+                          <Loader2 className="mt-1 h-4 w-4 shrink-0 animate-spin text-primary" />
+                        ) : null}
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import { useNavigate, useParams } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import type { Scope } from "@/lib/scope";
-import { useState, type ReactNode } from "react";
+import { useState, useMemo, type ReactNode } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   ArrowLeft,
@@ -13,10 +14,13 @@ import {
   Dumbbell,
   Layers,
   Loader2,
+  Send,
   Video,
+  Search,
 } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { duplicateTemplateAsPlan } from "@/lib/workout-templates.functions";
 import { IconRail } from "@/components/IconRail";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { formatRest } from "@/lib/plano";
@@ -77,6 +81,9 @@ export function TreinoModeloPage({ scope }: { scope: Scope }) {
   const navigate = useNavigate();
   const qc = useQueryClient();
   const [confirmDelete, setConfirmDelete] = useState(false);
+  const [useOpen, setUseOpen] = useState(false);
+  const [alunoSearch, setAlunoSearch] = useState("");
+  const [selectedAlunoId, setSelectedAlunoId] = useState<string | null>(null);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["modelo-detail", modeloId],
@@ -195,6 +202,52 @@ export function TreinoModeloPage({ scope }: { scope: Scope }) {
     onError: (err) => toast.error(err instanceof Error ? err.message : "Erro ao excluir"),
   });
 
+  const alunosQuery = useQuery({
+    queryKey: ["alunos", "picker"],
+    enabled: useOpen,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("alunos")
+        .select("id, full_name, is_active")
+        .eq("is_active", true)
+        .order("full_name");
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  const filteredAlunos = useMemo(() => {
+    const q = alunoSearch.trim().toLowerCase();
+    const list = alunosQuery.data ?? [];
+    if (!q) return list;
+    return list.filter((a: any) => a.full_name?.toLowerCase().includes(q));
+  }, [alunosQuery.data, alunoSearch]);
+
+  const duplicateAsPlanFn = useServerFn(duplicateTemplateAsPlan);
+  const useTemplateMut = useMutation({
+    mutationFn: async () => {
+      if (!data) throw new Error("Modelo não carregado");
+      if (!selectedAlunoId) throw new Error("Selecione um aluno");
+      return duplicateAsPlanFn({
+        data: { sourceSlug: data.slug, alunoId: selectedAlunoId },
+      });
+    },
+    onSuccess: (created) => {
+      qc.invalidateQueries({ queryKey: ["workout_templates"] });
+      if (selectedAlunoId)
+        qc.invalidateQueries({ queryKey: ["aluno-student-workouts", selectedAlunoId] });
+      toast.success("Plano criado a partir do modelo");
+      setUseOpen(false);
+      setSelectedAlunoId(null);
+      setAlunoSearch("");
+      navigate({
+        to: `${base}/editar/$slug` as "/dashboard/personal/treinos/editar/$slug",
+        params: { slug: created.slug },
+      });
+    },
+    onError: (err) => toast.error(err instanceof Error ? err.message : "Erro ao criar plano"),
+  });
+
   const handleEdit = () => {
     if (!data) return;
     navigate({
@@ -269,6 +322,7 @@ export function TreinoModeloPage({ scope }: { scope: Scope }) {
               onEdit={handleEdit}
               onDuplicate={() => duplicateMut.mutate()}
               onDelete={() => setConfirmDelete(true)}
+              onUseAsPlan={data && !data.isPlan ? () => setUseOpen(true) : undefined}
               duplicating={duplicateMut.isPending}
               disabled={!data}
             />
@@ -304,6 +358,92 @@ export function TreinoModeloPage({ scope }: { scope: Scope }) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Dialog
+        open={useOpen}
+        onOpenChange={(v) => {
+          setUseOpen(v);
+          if (!v) { setSelectedAlunoId(null); setAlunoSearch(""); }
+        }}
+      >
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Send className="h-5 w-5 text-primary" />
+              Usar este modelo
+            </DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            Escolha um aluno. Uma cópia deste modelo será criada como plano exclusivo
+            dele. Você pode ajustar tudo em seguida.
+          </p>
+          <div className="mt-2">
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <input
+                value={alunoSearch}
+                onChange={(e) => setAlunoSearch(e.target.value)}
+                placeholder="Buscar aluno"
+                className="h-10 w-full rounded-lg border border-border bg-background pl-9 pr-3 text-sm outline-none focus:border-primary focus:ring-2 focus:ring-primary/30"
+              />
+            </div>
+          </div>
+          <div className="mt-3 max-h-[45vh] overflow-y-auto">
+            {alunosQuery.isLoading ? (
+              <div className="grid place-items-center py-8 text-sm text-muted-foreground">
+                <Loader2 className="mb-2 h-5 w-5 animate-spin" /> Carregando alunos…
+              </div>
+            ) : filteredAlunos.length === 0 ? (
+              <div className="rounded-lg border border-dashed border-border p-6 text-center text-sm text-muted-foreground">
+                Nenhum aluno encontrado.
+              </div>
+            ) : (
+              <ul className="flex flex-col gap-1">
+                {filteredAlunos.map((a: any) => {
+                  const isSel = selectedAlunoId === a.id;
+                  return (
+                    <li key={a.id}>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedAlunoId(a.id)}
+                        className={`flex w-full items-center gap-3 rounded-lg border px-3 py-2 text-left text-sm transition ${
+                          isSel
+                            ? "border-primary bg-primary/10 text-foreground"
+                            : "border-border bg-card text-foreground hover:border-primary/40 hover:bg-muted"
+                        }`}
+                      >
+                        <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-muted text-xs font-semibold uppercase text-muted-foreground">
+                          {a.full_name?.[0] ?? "?"}
+                        </span>
+                        <span className="min-w-0 flex-1 truncate font-medium">{a.full_name}</span>
+                      </button>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+          </div>
+          <div className="mt-4 flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setUseOpen(false)}
+              disabled={useTemplateMut.isPending}
+              className="inline-flex h-10 items-center rounded-full border border-border bg-transparent px-4 text-sm font-medium text-foreground hover:bg-muted disabled:opacity-50"
+            >
+              Cancelar
+            </button>
+            <button
+              type="button"
+              onClick={() => useTemplateMut.mutate()}
+              disabled={!selectedAlunoId || useTemplateMut.isPending}
+              className="inline-flex h-10 items-center gap-1.5 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground hover:brightness-110 disabled:opacity-50"
+            >
+              {useTemplateMut.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Send className="h-4 w-4" />}
+              Criar plano
+            </button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <MobileBottomNav scope={scope} />
     </div>
@@ -701,16 +841,35 @@ function ActionsSidebar({
   onEdit,
   onDuplicate,
   onDelete,
+  onUseAsPlan,
   duplicating,
   disabled,
 }: {
   onEdit: () => void;
   onDuplicate: () => void;
   onDelete: () => void;
+  onUseAsPlan?: () => void;
   duplicating: boolean;
   disabled: boolean;
 }) {
-  const actions = [
+  const actions: Array<{
+    icon: any;
+    label: string;
+    onClick: () => void;
+    loading: boolean;
+    primary?: true;
+    destructive?: true;
+  }> = [];
+  if (onUseAsPlan) {
+    actions.push({
+      icon: Send,
+      label: "Usar este modelo",
+      onClick: onUseAsPlan,
+      loading: false,
+      primary: true,
+    });
+  }
+  actions.push(
     { icon: Pencil, label: "Editar", onClick: onEdit, loading: false },
     {
       icon: duplicating ? Loader2 : Copy,
@@ -723,9 +882,9 @@ function ActionsSidebar({
       label: "Excluir",
       onClick: onDelete,
       loading: false,
-      destructive: true as const,
+      destructive: true,
     },
-  ];
+  );
 
   return (
     <aside className="lg:sticky lg:top-24 lg:self-start">
@@ -734,14 +893,18 @@ function ActionsSidebar({
         Ações
       </h2>
       <div className="flex flex-col gap-2">
-        {actions.map(({ icon: Icon, label, onClick, loading, destructive }) => (
+        {actions.map(({ icon: Icon, label, onClick, loading, destructive, primary }) => (
           <button
             key={label}
             type="button"
             onClick={onClick}
             disabled={disabled || loading}
-            className={`inline-flex h-12 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border border-border bg-transparent px-6 py-2.5 text-sm font-semibold transition-all hover:border-primary hover:text-primary active:scale-[0.97] disabled:opacity-50 ${
-              destructive ? "text-destructive hover:border-destructive hover:text-destructive" : "text-foreground"
+            className={`inline-flex h-12 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full px-6 py-2.5 text-sm font-semibold transition-all active:scale-[0.97] disabled:opacity-50 ${
+              primary
+                ? "border border-primary bg-primary text-primary-foreground hover:brightness-110"
+                : destructive
+                  ? "border border-border bg-transparent text-destructive hover:border-destructive hover:text-destructive"
+                  : "border border-border bg-transparent text-foreground hover:border-primary hover:text-primary"
             }`}
           >
             <Icon className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
