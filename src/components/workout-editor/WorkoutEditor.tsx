@@ -631,6 +631,68 @@ export function WorkoutEditor({
 
   const [pickerOpen, setPickerOpen] = useState(false);
   const [configOpen, setConfigOpen] = useState(false);
+  const [templatePickerOpen, setTemplatePickerOpen] = useState(false);
+
+  // Fluxo "Partir de um modelo" — só faz sentido criando plano novo pra aluno
+  const canStartFromTemplate = kind === "plan" && !isEdit && !touched && !!alunoId;
+
+  const templatesQuery = useQuery({
+    queryKey: ["workout_templates", "picker", "template"],
+    enabled: templatePickerOpen,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("workout_templates")
+        .select("id, slug, name, description, level, goal, workout_template_exercises(count)")
+        .eq("kind", "template")
+        .order("updated_at", { ascending: false });
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  const duplicateFn = useServerFn(duplicateTemplateAsPlan);
+  const duplicateMut = useMutation({
+    mutationFn: (sourceSlug: string) =>
+      duplicateFn({ data: { sourceSlug, alunoId: alunoId! } }),
+    onSuccess: (created) => {
+      qc.invalidateQueries({ queryKey: ["workout_templates"] });
+      if (alunoId) qc.invalidateQueries({ queryKey: ["aluno-student-workouts", alunoId] });
+      toast.success("Plano criado a partir do modelo");
+      setTemplatePickerOpen(false);
+      suppressDirtyRef.current = true; // bypass unsaved-changes blocker
+      navigate({
+        to: `${scopeBase}/editar/$slug` as "/dashboard/personal/treinos/editar/$slug",
+        params: { slug: created.slug },
+      });
+    },
+    onError: (err) => toast.error(err instanceof Error ? err.message : "Erro ao copiar modelo"),
+  });
+
+  const saveAsTemplateFn = useServerFn(saveAsTemplate);
+  const saveAsTemplateMut = useMutation({
+    mutationFn: () => {
+      if (!editSlug) throw new Error("Salve o plano antes de convertê-lo em modelo");
+      return saveAsTemplateFn({ data: { sourceSlug: editSlug } });
+    },
+    onSuccess: (created) => {
+      qc.invalidateQueries({ queryKey: ["workout_templates"] });
+      toast.success("Modelo criado", {
+        description: "Disponível na biblioteca de modelos da academia.",
+        action: {
+          label: "Ver modelo",
+          onClick: () =>
+            navigate({
+              to: `${scopeBase}/modelo/$modeloId` as "/dashboard/personal/treinos/modelo/$modeloId",
+              params: { modeloId: created.slug },
+            }),
+        },
+      });
+    },
+    onError: (err) => toast.error(err instanceof Error ? err.message : "Erro ao salvar como modelo"),
+  });
+
+  const canSaveAsTemplate = kind === "plan" && isEdit && !isDirty;
+
 
   return (
     <div className="min-h-screen bg-background text-foreground">
