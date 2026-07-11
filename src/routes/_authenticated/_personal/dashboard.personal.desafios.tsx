@@ -138,7 +138,15 @@ function DesafiosPage() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => { if (confirm("Excluir este desafio?")) deleteDesafio.mutate(d.id); }}
+                    onClick={async () => {
+                      const ok = await confirmDialog({
+                        title: "Excluir desafio?",
+                        description: "Essa ação não pode ser desfeita.",
+                        confirmLabel: "Excluir",
+                        destructive: true,
+                      });
+                      if (ok) deleteDesafio.mutate(d.id);
+                    }}
                     className="grid h-9 w-9 place-items-center rounded-lg text-destructive hover:bg-destructive/10"
                     aria-label="Excluir"
                   >
