@@ -1752,10 +1752,10 @@ function BlockCard({
     <div
       className={`overflow-hidden rounded-lg border border-border/60 ${isActive ? "ring-1 ring-primary/40" : ""}`}
       style={{
-        borderColor: isExplicitBlock ? (isActive ? undefined : `${color}40`) : undefined,
-        backgroundColor: isExplicitBlock ? `color-mix(in oklab, ${color} 10%, hsl(var(--card)))` : "transparent",
+        backgroundColor: isExplicitBlock ? `color-mix(in oklab, ${color} 6%, hsl(var(--card)))` : "transparent",
       }}
     >
+
       {isExplicitBlock && (
         <div
           className="flex items-center gap-2 px-3 pt-2.5 pb-2"
