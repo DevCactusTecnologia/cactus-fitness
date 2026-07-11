@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   X, Clock, Check, Play, ChevronDown, ChevronLeft, MessageSquare,
-  AlertTriangle, Timer, Plus, FileDown, Gauge,
+  AlertTriangle, Timer, Plus, FileDown, Gauge, CheckCheck,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useCurrentUser } from "@/lib/auth";
