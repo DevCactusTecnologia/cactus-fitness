@@ -202,6 +202,52 @@ export function TreinoModeloPage({ scope }: { scope: Scope }) {
     onError: (err) => toast.error(err instanceof Error ? err.message : "Erro ao excluir"),
   });
 
+  const alunosQuery = useQuery({
+    queryKey: ["alunos", "picker"],
+    enabled: useOpen,
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("alunos")
+        .select("id, full_name, is_active")
+        .eq("is_active", true)
+        .order("full_name");
+      if (error) throw error;
+      return data ?? [];
+    },
+  });
+
+  const filteredAlunos = useMemo(() => {
+    const q = alunoSearch.trim().toLowerCase();
+    const list = alunosQuery.data ?? [];
+    if (!q) return list;
+    return list.filter((a: any) => a.full_name?.toLowerCase().includes(q));
+  }, [alunosQuery.data, alunoSearch]);
+
+  const duplicateAsPlanFn = useServerFn(duplicateTemplateAsPlan);
+  const useTemplateMut = useMutation({
+    mutationFn: async () => {
+      if (!data) throw new Error("Modelo não carregado");
+      if (!selectedAlunoId) throw new Error("Selecione um aluno");
+      return duplicateAsPlanFn({
+        data: { sourceSlug: data.slug, alunoId: selectedAlunoId },
+      });
+    },
+    onSuccess: (created) => {
+      qc.invalidateQueries({ queryKey: ["workout_templates"] });
+      if (selectedAlunoId)
+        qc.invalidateQueries({ queryKey: ["aluno-student-workouts", selectedAlunoId] });
+      toast.success("Plano criado a partir do modelo");
+      setUseOpen(false);
+      setSelectedAlunoId(null);
+      setAlunoSearch("");
+      navigate({
+        to: `${base}/editar/$slug` as "/dashboard/personal/treinos/editar/$slug",
+        params: { slug: created.slug },
+      });
+    },
+    onError: (err) => toast.error(err instanceof Error ? err.message : "Erro ao criar plano"),
+  });
+
   const handleEdit = () => {
     if (!data) return;
     navigate({
