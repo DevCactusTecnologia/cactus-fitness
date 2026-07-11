@@ -2141,7 +2141,7 @@ function ExerciseDetailSheet({
                       setDragSetIdx(null);
                       setDragOverSetIdx(null);
                     }}
-                    className={`grid grid-cols-[20px_150px_64px_minmax(48px,1fr)_100px_80px_32px] items-center gap-2 rounded-lg py-1 transition-colors ${
+                    className={`grid grid-cols-[20px_150px_minmax(48px,1fr)_80px_32px] items-center gap-2 rounded-lg py-1 transition-colors ${
                       dragOverSetIdx === i && dragSetIdx !== null && dragSetIdx !== i
                         ? "bg-primary/10 ring-1 ring-primary/40"
                         : ""
@@ -2160,28 +2160,10 @@ function ExerciseDetailSheet({
                       onSelect={setType}
                       onRemoveSet={removeThisSet}
                     />
-                    <input
-                      type="text"
-                      inputMode="numeric"
-                      pattern="[0-9]*"
-                      value={perCount}
-                      onChange={(e) => setCount(e.target.value)}
-                      aria-label={`Número da série ${i + 1}`}
-                      className="h-10 w-full rounded-lg bg-surface-2 px-2 text-center text-sm font-semibold tabular-nums text-foreground caret-primary focus:outline-none focus:ring-2 focus:ring-primary/40"
-                    />
                     <AlvoPickerButton
                       index={i}
                       value={perReps}
                       onSave={setReps}
-                    />
-                    <input
-                      type="text"
-                      inputMode="decimal"
-                      value={perLoad}
-                      onChange={(e) => setLoad(e.target.value)}
-                      placeholder="—"
-                      aria-label={`Carga da série ${i + 1}`}
-                      className="h-10 w-full rounded-lg border border-border bg-background px-2 text-center text-sm text-foreground caret-primary focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/40"
                     />
                     {currentType === "drop" ? (
                       <div
