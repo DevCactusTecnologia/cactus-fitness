@@ -3243,3 +3243,159 @@ function AddBlockButton({
     </Popover>
   );
 }
+
+function LoadChip({ value, onSave }: { value: string; onSave: (v: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const hasValue = !!(value && value.trim());
+  return (
+    <>
+      <button
+        type="button"
+        onClick={(e) => { e.stopPropagation(); setOpen(true); }}
+        className={`inline-flex h-5 items-center gap-1 rounded-full border px-2 text-[10px] font-medium transition-colors ${
+          hasValue
+            ? "border-primary/40 bg-primary/10 text-primary"
+            : "border-dashed border-border/70 text-muted-foreground hover:border-primary/60 hover:text-primary"
+        }`}
+        aria-label="Definir carga"
+      >
+        {hasValue ? `${value} kg` : (<><Plus className="h-2.5 w-2.5" /> carga</>)}
+      </button>
+      <LoadPickerDialog
+        open={open}
+        onOpenChange={setOpen}
+        value={value}
+        onSave={(v) => { onSave(v); setOpen(false); }}
+      />
+    </>
+  );
+}
+
+function SuggestedLoadCard({ value, onSave }: { value: string; onSave: (v: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const hasValue = !!(value && value.trim());
+  return (
+    <>
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        className="flex w-full items-start gap-3 rounded-xl border border-border/60 bg-surface-2/60 px-3 py-3 text-left transition-colors hover:border-primary/40 hover:bg-surface-2"
+      >
+        <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-muted text-muted-foreground">
+          <Dumbbell className="h-4 w-4" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Carga sugerida</div>
+          {hasValue ? (
+            <div className="text-sm font-semibold text-foreground">{value} kg</div>
+          ) : (
+            <div className="text-sm italic text-muted-foreground">Aluno define na primeira execução</div>
+          )}
+        </div>
+      </button>
+      <LoadPickerDialog
+        open={open}
+        onOpenChange={setOpen}
+        value={value}
+        onSave={(v) => { onSave(v); setOpen(false); }}
+      />
+    </>
+  );
+}
+
+function LoadPickerDialog({
+  open, onOpenChange, value, onSave,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+  value: string;
+  onSave: (v: string) => void;
+}) {
+  const parse = (v: string) => {
+    const n = parseFloat((v ?? "").toString().replace(",", "."));
+    return Number.isFinite(n) ? n : 0;
+  };
+  const [num, setNum] = useState<number>(() => parse(value));
+  useEffect(() => { if (open) setNum(parse(value)); }, [open, value]);
+  const clamp = (n: number) => Math.max(0, Math.round(n * 100) / 100);
+  const format = (n: number) => (Number.isInteger(n) ? String(n) : n.toFixed(2).replace(/\.?0+$/, ""));
+  const bump = (delta: number) => setNum((prev) => clamp(prev + delta));
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-sm gap-0 rounded-2xl border border-border bg-surface-1 p-5 shadow-2xl sm:p-6">
+        <div className="flex flex-col items-center gap-3 pt-1">
+          <div className="flex size-10 items-center justify-center rounded-xl border border-primary/20 bg-primary/10 shadow-glow">
+            <Dumbbell className="size-5 text-primary" strokeWidth={2.5} />
+          </div>
+          <DialogTitle className="text-center font-display text-base font-bold leading-tight">Carga sugerida</DialogTitle>
+          <DialogDescription className="sr-only">Definir carga sugerida em kg</DialogDescription>
+        </div>
+        <div className="mt-5 flex items-center justify-center gap-3">
+          <button
+            type="button"
+            onClick={() => bump(-1)}
+            className="grid h-11 w-11 place-items-center rounded-full border border-border bg-muted text-lg font-bold text-foreground hover:bg-surface-2"
+            aria-label="Diminuir 1 kg"
+          >
+            −
+          </button>
+          <div className="flex h-11 min-w-[140px] items-center justify-between gap-1 rounded-full border border-border bg-background px-4">
+            <input
+              type="text"
+              inputMode="decimal"
+              value={format(num)}
+              onChange={(e) => {
+                const raw = e.target.value.replace(",", ".").replace(/[^0-9.]/g, "");
+                const n = parseFloat(raw);
+                setNum(Number.isFinite(n) ? clamp(n) : 0);
+              }}
+              className="w-full bg-transparent text-center text-lg font-bold tabular-nums text-foreground focus:outline-none"
+              aria-label="Carga em kg"
+            />
+            <span className="text-xs font-semibold uppercase text-muted-foreground">kg</span>
+          </div>
+          <button
+            type="button"
+            onClick={() => bump(1)}
+            className="grid h-11 w-11 place-items-center rounded-full bg-primary text-lg font-bold text-primary-foreground hover:brightness-110"
+            aria-label="Aumentar 1 kg"
+          >
+            +
+          </button>
+        </div>
+        <div className="mt-3 flex items-center justify-center gap-2">
+          {[-5, -0.5, 0.5, 5].map((d) => (
+            <button
+              key={d}
+              type="button"
+              onClick={() => bump(d)}
+              className={`h-8 min-w-[52px] rounded-full px-3 text-xs font-semibold transition-colors ${
+                d > 0
+                  ? "bg-primary/15 text-primary hover:bg-primary/25"
+                  : "border border-border bg-muted text-muted-foreground hover:text-foreground"
+              }`}
+            >
+              {d > 0 ? `+${d}` : d}
+            </button>
+          ))}
+        </div>
+        <div className="mt-6 flex items-center justify-between gap-3">
+          <button
+            type="button"
+            onClick={() => onOpenChange(false)}
+            className="h-11 flex-1 rounded-full border border-border bg-transparent px-4 text-sm font-semibold text-foreground hover:bg-muted"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            onClick={() => onSave(num > 0 ? format(num) : "")}
+            className="h-11 flex-1 rounded-full bg-primary px-4 text-sm font-semibold text-primary-foreground hover:brightness-110"
+          >
+            Confirmar
+          </button>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
