@@ -70,18 +70,19 @@ function Row({
 const TABS = ["Treinos", "Avaliações", "Informações"];
 
 function PermissionRow({
-  title, description, defaultChecked,
-}: { title: string; description: string; defaultChecked?: boolean }) {
+  title, description, checked, onCheckedChange,
+}: { title: string; description: string; checked: boolean; onCheckedChange: (v: boolean) => void }) {
   return (
     <div className="flex items-start justify-between gap-4 rounded-xl border border-border bg-background/40 p-4">
       <div className="min-w-0">
         <p className="text-sm font-medium">{title}</p>
         <p className="mt-0.5 text-xs text-muted-foreground">{description}</p>
       </div>
-      <Switch defaultChecked={defaultChecked} />
+      <Switch checked={checked} onCheckedChange={onCheckedChange} />
     </div>
   );
 }
+
 
 function formatDate(iso: string | null): string | undefined {
   if (!iso) return undefined;
