@@ -22,6 +22,8 @@ import {
   Pencil,
   FileDown,
   Archive,
+  CheckCircle2,
+
   Trash2,
   Save,
   Dumbbell,
@@ -55,6 +57,8 @@ export function TreinoPlanoPage({ scope }: { scope: Scope }) {
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["plano-detail", slug],
+    staleTime: 30_000,
+    gcTime: 5 * 60_000,
     queryFn: async () => {
       // Try to resolve slug as a workout_templates.slug (kind='plan') first.
       const { data: tpl, error: tplErr } = await supabase
@@ -94,10 +98,13 @@ export function TreinoPlanoPage({ scope }: { scope: Scope }) {
       if (alunoRes.error) throw alunoRes.error;
       if (workoutsRes.error) throw workoutsRes.error;
       if (!alunoRes.data) return null;
-      const plano = buildPlano(alunoRes.data, (workoutsRes.data ?? []) as unknown as StudentWorkoutRow[]);
-      return { aluno: alunoRes.data, plano, alunoId, templateId, templateSlug };
+      const rows = (workoutsRes.data ?? []) as unknown as StudentWorkoutRow[];
+      const plano = buildPlano(alunoRes.data, rows);
+      const isArchived = rows.length > 0 && rows.every((r) => !!r.archived_at);
+      return { aluno: alunoRes.data, plano, alunoId, templateId, templateSlug, isArchived };
     },
   });
+
 
   const alunoId = data?.alunoId ?? slug;
   const templateId = data?.templateId ?? null;
@@ -174,9 +181,11 @@ export function TreinoPlanoPage({ scope }: { scope: Scope }) {
                 templateId={templateId}
                 templateSlug={templateSlug}
                 planoName={data?.plano?.name ?? "este plano"}
+                isArchived={data?.isArchived ?? false}
                 onDeleted={backToAluno}
                 onArchived={backToAluno}
               />
+
             </div>
           </div>
         </main>
@@ -526,6 +535,7 @@ function ActionsSidebar({
   templateId,
   templateSlug,
   planoName,
+  isArchived,
   onDeleted,
   onArchived,
 }: {
@@ -534,6 +544,7 @@ function ActionsSidebar({
   templateId: string | null;
   templateSlug: string | null;
   planoName: string;
+  isArchived: boolean;
   onDeleted: () => void;
   onArchived: () => void;
 }) {
@@ -544,6 +555,7 @@ function ActionsSidebar({
   const [archiveOpen, setArchiveOpen] = useState(false);
   const [archiving, setArchiving] = useState(false);
   const [editing, setEditing] = useState(false);
+
 
 
   const invalidateAluno = () => {
@@ -610,23 +622,28 @@ function ActionsSidebar({
     setArchiving(true);
     try {
       const { error } = await scopedQuery(
-        supabase.from("student_workouts").update({ archived_at: new Date().toISOString() }) as any,
+        supabase.from("student_workouts").update({
+          archived_at: isArchived ? null : new Date().toISOString(),
+        }) as any,
       );
       if (error) throw error;
-      toast.success("Plano arquivado", {
-        description: "O plano não aparecerá mais no painel do aluno.",
+      toast.success(isArchived ? "Plano ativado" : "Plano arquivado", {
+        description: isArchived
+          ? "O plano voltou a aparecer no painel do aluno."
+          : "O plano não aparecerá mais no painel do aluno.",
       });
       setArchiveOpen(false);
       invalidateAluno();
       onArchived();
     } catch (err) {
-      toast.error("Não foi possível arquivar o plano", {
+      toast.error(isArchived ? "Não foi possível ativar o plano" : "Não foi possível arquivar o plano", {
         description: err instanceof Error ? err.message : undefined,
       });
     } finally {
       setArchiving(false);
     }
   };
+
 
   const duplicateMut = useMutation({
     mutationFn: async () => {
@@ -725,9 +742,10 @@ function ActionsSidebar({
           onClick={() => setArchiveOpen(true)}
           className="inline-flex h-12 w-full items-center justify-center gap-2 whitespace-nowrap rounded-full border border-border bg-transparent px-6 py-2.5 text-sm font-semibold text-foreground transition-all hover:border-primary hover:text-primary active:scale-[0.97]"
         >
-          <Archive className="h-4 w-4" />
-          Arquivar
+          {isArchived ? <CheckCircle2 className="h-4 w-4" /> : <Archive className="h-4 w-4" />}
+          {isArchived ? "Ativar" : "Arquivar"}
         </button>
+
         <button
           type="button"
           onClick={() => setConfirmOpen(true)}
@@ -742,10 +760,12 @@ function ActionsSidebar({
       <AlertDialog open={archiveOpen} onOpenChange={setArchiveOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Arquivar plano?</AlertDialogTitle>
+            <AlertDialogTitle>{isArchived ? "Ativar plano?" : "Arquivar plano?"}</AlertDialogTitle>
             <AlertDialogDescription>
-              <span className="font-semibold text-foreground">{planoName}</span> será desativado e não
-              aparecerá mais no painel do aluno. Você pode restaurá-lo depois, se necessário.
+              <span className="font-semibold text-foreground">{planoName}</span>{" "}
+              {isArchived
+                ? "voltará a aparecer no painel do aluno."
+                : "será desativado e não aparecerá mais no painel do aluno. Você pode restaurá-lo depois, se necessário."}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -757,11 +777,14 @@ function ActionsSidebar({
                 handleArchive();
               }}
             >
-              {archiving ? "Arquivando…" : "Arquivar plano"}
+              {archiving
+                ? (isArchived ? "Ativando…" : "Arquivando…")
+                : (isArchived ? "Ativar plano" : "Arquivar plano")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
 
 
       <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
