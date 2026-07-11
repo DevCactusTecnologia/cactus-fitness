@@ -312,6 +312,35 @@ export function WorkoutEditor({
   const [templateId, setTemplateId] = useState<string | null>(null);
   const [loadingEdit, setLoadingEdit] = useState(isEdit);
   const hydratedRef = useRef(false);
+  const nameInputRef = useRef<HTMLInputElement>(null);
+  const [leaveOpen, setLeaveOpen] = useState(false);
+
+  const backHref = kind === "plan"
+    ? (alunoId ? `/dashboard/personal/alunos/${alunoId}` : "/dashboard/personal/treinos")
+    : "/dashboard/personal/treinos";
+
+  const isDirty = useMemo(() => {
+    if (isEdit) return false;
+    if (state.name.trim().length > 0) return true;
+    if (state.description.trim().length > 0) return true;
+    if (state.sessions.length > 1) return true;
+    for (const s of state.sessions) {
+      if (s.blocks.length > 1) return true;
+      for (const b of s.blocks) {
+        if (b.exercises.length > 0) return true;
+        if ((b.label ?? "").trim().length > 0) return true;
+      }
+    }
+    return false;
+  }, [isEdit, state]);
+
+  const handleBack = () => {
+    if (isDirty) {
+      setLeaveOpen(true);
+      return;
+    }
+    navigate({ to: backHref });
+  };
 
   useEffect(() => {
     if (!editSlug || hydratedRef.current) return;
