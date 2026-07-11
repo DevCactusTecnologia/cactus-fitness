@@ -1901,7 +1901,14 @@ function ExerciseRow({
 }) {
   const [open, setOpen] = useState(false);
   const reps = (item.reps ?? "").toString().trim();
-  const summary = item.sets && reps ? `${item.sets}×${reps}` : item.sets ? `${item.sets} séries` : reps ? reps : "—";
+  const perSetReps = Array.isArray(item.reps_by_set)
+    ? item.reps_by_set.map((r) => (r ?? "").toString().trim()).filter(Boolean)
+    : [];
+  const hasVariedReps =
+    perSetReps.length > 0 &&
+    (perSetReps.length !== (item.sets ?? 0) || !perSetReps.every((r) => r === perSetReps[0]));
+  const repsDisplay = hasVariedReps ? perSetReps.join("/") : reps;
+  const summary = item.sets && repsDisplay ? `${item.sets}×${repsDisplay}` : item.sets ? `${item.sets} séries` : repsDisplay ? repsDisplay : "—";
   return (
     <>
       <div
