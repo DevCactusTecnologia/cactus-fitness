@@ -44,21 +44,40 @@ import {
 import { IconRail } from "@/components/IconRail";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { useMutation } from "@tanstack/react-query";
+import { duplicatePlan, saveAsTemplate } from "@/lib/workout-templates.functions";
 
 
 export function TreinoPlanoPage({ scope }: { scope: Scope }) {
-  const { planoId } = useParams({ strict: false }) as { planoId: string };
+  const { slug } = useParams({ strict: false }) as { slug: string };
   const alunosBase = scope === "academia" ? "/dashboard/academia/alunos" : "/dashboard/personal/alunos";
   const navigate = useNavigate();
 
-  // planoId is either an aluno.id (solo plan) or `${alunoId}__tpl_${templateId}`
-  const [alunoId, templateId] = planoId.includes("__tpl_")
-    ? (planoId.split("__tpl_") as [string, string])
-    : [planoId, null];
-
   const { data, isLoading, error } = useQuery({
-    queryKey: ["plano-detail", planoId],
+    queryKey: ["plano-detail", slug],
     queryFn: async () => {
+      // Try to resolve slug as a workout_templates.slug (kind='plan') first.
+      const { data: tpl, error: tplErr } = await supabase
+        .from("workout_templates")
+        .select("id, slug, aluno_id, kind")
+        .eq("slug", slug)
+        .maybeSingle();
+      if (tplErr) throw tplErr;
+
+      let alunoId: string;
+      let templateId: string | null;
+      let templateSlug: string | null;
+      if (tpl && tpl.kind === "plan" && tpl.aluno_id) {
+        alunoId = tpl.aluno_id;
+        templateId = tpl.id;
+        templateSlug = tpl.slug;
+      } else {
+        // Fallback: slug is an aluno id (legacy solo plan)
+        alunoId = slug;
+        templateId = null;
+        templateSlug = null;
+      }
+
       let query = supabase
         .from("student_workouts")
         .select(PLANO_SELECT)
@@ -76,14 +95,19 @@ export function TreinoPlanoPage({ scope }: { scope: Scope }) {
       if (workoutsRes.error) throw workoutsRes.error;
       if (!alunoRes.data) return null;
       const plano = buildPlano(alunoRes.data, (workoutsRes.data ?? []) as unknown as StudentWorkoutRow[]);
-      return { aluno: alunoRes.data, plano };
+      return { aluno: alunoRes.data, plano, alunoId, templateId, templateSlug };
     },
   });
+
+  const alunoId = data?.alunoId ?? slug;
+  const templateId = data?.templateId ?? null;
+  const templateSlug = data?.templateSlug ?? null;
 
   const backToAluno = () => navigate({
     to: `${alunosBase}/$alunoId` as "/dashboard/personal/alunos/$alunoId",
     params: { alunoId },
   });
+
 
   return (
     <div className="relative flex min-h-screen bg-background [background-image:none]">
