@@ -626,7 +626,7 @@ export function WorkoutEditor({
           <div className="flex items-center justify-between gap-3 px-4 py-3 md:px-6">
             <div className="flex min-w-0 items-center gap-3">
               <button
-                onClick={() => navigate({ to: "/dashboard/personal/treinos" })}
+                onClick={handleBack}
                 className="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
               >
                 <ChevronUp className="h-4 w-4 -rotate-90" />
