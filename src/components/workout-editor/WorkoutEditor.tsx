@@ -1307,7 +1307,7 @@ function ExerciseDetailSheet({
                   });
                 };
                 return (
-                  <div key={i} className="grid grid-cols-[130px_44px_minmax(0,1fr)_84px_80px_32px] items-center gap-2 py-1">
+                  <div key={i} className="grid grid-cols-[120px_36px_minmax(80px,1fr)_84px_80px_32px] items-center gap-2 py-1">
                     <SetTypePickerButton
                       index={i}
                       currentType={currentType}
