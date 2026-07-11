@@ -313,7 +313,7 @@ export function WorkoutEditor({
         const { data: tpl, error } = await supabase
           .from("workout_templates")
           .select(
-            "id, name, description, kind, level, goal, periodize, workout_template_exercises ( id, exercise_id, sets, reps, load, rest_seconds, notes, position, block_position, session_position, block_label, session_label, exercises ( name ) )",
+            "id, name, description, kind, level, goal, periodize, workout_template_exercises ( id, exercise_id, sets, reps, load, rest_seconds, notes, position, block_position, session_position, block_label, session_label, per_set, exercises ( name ) )",
           )
           .eq("slug", editSlug)
           .maybeSingle();
