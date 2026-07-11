@@ -2095,7 +2095,7 @@ function ExerciseDetailSheet({
             <h4 className="px-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground">Configuração de cada série</h4>
             <div className="-mx-1 overflow-x-auto px-1">
               <div className="min-w-[360px] space-y-1">
-                <div className="grid grid-cols-[20px_150px_90px_80px_32px] gap-2 px-1 pb-0.5">
+                <div className="grid grid-cols-[20px_150px_100px_80px_32px] gap-2 px-1 pb-0.5">
               <span />
               <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Tipo</span>
               <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Alvo</span>
@@ -2186,7 +2186,7 @@ function ExerciseDetailSheet({
                       setDragSetIdx(null);
                       setDragOverSetIdx(null);
                     }}
-                    className={`grid grid-cols-[20px_150px_90px_80px_32px] items-center gap-2 rounded-lg py-1 transition-colors ${
+                    className={`grid grid-cols-[20px_150px_100px_80px_32px] items-center gap-2 rounded-lg py-1 transition-colors ${
                       dragOverSetIdx === i && dragSetIdx !== null && dragSetIdx !== i
                         ? "bg-primary/10 ring-1 ring-primary/40"
                         : ""
@@ -2259,6 +2259,11 @@ function ExerciseDetailSheet({
                 <p className="text-[11px] leading-snug text-muted-foreground">
                   Desligue em exercícios de peso corporal (abdominais, alongamentos).
                 </p>
+                {item.use_load === false && (
+                  <p className="mt-1 text-[11px] font-medium leading-snug text-primary">
+                    Ajuste só neste plano.
+                  </p>
+                )}
               </div>
               <Switch
                 checked={item.use_load !== false}
