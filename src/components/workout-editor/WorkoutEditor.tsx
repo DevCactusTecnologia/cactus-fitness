@@ -2249,8 +2249,8 @@ function ExerciseDetailSheet({
           </div>
 
           {/* Usar carga / Carga sugerida */}
-          <div className="space-y-2 rounded-2xl border border-border/60 bg-surface-1/40 p-2">
-            <div className="flex items-start gap-3 rounded-xl border border-border/60 bg-surface-2/60 px-3 py-3">
+          <div className="overflow-hidden rounded-2xl border border-border/60 bg-surface-1/40">
+            <div className="flex items-start gap-3 px-3 py-3">
               <div className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-muted text-muted-foreground">
                 <Dumbbell className="h-4 w-4" />
               </div>
@@ -2267,10 +2267,12 @@ function ExerciseDetailSheet({
               />
             </div>
             {item.use_load !== false && (
-              <SuggestedLoadCard
-                value={item.load}
-                onSave={(v) => onChange({ load: v })}
-              />
+              <div className="border-t border-border/60">
+                <SuggestedLoadCard
+                  value={item.load}
+                  onSave={(v) => onChange({ load: v })}
+                />
+              </div>
             )}
           </div>
 
