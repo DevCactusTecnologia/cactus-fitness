@@ -620,23 +620,28 @@ function ActionsSidebar({
     setArchiving(true);
     try {
       const { error } = await scopedQuery(
-        supabase.from("student_workouts").update({ archived_at: new Date().toISOString() }) as any,
+        supabase.from("student_workouts").update({
+          archived_at: isArchived ? null : new Date().toISOString(),
+        }) as any,
       );
       if (error) throw error;
-      toast.success("Plano arquivado", {
-        description: "O plano não aparecerá mais no painel do aluno.",
+      toast.success(isArchived ? "Plano ativado" : "Plano arquivado", {
+        description: isArchived
+          ? "O plano voltou a aparecer no painel do aluno."
+          : "O plano não aparecerá mais no painel do aluno.",
       });
       setArchiveOpen(false);
       invalidateAluno();
       onArchived();
     } catch (err) {
-      toast.error("Não foi possível arquivar o plano", {
+      toast.error(isArchived ? "Não foi possível ativar o plano" : "Não foi possível arquivar o plano", {
         description: err instanceof Error ? err.message : undefined,
       });
     } finally {
       setArchiving(false);
     }
   };
+
 
   const duplicateMut = useMutation({
     mutationFn: async () => {
