@@ -2869,11 +2869,14 @@ function ExercisePicker({
   onCommit: (list: { id: number | null; name: string; muscles_primary?: string[] }[]) => void;
 }) {
   const [q, setQ] = useState("");
+  const deferredQ = useDeferredValue(q);
   const [difficultyFilter, setDifficultyFilter] = useState<string | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<number>>(new Set());
   const [customPicks, setCustomPicks] = useState<{ id: null; name: string }[]>([]);
   const { data: catalog = [], isLoading } = useQuery({
     queryKey: ["exercises-catalog"],
+    staleTime: 5 * 60_000,
+    gcTime: 30 * 60_000,
     queryFn: async (): Promise<ExerciseCatalog[]> => {
       const pageSize = 1000;
       const rows: any[] = [];
