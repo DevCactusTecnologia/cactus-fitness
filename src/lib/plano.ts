@@ -170,13 +170,15 @@ export function buildPlanos(
     } else {
       const displayName =
         group[0]?.workout_templates?.name ?? group[0]?.name ?? base.name;
+      const slug = group[0]?.workout_templates?.slug ?? null;
       planos.push({
         ...base,
-        id: `${aluno.id}__tpl_${key}`,
+        id: slug ?? `solo-${aluno.id}-${key}`,
         name: displayName,
         isSimple: false,
       });
     }
+
   }
   planos.sort((a, b) => (b.startDate ?? "").localeCompare(a.startDate ?? ""));
   return planos;
