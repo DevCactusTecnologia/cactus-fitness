@@ -313,7 +313,7 @@ export function WorkoutEditor({
         const { data: tpl, error } = await supabase
           .from("workout_templates")
           .select(
-            "id, name, description, kind, level, goal, periodize, workout_template_exercises ( id, exercise_id, sets, reps, load, rest_seconds, notes, position, block_position, session_position, block_label, session_label, exercises ( name ) )",
+            "id, name, description, kind, level, goal, periodize, workout_template_exercises ( id, exercise_id, sets, reps, load, rest_seconds, notes, position, block_position, session_position, block_label, session_label, per_set, exercises ( name ) )",
           )
           .eq("slug", editSlug)
           .maybeSingle();
@@ -332,6 +332,10 @@ export function WorkoutEditor({
           const blocks = sessionMap.get(sPos)!;
           if (!blocks.has(bPos)) blocks.set(bPos, { label: e.block_label ?? "", exercises: [] });
           const blk = blocks.get(bPos)!;
+          const ps = (e as any).per_set as
+            | { types?: string[]; reps?: string[]; rest?: number[]; load?: string[] }
+            | null
+            | undefined;
           blk.exercises.push({
             id: uid(),
             exercise_id: e.exercise_id,
@@ -341,6 +345,10 @@ export function WorkoutEditor({
             rest_seconds: e.rest_seconds,
             load: e.load ?? "",
             notes: e.notes ?? "",
+            set_types: Array.isArray(ps?.types) ? (ps!.types as SetType[]) : undefined,
+            reps_by_set: Array.isArray(ps?.reps) ? ps!.reps : undefined,
+            rest_by_set: Array.isArray(ps?.rest) ? ps!.rest : undefined,
+            load_by_set: Array.isArray(ps?.load) ? ps!.load : undefined,
           });
           if (e.session_label) sessionLabels.set(sPos, e.session_label);
         }
@@ -468,12 +476,28 @@ export function WorkoutEditor({
         session_position: number;
         block_label: string | null;
         session_label: string | null;
+        per_set: {
+          types?: SetType[];
+          reps?: string[];
+          rest?: number[];
+          load?: string[];
+        } | null;
       }> = [];
 
       let flat = 0;
       state.sessions.forEach((s, si) => {
         s.blocks.forEach((b, bi) => {
           b.exercises.forEach((e) => {
+            const perSet: {
+              types?: SetType[];
+              reps?: string[];
+              rest?: number[];
+              load?: string[];
+            } = {};
+            if (Array.isArray(e.set_types) && e.set_types.length > 0) perSet.types = e.set_types;
+            if (Array.isArray(e.reps_by_set) && e.reps_by_set.length > 0) perSet.reps = e.reps_by_set;
+            if (Array.isArray(e.rest_by_set) && e.rest_by_set.length > 0) perSet.rest = e.rest_by_set;
+            if (Array.isArray(e.load_by_set) && e.load_by_set.length > 0) perSet.load = e.load_by_set;
             rows.push({
               template_id: workingTemplateId!,
               exercise_id: e.exercise_id,
@@ -487,6 +511,7 @@ export function WorkoutEditor({
               session_position: si,
               block_label: b.label,
               session_label: kind === "plan" ? s.label : null,
+              per_set: Object.keys(perSet).length > 0 ? perSet : null,
             });
           });
         });

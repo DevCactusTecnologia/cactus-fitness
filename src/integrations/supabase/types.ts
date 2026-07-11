@@ -855,6 +855,7 @@ export type Database = {
           id: string
           load: string | null
           notes: string | null
+          per_set: Json | null
           position: number
           reps: string | null
           rest_seconds: number | null
@@ -871,6 +872,7 @@ export type Database = {
           id?: string
           load?: string | null
           notes?: string | null
+          per_set?: Json | null
           position?: number
           reps?: string | null
           rest_seconds?: number | null
@@ -887,6 +889,7 @@ export type Database = {
           id?: string
           load?: string | null
           notes?: string | null
+          per_set?: Json | null
           position?: number
           reps?: string | null
           rest_seconds?: number | null
