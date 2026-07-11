@@ -115,6 +115,8 @@ type State = {
   level: string;
   goal: string;
   periodize: boolean;
+  duration_weeks: number | null;
+  start_date: string | null; // ISO YYYY-MM-DD
   sessions: Session[]; // for template kind, always exactly one session
 };
 
