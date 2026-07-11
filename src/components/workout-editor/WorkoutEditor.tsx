@@ -566,6 +566,8 @@ export function WorkoutEditor({
           reps?: string[];
           rest?: number[];
           load?: string[];
+          counts?: string[];
+          use_load?: boolean;
         } | null;
       }> = [];
 
