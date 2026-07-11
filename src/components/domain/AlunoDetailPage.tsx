@@ -126,6 +126,7 @@ export function AlunoDetailPage({ scope }: { scope: Scope }) {
   const [copyConfigOpen, setCopyConfigOpen] = useState(false);
   const [selectedCopyTemplate, setSelectedCopyTemplate] = useState<CopyableTemplate | null>(null);
 
+
   if (isLoading || !aluno) {
     return (
       <div className="grid min-h-screen place-items-center bg-background text-foreground">
