@@ -1883,7 +1883,15 @@ function ExerciseRow({
           <div className="line-clamp-2 break-words text-[13px] font-medium leading-snug text-foreground" title={item.name}>
             {item.name}
           </div>
-          <div className="text-[10px] text-muted-foreground">{summary}</div>
+          <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+            <span>{summary}</span>
+            {item.use_load !== false && (
+              <LoadChip
+                value={item.load}
+                onSave={(v) => onChange({ load: v })}
+              />
+            )}
+          </div>
         </div>
         <div onClick={(e) => e.stopPropagation()}>
           <button
