@@ -728,7 +728,6 @@ function Dashboard() {
               <section className="rounded-lg border border-border bg-bg-elevated">
                 <div className="flex items-center justify-between border-b border-border px-4 py-3">
                   <h2 className="font-display text-base font-bold">Atalhos rápidos</h2>
-                  <span className="font-mono text-[0.625rem] text-fg-muted">use as teclas</span>
                 </div>
                 <div className="grid grid-cols-1 gap-2 p-3 sm:grid-cols-2">
                   <Shortcut icon={Users} title="Alunos" sub="cadastros e contatos" k="A" to="/dashboard/personal/alunos" />
