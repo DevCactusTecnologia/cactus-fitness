@@ -813,10 +813,10 @@ function TreinoPage() {
                       </button>
                     )}
 
-                    <div className="mt-3 flex items-center justify-between gap-3 border-t border-border/60 pt-3">
+                    <div className="mt-3 flex items-center gap-2 border-t border-border/60 pt-3 flex-wrap">
                       <button
                         onClick={() => completeAll(r)}
-                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary hover:brightness-110"
+                        className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-semibold text-[hsl(var(--success))] transition-colors hover:bg-[hsl(var(--success)/0.12)]"
                       >
                         <CheckCheck className="h-3.5 w-3.5" /> Completar tudo
                       </button>
@@ -826,7 +826,7 @@ function TreinoPage() {
                             setNoteDraft(exerciseNotes[r.id] ?? "");
                             setNoteModal({ rowId: r.id, name: r.exercise?.name ?? "Exercício" });
                           }}
-                          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[hsl(var(--success))] hover:brightness-110"
+                          className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs font-semibold text-[hsl(var(--success))] transition-colors hover:bg-accent/30"
                         >
                           <MessageSquare className="h-3.5 w-3.5" /> Observação adicionada
                         </button>
@@ -836,7 +836,7 @@ function TreinoPage() {
                             setNoteDraft("");
                             setNoteModal({ rowId: r.id, name: r.exercise?.name ?? "Exercício" });
                           }}
-                          className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground"
+                          className="inline-flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs text-muted-foreground transition-colors hover:bg-accent/30 hover:text-foreground"
                         >
                           <MessageSquare className="h-3.5 w-3.5" /> Adicionar observação
                         </button>
