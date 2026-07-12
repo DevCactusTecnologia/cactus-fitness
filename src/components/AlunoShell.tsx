@@ -1,6 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { LayoutDashboard, Dumbbell, TrendingUp, ClipboardList, Trophy, CreditCard } from "lucide-react";
 import { UserAvatarMenu } from "@/components/UserAvatarMenu";
+import { NotificationsButton } from "@/components/NotificationsButton";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import logoUrl from "@/assets/cactus-logo.png";
 
@@ -63,6 +64,7 @@ export function AlunoShell({ children }: { children: React.ReactNode }) {
           );
         })}
         <div className="mt-auto flex flex-col items-center gap-2">
+          <NotificationsButton />
           <UserAvatarMenu />
         </div>
       </aside>
