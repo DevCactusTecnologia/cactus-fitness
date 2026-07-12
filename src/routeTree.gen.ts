@@ -17,6 +17,7 @@ import { Route as AuthenticatedTreinosRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedRankingRouteImport } from './routes/_authenticated/ranking'
 import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated/perfil'
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
+import { Route as AuthenticatedNotificacoesRouteImport } from './routes/_authenticated/notificacoes'
 import { Route as AuthenticatedMeuTreinoRouteImport } from './routes/_authenticated/meu-treino'
 import { Route as AuthenticatedMeuProgressoRouteImport } from './routes/_authenticated/meu-progresso'
 import { Route as AuthenticatedMeuPlanoRouteImport } from './routes/_authenticated/meu-plano'
@@ -104,6 +105,12 @@ const AuthenticatedOnboardingRoute = AuthenticatedOnboardingRouteImport.update({
   path: '/onboarding',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedNotificacoesRoute =
+  AuthenticatedNotificacoesRouteImport.update({
+    id: '/notificacoes',
+    path: '/notificacoes',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedMeuTreinoRoute = AuthenticatedMeuTreinoRouteImport.update({
   id: '/meu-treino',
   path: '/meu-treino',
@@ -392,6 +399,7 @@ export interface FileRoutesByFullPath {
   '/meu-plano': typeof AuthenticatedMeuPlanoRoute
   '/meu-progresso': typeof AuthenticatedMeuProgressoRoute
   '/meu-treino': typeof AuthenticatedMeuTreinoRoute
+  '/notificacoes': typeof AuthenticatedNotificacoesRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/ranking': typeof AuthenticatedRankingRoute
@@ -445,6 +453,7 @@ export interface FileRoutesByTo {
   '/meu-plano': typeof AuthenticatedMeuPlanoRoute
   '/meu-progresso': typeof AuthenticatedMeuProgressoRoute
   '/meu-treino': typeof AuthenticatedMeuTreinoRoute
+  '/notificacoes': typeof AuthenticatedNotificacoesRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/ranking': typeof AuthenticatedRankingRoute
@@ -502,6 +511,7 @@ export interface FileRoutesById {
   '/_authenticated/meu-plano': typeof AuthenticatedMeuPlanoRoute
   '/_authenticated/meu-progresso': typeof AuthenticatedMeuProgressoRoute
   '/_authenticated/meu-treino': typeof AuthenticatedMeuTreinoRoute
+  '/_authenticated/notificacoes': typeof AuthenticatedNotificacoesRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
   '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
   '/_authenticated/ranking': typeof AuthenticatedRankingRoute
@@ -558,6 +568,7 @@ export interface FileRouteTypes {
     | '/meu-plano'
     | '/meu-progresso'
     | '/meu-treino'
+    | '/notificacoes'
     | '/onboarding'
     | '/perfil'
     | '/ranking'
@@ -611,6 +622,7 @@ export interface FileRouteTypes {
     | '/meu-plano'
     | '/meu-progresso'
     | '/meu-treino'
+    | '/notificacoes'
     | '/onboarding'
     | '/perfil'
     | '/ranking'
@@ -667,6 +679,7 @@ export interface FileRouteTypes {
     | '/_authenticated/meu-plano'
     | '/_authenticated/meu-progresso'
     | '/_authenticated/meu-treino'
+    | '/_authenticated/notificacoes'
     | '/_authenticated/onboarding'
     | '/_authenticated/perfil'
     | '/_authenticated/ranking'
@@ -775,6 +788,13 @@ declare module '@tanstack/react-router' {
       path: '/onboarding'
       fullPath: '/onboarding'
       preLoaderRoute: typeof AuthenticatedOnboardingRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/notificacoes': {
+      id: '/_authenticated/notificacoes'
+      path: '/notificacoes'
+      fullPath: '/notificacoes'
+      preLoaderRoute: typeof AuthenticatedNotificacoesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/meu-treino': {
@@ -1262,6 +1282,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMeuPlanoRoute: typeof AuthenticatedMeuPlanoRoute
   AuthenticatedMeuProgressoRoute: typeof AuthenticatedMeuProgressoRoute
   AuthenticatedMeuTreinoRoute: typeof AuthenticatedMeuTreinoRoute
+  AuthenticatedNotificacoesRoute: typeof AuthenticatedNotificacoesRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
   AuthenticatedPerfilRoute: typeof AuthenticatedPerfilRoute
   AuthenticatedRankingRoute: typeof AuthenticatedRankingRoute
@@ -1281,6 +1302,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMeuPlanoRoute: AuthenticatedMeuPlanoRoute,
   AuthenticatedMeuProgressoRoute: AuthenticatedMeuProgressoRoute,
   AuthenticatedMeuTreinoRoute: AuthenticatedMeuTreinoRoute,
+  AuthenticatedNotificacoesRoute: AuthenticatedNotificacoesRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
   AuthenticatedPerfilRoute: AuthenticatedPerfilRoute,
   AuthenticatedRankingRoute: AuthenticatedRankingRoute,
