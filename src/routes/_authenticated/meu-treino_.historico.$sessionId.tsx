@@ -50,6 +50,16 @@ function fmtWeekdayDay(iso: string | null) {
   const d = new Date(iso);
   return { wd: WEEKDAY[d.getDay()], dm: `${pad(d.getDate())}/${pad(d.getMonth() + 1)}` };
 }
+function isoWeekNum(iso: string | null): number | null {
+  if (!iso) return null;
+  const d = new Date(iso);
+  const target = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  const dayNr = (target.getUTCDay() + 6) % 7;
+  target.setUTCDate(target.getUTCDate() - dayNr + 3);
+  const firstThursday = new Date(Date.UTC(target.getUTCFullYear(), 0, 4));
+  const diff = (target.getTime() - firstThursday.getTime()) / 86400000;
+  return 1 + Math.round((diff - ((firstThursday.getUTCDay() + 6) % 7) + 3) / 7);
+}
 
 function HistoricoPage() {
   const { sessionId } = Route.useParams();
