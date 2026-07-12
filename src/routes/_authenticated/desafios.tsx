@@ -1,8 +1,10 @@
+import { requireAlunoRole } from "@/lib/route-guards";
 import { createFileRoute } from "@tanstack/react-router";
 import { Trophy } from "lucide-react";
 import { AlunoShell } from "@/components/AlunoShell";
 
 export const Route = createFileRoute("/_authenticated/desafios")({
+  beforeLoad: ({ location }) => requireAlunoRole(location),
   head: () => ({ meta: [{ title: "Desafios · cactusfitness" }] }),
   component: DesafiosPage,
 });

@@ -1,3 +1,4 @@
+import { requireAlunoRole } from "@/lib/route-guards";
 import { createFileRoute } from "@tanstack/react-router";
 
 import { useQuery } from "@tanstack/react-query";
@@ -9,6 +10,7 @@ import { getMyPlan, type PlanPayment } from "@/lib/plan.functions";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/_authenticated/meu-plano")({
+  beforeLoad: ({ location }) => requireAlunoRole(location),
   head: () => ({
     meta: [
       { title: "Meu Plano · cactusfitness" },

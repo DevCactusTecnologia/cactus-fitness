@@ -1,9 +1,11 @@
+import { requireAlunoRole } from "@/lib/route-guards";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ArrowLeft, Check, Dumbbell, Clock } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/meu-treino_/historico/$sessionId")({
+  beforeLoad: ({ location }) => requireAlunoRole(location),
   head: () => ({
     meta: [
       { title: "Detalhes do treino · cactusfitness" },

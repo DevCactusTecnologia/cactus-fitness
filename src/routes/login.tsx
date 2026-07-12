@@ -148,40 +148,51 @@ function AuthForm({
   }
 
   async function navigateAfterAuth() {
-    if (redirectTo && redirectTo.startsWith("/") && redirectTo !== "/") {
-      navigate({ to: redirectTo });
-      return;
-    }
+    // Always resolve the current user's role FIRST — never trust `redirectTo`
+    // blindly (previous /auth?redirect=/meu-treino from another session would
+    // route a new user, e.g. an owner, into the aluno panel).
+    let role: AppRole | null = null;
+    let uid: string | undefined;
     try {
       const { data: userData } = await supabase.auth.getUser();
-      const uid = userData.user?.id;
-      if (!uid) { navigate({ to: "/" }); return; }
-      const { data: roles } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", uid);
-      if (!roles || roles.length === 0) {
-        navigate({ to: "/onboarding" });
-        return;
+      uid = userData.user?.id;
+      if (uid) {
+        const { data: roles } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", uid);
+        role = getPrimaryClientRole((roles ?? []).map((r) => r.role as AppRole));
       }
-      const role = getPrimaryClientRole(roles.map((r) => r.role as AppRole));
-      if (role === "aluno") {
-        navigate({ to: "/meu-treino" });
-        return;
-      }
-      if (role === "owner" || role === "staff") {
-        navigate({ to: "/dashboard/academia" });
-        return;
-      }
-      if (role === "personal") {
-        navigate({ to: "/dashboard/personal" });
-        return;
-      }
-      navigate({ to: "/onboarding" });
     } catch {
-      navigate({ to: "/" });
+      /* fall through to defaults */
     }
+
+    const roleHome: Record<AppRole, string> = {
+      aluno: "/meu-treino",
+      owner: "/dashboard/academia",
+      staff: "/dashboard/academia",
+      personal: "/dashboard/personal",
+    };
+
+    // Prefixes each role is allowed to land on directly via ?redirect=
+    const allowedPrefixes: Record<AppRole, string[]> = {
+      aluno: ["/meu-treino", "/meu-progresso", "/meu-plano", "/avaliacoes", "/desafios", "/treinos", "/perfil", "/ranking"],
+      owner: ["/dashboard/academia", "/perfil"],
+      staff: ["/dashboard/academia", "/perfil"],
+      personal: ["/dashboard/personal", "/perfil"],
+    };
+
+    if (!uid) { navigate({ to: "/" }); return; }
+    if (!role) { navigate({ to: "/onboarding" }); return; }
+
+    if (redirectTo && redirectTo.startsWith("/") && redirectTo !== "/") {
+      const ok = allowedPrefixes[role].some((p) => redirectTo === p || redirectTo.startsWith(p + "/") || redirectTo.startsWith(p + "?"));
+      if (ok) { navigate({ to: redirectTo }); return; }
+    }
+
+    navigate({ to: roleHome[role] });
   }
+
 
   async function handleForgotPassword() {
     setError(null);

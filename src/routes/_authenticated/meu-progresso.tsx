@@ -1,3 +1,4 @@
+import { requireAlunoRole } from "@/lib/route-guards";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
 import {
@@ -33,6 +34,7 @@ import {
 } from "@/lib/progress.functions";
 
 export const Route = createFileRoute("/_authenticated/meu-progresso")({
+  beforeLoad: ({ location }) => requireAlunoRole(location),
   head: () => ({
     meta: [
       { title: "Meu Progresso · cactusfitness" },

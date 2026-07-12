@@ -1,3 +1,4 @@
+import { requireAlunoRole } from "@/lib/route-guards";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -14,6 +15,7 @@ import {
 import { jsPDF } from "jspdf";
 
 export const Route = createFileRoute("/_authenticated/meu-treino_/treino/$id")({
+  beforeLoad: ({ location }) => requireAlunoRole(location),
   head: () => ({ meta: [{ title: "Treino · cactusfitness" }] }),
   validateSearch: (search: Record<string, unknown>) => ({
     sessao: typeof search.sessao === "string" ? search.sessao : undefined,
