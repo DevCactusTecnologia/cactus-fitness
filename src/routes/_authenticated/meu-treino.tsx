@@ -510,7 +510,7 @@ function MeuTreinoPage() {
               </div>
             </Link>
 
-            </Link>
+
 
             {checkedToday ? (
               <div className="flex w-full items-center justify-center gap-2 border-t border-border/60 py-3 text-sm font-semibold">
