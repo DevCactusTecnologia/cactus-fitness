@@ -40,7 +40,7 @@ export const Route = createFileRoute("/_authenticated/meu-treino")({
 });
 
 const RAIL_ITEMS = [
-  { icon: LayoutDashboard, label: "Início", to: "/meu-treino" as const },
+  { icon: Home, label: "Início", to: "/meu-treino" as const },
   { icon: Dumbbell, label: "Meus Treinos", to: "/treinos" as const },
   { icon: TrendingUp, label: "Meu Progresso", to: "/meu-progresso" as const },
   { icon: ClipboardList, label: "Avaliações", to: "/avaliacoes" as const },
@@ -49,7 +49,7 @@ const RAIL_ITEMS = [
 ];
 
 const MOBILE_NAV_ITEMS: { icon: any; label: string; to: (typeof RAIL_ITEMS)[number]["to"] }[] = [
-  { icon: LayoutDashboard, label: "Início", to: "/meu-treino" },
+  { icon: Home, label: "Início", to: "/meu-treino" },
   { icon: Dumbbell, label: "Treinos", to: "/treinos" },
   { icon: ClipboardList, label: "Avaliações", to: "/avaliacoes" },
   { icon: Trophy, label: "Desafios", to: "/desafios" },
