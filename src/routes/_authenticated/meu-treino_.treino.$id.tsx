@@ -36,6 +36,7 @@ type ExerciseRow = {
   notes: string | null;
   block_label: string | null;
   session_label: string | null;
+  session_position: number | null;
   exercise: {
     id: number;
     name: string;
