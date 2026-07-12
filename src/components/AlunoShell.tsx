@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, Dumbbell, Trophy, HeartPulse, TrendingUp } from "lucide-react";
+import { LayoutDashboard, Dumbbell, Trophy, HeartPulse, TrendingUp, CreditCard } from "lucide-react";
 import { UserAvatarMenu } from "@/components/UserAvatarMenu";
 import logoUrl from "@/assets/cactus-logo.png";
 
@@ -9,9 +9,10 @@ export const ALUNO_NAV = [
   { icon: TrendingUp, label: "Meu Progresso", to: "/meu-progresso" as const },
   { icon: Trophy, label: "Desafios", to: "/desafios" as const },
   { icon: HeartPulse, label: "Avaliações", to: "/avaliacoes" as const },
+  { icon: CreditCard, label: "Meu Plano", to: "/meu-plano" as const },
 ];
 
-const ALUNO_MOBILE_NAV = ALUNO_NAV.filter((i) => i.to !== "/meu-progresso");
+const ALUNO_MOBILE_NAV = ALUNO_NAV.filter((i) => i.to !== "/meu-progresso" && i.to !== "/meu-plano");
 
 export function AlunoShell({ children }: { children: React.ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
