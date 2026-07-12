@@ -120,6 +120,14 @@ function MeuTreinoPage() {
   const queryClient = useQueryClient();
   const [cropSrc, setCropSrc] = useState<string | null>(null);
 
+  const fetchRanking = useServerFn(getMyRanking);
+  const { data: ranking } = useQuery({
+    queryKey: ["my-ranking", profile?.id],
+    queryFn: () => fetchRanking(),
+    enabled: !!profile?.id && profile?.role === "aluno",
+    staleTime: 60_000,
+  });
+
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     e.target.value = "";
