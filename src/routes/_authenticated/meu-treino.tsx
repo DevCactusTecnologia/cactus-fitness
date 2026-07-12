@@ -382,7 +382,9 @@ function MeuTreinoPage() {
                   <Shield className="h-4 w-4 text-[#9A5B12] dark:text-[#CD7F32]" fill="currentColor" />
                 </span>
                 <span className="text-xs font-semibold" style={{ color: "rgb(205, 127, 50)" }}>Bronze</span>
-                <span className="text-[0.625rem] text-muted-foreground/70">· 19º no grupo</span>
+                {ranking?.youRank && ranking.totalInGroup > 0 && (
+                  <span className="text-[0.625rem] text-muted-foreground/70">· {ranking.youRank}º no grupo</span>
+                )}
               </Link>
             </div>
           </div>
