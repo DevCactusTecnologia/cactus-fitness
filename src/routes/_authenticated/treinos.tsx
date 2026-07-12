@@ -67,7 +67,19 @@ function TreinosPage() {
       if (list.length > 0 && list[0].name) setPlanName(String(list[0].name).split(" - ")[0]);
       const templateIds = Array.from(new Set(list.map((s: any) => s.template_id).filter(Boolean)));
       const sessionsByTpl: Record<string, { position: number; label: string | null; count: number }[]> = {};
+      let templateWeeks: number | null = null;
+      let templateStart: string | null = null;
       if (templateIds.length) {
+        const { data: tpls } = await supabase
+          .from("workout_templates")
+          .select("id, duration_weeks, start_date")
+          .in("id", templateIds);
+        (tpls ?? []).forEach((t: any) => {
+          if (t.duration_weeks && (templateWeeks == null || t.duration_weeks > templateWeeks)) {
+            templateWeeks = t.duration_weeks;
+          }
+          if (t.start_date && !templateStart) templateStart = t.start_date;
+        });
         const { data: exs } = await supabase
           .from("workout_template_exercises")
           .select("template_id, session_position, session_label")
@@ -112,20 +124,31 @@ function TreinosPage() {
       });
       if (!cancelled) setItems(mapped);
 
-      // Derivar semanas e frequência a partir das datas
+      // Derivar semanas e frequência
+      const parse = (d: string) => { const [y, m, day] = d.split("-").map(Number); return new Date(y, m - 1, day); };
       const dates = list.map((s: any) => s.scheduled_for).filter(Boolean) as string[];
-      if (dates.length >= 1) {
-        const parse = (d: string) => { const [y, m, day] = d.split("-").map(Number); return new Date(y, m - 1, day); };
+      let w = 1, pw = 0, cw = 1;
+      if (templateWeeks && templateWeeks > 0) {
+        w = templateWeeks;
+      } else if (dates.length >= 1) {
         const first = parse(dates[0]);
         const last = parse(dates[dates.length - 1]);
         const diffDays = Math.round((last.getTime() - first.getTime()) / 86400000);
-        const w = Math.max(1, Math.ceil((diffDays + 1) / 7));
-        const weekdays = new Set(dates.map((d) => parse(d).getDay()));
-        const pw = w > 0 ? Math.max(weekdays.size || 1, Math.round(list.length / w)) : list.length;
-        const today = new Date();
-        const cw = Math.min(w, Math.max(1, Math.floor((today.getTime() - first.getTime()) / (7 * 86400000)) + 1));
-        if (!cancelled) { setWeeks(w); setPerWeek(pw); setCurrentWeek(cw); }
+        w = Math.max(1, Math.ceil((diffDays + 1) / 7));
       }
+      if (dates.length >= 1) {
+        const weekdays = new Set(dates.map((d) => parse(d).getDay()));
+        pw = Math.max(weekdays.size || 1, Math.round(list.length / Math.max(w, 1)));
+      } else {
+        pw = list.length;
+      }
+      const startRef = templateStart ? parse(templateStart) : (dates.length ? parse(dates[0]) : null);
+      if (startRef) {
+        const today = new Date();
+        cw = Math.min(w, Math.max(1, Math.floor((today.getTime() - startRef.getTime()) / (7 * 86400000)) + 1));
+      }
+      if (!cancelled) { setWeeks(w); setPerWeek(pw); setCurrentWeek(cw); }
+
 
       // Histórico recente: últimas sessões finalizadas
       const { data: sessions } = await supabase
@@ -174,7 +197,7 @@ function TreinosPage() {
 
   return (
     <AlunoShell>
-      <div className="sticky top-0 z-20 bg-background/70 px-4 py-4 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 md:px-6">
+      <div className="sticky top-0 z-30 border-b border-border bg-background/80 px-4 py-4 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 md:px-6">
         <h1 className="font-display text-xl font-bold">Meus Treinos</h1>
       </div>
       <main className="p-4 md:p-6">
