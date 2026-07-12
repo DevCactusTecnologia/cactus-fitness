@@ -783,6 +783,107 @@ function TreinoPage() {
         </div>
       </div>
 
+      {/* Tela: Treino Concluído */}
+      {completedOpen && (
+        <div className="fixed inset-0 z-[9999] flex flex-col bg-background" style={{ paddingTop: "env(safe-area-inset-top)" }}>
+          <div className="flex-1 overflow-y-auto p-4">
+            <div className="mx-auto max-w-lg pt-8">
+              <div className="mb-8 text-center">
+                <div className="mx-auto mb-4 flex h-24 w-24 animate-bounce items-center justify-center rounded-full bg-primary/10">
+                  <Trophy className="h-12 w-12 text-primary" />
+                </div>
+                <h1 className="mb-1 font-display text-2xl font-bold">Treino Concluído!</h1>
+                <p className="text-sm text-muted-foreground">Excelente trabalho, continue assim!</p>
+              </div>
+
+              <div className="mb-6 grid grid-cols-2 gap-3">
+                <div className="rounded-xl border border-border bg-card p-4 text-center">
+                  <Clock className="mx-auto mb-2 h-5 w-5 text-primary" />
+                  <p className="text-2xl font-bold tabular-nums">{finishStats.minutes}</p>
+                  <p className="text-xs text-muted-foreground">Minutos</p>
+                </div>
+                <div className="rounded-xl border border-border bg-card p-4 text-center">
+                  <Flame className="mx-auto mb-2 h-5 w-5 text-orange-500" />
+                  <p className="text-2xl font-bold tabular-nums">{finishStats.volume}</p>
+                  <p className="text-xs text-muted-foreground">Volume (kg)</p>
+                </div>
+                <div className="rounded-xl border border-border bg-card p-4 text-center">
+                  <Layers3 className="mx-auto mb-2 h-5 w-5 text-blue-500" />
+                  <p className="text-2xl font-bold tabular-nums">{finishStats.series}</p>
+                  <p className="text-xs text-muted-foreground">Séries</p>
+                </div>
+                <div className="rounded-xl border border-border bg-card p-4 text-center">
+                  <Dumbbell className="mx-auto mb-2 h-5 w-5 text-green-500" />
+                  <p className="text-2xl font-bold tabular-nums">{finishStats.reps_total}</p>
+                  <p className="text-xs text-muted-foreground">Repetições</p>
+                </div>
+              </div>
+
+              <div className="mb-6 rounded-xl border border-border bg-card p-4">
+                <h3 className="mb-1 text-sm font-semibold">Como foi o treino? (RPE)</h3>
+                <p className="mb-3 text-xs text-muted-foreground">Selecione sua percepção de esforço</p>
+                <div className="grid grid-cols-5 gap-2">
+                  {([
+                    { v: 1, e: "😴", c: "rgb(16, 185, 129)" },
+                    { v: 2, e: "😌", c: "rgb(16, 185, 129)" },
+                    { v: 3, e: "🙂", c: "rgb(52, 211, 153)" },
+                    { v: 4, e: "🙂", c: "rgb(163, 230, 53)" },
+                    { v: 5, e: "😐", c: "rgb(250, 204, 21)" },
+                    { v: 6, e: "😤", c: "rgb(250, 204, 21)" },
+                    { v: 7, e: "😰", c: "rgb(251, 146, 60)" },
+                    { v: 8, e: "😫", c: "rgb(249, 115, 22)" },
+                    { v: 9, e: "🥵", c: "rgb(239, 68, 68)" },
+                    { v: 10, e: "💀", c: "rgb(220, 38, 38)" },
+                  ]).map(({ v, e, c }) => {
+                    const selected = finalRpe === v;
+                    return (
+                      <button
+                        key={v}
+                        type="button"
+                        onClick={() => setFinalRpe(v)}
+                        className={`flex min-h-[56px] flex-col items-center gap-1 rounded-lg border p-2 transition-all ${selected ? "border-primary bg-primary/10" : "border-border hover:bg-accent/30"}`}
+                      >
+                        <span className="text-base leading-none">{e}</span>
+                        <span className="text-xs font-bold" style={{ color: c }}>{v}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="mb-6 rounded-xl border border-border bg-card p-4">
+                <h3 className="mb-2 text-sm font-semibold">Observações gerais</h3>
+                <textarea
+                  value={finalNotes}
+                  onChange={(e) => setFinalNotes(e.target.value)}
+                  placeholder="Como você se sentiu? Algo a melhorar?"
+                  className="flex min-h-[80px] w-full rounded-md border border-border bg-background px-3 py-2 text-sm transition-colors placeholder:text-muted-foreground focus-visible:border-primary focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50"
+                />
+              </div>
+            </div>
+          </div>
+
+          <footer className="shrink-0 border-t border-border p-4" style={{ paddingBottom: "calc(1rem + env(safe-area-inset-bottom))" }}>
+            <div className="mx-auto max-w-lg space-y-2">
+              <button
+                onClick={saveFinal}
+                disabled={saving}
+                className="relative inline-flex h-14 w-full items-center justify-center gap-2 rounded-full bg-primary px-6 text-lg font-bold text-primary-foreground shadow-lg transition-all hover:brightness-110 active:scale-[0.97] disabled:opacity-50"
+              >
+                <Check className="h-5 w-5" strokeWidth={3} /> Salvar Treino
+              </button>
+              <button
+                onClick={discardFinal}
+                disabled={saving}
+                className="inline-flex h-10 w-full items-center justify-center rounded-full bg-transparent px-6 text-sm font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-destructive disabled:opacity-50"
+              >
+                Descartar treino
+              </button>
+            </div>
+          </footer>
+        </div>
+      )}
+
       {/* Alerta: itens não concluídos */}
       {pendingOpen && (
         <div
