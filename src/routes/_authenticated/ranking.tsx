@@ -295,19 +295,18 @@ const SCORING_RULES: ScoringRule[] = [
 type Division = {
   label: string;
   icon: ComponentType<SVGProps<SVGSVGElement> & { size?: number | string }>;
-  textLight: string;
-  textDark: string;
+  color: string;
   bg: string;
   border: string;
 };
 
 const DIVISIONS: Division[] = [
-  { label: "Bronze",   icon: Shield, textLight: "#9A5B12", textDark: "#CD7F32", bg: "rgba(205, 127, 50, 0.1)",  border: "rgba(205, 127, 50, 0.25)" },
-  { label: "Prata",    icon: Medal,  textLight: "#6B7280", textDark: "#BFC7CE", bg: "rgba(191, 199, 206, 0.1)", border: "rgba(191, 199, 206, 0.25)" },
-  { label: "Ouro",     icon: Medal,  textLight: "#8A5A0D", textDark: "#FFC93C", bg: "rgba(255, 201, 60, 0.1)",  border: "rgba(255, 201, 60, 0.25)" },
-  { label: "Platina",  icon: Trophy, textLight: "#0E7C71", textDark: "#5CD1C6", bg: "rgba(92, 209, 198, 0.1)",  border: "rgba(92, 209, 198, 0.25)" },
-  { label: "Diamante", icon: Gem,    textLight: "#2563EB", textDark: "#5AA9FF", bg: "rgba(90, 169, 255, 0.1)",  border: "rgba(90, 169, 255, 0.25)" },
-  { label: "Campeão",  icon: Crown,  textLight: "#5C7A0A", textDark: "#D7F205", bg: "rgba(215, 242, 5, 0.1)",   border: "rgba(215, 242, 5, 0.25)" },
+  { label: "Bronze",   icon: Shield, color: "#CD7F32", bg: "rgba(205, 127, 50, 0.1)",  border: "rgba(205, 127, 50, 0.25)" },
+  { label: "Prata",    icon: Medal,  color: "#BFC7CE", bg: "rgba(191, 199, 206, 0.1)", border: "rgba(191, 199, 206, 0.25)" },
+  { label: "Ouro",     icon: Medal,  color: "#FFC93C", bg: "rgba(255, 201, 60, 0.1)",  border: "rgba(255, 201, 60, 0.25)" },
+  { label: "Platina",  icon: Trophy, color: "#5CD1C6", bg: "rgba(92, 209, 198, 0.1)",  border: "rgba(92, 209, 198, 0.25)" },
+  { label: "Diamante", icon: Gem,    color: "#5AA9FF", bg: "rgba(90, 169, 255, 0.1)",  border: "rgba(90, 169, 255, 0.25)" },
+  { label: "Campeão",  icon: Crown,  color: "#D7F205", bg: "rgba(215, 242, 5, 0.1)",   border: "rgba(215, 242, 5, 0.25)" },
 ];
 
 function HowToScoreModal({ onClose }: { onClose: () => void }) {
