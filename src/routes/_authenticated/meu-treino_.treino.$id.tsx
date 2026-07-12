@@ -86,6 +86,10 @@ function TreinoPage() {
   const [finalNotes, setFinalNotes] = useState("");
   const [saving, setSaving] = useState(false);
   const [discardOpen, setDiscardOpen] = useState(false);
+  const [exerciseNotes, setExerciseNotes] = useState<Record<string, string>>({});
+  const [noteModal, setNoteModal] = useState<{ rowId: string; name: string } | null>(null);
+  const [noteDraft, setNoteDraft] = useState("");
+  const [savingNote, setSavingNote] = useState(false);
   const startedAtRef = useRef<number>(Date.now());
 
   // Cor principal do personal
