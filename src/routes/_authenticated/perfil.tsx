@@ -125,6 +125,18 @@ function PerfilPage() {
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const avatarInputRef = useRef<HTMLInputElement | null>(null);
 
+  const [brandLogoPath, setBrandLogoPath] = useState<string | null>(null);
+  const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+
+  const { profile } = useCurrentUser();
+  const avatarUrl = useAvatarUrl(profile?.avatar_url);
+  const initials = initialsFromName(profile?.full_name, profile?.email);
+  const avatarColor = colorForId(profile?.id ?? "user");
+  const [cropSrc, setCropSrc] = useState<string | null>(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const avatarInputRef = useRef<HTMLInputElement | null>(null);
+
   const handleAvatarPick = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     e.target.value = "";
@@ -161,6 +173,8 @@ function PerfilPage() {
     setSavedColor(initial.primaryColor);
     setWelcome(initial.welcome);
     setSections(initial.sections);
+    setBrandLogoPath(initial.brandLogoPath);
+    setLogoPreview(initial.brandLogoUrl);
   }, [initial]);
 
   useEffect(() => {
@@ -177,6 +191,7 @@ function PerfilPage() {
         .update({
           brand_title: payload.brandTitle,
           show_brand_title: payload.showBrandTitle,
+          brand_logo_url: payload.brandLogoPath,
           primary_color: payload.primaryColor,
           welcome_message: payload.welcome,
           visible_sections: payload.sections,
@@ -186,22 +201,40 @@ function PerfilPage() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["profile-customization"] });
+      qc.invalidateQueries({ queryKey: ["personal-customization"] });
     },
     onError: (e: any) => toast.error(e.message ?? "Erro ao salvar"),
   });
 
-  function onLogoChange(e: React.ChangeEvent<HTMLInputElement>) {
+  async function onLogoChange(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
+    e.target.value = "";
     if (!f) return;
     if (f.size > 5 * 1024 * 1024) {
       toast.error("Arquivo maior que 5MB");
       return;
     }
-    setLogoPreview(URL.createObjectURL(f));
+    if (!profile?.id) return;
+    setUploadingLogo(true);
+    const ext = (f.name.split(".").pop() || "png").toLowerCase();
+    const path = `${profile.id}/logo-${Date.now()}.${ext}`;
+    const { error: upErr } = await supabase.storage
+      .from("avatars")
+      .upload(path, f, { upsert: true, contentType: f.type || "image/png" });
+    if (upErr) {
+      setUploadingLogo(false);
+      toast.error("Falha ao enviar logo");
+      return;
+    }
+    const { data: signed } = await supabase.storage.from("avatars").createSignedUrl(path, 60 * 60);
+    setBrandLogoPath(path);
+    setLogoPreview(signed?.signedUrl ?? URL.createObjectURL(f));
+    setUploadingLogo(false);
+    toast.success("Logo carregada. Clique em Salvar customizações para confirmar.");
   }
 
   async function saveColor() {
-    await saveMutation.mutateAsync({ brandTitle, showBrandTitle, primaryColor, welcome, sections });
+    await saveMutation.mutateAsync({ brandTitle, showBrandTitle, brandLogoPath, primaryColor, welcome, sections });
     applyPrimaryColor(primaryColor);
     setSavedColor(primaryColor);
   }
@@ -213,7 +246,7 @@ function PerfilPage() {
   }
 
   async function onSave() {
-    await saveMutation.mutateAsync({ brandTitle, showBrandTitle, primaryColor, welcome, sections });
+    await saveMutation.mutateAsync({ brandTitle, showBrandTitle, brandLogoPath, primaryColor, welcome, sections });
     applyPrimaryColor(primaryColor);
     setSavedColor(primaryColor);
     toast("Customizações salvas", {
@@ -223,6 +256,7 @@ function PerfilPage() {
 
 
   }
+
 
   const tabs = [
     { id: "metricas" as const, label: "Métricas", icon: BarChart3 },
