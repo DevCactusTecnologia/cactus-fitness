@@ -475,36 +475,6 @@ function AcademiaHome() {
                 novasAvaliacoes={o?.novasAvaliacoes30d ?? 0}
               />
 
-              <div className="grid grid-cols-2 gap-3">
-                <Kpi
-                  label="Alunos ativos"
-                  value={alunosAtivos}
-                  hint={`de ${o?.totalAlunos ?? 0} cadastrados`}
-                  spark={[1, 2, 2, 3, 2, 4, alunosAtivos + 1]}
-                  delta={o?.novosAlunos30d ? `+${o.novosAlunos30d}` : undefined}
-                />
-                <Kpi
-                  label="Treinos ativos"
-                  value={o?.treinosAtivos ?? 0}
-                  hint={o?.novosTreinos30d ? `+${o.novosTreinos30d} este mês` : "periodizados"}
-                  spark={[1, 1, 2, 2, 3, 3, (o?.treinosAtivos ?? 0) + 1]}
-                  delta={o?.novosTreinos30d ? `+${o.novosTreinos30d}` : undefined}
-                />
-                <Kpi
-                  label="Receita do mês"
-                  value="R$ 0"
-                  hint="vs mês anterior"
-                  spark={[1, 1, 2, 2, 3, 4, 5]}
-                />
-                <Kpi
-                  label="Avaliações"
-                  value={o?.avaliacoes ?? 0}
-                  hint={o?.novasAvaliacoes30d ? `+${o.novasAvaliacoes30d} este mês` : "em dia"}
-                  spark={[1, 1, 2, 2, 3, 3, (o?.avaliacoes ?? 0) + 1]}
-                  delta={o?.novasAvaliacoes30d ? `+${o.novasAvaliacoes30d}` : undefined}
-                />
-              </div>
-
               <WalletCard />
 
               <div className="grid grid-cols-2 gap-3">
