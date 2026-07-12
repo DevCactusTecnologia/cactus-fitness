@@ -470,7 +470,10 @@ function MeuTreinoPage() {
                 <div className="text-left">
                   <p className="text-xs text-muted-foreground">seu ranking</p>
                   <p className="font-display text-base font-bold leading-tight" style={{ color: "rgb(205, 127, 50)" }}>
-                    Bronze<span className="text-muted-foreground font-semibold"> · 19º no grupo</span>
+                    Bronze
+                    {ranking?.youRank && ranking.totalInGroup > 0 && (
+                      <span className="text-muted-foreground font-semibold"> · {ranking.youRank}º no grupo</span>
+                    )}
                   </p>
                 </div>
               </div>
