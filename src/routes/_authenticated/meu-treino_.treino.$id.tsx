@@ -17,6 +17,11 @@ export const Route = createFileRoute("/_authenticated/meu-treino_/treino/$id")({
   head: () => ({ meta: [{ title: "Treino · cactusfitness" }] }),
   validateSearch: (search: Record<string, unknown>) => ({
     sessao: typeof search.sessao === "string" ? search.sessao : undefined,
+    bloco: typeof search.bloco === "number"
+      ? search.bloco
+      : typeof search.bloco === "string" && search.bloco !== "" && !isNaN(Number(search.bloco))
+        ? Number(search.bloco)
+        : undefined,
   }),
   component: TreinoPage,
 });
