@@ -710,14 +710,12 @@ function TreinoPage() {
               <section key={r.id} className="overflow-hidden rounded-xl border border-border bg-card">
                 <button onClick={() => toggleOpen(r.id)} className="flex w-full items-center gap-3 border-b border-border/50 p-3 text-left transition-colors hover:bg-surface-2/40">
                   <div className="relative">
-                    <div className="grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-lg bg-muted">
+                    <div className="grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-lg bg-card">
                       {r.exercise?.image_path ? (
                         <img src={r.exercise.image_path} alt={r.exercise.name} className="h-full w-full object-cover" />
-                      ) : (
-                        <Play className="h-6 w-6 text-muted-foreground" />
-                      )}
-                      <span className="pointer-events-none absolute inset-0 grid place-items-center bg-black/30">
-                        <span className="grid h-7 w-7 place-items-center rounded-full bg-primary/95 text-primary-foreground shadow">
+                      ) : null}
+                      <span className="pointer-events-none absolute inset-0 grid place-items-center">
+                        <span className="grid h-7 w-7 place-items-center rounded-full bg-primary text-primary-foreground shadow">
                           <Play className="h-3.5 w-3.5" fill="currentColor" />
                         </span>
                       </span>
