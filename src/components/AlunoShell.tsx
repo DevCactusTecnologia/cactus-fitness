@@ -5,7 +5,7 @@ import logoUrl from "@/assets/cactus-logo.png";
 
 export const ALUNO_NAV = [
   { icon: LayoutDashboard, label: "Início", to: "/meu-treino" as const },
-  { icon: Dumbbell, label: "Treinos", to: "/treinos" as const },
+  { icon: Dumbbell, label: "Meus Treinos", to: "/treinos" as const },
   { icon: TrendingUp, label: "Meu Progresso", to: "/meu-progresso" as const },
   { icon: Trophy, label: "Desafios", to: "/desafios" as const },
   { icon: HeartPulse, label: "Avaliações", to: "/avaliacoes" as const },
