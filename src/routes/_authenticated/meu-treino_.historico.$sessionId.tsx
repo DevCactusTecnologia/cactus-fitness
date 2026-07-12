@@ -272,7 +272,7 @@ function HistoricoPage() {
                     <Dumbbell className="h-3 w-3" />
                     {exCount} exerc.
                   </span>
-                  <span className="tabular-nums">{totals.doneSets}/{totals.plannedSets} series</span>
+                  <span className="tabular-nums">{totals.doneSets}/{totals.plannedSets} séries</span>
                   {durationMin != null && (
                     <span className="flex items-center gap-1">
                       <Clock className="h-3 w-3" />
