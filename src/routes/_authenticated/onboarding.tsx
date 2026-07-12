@@ -58,19 +58,26 @@ function OnboardingPage() {
       setError("Informe seu nome completo.");
       return;
     }
+    if (role === "owner" && academyName.trim().length < 2) {
+      setError("Informe o nome da sua academia.");
+      return;
+    }
     setLoading(true);
     try {
       const result = await runOnboarding({
         data: {
           role,
           fullName: fullName.trim(),
-          academyName: role === "personal" ? academyName.trim() || undefined : undefined,
+          academyName: role === "owner" ? academyName.trim() : undefined,
         },
       });
-      navigate({
-        to: result.role === "aluno" ? "/meu-treino" : "/",
-        replace: true,
-      });
+      const home =
+        result.role === "aluno"
+          ? "/meu-treino"
+          : result.role === "owner"
+            ? "/dashboard/academia"
+            : "/dashboard/personal";
+      navigate({ to: home, replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro ao concluir cadastro");
       setLoading(false);
