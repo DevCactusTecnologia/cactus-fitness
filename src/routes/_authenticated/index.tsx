@@ -7,7 +7,7 @@ import {
   ChevronDown, ChevronRight, Pencil, HeartPulse, Dumbbell, Trophy, Gift, ClipboardCheck, Flame,
   Sparkles, ArrowRight, Search,
   UserPlus, FileText, Link2, TrendingUp, AlertTriangle, Clock, MapPin, Home, Users as UsersIcon,
-  Wallet, Eye,
+  Wallet, Eye, EyeOff,
 } from "lucide-react";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import logoUrl from "@/assets/cactus-logo.png";
