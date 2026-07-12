@@ -50,6 +50,16 @@ function fmtWeekdayDay(iso: string | null) {
   const d = new Date(iso);
   return { wd: WEEKDAY[d.getDay()], dm: `${pad(d.getDate())}/${pad(d.getMonth() + 1)}` };
 }
+function isoWeekNum(iso: string | null): number | null {
+  if (!iso) return null;
+  const d = new Date(iso);
+  const target = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  const dayNr = (target.getUTCDay() + 6) % 7;
+  target.setUTCDate(target.getUTCDate() - dayNr + 3);
+  const firstThursday = new Date(Date.UTC(target.getUTCFullYear(), 0, 4));
+  const diff = (target.getTime() - firstThursday.getTime()) / 86400000;
+  return 1 + Math.round((diff - ((firstThursday.getUTCDay() + 6) % 7) + 3) / 7);
+}
 
 function HistoricoPage() {
   const { sessionId } = Route.useParams();
@@ -59,7 +69,7 @@ function HistoricoPage() {
   const [workoutName, setWorkoutName] = useState<string>("Treino");
   const [planName, setPlanName] = useState<string>("");
   const [sessionLabel, setSessionLabel] = useState<string>("");
-  const [weekLabel] = useState<string>("Sem. 1");
+  const [weekLabel, setWeekLabel] = useState<string>("");
   const [blocks, setBlocks] = useState<ExerciseBlock[]>([]);
   const [totals, setTotals] = useState<{ plannedSets: number; doneSets: number; reps: number; volume: number | null }>({
     plannedSets: 0, doneSets: 0, reps: 0, volume: null,
@@ -82,10 +92,21 @@ function HistoricoPage() {
         .select("name, template_id")
         .eq("id", sess.student_workout_id)
         .maybeSingle();
-      if (sw?.name) {
-        setWorkoutName(sw.name);
-        setPlanName(String(sw.name).split(" - ")[0] || "");
+      if (sw?.name) setWorkoutName(sw.name);
+
+      // Nome do plano vem do template
+      if (sw?.template_id) {
+        const { data: tpl } = await supabase
+          .from("workout_templates")
+          .select("name")
+          .eq("id", sw.template_id)
+          .maybeSingle();
+        if (tpl?.name) setPlanName(tpl.name);
       }
+
+      // Semana ISO com base na conclusão
+      const wk = isoWeekNum(sess.finished_at ?? sess.started_at ?? null);
+      if (wk) setWeekLabel(`Sem. ${wk}`);
 
       const { data: logs } = await supabase
         .from("set_logs")
@@ -243,15 +264,15 @@ function HistoricoPage() {
                 </div>
                 <div className="mt-0.5 flex items-center gap-3 text-xs text-fg-muted">
                   {planName && <span className="truncate">{planName}</span>}
-                  {planName && sessionLabel && <span className="text-border">·</span>}
-                  {sessionLabel && <span className="truncate">Fase: {sessionLabel}</span>}
+                  {planName && sessionLabel && sessionLabel !== displayName && <span className="text-border">·</span>}
+                  {sessionLabel && sessionLabel !== displayName && <span className="truncate">{sessionLabel}</span>}
                 </div>
                 <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-fg-muted">
                   <span className="flex items-center gap-1">
                     <Dumbbell className="h-3 w-3" />
                     {exCount} exerc.
                   </span>
-                  <span className="tabular-nums">{totals.doneSets}/{totals.plannedSets} series</span>
+                  <span className="tabular-nums">{totals.doneSets}/{totals.plannedSets} séries</span>
                   {durationMin != null && (
                     <span className="flex items-center gap-1">
                       <Clock className="h-3 w-3" />
@@ -274,7 +295,7 @@ function HistoricoPage() {
               </div>
               <div className="rounded-md bg-surface-2/30 px-2.5 py-1.5">
                 <p className="text-[0.625rem] font-semibold uppercase tracking-wider text-fg-muted">Volume</p>
-                <p className="mt-0.5 text-sm font-bold tabular-nums text-foreground">{totals.volume != null ? totals.volume : "—"}</p>
+                <p className="mt-0.5 text-sm font-bold tabular-nums text-foreground">{totals.volume != null ? `${Math.round(totals.volume)} kg` : "—"}</p>
               </div>
             </div>
 
