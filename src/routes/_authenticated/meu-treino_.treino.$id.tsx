@@ -85,6 +85,7 @@ function TreinoPage() {
   const [finalRpe, setFinalRpe] = useState<number | null>(null);
   const [finalNotes, setFinalNotes] = useState("");
   const [saving, setSaving] = useState(false);
+  const [discardOpen, setDiscardOpen] = useState(false);
   const startedAtRef = useRef<number>(Date.now());
 
   // Cor principal do personal
