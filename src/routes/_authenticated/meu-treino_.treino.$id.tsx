@@ -229,6 +229,14 @@ function TreinoPage() {
           setReps(r);
           setRpes(rp);
           setExtraSets(extras);
+
+          const { data: notes } = await supabase
+            .from("session_exercise_notes")
+            .select("template_exercise_id, note")
+            .eq("session_id", sid);
+          const nmap: Record<string, string> = {};
+          (notes ?? []).forEach((n: any) => { nmap[n.template_exercise_id] = n.note; });
+          setExerciseNotes(nmap);
         }
       }
       setLoading(false);
