@@ -197,7 +197,7 @@ function TreinosPage() {
 
   return (
     <AlunoShell>
-      <div className="sticky top-0 z-20 bg-background/70 px-4 py-4 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 md:px-6">
+      <div className="sticky top-0 z-30 border-b border-border bg-background/80 px-4 py-4 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 md:px-6">
         <h1 className="font-display text-xl font-bold">Meus Treinos</h1>
       </div>
       <main className="p-4 md:p-6">
