@@ -223,7 +223,8 @@ function AvaliacaoDetalhe({ id }: { id: string }) {
 
   if (!data) {
     return (
-      <main className="p-4 md:p-6">
+      <main className="p-4 pt-[76px] md:p-6 md:pt-[84px]">
+
         <div className="mx-auto max-w-4xl rounded-xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">
           Avaliação não encontrada.
         </div>
