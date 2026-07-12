@@ -77,6 +77,11 @@ function AvaliacoesPage() {
   const { id } = Route.useSearch();
   return (
     <AlunoShell>
+      <header className="fixed inset-x-0 top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:left-[72px]">
+        <div className="flex items-center px-4 py-4 md:px-6">
+          <h1 className="font-display text-xl font-bold">Minhas Avaliações</h1>
+        </div>
+      </header>
       {id ? <AvaliacaoDetalhe id={id} /> : <AvaliacoesLista />}
     </AlunoShell>
   );
@@ -89,11 +94,9 @@ function AvaliacoesLista() {
   const navigate = useNavigate();
 
   return (
-    <main className="p-4 md:p-6">
+    <main className="p-4 pt-[76px] md:p-6 md:pt-[84px]">
       <div className="mx-auto max-w-4xl space-y-4">
-        <div className="flex items-center gap-2">
-          <h1 className="text-xl font-bold md:text-2xl">Minhas Avaliações</h1>
-        </div>
+
 
         {isLoading ? (
           <div className="grid place-items-center py-16 text-muted-foreground">
@@ -209,7 +212,8 @@ function AvaliacaoDetalhe({ id }: { id: string }) {
 
   if (isLoading) {
     return (
-      <main className="p-4 md:p-6">
+      <main className="p-4 pt-[76px] md:p-6 md:pt-[84px]">
+
         <div className="mx-auto grid max-w-4xl place-items-center py-20 text-muted-foreground">
           <Loader2 className="h-6 w-6 animate-spin" />
         </div>
@@ -219,7 +223,8 @@ function AvaliacaoDetalhe({ id }: { id: string }) {
 
   if (!data) {
     return (
-      <main className="p-4 md:p-6">
+      <main className="p-4 pt-[76px] md:p-6 md:pt-[84px]">
+
         <div className="mx-auto max-w-4xl rounded-xl border border-border bg-card p-8 text-center text-sm text-muted-foreground">
           Avaliação não encontrada.
         </div>
@@ -230,7 +235,7 @@ function AvaliacaoDetalhe({ id }: { id: string }) {
   const imc = computeIMC(data.composicao_corporal);
 
   return (
-    <main className="p-4 md:p-6">
+    <main className="p-4 pt-[76px] md:p-6 md:pt-[84px]">
       <div className="mx-auto max-w-4xl space-y-4">
         <button
           type="button"
