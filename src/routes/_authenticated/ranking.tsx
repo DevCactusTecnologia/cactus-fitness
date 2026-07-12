@@ -1,9 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { Shield, ArrowUp, Medal, Users, HelpCircle, Eye } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import {
+  Shield, ArrowUp, ArrowDown, Medal, Users, HelpCircle, Eye, X, Dumbbell, CalendarCheck, Zap, Timer, Loader2,
+} from "lucide-react";
 import { AlunoShell } from "@/components/AlunoShell";
 import { useCurrentUser, firstName, initialsFromName } from "@/lib/auth";
 import { colorForId } from "@/lib/avatar-color";
+import { useAvatarUrl } from "@/hooks/useAvatarUrl";
+import { getMyRanking, type RankingPlayer } from "@/lib/ranking.functions";
 
 export const Route = createFileRoute("/_authenticated/ranking")({
   head: () => ({
@@ -15,59 +21,26 @@ export const Route = createFileRoute("/_authenticated/ranking")({
   component: RankingPage,
 });
 
-type Player = {
-  rank: number;
-  name: string;
-  points: number;
-  isYou?: boolean;
-};
-
-const PLAYERS: Player[] = [
-  { rank: 1, name: "Ana Claudia", points: 60 },
-  { rank: 2, name: "Jacqueline", points: 60 },
-  { rank: 3, name: "Bruno", points: 60 },
-  { rank: 4, name: "Andressa", points: 60 },
-  { rank: 5, name: "Paulo", points: 35 },
-  { rank: 6, name: "Nathalia", points: 35 },
-  { rank: 7, name: "Camila", points: 30 },
-  { rank: 8, name: "Kelen", points: 30 },
-  { rank: 9, name: "Ellem", points: 30 },
-  { rank: 10, name: "Carla", points: 30 },
-  { rank: 11, name: "Jhon Kelvin", points: 30 },
-  { rank: 12, name: "Analice", points: 30 },
-  { rank: 13, name: "Luiz", points: 30 },
-  { rank: 14, name: "Tania", points: 30 },
-  { rank: 15, name: "Rodolfo", points: 30 },
-  { rank: 16, name: "Thales", points: 30 },
-  { rank: 17, name: "Sávio", points: 30 },
-  { rank: 18, name: "Jaedson", points: 30 },
-  { rank: 20, name: "Claudia", points: 30 },
-];
-
 const PROMO_LINE_AFTER = 7; // top 7 sobe
+const DEMO_LINE_FROM = 15; // do 15 pra baixo cai
 
 function RankingPage() {
   const { profile } = useCurrentUser();
   const [showPhoto, setShowPhoto] = useState(false);
+  const [showHowTo, setShowHowTo] = useState(false);
 
-  const youName = firstName(profile?.full_name, profile?.email);
-  const youInitial = initialsFromName(profile?.full_name, profile?.email).charAt(0);
-  const youColor = colorForId(profile?.id ?? "aluno").bg;
-  const youRank = 19;
-  const youPoints = 30;
-  const totalInGroup = 20;
+  const fetchRanking = useServerFn(getMyRanking);
+  const { data, isLoading } = useQuery({
+    queryKey: ["ranking-me", profile?.id],
+    queryFn: () => fetchRanking(),
+    enabled: !!profile?.id,
+    staleTime: 30_000,
+  });
 
-  // Monta a lista final inserindo "você" na posição 19
-  const merged: Player[] = [];
-  for (const p of PLAYERS) {
-    if (p.rank > youRank && !merged.some((m) => m.isYou)) {
-      merged.push({ rank: youRank, name: youName, points: youPoints, isYou: true });
-    }
-    merged.push(p);
-  }
-  if (!merged.some((m) => m.isYou)) {
-    merged.push({ rank: youRank, name: youName, points: youPoints, isYou: true });
-  }
+  const players = data?.players ?? [];
+  const youRank = data?.youRank ?? null;
+  const youPoints = data?.youPoints ?? 0;
+  const totalInGroup = data?.totalInGroup ?? 0;
 
   return (
     <AlunoShell>
@@ -75,8 +48,10 @@ function RankingPage() {
         <div className="flex items-center gap-3 px-4 py-4 md:px-6">
           <h1 className="font-display text-xl font-bold flex-1">Ranking</h1>
           <div className="text-right text-xs leading-tight">
-            <p className="text-muted-foreground">semana 3 · termina amanhã</p>
-            <p className="text-muted-foreground/60">temporada até 03 de agosto</p>
+            <p className="text-muted-foreground">
+              {data?.orgName ? `grupo · ${data.orgName}` : "semana"}
+            </p>
+            <p className="text-muted-foreground/60">reseta toda segunda</p>
           </div>
         </div>
       </header>
@@ -104,7 +79,7 @@ function RankingPage() {
                     <p className="text-[0.625rem] text-muted-foreground/70">pontos</p>
                   </div>
                   <div>
-                    <p className="font-display text-lg font-bold tabular-nums">{youRank}º</p>
+                    <p className="font-display text-lg font-bold tabular-nums">{youRank ? `${youRank}º` : "—"}</p>
                     <p className="text-[0.625rem] text-muted-foreground/70">no grupo</p>
                   </div>
                 </div>
@@ -129,9 +104,21 @@ function RankingPage() {
             </span>
           </div>
 
-          <p className="text-center text-sm text-muted-foreground">
-            você está em <span className="font-display font-bold text-foreground">{youRank}º</span> de {totalInGroup}
-          </p>
+          {isLoading ? (
+            <p className="text-center text-sm text-muted-foreground">carregando…</p>
+          ) : totalInGroup === 0 ? (
+            <p className="text-center text-sm text-muted-foreground">
+              você ainda não faz parte de um grupo.
+            </p>
+          ) : (
+            <p className="text-center text-sm text-muted-foreground">
+              você está em{" "}
+              <span className="font-display font-bold text-foreground">
+                {youRank ? `${youRank}º` : "—"}
+              </span>{" "}
+              de {totalInGroup}
+            </p>
+          )}
 
           {/* Foto pública */}
           <div className="flex items-center gap-3 rounded-2xl border border-border bg-card p-4">
@@ -166,6 +153,7 @@ function RankingPage() {
           <div className="flex items-center justify-center">
             <button
               type="button"
+              onClick={() => setShowHowTo(true)}
               className="inline-flex h-8 items-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold text-muted-foreground transition hover:bg-accent hover:text-foreground"
             >
               <HelpCircle className="h-4 w-4 text-primary" /> como pontuar
@@ -173,73 +161,112 @@ function RankingPage() {
           </div>
 
           {/* Lista */}
-          <div className="space-y-2">
-            {merged.map((p, idx) => {
-              const prev = merged[idx - 1];
-              const showPromoDivider = prev && prev.rank <= PROMO_LINE_AFTER && p.rank > PROMO_LINE_AFTER;
-              const inPromoZone = p.rank <= PROMO_LINE_AFTER;
-              return (
-                <div key={`${p.rank}-${p.name}`}>
-                  {showPromoDivider && (
-                    <div className="flex items-center gap-2 py-1.5 text-primary">
-                      <div className="h-px flex-1 bg-gradient-to-r from-transparent to-current opacity-40" />
-                      <span className="flex items-center gap-1 text-[0.625rem] font-bold">
-                        <ArrowUp className="h-3 w-3" /> zona de promoção
-                      </span>
-                      <div className="h-px flex-1 bg-gradient-to-l from-transparent to-current opacity-40" />
-                    </div>
-                  )}
-                  <PlayerRow
-                    player={p}
-                    highlighted={p.isYou}
-                    softHighlight={inPromoZone}
-                    youColor={p.isYou ? youColor : colorForId(p.name).bg}
-                    initial={p.isYou ? youInitial : p.name.charAt(0).toUpperCase()}
-                  />
-                </div>
-              );
-            })}
-          </div>
+          {isLoading ? (
+            <div className="flex justify-center py-8">
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {players.map((p, idx) => {
+                const rank = idx + 1;
+                const prevRank = idx;
+                const showPromoDivider = prevRank === PROMO_LINE_AFTER;
+                const showDemoDivider = rank === DEMO_LINE_FROM && players.length >= DEMO_LINE_FROM;
+                const inPromoZone = rank <= PROMO_LINE_AFTER;
+                const inDemoZone = rank >= DEMO_LINE_FROM;
+                return (
+                  <div key={p.alunoId}>
+                    {showPromoDivider && <PromoDivider />}
+                    {showDemoDivider && <DemoDivider />}
+                    <PlayerRow
+                      rank={rank}
+                      player={p}
+                      showPhoto={showPhoto}
+                      inPromoZone={inPromoZone}
+                      inDemoZone={inDemoZone}
+                    />
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </main>
+
+      {showHowTo && <HowToScoreModal onClose={() => setShowHowTo(false)} />}
     </AlunoShell>
   );
 }
 
+function PromoDivider() {
+  return (
+    <div className="flex items-center gap-2 py-1.5 text-primary">
+      <div className="h-px flex-1 bg-gradient-to-r from-transparent to-current opacity-40" />
+      <span className="flex items-center gap-1 text-[0.625rem] font-bold">
+        <ArrowUp className="h-3 w-3" /> zona de promoção
+      </span>
+      <div className="h-px flex-1 bg-gradient-to-l from-transparent to-current opacity-40" />
+    </div>
+  );
+}
+
+function DemoDivider() {
+  return (
+    <div className="flex items-center gap-2 py-1.5 text-destructive">
+      <div className="h-px flex-1 bg-gradient-to-r from-transparent to-current opacity-40" />
+      <span className="flex items-center gap-1 text-[0.625rem] font-bold">
+        <ArrowDown className="h-3 w-3" /> zona de rebaixamento
+      </span>
+      <div className="h-px flex-1 bg-gradient-to-l from-transparent to-current opacity-40" />
+    </div>
+  );
+}
+
 function PlayerRow({
-  player,
-  highlighted,
-  softHighlight,
-  youColor,
-  initial,
+  rank, player, showPhoto, inPromoZone, inDemoZone,
 }: {
-  player: Player;
-  highlighted?: boolean;
-  softHighlight?: boolean;
-  youColor: string;
-  initial: string;
+  rank: number;
+  player: RankingPlayer;
+  showPhoto: boolean;
+  inPromoZone: boolean;
+  inDemoZone: boolean;
 }) {
-  const textCls = highlighted ? "text-primary" : "text-foreground";
-  const rankCls = highlighted ? "text-primary" : "text-muted-foreground";
+  const avatarUrl = useAvatarUrl(showPhoto ? player.avatarUrl : null);
+  const color = colorForId(player.userId ?? player.alunoId);
+  const initial = (player.name?.charAt(0) || "?").toUpperCase();
+  const highlighted = player.isYou;
+
   const containerCls = highlighted
     ? "bg-primary/10 border-primary/30"
-    : softHighlight
+    : inPromoZone
     ? "bg-primary/5 border-primary/15"
+    : inDemoZone
+    ? "bg-destructive/5 border-destructive/15"
     : "bg-card border-border";
+
+  const textCls = highlighted ? "text-primary" : "text-foreground";
+  const rankCls = highlighted ? "text-primary" : "text-muted-foreground";
+
   return (
     <div className={`flex items-center gap-3 rounded-xl border p-3 transition-colors ${containerCls}`}>
       <div className="w-7 shrink-0 text-center">
-        <span className={`font-display text-sm font-bold tabular-nums ${rankCls}`}>{player.rank}º</span>
+        <span className={`font-display text-sm font-bold tabular-nums ${rankCls}`}>{rank}º</span>
       </div>
       <div
         className="flex h-10 w-10 shrink-0 items-center justify-center overflow-hidden rounded-full font-display text-base font-bold text-white"
-        style={{ backgroundColor: youColor }}
+        style={{ backgroundColor: color.bg }}
       >
-        {initial}
+        {avatarUrl ? (
+          <img src={avatarUrl} alt={player.name} className="h-full w-full object-cover" />
+        ) : (
+          initial
+        )}
       </div>
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-2">
-          <p className={`truncate text-sm font-semibold ${textCls}`}>{player.name}</p>
+          <p className={`truncate text-sm font-semibold ${textCls}`}>
+            {highlighted ? firstName(player.name) : player.name}
+          </p>
           {highlighted && (
             <span className="shrink-0 rounded-full bg-primary/15 px-1.5 py-0.5 text-[0.625rem] font-bold text-primary">
               você
@@ -250,6 +277,118 @@ function PlayerRow({
       <div className="shrink-0 text-right">
         <p className={`font-display text-base font-bold tabular-nums ${textCls}`}>{player.points}</p>
         <p className="text-[0.625rem] text-muted-foreground/70">pts</p>
+      </div>
+    </div>
+  );
+}
+
+const SCORING_RULES = [
+  { icon: Dumbbell, label: "treino concluído (a partir de 30 min)", points: "+30 pts" },
+  { icon: CalendarCheck, label: "check-in diário (1x por dia)", points: "+5 pts" },
+  { icon: Zap, label: "atividade extra registrada", points: "+10 pts" },
+  { icon: Timer, label: "corrida concluída", points: "+30 pts" },
+];
+
+const DIVISIONS = [
+  { label: "Bronze", color: "#CD7F32", bg: "rgba(205, 127, 50, 0.1)", border: "rgba(205, 127, 50, 0.25)" },
+  { label: "Prata", color: "#BFC7CE", bg: "rgba(191, 199, 206, 0.1)", border: "rgba(191, 199, 206, 0.25)" },
+  { label: "Ouro", color: "#F5B942", bg: "rgba(245, 185, 66, 0.1)", border: "rgba(245, 185, 66, 0.25)" },
+  { label: "Platina", color: "#7FD1D6", bg: "rgba(127, 209, 214, 0.1)", border: "rgba(127, 209, 214, 0.25)" },
+  { label: "Diamante", color: "#8AB4F8", bg: "rgba(138, 180, 248, 0.1)", border: "rgba(138, 180, 248, 0.25)" },
+  { label: "Campeão", color: "#C084FC", bg: "rgba(192, 132, 252, 0.1)", border: "rgba(192, 132, 252, 0.25)" },
+];
+
+function HowToScoreModal({ onClose }: { onClose: () => void }) {
+  return (
+    <div
+      className="fixed inset-0 z-[100] flex items-end justify-center bg-black/60 backdrop-blur-sm sm:items-center"
+      onClick={onClose}
+    >
+      <div
+        className="relative w-full max-w-md rounded-t-3xl border border-border bg-card p-6 shadow-xl sm:rounded-3xl max-h-[92vh] overflow-y-auto"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <button
+          type="button"
+          onClick={onClose}
+          className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full text-muted-foreground hover:bg-accent hover:text-foreground"
+          aria-label="fechar"
+        >
+          <X className="h-4 w-4" />
+        </button>
+
+        <div className="mb-5 flex items-center gap-2">
+          <div className="grid h-9 w-9 place-items-center rounded-full bg-primary/10">
+            <HelpCircle className="h-5 w-5 text-primary" />
+          </div>
+          <h2 className="font-display text-lg font-bold">como funciona o ranking</h2>
+        </div>
+
+        <section className="space-y-3">
+          <h3 className="font-display text-xs font-bold uppercase tracking-wide text-muted-foreground">
+            como pontuar
+          </h3>
+          <ul className="space-y-2.5">
+            {SCORING_RULES.map(({ icon: Icon, label, points }) => (
+              <li key={label} className="flex items-center gap-3">
+                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
+                  <Icon className="h-4 w-4" />
+                </span>
+                <span className="min-w-0 flex-1 text-sm text-muted-foreground">{label}</span>
+                <span className="shrink-0 font-display text-sm font-bold text-primary tabular-nums">{points}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section className="mt-6 space-y-3">
+          <h3 className="font-display text-xs font-bold uppercase tracking-wide text-muted-foreground">
+            como funcionam os grupos
+          </h3>
+          <p className="flex items-start gap-2 text-sm leading-relaxed text-muted-foreground">
+            <Users className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+            <span>você compete num grupo de até 20 alunos da sua divisão.</span>
+          </p>
+          <div className="flex flex-wrap items-center gap-1.5 pt-1">
+            {DIVISIONS.map((d, i) => (
+              <span key={d.label} className="flex items-center gap-1.5">
+                <span
+                  className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-[0.625rem] font-semibold"
+                  style={{ backgroundColor: d.bg, border: `1px solid ${d.border}`, color: d.color }}
+                >
+                  <Shield className="h-3 w-3" fill="currentColor" />
+                  {d.label}
+                </span>
+                {i < DIVISIONS.length - 1 && (
+                  <ArrowUp className="h-3 w-3 rotate-90 text-muted-foreground/50" />
+                )}
+              </span>
+            ))}
+          </div>
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            toda semana o grupo reseta: quem fica no topo (zona de promoção) sobe de divisão. quem fica no
+            fundo (zona de rebaixamento) é rebaixado.
+          </p>
+        </section>
+
+        <section className="mt-6 space-y-2">
+          <h3 className="font-display text-xs font-bold uppercase tracking-wide text-muted-foreground">
+            temporadas
+          </h3>
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            a cada 6 semanas a temporada fecha: todo mundo volta pro bronze e os pontos zeram — começa tudo
+            de novo.{" "}
+            <span className="text-foreground/70">(sua melhor divisão fica registrada.)</span>
+          </p>
+        </section>
+
+        <button
+          type="button"
+          onClick={onClose}
+          className="mt-6 w-full rounded-full bg-primary py-3 text-sm font-bold text-primary-foreground transition hover:opacity-90"
+        >
+          fechar
+        </button>
       </div>
     </div>
   );
