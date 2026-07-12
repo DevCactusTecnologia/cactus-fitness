@@ -174,6 +174,11 @@ function TreinosPage() {
 
   return (
     <AlunoShell>
+      <div className="sticky top-0 z-20 border-b border-border bg-background/70 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60">
+        <div className="mx-auto max-w-2xl px-4 py-4 md:px-6">
+          <h1 className="font-display text-xl font-bold">Meus Treinos</h1>
+        </div>
+      </div>
       <main className="p-4 md:p-6">
         <div className="mx-auto max-w-2xl space-y-6">
           {/* Plano */}
