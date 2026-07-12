@@ -421,7 +421,7 @@ function TreinoPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="fixed top-0 inset-x-0 z-30 bg-background/80 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-3xl items-center justify-between gap-2 px-3 py-2 sm:px-4 sm:py-3">
+        <div className="mx-auto flex max-w-md items-center justify-between gap-2 px-3 py-2 sm:px-4 sm:py-3">
           <div className="flex min-w-0 items-center gap-2 sm:gap-3">
             <button onClick={() => navigate({ to: "/meu-treino" })} className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-muted-foreground hover:bg-accent sm:h-9 sm:w-9" aria-label="Fechar">
               <X className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -460,7 +460,7 @@ function TreinoPage() {
         </div>
       )}
 
-      <main className="mx-auto max-w-3xl px-4 pt-[76px] pb-28">
+      <main className="mx-auto max-w-md px-4 pt-[76px] pb-28">
         {loading && (
           <div className="rounded-2xl border border-border bg-card p-6 text-center text-sm text-muted-foreground">
             Carregando exercícios...
@@ -641,7 +641,7 @@ function TreinoPage() {
       </main>
 
       <div className="fixed inset-x-0 bottom-0 z-30 bg-background/80 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-3xl items-center gap-3 px-4 py-3">
+        <div className="mx-auto flex max-w-md items-center gap-3 px-4 py-3">
           <button onClick={() => navigate({ to: "/meu-treino" })} className="grid h-11 w-11 shrink-0 place-items-center rounded-full text-muted-foreground hover:bg-accent" aria-label="Voltar">
             <ChevronLeft className="h-5 w-5" />
           </button>
