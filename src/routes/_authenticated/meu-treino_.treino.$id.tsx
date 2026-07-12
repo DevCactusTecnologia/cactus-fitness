@@ -370,7 +370,18 @@ function TreinoPage() {
     }
   }
 
-  async function finish() {
+  const pendingRows = useMemo(() => {
+    return rows
+      .map((r) => {
+        const total = (r.sets || 0) + (extraSets[r.id] ?? 0);
+        let done = 0;
+        for (let i = 0; i < total; i++) if (doneSets.has(`${r.id}:${i}`)) done++;
+        return { row: r, total, pending: total - done };
+      })
+      .filter((x) => x.pending > 0);
+  }, [rows, extraSets, doneSets]);
+
+  async function doFinish() {
     if (sessionId) {
       const dur = Math.floor((Date.now() - startedAtRef.current) / 1000);
       await supabase.from("workout_sessions").update({
@@ -382,6 +393,14 @@ function TreinoPage() {
     await supabase.from("student_workouts").update({ status: "concluido" }).eq("id", id);
     toast.success("Treino concluído!");
     navigate({ to: "/meu-treino" });
+  }
+
+  function finish() {
+    if (pendingRows.length > 0) {
+      setPendingOpen(true);
+      return;
+    }
+    void doFinish();
   }
 
   function downloadPdf() {
