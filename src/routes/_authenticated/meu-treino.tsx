@@ -111,7 +111,7 @@ function MeuTreinoPage() {
 
   const [checkIns, setCheckIns] = useState<Set<string>>(new Set());
   const [checkingIn, setCheckingIn] = useState(false);
-  const [nextWorkout, setNextWorkout] = useState<{ id: string; name: string; exercises: number } | null>(null);
+  const [nextWorkout, setNextWorkout] = useState<{ id: string; name: string; exercises: number; sessionPosition: number | null }| null>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const avatarDisplayUrl = useAvatarUrl(profile?.avatar_url);
