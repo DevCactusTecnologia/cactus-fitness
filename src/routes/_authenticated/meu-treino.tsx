@@ -376,7 +376,7 @@ function MeuTreinoPage() {
               <h2 className="font-display text-2xl font-bold leading-tight">Olá, {name}!</h2>
               <Link
                 to="/ranking"
-                className="mt-1 inline-flex items-center gap-2 rounded-full border border-border bg-card/60 pl-1 pr-2.5 py-0.5 transition active:opacity-60 hover:bg-accent/40"
+                className="mt-1 inline-flex max-w-full items-center gap-1.5 rounded-full border border-border bg-card/60 pl-1 pr-2.5 py-0.5 transition active:opacity-60 hover:bg-accent/40"
               >
                 <span
                   className="grid h-7 w-7 place-items-center rounded-2xl shrink-0"
@@ -384,11 +384,14 @@ function MeuTreinoPage() {
                 >
                   <Shield className="h-4 w-4 text-[#9A5B12] dark:text-[#CD7F32]" fill="currentColor" />
                 </span>
-                <span className="text-xs font-semibold" style={{ color: "rgb(205, 127, 50)" }}>Bronze</span>
-                {ranking?.youRank && ranking.totalInGroup > 0 && (
-                  <span className="text-[0.625rem] text-muted-foreground/70">· {ranking.youRank}º no grupo</span>
-                )}
+                <span className="text-xs font-semibold whitespace-nowrap" style={{ color: "rgb(205, 127, 50)" }}>Bronze</span>
+                <span className="truncate text-[0.6875rem] text-muted-foreground/80 whitespace-nowrap">
+                  · {ranking && ranking.totalInGroup > 0
+                      ? `${ranking.youRank ?? "—"}º no grupo`
+                      : "posição no grupo"}
+                </span>
               </Link>
+
             </div>
           </div>
 
@@ -470,15 +473,19 @@ function MeuTreinoPage() {
                 >
                   <Shield className="h-6 w-6 text-[#9A5B12] dark:text-[#CD7F32]" fill="currentColor" />
                 </div>
-                <div className="text-left">
+                <div className="min-w-0 text-left">
                   <p className="text-xs text-muted-foreground">seu ranking</p>
-                  <p className="font-display text-base font-bold leading-tight" style={{ color: "rgb(205, 127, 50)" }}>
+                  <p className="font-display text-base font-bold leading-tight truncate" style={{ color: "rgb(205, 127, 50)" }}>
                     Bronze
-                    {ranking?.youRank && ranking.totalInGroup > 0 && (
-                      <span className="text-muted-foreground font-semibold"> · {ranking.youRank}º no grupo</span>
-                    )}
+                    <span className="text-muted-foreground font-semibold">
+                      {" · "}
+                      {ranking && ranking.totalInGroup > 0
+                        ? `${ranking.youRank ?? "—"}º no grupo`
+                        : "posição no grupo"}
+                    </span>
                   </p>
                 </div>
+
               </div>
               <span className="inline-flex items-center gap-1 text-sm font-medium text-primary shrink-0">
                 ver ranking <ChevronRight className="h-4 w-4" />
