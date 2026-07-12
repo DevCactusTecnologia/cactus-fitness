@@ -838,6 +838,13 @@ function Dashboard() {
                   trend={stats?.treinosDelta}
                   spark={stats?.treinosSpark}
                 />
+                {soloRevenue?.isSolo && (
+                  <KpiCard
+                    label="Receita do mês"
+                    value={formatBRL(soloRevenue.total)}
+                    sub="lançamentos deste mês"
+                  />
+                )}
               </div>
 
 
