@@ -5,7 +5,7 @@ import {
   Folder, ClipboardList, FileText, User as UserIcon, Settings, HeadphonesIcon,
   Droplet, Sun, Camera, Check, CheckCircle2, Flame, Play, ChevronRight, Zap, Dumbbell, Activity,
   Edit3, StickyNote, Bell, Receipt, MessageSquareText, Menu as MenuIcon, ChevronDown, Shield,
-  LayoutDashboard, ClipboardList, Loader2, Undo2, CreditCard,
+  LayoutDashboard, Loader2, Undo2, CreditCard,
 } from "lucide-react";
 import { useCurrentUser, useSignOut, firstName, initialsFromName } from "@/lib/auth";
 import { colorForId } from "@/lib/avatar-color";
