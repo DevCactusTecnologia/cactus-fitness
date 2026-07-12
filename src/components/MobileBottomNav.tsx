@@ -1,6 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
   LayoutDashboard,
+  Home,
   Users,
   Menu as MenuIcon,
   Dumbbell,
@@ -35,7 +36,7 @@ type Item = {
 
 const ITEMS_BY_SCOPE: Record<Scope, Item[]> = {
   personal: [
-    { icon: LayoutDashboard, label: "Início", to: "/", match: (p) => p === "/" },
+    { icon: Home, label: "Início", to: "/", match: (p) => p === "/" },
     { icon: Users, label: "Alunos", to: "/dashboard/personal/alunos", match: (p) => p.startsWith("/dashboard/personal/alunos") },
     { icon: Dumbbell, label: "Treinos", to: "/dashboard/personal/treinos", match: (p) => p.startsWith("/dashboard/personal/treinos") },
   ],
@@ -45,7 +46,7 @@ const ITEMS_BY_SCOPE: Record<Scope, Item[]> = {
     { icon: Dumbbell, label: "Treinos", to: "/dashboard/academia/treinos", match: (p) => p.startsWith("/dashboard/academia/treinos") },
   ],
   aluno: [
-    { icon: LayoutDashboard, label: "Início", to: "/meu-treino", match: (p) => p === "/meu-treino" },
+    { icon: Home, label: "Início", to: "/meu-treino", match: (p) => p === "/meu-treino" },
     { icon: Bell, label: "Notificações", to: "/notificacoes", match: (p) => p.startsWith("/notificacoes") },
     { icon: CreditCard, label: "Fatura", to: "/meu-plano", match: (p) => p.startsWith("/meu-plano") },
   ],
