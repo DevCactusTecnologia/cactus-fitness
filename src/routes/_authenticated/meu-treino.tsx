@@ -2,7 +2,7 @@ import { requireAlunoRole } from "@/lib/route-guards";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  Home, MessageSquare, MessageCircle, TrendingUp, Trophy, Users, Utensils, Calendar,
+  House, MessageSquare, MessageCircle, TrendingUp, Trophy, Users, Utensils, Calendar,
   Folder, ClipboardList, FileText, User as UserIcon, Settings, HeadphonesIcon,
   Droplet, Sun, Camera, Check, CheckCircle2, Flame, Play, ChevronRight, Zap, Dumbbell, Activity,
   Edit3, StickyNote, Bell, Receipt, MessageSquareText, Menu as MenuIcon, ChevronDown, Shield,
