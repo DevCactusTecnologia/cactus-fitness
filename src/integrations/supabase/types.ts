@@ -644,6 +644,48 @@ export type Database = {
         }
         Relationships: []
       }
+      session_exercise_notes: {
+        Row: {
+          created_at: string
+          id: string
+          note: string
+          session_id: string
+          template_exercise_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          note: string
+          session_id: string
+          template_exercise_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          note?: string
+          session_id?: string
+          template_exercise_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "session_exercise_notes_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "workout_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "session_exercise_notes_template_exercise_id_fkey"
+            columns: ["template_exercise_id"]
+            isOneToOne: false
+            referencedRelation: "workout_template_exercises"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       set_logs: {
         Row: {
           completed_at: string
