@@ -883,7 +883,7 @@ function TreinoPage() {
                 <Check className="h-5 w-5" strokeWidth={3} /> Salvar Treino
               </button>
               <button
-                onClick={discardFinal}
+                onClick={() => setDiscardOpen(true)}
                 disabled={saving}
                 className="inline-flex h-10 w-full items-center justify-center rounded-full bg-transparent px-6 text-sm font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-destructive disabled:opacity-50"
               >
@@ -891,6 +891,42 @@ function TreinoPage() {
               </button>
             </div>
           </footer>
+
+          {discardOpen && (
+            <div
+              className="fixed inset-0 z-[10001] flex items-center justify-center bg-black/60 p-6"
+              onClick={() => !saving && setDiscardOpen(false)}
+            >
+              <div
+                className="w-full max-w-sm space-y-4 rounded-xl border border-border bg-card p-6"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="flex items-center gap-3">
+                  <AlertTriangle className="h-6 w-6 shrink-0 text-destructive" />
+                  <h3 className="text-lg font-bold">Descartar treino?</h3>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  Todo o progresso deste treino será perdido. Tem certeza que deseja sair?
+                </p>
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => setDiscardOpen(false)}
+                    disabled={saving}
+                    className="inline-flex h-11 flex-1 items-center justify-center rounded-full border border-border bg-transparent px-6 text-sm font-semibold text-foreground transition hover:border-primary hover:text-primary disabled:opacity-50"
+                  >
+                    Continuar
+                  </button>
+                  <button
+                    onClick={() => { setDiscardOpen(false); void discardFinal(); }}
+                    disabled={saving}
+                    className="inline-flex h-11 flex-1 items-center justify-center rounded-full bg-destructive px-6 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
+                  >
+                    Descartar
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
