@@ -1,6 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import { LayoutDashboard, Dumbbell, TrendingUp, ClipboardList, Trophy, CreditCard } from "lucide-react";
 import { UserAvatarMenu } from "@/components/UserAvatarMenu";
+import { MobileBottomNav } from "@/components/MobileBottomNav";
 import logoUrl from "@/assets/cactus-logo.png";
 
 export const ALUNO_NAV = [
@@ -12,7 +13,6 @@ export const ALUNO_NAV = [
   { icon: CreditCard, label: "Meu Plano", to: "/meu-plano" as const },
 ];
 
-const ALUNO_MOBILE_NAV = ALUNO_NAV.filter((i) => i.to !== "/meu-progresso" && i.to !== "/meu-plano");
 
 export function AlunoShell({ children }: { children: React.ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
@@ -70,26 +70,9 @@ export function AlunoShell({ children }: { children: React.ReactNode }) {
       {/* Conteúdo */}
       <div className="md:ml-[72px] pb-24 md:pb-0">{children}</div>
 
-      {/* Bottom nav (mobile) */}
-      <nav className="fixed inset-x-0 bottom-0 z-40 md:hidden border-t border-border/60 bg-background/95 backdrop-blur-xl">
-        <div className="grid" style={{ gridTemplateColumns: `repeat(${ALUNO_MOBILE_NAV.length}, minmax(0, 1fr))` }}>
-          {ALUNO_MOBILE_NAV.map(({ icon: Icon, label, to }) => {
-            const active = isActive(to);
-            return (
-              <Link
-                key={label}
-                to={to}
-                className={`relative flex flex-col items-center gap-1 py-2.5 text-[10px] font-medium ${
-                  active ? "text-primary" : "text-muted-foreground"
-                }`}
-              >
-                <Icon className="h-5 w-5" strokeWidth={active ? 2.25 : 1.75} />
-                {label}
-              </Link>
-            );
-          })}
-        </div>
-      </nav>
+      {/* Bottom nav (mobile) — componente compartilhado */}
+      <MobileBottomNav scope="aluno" />
     </div>
   );
 }
+
