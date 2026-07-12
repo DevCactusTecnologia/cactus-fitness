@@ -382,10 +382,9 @@ function AcademiaHome() {
                     <h2 className="font-display text-base font-bold">Atalhos rápidos</h2>
                     <p className="text-[11px] text-muted-foreground">Ações da administração</p>
                   </div>
-                  <span className="text-[10px] uppercase tracking-widest text-muted-foreground">use as teclas</span>
                 </div>
                 <div className="grid gap-3 p-3 sm:grid-cols-2">
-                  {shortcuts.map(({ to, icon: Icon, title, desc, key }) => (
+                  {shortcuts.map(({ to, icon: Icon, title, desc }) => (
                     <Link
                       key={to}
                       to={to}
@@ -398,13 +397,11 @@ function AcademiaHome() {
                         <div className="truncate text-sm font-semibold">{title}</div>
                         <div className="truncate text-[11px] text-muted-foreground">{desc}</div>
                       </div>
-                      <kbd className="grid h-7 w-7 shrink-0 place-items-center rounded-md border border-border bg-background/60 font-mono text-[11px] font-bold text-muted-foreground">
-                        {key}
-                      </kbd>
                     </Link>
                   ))}
                 </div>
               </section>
+
 
               {/* Personais da academia */}
               <section className="rounded-xl border border-border bg-card">
