@@ -377,6 +377,10 @@ function MeuTreinoPage() {
             </div>
             <div className="min-w-0 flex-1">
               <h2 className="font-display text-2xl font-bold leading-tight">Olá, {name}!</h2>
+              {personalCustom.welcomeMessage && (
+                <p className="mt-1 text-sm text-muted-foreground">{personalCustom.welcomeMessage}</p>
+              )}
+
               <Link
                 to="/ranking"
                 className="mt-1 inline-flex max-w-full items-center gap-1.5 rounded-full border border-border bg-card/60 pl-1 pr-2.5 py-0.5 transition active:opacity-60 hover:bg-accent/40"
