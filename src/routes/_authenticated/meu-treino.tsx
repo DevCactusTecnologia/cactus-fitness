@@ -342,12 +342,12 @@ function MeuTreinoPage() {
                 <img
                   src={avatarDisplayUrl}
                   alt={name}
-                  className="h-14 w-14 shrink-0 rounded-full object-cover ring-2 ring-primary/60 shadow-md"
+                  className="h-11 w-11 shrink-0 rounded-full object-cover ring-2 ring-primary/60 shadow-md"
                 />
               ) : (
                 <div
-                  className="grid h-14 w-14 shrink-0 place-items-center rounded-full font-display text-lg font-bold ring-2 ring-primary/60 shadow-md"
-                  style={{ backgroundColor: "rgb(244, 63, 94)", color: "#fff" }}
+                  className="grid h-11 w-11 shrink-0 place-items-center rounded-full font-display text-sm font-bold ring-2 ring-primary/60 shadow-md"
+                  style={profile?.id ? { backgroundColor: colorForId(profile.id).bg, color: colorForId(profile.id).fg } : undefined}
                 >
                   {initials}
                 </div>
@@ -363,10 +363,10 @@ function MeuTreinoPage() {
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploadingAvatar}
-                className="absolute -bottom-1 -right-1 grid h-6 w-6 place-items-center rounded-full border-2 border-background bg-primary text-primary-foreground disabled:opacity-70"
+                className="absolute -bottom-1 -right-1 grid h-5 w-5 place-items-center rounded-full border-2 border-background bg-primary text-primary-foreground disabled:opacity-70"
                 aria-label="Trocar foto"
               >
-                {uploadingAvatar ? <Loader2 className="h-3 w-3 animate-spin" /> : <Camera className="h-3 w-3" />}
+                {uploadingAvatar ? <Loader2 className="h-2.5 w-2.5 animate-spin" /> : <Camera className="h-2.5 w-2.5" />}
               </button>
             </div>
             <div className="min-w-0 flex-1">
