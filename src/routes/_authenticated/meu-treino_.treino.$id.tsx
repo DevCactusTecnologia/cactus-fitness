@@ -156,7 +156,10 @@ function TreinoPage() {
           allow_pdf: (tpl as any).allow_pdf ?? true,
         });
       }
-      const list = (exs ?? []) as any as ExerciseRow[];
+      const allRows = (exs ?? []) as any as ExerciseRow[];
+      const list = typeof bloco === "number"
+        ? allRows.filter((r) => Number(r.session_position ?? 0) === bloco)
+        : allRows;
       setRows(list);
       if (list[0]?.block_label) setBlockLabel(list[0].block_label);
       if (list[0]) setOpenIds(new Set([list[0].id]));
