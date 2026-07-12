@@ -494,15 +494,17 @@ function MeuTreinoPage() {
                 </div>
                 <div className="min-w-0 flex-1 text-left">
                   <p className="text-[0.6875rem] text-muted-foreground leading-tight">seu ranking</p>
-                  <p className="font-display text-sm font-bold leading-tight truncate" style={{ color: "rgb(205, 127, 50)" }}>
-                    Bronze
-                  </p>
-                  <p className="text-[0.6875rem] text-muted-foreground/80 font-medium leading-tight truncate">
-                    {ranking && ranking.totalInGroup > 0
-                      ? `${ranking.youRank ?? "—"}º no grupo`
-                      : "posição no grupo"}
+                  <p className="font-display text-[0.9375rem] font-bold leading-tight truncate">
+                    <span style={{ color: "rgb(205, 127, 50)" }}>Bronze</span>
+                    <span className="text-muted-foreground/80 font-semibold">
+                      {" · "}
+                      {ranking && ranking.totalInGroup > 0
+                        ? `${ranking.youRank ?? "—"}º no grupo`
+                        : "posição no grupo"}
+                    </span>
                   </p>
                 </div>
+
               </div>
               <span className="inline-flex items-center gap-0.5 text-xs font-medium text-primary shrink-0 whitespace-nowrap">
                 ver ranking <ChevronRight className="h-3.5 w-3.5" />
