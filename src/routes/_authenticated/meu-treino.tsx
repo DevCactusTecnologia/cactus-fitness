@@ -1,3 +1,4 @@
+import { requireAlunoRole } from "@/lib/route-guards";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -22,6 +23,7 @@ import { getMyRanking } from "@/lib/ranking.functions";
 
 
 export const Route = createFileRoute("/_authenticated/meu-treino")({
+  beforeLoad: ({ location }) => requireAlunoRole(location),
   head: () => ({
     meta: [
       { title: "Início · cactusfitness" },

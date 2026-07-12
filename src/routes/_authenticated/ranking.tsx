@@ -1,3 +1,4 @@
+import { requireAlunoRole } from "@/lib/route-guards";
 import { createFileRoute } from "@tanstack/react-router";
 import { useState, type ComponentType, type SVGProps } from "react";
 import { useQuery } from "@tanstack/react-query";
@@ -13,6 +14,7 @@ import { useAvatarUrl } from "@/hooks/useAvatarUrl";
 import { getMyRanking, type RankingPlayer } from "@/lib/ranking.functions";
 
 export const Route = createFileRoute("/_authenticated/ranking")({
+  beforeLoad: ({ location }) => requireAlunoRole(location),
   head: () => ({
     meta: [
       { title: "Ranking · cactusfitness" },

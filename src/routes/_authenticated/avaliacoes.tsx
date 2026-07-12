@@ -1,3 +1,4 @@
+import { requireAlunoRole } from "@/lib/route-guards";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -21,6 +22,7 @@ import { AlunoShell } from "@/components/AlunoShell";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/avaliacoes")({
+  beforeLoad: ({ location }) => requireAlunoRole(location),
   validateSearch: (s: Record<string, unknown>) => ({
     id: typeof s.id === "string" ? s.id : undefined,
   }),
