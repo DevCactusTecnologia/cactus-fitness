@@ -407,10 +407,10 @@ function MeuTreinoPage() {
             </div>
             <div className="h-px bg-border" />
             <div className="flex items-center gap-2">
-              <Flame className="h-4 w-4 shrink-0 text-amber-500" fill="currentColor" />
-              <p className="text-xs">
-                <span className="font-display font-bold text-amber-500">1 semana de ofensiva</span>
-              </p>
+              <Flame className="h-4 w-4 shrink-0 text-muted-foreground/30" fill="currentColor" />
+              <p className="text-xs text-muted-foreground">Treine 6x esta semana para iniciar sua ofensiva!</p>
+            </div>
+          </section>
             </div>
           </section>
 
