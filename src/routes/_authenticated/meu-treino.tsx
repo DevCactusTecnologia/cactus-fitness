@@ -111,7 +111,7 @@ function MeuTreinoPage() {
 
   const [checkIns, setCheckIns] = useState<Set<string>>(new Set());
   const [checkingIn, setCheckingIn] = useState(false);
-  const [nextWorkout, setNextWorkout] = useState<{ id: string; name: string; exercises: number } | null>(null);
+  const [nextWorkout, setNextWorkout] = useState<{ id: string; name: string; exercises: number; sessionPosition: number | null }| null>(null);
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const avatarDisplayUrl = useAvatarUrl(profile?.avatar_url);
@@ -169,14 +169,23 @@ function MeuTreinoPage() {
         .maybeSingle();
       if (cancelled || !sw) return;
       let exercises = 0;
+      let sessionPosition: number | null = null;
+      let sessionName: string | null = null;
       if (sw.template_id) {
-        const { count } = await supabase
+        const { data: exs } = await supabase
           .from("workout_template_exercises")
-          .select("id", { count: "exact", head: true })
-          .eq("template_id", sw.template_id);
-        exercises = count ?? 0;
+          .select("session_position, session_label")
+          .eq("template_id", sw.template_id)
+          .order("session_position", { ascending: true, nullsFirst: true });
+        const list = exs ?? [];
+        if (list.length) {
+          sessionPosition = list[0].session_position ?? null;
+          sessionName = list[0].session_label ?? null;
+          exercises = list.filter((e: any) => (e.session_position ?? null) === sessionPosition).length;
+        }
       }
-      if (!cancelled) setNextWorkout({ id: sw.id, name: sw.name ?? "Treino", exercises });
+      const displayName = sessionName || sw.name || "Treino";
+      if (!cancelled) setNextWorkout({ id: sw.id, name: displayName, exercises, sessionPosition });
     })();
     return () => { cancelled = true; };
   }, [profile?.id, profile?.role]);
@@ -411,6 +420,7 @@ function MeuTreinoPage() {
               <Link
                 to="/meu-treino/treino/$id"
                 params={{ id: nextWorkout.id }}
+                search={nextWorkout.sessionPosition != null ? { bloco: nextWorkout.sessionPosition } : undefined}
                 className="relative flex h-11 w-full items-center justify-center gap-2 rounded-full bg-primary px-6 text-sm font-bold text-primary-foreground transition hover:brightness-110 active:scale-[0.97]"
               >
                 <Play className="h-4 w-4" fill="currentColor" /> Iniciar treino
