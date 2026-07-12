@@ -42,6 +42,7 @@ const SECTIONS = [
 type Customization = {
   brandTitle: string;
   showBrandTitle: boolean;
+  brandLogoPath: string | null;
   primaryColor: string;
   welcome: string;
   sections: Record<string, boolean>;
@@ -50,6 +51,7 @@ type Customization = {
 const DEFAULTS: Customization = {
   brandTitle: "cactusfitness",
   showBrandTitle: false,
+  brandLogoPath: null,
   primaryColor: "#D7F205",
   welcome: "",
   sections: Object.fromEntries(SECTIONS.map((s) => [s, true])),
@@ -62,35 +64,46 @@ function rgbStringToHex(c: string): string {
   return "#" + [r, g, b].map((v) => v.toString(16).padStart(2, "0")).join("").toUpperCase();
 }
 
+async function signedLogoUrl(path: string | null): Promise<string | null> {
+  if (!path) return null;
+  const { data } = await supabase.storage.from("avatars").createSignedUrl(path, 60 * 60);
+  return data?.signedUrl ?? null;
+}
+
 function useCustomization() {
   return useQuery({
     queryKey: ["profile-customization"],
-    queryFn: async (): Promise<Customization> => {
+    queryFn: async (): Promise<Customization & { brandLogoUrl: string | null }> => {
       const { data: userData } = await supabase.auth.getUser();
       const userId = userData.user?.id;
-      if (!userId) return DEFAULTS;
+      if (!userId) return { ...DEFAULTS, brandLogoUrl: null };
       const { data } = await supabase
         .from("profiles")
-        .select("brand_title, show_brand_title, primary_color, welcome_message, visible_sections")
+        .select("brand_title, show_brand_title, brand_logo_url, primary_color, welcome_message, visible_sections")
         .eq("id", userId)
         .maybeSingle();
       const row = (data ?? {}) as {
         brand_title?: string | null;
         show_brand_title?: boolean | null;
+        brand_logo_url?: string | null;
         primary_color?: string | null;
         welcome_message?: string | null;
         visible_sections?: Record<string, boolean> | null;
       };
+      const brandLogoPath = row.brand_logo_url ?? null;
       return {
         brandTitle: row.brand_title ?? DEFAULTS.brandTitle,
         showBrandTitle: row.show_brand_title ?? DEFAULTS.showBrandTitle,
+        brandLogoPath,
         primaryColor: row.primary_color ?? DEFAULTS.primaryColor,
         welcome: row.welcome_message ?? DEFAULTS.welcome,
         sections: { ...DEFAULTS.sections, ...(row.visible_sections ?? {}) },
+        brandLogoUrl: await signedLogoUrl(brandLogoPath),
       };
     },
   });
 }
+
 
 function PerfilPage() {
   const qc = useQueryClient();
