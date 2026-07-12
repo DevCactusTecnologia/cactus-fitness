@@ -411,8 +411,7 @@ function MeuTreinoPage() {
               <p className="text-xs text-muted-foreground">Treine 6x esta semana para iniciar sua ofensiva!</p>
             </div>
           </section>
-            </div>
-          </section>
+
 
           {/* Próximo treino */}
           <section className="relative overflow-hidden rounded-xl border border-border bg-card p-5 space-y-3">
