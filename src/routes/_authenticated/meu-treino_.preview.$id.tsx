@@ -122,8 +122,8 @@ function PreviewPage() {
                     <div className="min-w-0 flex-1">
                       <h4 className="truncate text-sm font-bold">{r.exercise?.name ?? "Exercício"}</h4>
                       <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-fg-muted">
-                        <span className="inline-flex items-center gap-1 font-semibold uppercase tracking-wider text-primary">
-                          <span className="h-1.5 w-1.5 rounded-full bg-primary" />
+                        <span className="inline-flex items-center gap-1 uppercase tracking-wider text-[#c8e552]">
+                          <span className="h-1.5 w-1.5 rounded-full bg-[#c8e552]" />
                           {muscle}
                         </span>
                         <span className="font-semibold text-foreground/90">
