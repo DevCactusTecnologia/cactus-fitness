@@ -264,8 +264,8 @@ function HistoricoPage() {
                 </div>
                 <div className="mt-0.5 flex items-center gap-3 text-xs text-fg-muted">
                   {planName && <span className="truncate">{planName}</span>}
-                  {planName && sessionLabel && <span className="text-border">·</span>}
-                  {sessionLabel && <span className="truncate">Fase: {sessionLabel}</span>}
+                  {planName && sessionLabel && sessionLabel !== displayName && <span className="text-border">·</span>}
+                  {sessionLabel && sessionLabel !== displayName && <span className="truncate">{sessionLabel}</span>}
                 </div>
                 <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-fg-muted">
                   <span className="flex items-center gap-1">
