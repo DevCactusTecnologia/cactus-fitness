@@ -5,7 +5,7 @@ import {
   Folder, ClipboardList, FileText, User as UserIcon, Settings, HeadphonesIcon,
   Droplet, Sun, Camera, Check, CheckCircle2, Flame, Play, ChevronRight, Zap, Dumbbell, Activity,
   Edit3, StickyNote, Bell, Receipt, MessageSquareText, Menu as MenuIcon, ChevronDown, Shield,
-  LayoutDashboard, HeartPulse, Loader2, Undo2, CreditCard,
+  LayoutDashboard, Loader2, Undo2, CreditCard,
 } from "lucide-react";
 import { useCurrentUser, useSignOut, firstName, initialsFromName } from "@/lib/auth";
 import { colorForId } from "@/lib/avatar-color";
@@ -35,8 +35,8 @@ const RAIL_ITEMS = [
   { icon: LayoutDashboard, label: "Início", to: "/meu-treino" as const },
   { icon: Dumbbell, label: "Meus Treinos", to: "/treinos" as const },
   { icon: TrendingUp, label: "Meu Progresso", to: "/meu-progresso" as const },
+  { icon: ClipboardList, label: "Avaliações", to: "/avaliacoes" as const },
   { icon: Trophy, label: "Desafios", to: "/desafios" as const },
-  { icon: HeartPulse, label: "Avaliações", to: "/avaliacoes" as const },
   { icon: CreditCard, label: "Meu Plano", to: "/meu-plano" as const },
 ];
 
