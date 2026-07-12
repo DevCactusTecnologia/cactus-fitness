@@ -197,9 +197,6 @@ function TreinosPage() {
                   {perWeek}x por semana
                 </span>
               )}
-              <span className="inline-flex items-center rounded-md bg-surface-2 px-2.5 py-1 text-xs text-fg-muted">
-                {totalDone} concluído{totalDone === 1 ? "" : "s"}
-              </span>
             </div>
             <div>
               <div className="mb-1.5 flex items-center justify-between">
