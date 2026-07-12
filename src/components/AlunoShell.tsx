@@ -7,7 +7,7 @@ import logoUrl from "@/assets/cactus-logo.png";
 import { usePersonalCustomization, isNavItemVisible } from "@/hooks/usePersonalCustomization";
 
 export const ALUNO_NAV = [
-  { icon: Home, label: "Início", to: "/meu-treino" as const },
+  { icon: House, label: "Início", to: "/meu-treino" as const },
   { icon: Dumbbell, label: "Meus Treinos", to: "/treinos" as const },
   { icon: TrendingUp, label: "Meu Progresso", to: "/meu-progresso" as const },
   { icon: ClipboardList, label: "Avaliações", to: "/avaliacoes" as const },
