@@ -654,7 +654,7 @@ function TreinoPage() {
           </div>
         )}
 
-        <div className="space-y-4">
+        <div className="space-y-2">
           {rows.map((r, idx) => {
             const isOpen = openIds.has(r.id);
             const hasLoadCol = (r.load ?? 0) > 0;
@@ -664,35 +664,36 @@ function TreinoPage() {
             const restLabel = r.rest_seconds ? `${Math.round(r.rest_seconds / 60)}min` : "1min";
             const muscle = r.exercise?.muscles_primary?.[0] ?? "Geral";
             return (
-              <section key={r.id} className="overflow-hidden rounded-2xl border border-border bg-card">
-                <button onClick={() => toggleOpen(r.id)} className="flex w-full items-center gap-3 p-3 text-left">
+              <section key={r.id} className="overflow-hidden rounded-xl border border-border bg-card">
+                <button onClick={() => toggleOpen(r.id)} className="flex w-full items-center gap-3 border-b border-border/50 p-3 text-left transition-colors hover:bg-surface-2/40">
                   <div className="relative">
-                    <div className="grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-xl bg-muted">
+                    <div className="grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-lg bg-muted">
                       {r.exercise?.image_path ? (
                         <img src={r.exercise.image_path} alt={r.exercise.name} className="h-full w-full object-cover" />
                       ) : (
                         <Play className="h-6 w-6 text-muted-foreground" />
                       )}
-                      <span className="pointer-events-none absolute inset-0 grid place-items-center">
-                        <span className="grid h-8 w-8 place-items-center rounded-full bg-primary/90 text-primary-foreground">
-                          <Play className="h-4 w-4" fill="currentColor" />
+                      <span className="pointer-events-none absolute inset-0 grid place-items-center bg-black/30">
+                        <span className="grid h-7 w-7 place-items-center rounded-full bg-primary/95 text-primary-foreground shadow">
+                          <Play className="h-3.5 w-3.5" fill="currentColor" />
                         </span>
                       </span>
                     </div>
-                    <span className="absolute -left-1 -top-1 grid h-5 w-5 place-items-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground">
+                    <span className="absolute -left-1 -top-1 grid h-5 w-5 place-items-center rounded-full bg-primary text-[0.625rem] font-bold text-primary-foreground shadow">
                       {idx + 1}
                     </span>
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate font-display text-sm font-semibold leading-snug">{r.exercise?.name ?? "Exercício"}</p>
-                    <p className="mt-0.5 text-[11px] text-muted-foreground">
+                    <p className="break-words text-sm font-semibold leading-snug">{r.exercise?.name ?? "Exercício"}</p>
+                    <p className="mt-0.5 flex items-center gap-1.5 text-[0.6875rem] text-fg-muted">
                       <span className="tabular-nums">{doneCount}/{totalCount} séries</span>
-                      <span className="opacity-50"> · </span>
-                      <span className="capitalize">{muscle}</span>
+                      <span className="opacity-50">·</span>
+                      <span className="capitalize truncate">{muscle}</span>
                     </p>
                   </div>
-                  <ChevronDown className={`h-5 w-5 shrink-0 text-muted-foreground transition ${isOpen ? "rotate-180" : ""}`} />
+                  <ChevronDown className={`h-4 w-4 shrink-0 text-fg-muted/70 transition-transform ${isOpen ? "rotate-180" : ""}`} />
                 </button>
+
 
                 {isOpen && (
                   <div className="border-t border-border/60 px-3 py-3">
