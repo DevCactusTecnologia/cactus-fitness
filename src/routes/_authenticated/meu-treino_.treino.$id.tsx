@@ -108,7 +108,7 @@ function TreinoPage() {
       setLoading(true);
       const { data: sw } = await supabase
         .from("student_workouts")
-        .select("id, name, template_id, aluno_id, aluno:alunos(personal_id)")
+        .select("id, name, template_id, aluno_id, aluno:alunos(personal_id, organization_id)")
         .eq("id", id)
         .maybeSingle();
       if (cancelled) return;
