@@ -874,6 +874,20 @@ function Dashboard() {
 
               </div>
 
+              <WalletCard />
+
+              <div className="grid grid-cols-2 gap-3">
+                <ActionButton
+                  icon={Lock}
+                  label="Adicionar Aluno"
+                  onClick={() => navigate({ to: "/dashboard/personal/alunos" })}
+                />
+                <ActionButton
+                  icon={Lock}
+                  label="Link de Cadastro"
+                  onClick={() => navigate({ to: "/dashboard/personal/alunos" })}
+                />
+              </div>
 
               <NextEventCard />
               <MobilePulseCard />
