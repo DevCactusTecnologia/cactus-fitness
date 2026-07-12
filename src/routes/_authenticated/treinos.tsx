@@ -17,7 +17,10 @@ export const Route = createFileRoute("/_authenticated/treinos")({
 
 type WorkoutItem = {
   id: string;
+  swId: string;
   name: string;
+  sessionLabel: string | null;
+  sessionPosition: number | null;
   status: string | null;
   exercises: number;
 };
