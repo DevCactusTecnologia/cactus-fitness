@@ -69,7 +69,7 @@ function HistoricoPage() {
   const [workoutName, setWorkoutName] = useState<string>("Treino");
   const [planName, setPlanName] = useState<string>("");
   const [sessionLabel, setSessionLabel] = useState<string>("");
-  const [weekLabel] = useState<string>("Sem. 1");
+  const [weekLabel, setWeekLabel] = useState<string>("");
   const [blocks, setBlocks] = useState<ExerciseBlock[]>([]);
   const [totals, setTotals] = useState<{ plannedSets: number; doneSets: number; reps: number; volume: number | null }>({
     plannedSets: 0, doneSets: 0, reps: 0, volume: null,
