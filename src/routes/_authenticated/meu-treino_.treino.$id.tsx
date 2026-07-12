@@ -156,11 +156,25 @@ function TreinoPage() {
           .maybeSingle();
         let sid = existing?.id ?? null;
         if (!sid) {
-          const { data: created } = await supabase
+          const personalId = (sw as any)?.aluno?.personal_id ?? null;
+          let orgId: string | null = null;
+          if (personalId) {
+            const { data: om } = await supabase
+              .from("organization_members")
+              .select("organization_id")
+              .eq("user_id", personalId)
+              .limit(1)
+              .maybeSingle();
+            orgId = om?.organization_id ?? null;
+          }
+          const insertPayload: any = { student_workout_id: id, aluno_user_id: uid };
+          if (orgId) insertPayload.organization_id = orgId;
+          const { data: created, error: createErr } = await supabase
             .from("workout_sessions")
-            .insert({ student_workout_id: id, aluno_user_id: uid })
+            .insert(insertPayload)
             .select("id, started_at")
             .single();
+          if (createErr) toast.error("Erro ao iniciar sessão: " + createErr.message);
           sid = created?.id ?? null;
           if (created?.started_at) startedAtRef.current = new Date(created.started_at).getTime();
         } else if (existing?.started_at) {
