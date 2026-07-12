@@ -698,8 +698,6 @@ function Dashboard() {
   const { data: ownerOverview, isLoading: ownerLoading } = useOwnerOverview();
   const { data: soloRevenue } = useSoloMonthRevenue();
   const navigate = useNavigate();
-  const { data: ownerOverview, isLoading: ownerLoading } = useOwnerOverview();
-  const navigate = useNavigate();
 
   // Aluno logado nunca vê o painel do personal — vai para /meu-treino
   useEffect(() => {
