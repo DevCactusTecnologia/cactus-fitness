@@ -550,7 +550,7 @@ function TreinoPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="fixed top-0 inset-x-0 z-30 bg-background/80 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-md items-center justify-between gap-2 px-3 py-2 sm:px-4 sm:py-3">
+        <div className="mx-auto flex max-w-lg items-center justify-between gap-2 px-3 py-2 sm:px-4 sm:py-3">
           <div className="flex min-w-0 items-center gap-2 sm:gap-3">
             <button onClick={() => navigate({ to: "/meu-treino" })} className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-muted-foreground hover:bg-accent sm:h-9 sm:w-9" aria-label="Fechar">
               <X className="h-4 w-4 sm:h-5 sm:w-5" />
@@ -632,29 +632,29 @@ function TreinoPage() {
         </div>
       )}
 
-      <main className="mx-auto max-w-md px-4 pt-[76px] pb-28">
+      <main className="mx-auto max-w-lg px-4 pt-[76px] pb-28">
         {loading && (
-          <div className="rounded-2xl border border-border bg-card p-6 text-center text-sm text-muted-foreground">
+          <div className="rounded-xl border border-border bg-card p-6 text-center text-sm text-muted-foreground">
             Carregando exercícios...
           </div>
         )}
 
 
-        <div className="my-4 rounded-2xl border border-primary/25 bg-gradient-to-r from-primary/15 via-primary/5 to-transparent px-5 py-4">
-          <div className="inline-flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-primary shadow-[0_0_10px] shadow-primary" />
-            <span className="font-display text-sm font-bold text-primary">{blockLabel}</span>
+        <div className="my-4 flex items-center gap-2 rounded-xl border border-primary/25 bg-primary/5 px-3 py-2">
+          <span className="size-2.5 shrink-0 rounded-full bg-primary" aria-hidden />
+          <div className="min-w-0 flex-1">
+            <p className="font-display text-sm font-bold text-primary">{blockLabel}</p>
+            <p className="text-[0.625rem] text-fg-muted">Bloco 1 de 1 · {rows.length} exercícios</p>
           </div>
-          <p className="mt-1 text-xs text-muted-foreground">Bloco 1 de 1 · {rows.length} exercícios</p>
         </div>
 
         {!loading && rows.length === 0 && (
-          <div className="rounded-2xl border border-border bg-card p-6 text-center text-sm text-muted-foreground">
+          <div className="rounded-xl border border-border bg-card p-6 text-center text-sm text-muted-foreground">
             Este treino ainda não possui exercícios.
           </div>
         )}
 
-        <div className="space-y-4">
+        <div className="space-y-2">
           {rows.map((r, idx) => {
             const isOpen = openIds.has(r.id);
             const hasLoadCol = (r.load ?? 0) > 0;
@@ -664,35 +664,36 @@ function TreinoPage() {
             const restLabel = r.rest_seconds ? `${Math.round(r.rest_seconds / 60)}min` : "1min";
             const muscle = r.exercise?.muscles_primary?.[0] ?? "Geral";
             return (
-              <section key={r.id} className="overflow-hidden rounded-2xl border border-border bg-card">
-                <button onClick={() => toggleOpen(r.id)} className="flex w-full items-center gap-3 p-3 text-left">
+              <section key={r.id} className="overflow-hidden rounded-xl border border-border bg-card">
+                <button onClick={() => toggleOpen(r.id)} className="flex w-full items-center gap-3 border-b border-border/50 p-3 text-left transition-colors hover:bg-surface-2/40">
                   <div className="relative">
-                    <div className="grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-xl bg-muted">
+                    <div className="grid h-16 w-16 shrink-0 place-items-center overflow-hidden rounded-lg bg-muted">
                       {r.exercise?.image_path ? (
                         <img src={r.exercise.image_path} alt={r.exercise.name} className="h-full w-full object-cover" />
                       ) : (
                         <Play className="h-6 w-6 text-muted-foreground" />
                       )}
-                      <span className="pointer-events-none absolute inset-0 grid place-items-center">
-                        <span className="grid h-8 w-8 place-items-center rounded-full bg-primary/90 text-primary-foreground">
-                          <Play className="h-4 w-4" fill="currentColor" />
+                      <span className="pointer-events-none absolute inset-0 grid place-items-center bg-black/30">
+                        <span className="grid h-7 w-7 place-items-center rounded-full bg-primary/95 text-primary-foreground shadow">
+                          <Play className="h-3.5 w-3.5" fill="currentColor" />
                         </span>
                       </span>
                     </div>
-                    <span className="absolute -left-1 -top-1 grid h-5 w-5 place-items-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground">
+                    <span className="absolute -left-1 -top-1 grid h-5 w-5 place-items-center rounded-full bg-primary text-[0.625rem] font-bold text-primary-foreground shadow">
                       {idx + 1}
                     </span>
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate font-display text-sm font-semibold leading-snug">{r.exercise?.name ?? "Exercício"}</p>
-                    <p className="mt-0.5 text-[11px] text-muted-foreground">
+                    <p className="break-words text-sm font-semibold leading-snug">{r.exercise?.name ?? "Exercício"}</p>
+                    <p className="mt-0.5 flex items-center gap-1.5 text-[0.6875rem] text-fg-muted">
                       <span className="tabular-nums">{doneCount}/{totalCount} séries</span>
-                      <span className="opacity-50"> · </span>
-                      <span className="capitalize">{muscle}</span>
+                      <span className="opacity-50">·</span>
+                      <span className="capitalize truncate">{muscle}</span>
                     </p>
                   </div>
-                  <ChevronDown className={`h-5 w-5 shrink-0 text-muted-foreground transition ${isOpen ? "rotate-180" : ""}`} />
+                  <ChevronDown className={`h-4 w-4 shrink-0 text-fg-muted/70 transition-transform ${isOpen ? "rotate-180" : ""}`} />
                 </button>
+
 
                 {isOpen && (
                   <div className="border-t border-border/60 px-3 py-3">
@@ -743,32 +744,32 @@ function TreinoPage() {
                             )}
                           </div>
                           {hasLoadCol && (
-                            <div className={`flex h-10 w-24 items-center rounded-md border bg-background focus-within:ring-2 focus-within:ring-primary ${done ? "border-[hsl(var(--success))]" : "border-border"}`}>
+                            <div className={`flex h-10 w-24 items-center rounded-md border focus-within:ring-2 focus-within:ring-primary ${done ? "border-[hsl(var(--success))] bg-background" : "border-border bg-muted"}`}>
                               <input
                                 type="text"
                                 inputMode="decimal"
                                 placeholder={r.load ? String(r.load) : "0"}
                                 value={loads[loadKey] ?? ""}
                                 onChange={(e) => setLoads((p) => ({ ...p, [loadKey]: e.target.value }))}
-                                className={`h-full min-w-0 flex-1 bg-transparent px-1 text-center text-sm font-semibold tabular-nums outline-none placeholder:text-foreground/40 ${done ? "text-[hsl(var(--success))]" : ""}`}
+                                className={`h-full min-w-0 flex-1 bg-transparent px-1 text-center text-sm font-semibold tabular-nums outline-none placeholder:text-foreground/60 ${done ? "text-[hsl(var(--success))]" : ""}`}
                               />
                               <span className={`pr-2 text-[10px] font-semibold uppercase tracking-wide ${done ? "text-[hsl(var(--success))]" : "text-foreground/60"}`}>kg</span>
                             </div>
                           )}
-                          <div className={`flex h-10 w-24 items-center rounded-md border bg-background focus-within:ring-2 focus-within:ring-primary ${done ? "border-[hsl(var(--success))]" : "border-border"}`}>
+                          <div className={`flex h-10 w-24 items-center rounded-md border focus-within:ring-2 focus-within:ring-primary ${done ? "border-[hsl(var(--success))] bg-background" : "border-border bg-muted"}`}>
                             <input
                               type="text"
                               inputMode="numeric"
                               placeholder={String(r.reps ?? 12)}
                               value={reps[repsKey] ?? ""}
                               onChange={(e) => setReps((p) => ({ ...p, [repsKey]: e.target.value }))}
-                              className={`h-full min-w-0 flex-1 bg-transparent px-1 text-center text-sm font-semibold tabular-nums outline-none placeholder:text-foreground/40 ${done ? "text-[hsl(var(--success))]" : ""}`}
+                              className={`h-full min-w-0 flex-1 bg-transparent px-1 text-center text-sm font-semibold tabular-nums outline-none placeholder:text-foreground/60 ${done ? "text-[hsl(var(--success))]" : ""}`}
                             />
                             <span className={`pr-2 text-[10px] font-semibold uppercase tracking-wide ${done ? "text-[hsl(var(--success))]" : "text-foreground/60"}`}>reps</span>
                           </div>
                           <div
                             title={`Descansar ${restLabel} após esta série`}
-                            className={`grid h-10 w-14 place-items-center rounded-md border text-xs font-semibold tabular-nums ${done ? "border-[hsl(var(--success))] text-[hsl(var(--success))] bg-background" : "border-border bg-muted/40 text-foreground/90"}`}
+                            className={`grid h-10 w-14 place-items-center rounded-md border text-xs font-semibold tabular-nums ${done ? "border-[hsl(var(--success))] text-[hsl(var(--success))] bg-background" : "border-border bg-muted text-foreground/90"}`}
                           >
                             {restLabel}
                           </div>
