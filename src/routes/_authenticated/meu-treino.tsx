@@ -169,14 +169,23 @@ function MeuTreinoPage() {
         .maybeSingle();
       if (cancelled || !sw) return;
       let exercises = 0;
+      let sessionPosition: number | null = null;
+      let sessionName: string | null = null;
       if (sw.template_id) {
-        const { count } = await supabase
+        const { data: exs } = await supabase
           .from("workout_template_exercises")
-          .select("id", { count: "exact", head: true })
-          .eq("template_id", sw.template_id);
-        exercises = count ?? 0;
+          .select("session_position, session_label")
+          .eq("template_id", sw.template_id)
+          .order("session_position", { ascending: true, nullsFirst: true });
+        const list = exs ?? [];
+        if (list.length) {
+          sessionPosition = list[0].session_position ?? null;
+          sessionName = list[0].session_label ?? null;
+          exercises = list.filter((e: any) => (e.session_position ?? null) === sessionPosition).length;
+        }
       }
-      if (!cancelled) setNextWorkout({ id: sw.id, name: sw.name ?? "Treino", exercises });
+      const displayName = sessionName || sw.name || "Treino";
+      if (!cancelled) setNextWorkout({ id: sw.id, name: displayName, exercises, sessionPosition });
     })();
     return () => { cancelled = true; };
   }, [profile?.id, profile?.role]);
