@@ -240,7 +240,7 @@ function TreinosPage() {
                     <Link
                       key={it.id}
                       to="/meu-treino/treino/$id"
-                      params={{ id: it.id }}
+                      params={{ id: it.swId }}
                       className={`block w-full rounded-xl p-4 text-left transition-colors active:bg-surface-2/30 ${cardClasses}`}
                     >
                       <div className="flex items-start gap-3">
