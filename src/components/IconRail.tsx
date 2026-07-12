@@ -44,7 +44,7 @@ const NAV_BY_SCOPE: Record<Scope, NavItem[]> = {
   ],
   aluno: [
     { icon: LayoutDashboard, label: "Início", to: "/dashboard/aluno", match: (p) => p === "/dashboard/aluno" },
-    { icon: Dumbbell, label: "Treinos", to: "/meu-treino", match: (p) => p.startsWith("/meu-treino") },
+    { icon: Dumbbell, label: "Meus Treinos", to: "/treinos", match: (p) => p.startsWith("/treinos") || p.startsWith("/meu-treino") },
     { icon: HeartPulse, label: "Avaliações", to: "/avaliacoes", match: (p) => p.startsWith("/avaliacoes") },
     { icon: Trophy, label: "Desafios", to: "/desafios", match: (p) => p.startsWith("/desafios") },
   ],
