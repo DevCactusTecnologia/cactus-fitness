@@ -844,36 +844,6 @@ function Dashboard() {
                 <GreetingCard />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <KpiCard
-                  label="Alunos ativos"
-                  value={String(stats?.alunosAtivos ?? 0)}
-                  sub={stats?.alunosDelta ? `+${stats.alunosDelta} este mês` : "nenhum novo este mês"}
-                  trend={stats?.alunosDelta}
-                  spark={stats?.alunosSpark}
-                />
-                <KpiCard
-                  label="Treinos ativos"
-                  value={String(stats?.treinosAtivos ?? 0)}
-                  sub={stats?.treinosDelta ? `+${stats.treinosDelta} este mês` : "0 periodizados"}
-                  trend={stats?.treinosDelta}
-                  spark={stats?.treinosSpark}
-                />
-                {soloRevenue?.isSolo && (
-                  <KpiCard
-                    label="Receita do mês"
-                    value={formatBRL(soloRevenue.total)}
-                    sub="lançamentos deste mês"
-                  />
-                )}
-                <KpiCard
-                  label="Avaliações"
-                  value={String(stats?.avaliacoes ?? 0)}
-                  sub="em dia"
-                />
-
-              </div>
-
               <WalletCard />
 
               <div className="grid grid-cols-2 gap-3">
