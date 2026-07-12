@@ -24,6 +24,7 @@ import { Route as AuthenticatedPersonalRouteRouteImport } from './routes/_authen
 import { Route as AuthenticatedAlunoRouteRouteImport } from './routes/_authenticated/_aluno/route'
 import { Route as AuthenticatedAcademiaRouteRouteImport } from './routes/_authenticated/_academia/route'
 import { Route as AuthenticatedMeuTreinoTreinoIdRouteImport } from './routes/_authenticated/meu-treino_.treino.$id'
+import { Route as AuthenticatedMeuTreinoHistoricoSessionIdRouteImport } from './routes/_authenticated/meu-treino_.historico.$sessionId'
 import { Route as AuthenticatedPersonalDashboardPersonalIndexRouteImport } from './routes/_authenticated/_personal/dashboard.personal.index'
 import { Route as AuthenticatedAlunoDashboardAlunoIndexRouteImport } from './routes/_authenticated/_aluno/dashboard.aluno.index'
 import { Route as AuthenticatedAcademiaDashboardAcademiaIndexRouteImport } from './routes/_authenticated/_academia/dashboard.academia.index'
@@ -134,6 +135,12 @@ const AuthenticatedMeuTreinoTreinoIdRoute =
   AuthenticatedMeuTreinoTreinoIdRouteImport.update({
     id: '/meu-treino_/treino/$id',
     path: '/meu-treino/treino/$id',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedMeuTreinoHistoricoSessionIdRoute =
+  AuthenticatedMeuTreinoHistoricoSessionIdRouteImport.update({
+    id: '/meu-treino_/historico/$sessionId',
+    path: '/meu-treino/historico/$sessionId',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
 const AuthenticatedPersonalDashboardPersonalIndexRoute =
@@ -368,6 +375,7 @@ export interface FileRoutesByFullPath {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/treinos': typeof AuthenticatedTreinosRoute
+  '/meu-treino/historico/$sessionId': typeof AuthenticatedMeuTreinoHistoricoSessionIdRoute
   '/meu-treino/treino/$id': typeof AuthenticatedMeuTreinoTreinoIdRoute
   '/dashboard/academia/configuracoes': typeof AuthenticatedAcademiaDashboardAcademiaConfiguracoesRoute
   '/dashboard/academia/desafios': typeof AuthenticatedAcademiaDashboardAcademiaDesafiosRoute
@@ -417,6 +425,7 @@ export interface FileRoutesByTo {
   '/onboarding': typeof AuthenticatedOnboardingRoute
   '/perfil': typeof AuthenticatedPerfilRoute
   '/treinos': typeof AuthenticatedTreinosRoute
+  '/meu-treino/historico/$sessionId': typeof AuthenticatedMeuTreinoHistoricoSessionIdRoute
   '/meu-treino/treino/$id': typeof AuthenticatedMeuTreinoTreinoIdRoute
   '/dashboard/academia/configuracoes': typeof AuthenticatedAcademiaDashboardAcademiaConfiguracoesRoute
   '/dashboard/academia/desafios': typeof AuthenticatedAcademiaDashboardAcademiaDesafiosRoute
@@ -471,6 +480,7 @@ export interface FileRoutesById {
   '/_authenticated/perfil': typeof AuthenticatedPerfilRoute
   '/_authenticated/treinos': typeof AuthenticatedTreinosRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
+  '/_authenticated/meu-treino_/historico/$sessionId': typeof AuthenticatedMeuTreinoHistoricoSessionIdRoute
   '/_authenticated/meu-treino_/treino/$id': typeof AuthenticatedMeuTreinoTreinoIdRoute
   '/_authenticated/_academia/dashboard/academia/configuracoes': typeof AuthenticatedAcademiaDashboardAcademiaConfiguracoesRoute
   '/_authenticated/_academia/dashboard/academia/desafios': typeof AuthenticatedAcademiaDashboardAcademiaDesafiosRoute
@@ -522,6 +532,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/perfil'
     | '/treinos'
+    | '/meu-treino/historico/$sessionId'
     | '/meu-treino/treino/$id'
     | '/dashboard/academia/configuracoes'
     | '/dashboard/academia/desafios'
@@ -571,6 +582,7 @@ export interface FileRouteTypes {
     | '/onboarding'
     | '/perfil'
     | '/treinos'
+    | '/meu-treino/historico/$sessionId'
     | '/meu-treino/treino/$id'
     | '/dashboard/academia/configuracoes'
     | '/dashboard/academia/desafios'
@@ -624,6 +636,7 @@ export interface FileRouteTypes {
     | '/_authenticated/perfil'
     | '/_authenticated/treinos'
     | '/_authenticated/'
+    | '/_authenticated/meu-treino_/historico/$sessionId'
     | '/_authenticated/meu-treino_/treino/$id'
     | '/_authenticated/_academia/dashboard/academia/configuracoes'
     | '/_authenticated/_academia/dashboard/academia/desafios'
@@ -774,6 +787,13 @@ declare module '@tanstack/react-router' {
       path: '/meu-treino/treino/$id'
       fullPath: '/meu-treino/treino/$id'
       preLoaderRoute: typeof AuthenticatedMeuTreinoTreinoIdRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/meu-treino_/historico/$sessionId': {
+      id: '/_authenticated/meu-treino_/historico/$sessionId'
+      path: '/meu-treino/historico/$sessionId'
+      fullPath: '/meu-treino/historico/$sessionId'
+      preLoaderRoute: typeof AuthenticatedMeuTreinoHistoricoSessionIdRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/_personal/dashboard/personal/': {
@@ -1187,6 +1207,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedPerfilRoute: typeof AuthenticatedPerfilRoute
   AuthenticatedTreinosRoute: typeof AuthenticatedTreinosRoute
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
+  AuthenticatedMeuTreinoHistoricoSessionIdRoute: typeof AuthenticatedMeuTreinoHistoricoSessionIdRoute
   AuthenticatedMeuTreinoTreinoIdRoute: typeof AuthenticatedMeuTreinoTreinoIdRoute
 }
 
@@ -1202,6 +1223,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedPerfilRoute: AuthenticatedPerfilRoute,
   AuthenticatedTreinosRoute: AuthenticatedTreinosRoute,
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
+  AuthenticatedMeuTreinoHistoricoSessionIdRoute:
+    AuthenticatedMeuTreinoHistoricoSessionIdRoute,
   AuthenticatedMeuTreinoTreinoIdRoute: AuthenticatedMeuTreinoTreinoIdRoute,
 }
 

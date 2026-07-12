@@ -37,6 +37,9 @@ function TreinosPage() {
   const [items, setItems] = useState<WorkoutItem[]>([]);
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [weeks, setWeeks] = useState<number>(1);
+  const [perWeek, setPerWeek] = useState<number>(0);
+  const [currentWeek, setCurrentWeek] = useState<number>(1);
 
   useEffect(() => {
     if (!profile?.id) return;
@@ -77,6 +80,21 @@ function TreinosPage() {
         exercises: s.template_id ? (countByTpl[s.template_id] ?? 0) : 0,
       }));
       if (!cancelled) setItems(mapped);
+
+      // Derivar semanas e frequência a partir das datas
+      const dates = list.map((s: any) => s.scheduled_for).filter(Boolean) as string[];
+      if (dates.length >= 1) {
+        const parse = (d: string) => { const [y, m, day] = d.split("-").map(Number); return new Date(y, m - 1, day); };
+        const first = parse(dates[0]);
+        const last = parse(dates[dates.length - 1]);
+        const diffDays = Math.round((last.getTime() - first.getTime()) / 86400000);
+        const w = Math.max(1, Math.ceil((diffDays + 1) / 7));
+        const weekdays = new Set(dates.map((d) => parse(d).getDay()));
+        const pw = w > 0 ? Math.max(weekdays.size || 1, Math.round(list.length / w)) : list.length;
+        const today = new Date();
+        const cw = Math.min(w, Math.max(1, Math.floor((today.getTime() - first.getTime()) / (7 * 86400000)) + 1));
+        if (!cancelled) { setWeeks(w); setPerWeek(pw); setCurrentWeek(cw); }
+      }
 
       // Histórico recente: últimas sessões finalizadas
       const { data: sessions } = await supabase
@@ -141,15 +159,20 @@ function TreinosPage() {
             <div className="pointer-events-none mb-4 flex select-none flex-wrap items-center gap-2">
               <span className="inline-flex items-center rounded-md bg-surface-2 px-2.5 py-1 text-xs text-fg-muted">Simples</span>
               <span className="inline-flex items-center rounded-md bg-surface-2 px-2.5 py-1 text-xs text-fg-muted">
-                {total} treino{total === 1 ? "" : "s"}
+                {weeks} semana{weeks === 1 ? "" : "s"}
               </span>
+              {perWeek > 0 && (
+                <span className="inline-flex items-center rounded-md bg-surface-2 px-2.5 py-1 text-xs text-fg-muted">
+                  {perWeek}x por semana
+                </span>
+              )}
               <span className="inline-flex items-center rounded-md bg-surface-2 px-2.5 py-1 text-xs text-fg-muted">
                 {totalDone} concluído{totalDone === 1 ? "" : "s"}
               </span>
             </div>
             <div>
               <div className="mb-1.5 flex items-center justify-between">
-                <span className="text-xs text-fg-muted">Progresso do plano</span>
+                <span className="text-xs text-fg-muted">Semana {currentWeek} de {weeks}</span>
                 <span className="rounded-md bg-surface-2 px-2 py-0.5 text-[0.625rem] font-medium" style={{ color: "rgb(59, 130, 246)" }}>Fase 1</span>
               </div>
               <div className="h-2 overflow-hidden rounded-full bg-surface-3">
@@ -230,9 +253,10 @@ function TreinosPage() {
               <h3 className="mb-3 px-1 text-xs font-semibold uppercase tracking-wider text-fg-muted">Histórico recente</h3>
               <div className="space-y-2">
                 {history.map((h) => (
-                  <button
+                  <Link
                     key={h.id}
-                    type="button"
+                    to="/meu-treino/historico/$sessionId"
+                    params={{ sessionId: h.id }}
                     className="flex w-full select-none items-center gap-3 rounded-xl px-4 py-3 text-left transition-colors hover:bg-surface-2/30 active:bg-surface-2/50"
                   >
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-green-500/10">
@@ -258,7 +282,7 @@ function TreinosPage() {
                       </div>
                     </div>
                     <ChevronRight className="h-4 w-4 shrink-0 text-fg-muted/50" />
-                  </button>
+                  </Link>
                 ))}
               </div>
             </div>
