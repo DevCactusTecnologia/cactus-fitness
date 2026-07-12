@@ -77,7 +77,7 @@ function TreinoPage() {
   const [runningSet, setRunningSet] = useState<{ rowId: string; index: number; startedAt: number } | null>(null);
   const [nowTick, setNowTick] = useState(0);
   const [timer, setTimer] = useState(0);
-  const [rest, setRest] = useState<{ total: number; left: number } | null>(null);
+  const [rest, setRest] = useState<{ total: number; left: number; nextName: string | null } | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [rpePrompt, setRpePrompt] = useState<{ row: ExerciseRow; idx: number } | null>(null);
   const startedAtRef = useRef<number>(Date.now());
@@ -304,7 +304,11 @@ function TreinoPage() {
     if (!ok) return;
     setDoneSets((prev) => new Set(prev).add(key));
     const restSec = row.rest_seconds ?? 60;
-    if (restSec > 0) setRest({ total: restSec, left: restSec });
+    if (restSec > 0) {
+      const rowIdx = rows.findIndex((r) => r.id === row.id);
+      const nextName = rows[rowIdx + 1]?.exercise?.name ?? null;
+      setRest({ total: restSec, left: restSec, nextName });
+    }
     if (perms.allow_rpe) setRpePrompt({ row, idx });
   }
 
@@ -457,17 +461,60 @@ function TreinoPage() {
       </header>
 
       {rest && (
-        <div className="fixed left-1/2 top-16 z-40 -translate-x-1/2 rounded-full bg-primary/95 px-5 py-2.5 text-primary-foreground shadow-lg backdrop-blur">
-          <div className="flex items-center gap-3">
-            <Timer className="h-4 w-4" />
-            <span className="font-display text-lg font-bold tabular-nums">{formatTimer(rest.left)}</span>
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 backdrop-blur">
+          <div className="mx-auto flex max-w-5xl items-center gap-3 px-3 py-3 sm:gap-4 sm:px-6">
+            <button
+              onClick={() => setRest((p) => p ? { ...p, left: Math.max(0, p.left - 15) } : null)}
+              className="shrink-0 rounded-full border border-border bg-muted/40 px-2.5 py-1 text-[11px] font-bold uppercase tracking-widest text-foreground/80 hover:bg-muted"
+            >
+              -15s
+            </button>
+
+            <div className="flex min-w-0 flex-1 items-center gap-3">
+              <div className="relative h-10 w-10 shrink-0">
+                <svg viewBox="0 0 36 36" className="h-10 w-10 -rotate-90">
+                  <circle cx="18" cy="18" r="16" fill="none" stroke="hsl(var(--border))" strokeWidth="3" />
+                  <circle
+                    cx="18" cy="18" r="16" fill="none"
+                    stroke="hsl(var(--primary))" strokeWidth="3" strokeLinecap="round"
+                    strokeDasharray={`${(rest.left / rest.total) * 100} 100`}
+                    pathLength={100}
+                  />
+                </svg>
+              </div>
+              <div className="min-w-0">
+                <div className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">Descanso</div>
+                <div className="flex items-baseline gap-2">
+                  <span className="font-display text-lg font-bold tabular-nums leading-none">{formatTimer(rest.left)}</span>
+                  {rest.nextName && (
+                    <span className="truncate text-xs text-muted-foreground">
+                      próx. {rest.nextName}
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+
             <button
               onClick={() => setRest(null)}
-              className="rounded-full bg-white/20 px-2 py-0.5 text-[11px] font-bold uppercase tracking-widest hover:bg-white/30"
+              className="hidden sm:inline-flex items-center gap-2 rounded-lg border border-border bg-muted/40 px-4 py-2 text-sm font-semibold text-foreground/90 hover:bg-muted"
             >
-              pular
+              <Play className="h-4 w-4" fill="currentColor" /> Pular descanso
+            </button>
+
+            <button
+              onClick={() => setRest((p) => p ? { ...p, left: p.left + 15 } : null)}
+              className="shrink-0 rounded-full border border-border bg-muted/40 px-2.5 py-1 text-[11px] font-bold uppercase tracking-widest text-foreground/80 hover:bg-muted"
+            >
+              +15s
             </button>
           </div>
+          <button
+            onClick={() => setRest(null)}
+            className="flex w-full items-center justify-center gap-2 border-t border-border bg-muted/20 py-2 text-sm font-semibold text-foreground/90 hover:bg-muted/40 sm:hidden"
+          >
+            <Play className="h-4 w-4" fill="currentColor" /> Pular descanso
+          </button>
         </div>
       )}
 
