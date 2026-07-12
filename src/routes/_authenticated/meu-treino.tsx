@@ -20,6 +20,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { AvatarCropDialog } from "@/components/AvatarCropDialog";
 import { getMyRanking } from "@/lib/ranking.functions";
 import { toast } from "sonner";
+import { MobileBottomNav } from "@/components/MobileBottomNav";
+
 
 
 
@@ -560,27 +562,9 @@ function MeuTreinoPage() {
         </div>
       </main>
 
-      {/* Bottom nav (mobile) — mesmos itens do rail lateral */}
-      <nav className="fixed inset-x-0 bottom-0 z-40 md:hidden border-t border-border/60 bg-background/95 backdrop-blur-xl">
-        <div className={`grid`} style={{ gridTemplateColumns: `repeat(${MOBILE_NAV_ITEMS.length}, minmax(0, 1fr))` }}>
-          {MOBILE_NAV_ITEMS.map(({ icon: Icon, label, to }) => {
-            const active = to === "/meu-treino";
-            return (
-              <Link
-                key={label}
-                to={to}
-                className={`relative flex flex-col items-center gap-1 py-2.5 text-[9px] font-medium ${
-                  active ? "text-primary" : "text-muted-foreground"
-                }`}
-              >
-                <Icon className="h-[18px] w-[18px]" strokeWidth={active ? 2.25 : 1.75} />
-                {label}
-              </Link>
+      {/* Bottom nav (mobile) — componente compartilhado com todas as páginas do aluno */}
+      <MobileBottomNav scope="aluno" />
 
-            );
-          })}
-        </div>
-      </nav>
 
       <AvatarCropDialog
         open={!!cropSrc}
