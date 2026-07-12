@@ -266,7 +266,7 @@ function TreinosPage() {
                       key={it.id}
                       to="/meu-treino/preview/$id"
                       params={{ id: it.swId }}
-                      search={it.sessionPosition != null ? { bloco: it.sessionPosition } : undefined}
+                      search={it.sessionPosition != null ? { bloco: it.sessionPosition } : {}}
                       className={`block w-full rounded-xl p-4 text-left transition-colors active:bg-surface-2/30 ${cardClasses}`}
                     >
                       <div className="flex items-start gap-3">
@@ -352,7 +352,7 @@ function TreinosPage() {
               <Link
                 to="/meu-treino/treino/$id"
                 params={{ id: items[nextIdx].swId }}
-                search={items[nextIdx].sessionPosition != null ? { bloco: items[nextIdx].sessionPosition as number } : undefined}
+                search={items[nextIdx].sessionPosition != null ? { bloco: items[nextIdx].sessionPosition as number } : {}}
                 className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-primary px-6 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/30 transition hover:brightness-110 active:scale-[0.98]"
               >
                 <Play className="h-4 w-4" fill="currentColor" />

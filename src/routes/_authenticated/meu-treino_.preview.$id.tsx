@@ -151,7 +151,7 @@ function PreviewPage() {
             <Link
               to="/meu-treino/treino/$id"
               params={{ id }}
-              search={bloco != null ? { bloco } : undefined}
+              search={bloco != null ? { bloco } : {}}
               className="flex h-14 w-full items-center justify-center gap-2 rounded-full bg-primary px-6 text-base font-bold text-primary-foreground shadow-lg shadow-primary/30 transition hover:brightness-110 active:scale-[0.98]"
             >
               <Play className="h-5 w-5" fill="currentColor" />
