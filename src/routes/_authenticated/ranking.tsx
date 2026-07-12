@@ -1,9 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useState, type ComponentType, type SVGProps } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import {
-  Shield, ArrowUp, ArrowDown, Medal, Users, HelpCircle, Eye, X, Dumbbell, CalendarCheck, Zap, Timer, Loader2,
+  Shield, ArrowUp, ArrowDown, Medal, Users, HelpCircle, Eye, X, Dumbbell, CalendarCheck, Zap, Loader2,
+  Trophy, Crown, Gem, Footprints, ChevronRight, Calendar,
 } from "lucide-react";
 import { AlunoShell } from "@/components/AlunoShell";
 import { useCurrentUser, firstName, initialsFromName } from "@/lib/auth";
