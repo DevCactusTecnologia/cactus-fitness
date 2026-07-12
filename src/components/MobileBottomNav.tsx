@@ -11,7 +11,7 @@ import {
   ChevronRight,
   ClipboardList,
   Trophy,
-  Receipt,
+  CreditCard,
 } from "lucide-react";
 
 import {
@@ -49,7 +49,7 @@ const ITEMS_BY_SCOPE: Record<Scope, Item[]> = {
     { icon: Dumbbell, label: "Treinos", to: "/treinos", match: (p) => p.startsWith("/treinos") || p.startsWith("/meu-treino/") },
     { icon: ClipboardList, label: "Avaliações", to: "/avaliacoes", match: (p) => p.startsWith("/avaliacoes") },
     { icon: Trophy, label: "Desafios", to: "/desafios", match: (p) => p.startsWith("/desafios") },
-    { icon: Receipt, label: "Fatura", to: "/meu-plano", match: (p) => p.startsWith("/meu-plano") },
+    { icon: CreditCard, label: "Plano", to: "/meu-plano", match: (p) => p.startsWith("/meu-plano") },
   ],
 
 };
