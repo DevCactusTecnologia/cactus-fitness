@@ -850,6 +850,12 @@ function Dashboard() {
                     sub="lançamentos deste mês"
                   />
                 )}
+                <KpiCard
+                  label="Avaliações"
+                  value={String(stats?.avaliacoes ?? 0)}
+                  sub="em dia"
+                />
+
               </div>
 
 
