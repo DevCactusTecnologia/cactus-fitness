@@ -278,7 +278,20 @@ function TreinoPage() {
     [rows, extraSets],
   );
   const completedSets = doneSets.size;
-  const pct = totalSets ? Math.round((completedSets / totalSets) * 100) : 0;
+  const setPct = totalSets ? Math.round((completedSets / totalSets) * 100) : 0;
+  // Progresso baseado no tempo estimado (tempo por série ~30s + descanso)
+  const estimatedTotalSec = useMemo(
+    () => rows.reduce((acc, r) => {
+      const count = (r.sets ?? 0) + (extraSets[r.id] ?? 0);
+      const perSet = 30 + (r.rest_seconds ?? 60);
+      return acc + count * perSet;
+    }, 0),
+    [rows, extraSets],
+  );
+  const pct = estimatedTotalSec
+    ? Math.min(100, Math.round((timer / estimatedTotalSec) * 100))
+    : setPct;
+  void setPct;
 
   const toggleOpen = (rid: string) =>
     setOpenIds((prev) => {
@@ -701,6 +714,11 @@ function TreinoPage() {
                       <span className="capitalize truncate">{muscle}</span>
                     </p>
                   </div>
+                  {totalCount > 0 && doneCount === totalCount && (
+                    <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-[hsl(var(--success)/0.15)] text-[hsl(var(--success))]">
+                      <Check className="h-3 w-3" strokeWidth={3} />
+                    </span>
+                  )}
                   <ChevronDown className={`h-4 w-4 shrink-0 text-fg-muted/70 transition-transform ${isOpen ? "rotate-180" : ""}`} />
                 </button>
 
