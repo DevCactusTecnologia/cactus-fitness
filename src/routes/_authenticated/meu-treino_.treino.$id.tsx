@@ -143,7 +143,7 @@ function TreinoPage() {
           .maybeSingle(),
         supabase
           .from("workout_template_exercises")
-          .select("id, position, sets, reps, load, rest_seconds, notes, block_label, session_label, exercise:exercises(id, name, image_path, video_url, muscles_primary, equipment)")
+          .select("id, position, sets, reps, load, rest_seconds, notes, block_label, session_label, session_position, exercise:exercises(id, name, image_path, video_url, muscles_primary, equipment)")
           .eq("template_id", sw.template_id)
           .order("position", { ascending: true }),
       ]);
