@@ -379,15 +379,12 @@ function HowToScoreModal({ onClose }: { onClose: () => void }) {
                 return (
                   <span key={d.label} className="flex items-center gap-1.5">
                     <span
-                      className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-[0.625rem] font-semibold dark:[color:var(--tw-dark-color)]"
-                      style={
-                        {
-                          backgroundColor: d.bg,
-                          border: `1px solid ${d.border}`,
-                          color: d.textLight,
-                          ["--tw-dark-color" as any]: d.textDark,
-                        } as React.CSSProperties
-                      }
+                      className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-[0.625rem] font-semibold"
+                      style={{
+                        backgroundColor: d.bg,
+                        border: `1px solid ${d.border}`,
+                        color: d.color,
+                      }}
                     >
                       <Icon className="h-3 w-3" fill="currentColor" />
                       {d.label}
