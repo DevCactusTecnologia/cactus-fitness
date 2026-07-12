@@ -263,22 +263,26 @@ function useSoloMonthRevenue() {
       const { data: u } = await supabase.auth.getUser();
       const uid = u.user?.id;
       if (!uid) return null;
-      const { data: ownerMem } = await supabase
+      const { data: mems } = await supabase
         .from("organization_members")
-        .select("organization_id")
-        .eq("user_id", uid)
-        .eq("role", "owner")
-        .order("created_at", { ascending: true })
-        .limit(1)
-        .maybeSingle();
-      if (!ownerMem?.organization_id) return null;
+        .select("organization_id, role")
+        .eq("user_id", uid);
+      const list = mems ?? [];
+      // "Solo" = personal que não é funcionário de academia de terceiros.
+      // Se possui qualquer vínculo em que NÃO é owner, então não é solo.
+      const hasEmployeeMembership = list.some((m: any) => m.role !== "owner");
+      if (hasEmployeeMembership) return null;
+
+      const ownOrgId = list.find((m: any) => m.role === "owner")?.organization_id ?? null;
+      if (!ownOrgId) return { total: 0, isSolo: true };
+
       const now = new Date();
       const start = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
       const end = new Date(now.getFullYear(), now.getMonth() + 1, 1).toISOString().slice(0, 10);
       const { data: lancs } = await supabase
         .from("lancamentos")
         .select("valor")
-        .eq("organization_id", ownerMem.organization_id)
+        .eq("organization_id", ownOrgId)
         .eq("tipo", "receita")
         .gte("competencia", start)
         .lt("competencia", end);
@@ -287,6 +291,7 @@ function useSoloMonthRevenue() {
     },
   });
 }
+
 
 function formatBRL(v: number) {
   return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL", minimumFractionDigits: 2 });
