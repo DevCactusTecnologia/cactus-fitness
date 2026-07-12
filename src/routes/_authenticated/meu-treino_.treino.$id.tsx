@@ -168,6 +168,7 @@ function TreinoPage() {
 
       // Sessão
       const { data: userData } = await supabase.auth.getUser();
+      if (cancelled) return;
       const uid = userData.user?.id;
       if (uid) {
         const { data: existing } = await supabase
@@ -179,6 +180,7 @@ function TreinoPage() {
           .order("started_at", { ascending: false })
           .limit(1)
           .maybeSingle();
+        if (cancelled) return;
         let sid = existing?.id ?? null;
         if (!sid) {
           let orgId: string | null = (sw as any)?.aluno?.organization_id ?? null;
@@ -191,6 +193,7 @@ function TreinoPage() {
                 .eq("user_id", personalId)
                 .limit(1)
                 .maybeSingle();
+              if (cancelled) return;
               orgId = om?.organization_id ?? null;
             }
           }
@@ -201,6 +204,7 @@ function TreinoPage() {
               .eq("user_id", uid)
               .limit(1)
               .maybeSingle();
+            if (cancelled) return;
             orgId = om2?.organization_id ?? null;
           }
           const insertPayload: any = { student_workout_id: id, aluno_user_id: uid };
@@ -210,25 +214,28 @@ function TreinoPage() {
             .insert(insertPayload)
             .select("id, started_at")
             .single();
-          if (createErr) toast.error("Erro ao iniciar sessão: " + createErr.message);
-          sid = created?.id ?? null;
-          // Sessão nova: cronômetro do zero
-          if (created?.started_at) startedAtRef.current = new Date(created.started_at).getTime();
+          if (cancelled) return;
+          if (createErr || !created?.id) {
+            toast.error("Erro ao iniciar sessão: " + (createErr?.message ?? "falha ao criar sessão"));
+            setLoading(false);
+            return;
+          }
+          sid = created.id;
+          if (created.started_at) startedAtRef.current = new Date(created.started_at).getTime();
           else startedAtRef.current = Date.now();
           setTimer(0);
         } else if (existing?.started_at) {
-          // Sessão em andamento: retoma o tempo acumulado
           startedAtRef.current = new Date(existing.started_at).getTime();
         }
         if (sid) {
           setSessionId(sid);
-          // Reflete a sessão ativa na URL: /meu-treino/treino/<id>?sessao=sessao_<curto>
           const short = sid.replace(/-/g, "").slice(0, 10);
           navigate({ to: "/meu-treino/treino/$id", params: { id }, search: { sessao: `sessao_${short}`, bloco }, replace: true });
           const { data: logs } = await supabase
             .from("set_logs")
             .select("template_exercise_id, set_index, reps, load, rpe, is_extra")
             .eq("session_id", sid);
+          if (cancelled) return;
           const done = new Set<string>();
           const l: Record<string, string> = {};
           const r: Record<string, string> = {};
@@ -260,12 +267,14 @@ function TreinoPage() {
             .from("session_exercise_notes")
             .select("template_exercise_id, note")
             .eq("session_id", sid);
+          if (cancelled) return;
           const nmap: Record<string, string> = {};
           (notes ?? []).forEach((n: any) => { nmap[n.template_exercise_id] = n.note; });
           setExerciseNotes(nmap);
         }
       }
-      setLoading(false);
+      if (!cancelled) setLoading(false);
+
     })();
     return () => { cancelled = true; };
   }, [id]);
