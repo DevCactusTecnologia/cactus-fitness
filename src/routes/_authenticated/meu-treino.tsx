@@ -361,10 +361,19 @@ function MeuTreinoPage() {
             </div>
             <div className="min-w-0 flex-1">
               <h2 className="font-display text-2xl font-bold leading-tight">Olá, {name}!</h2>
-              <button className="mt-1.5 inline-flex items-center gap-1.5 rounded-full border border-border bg-card/60 px-2.5 py-1 text-xs font-semibold text-amber-600 dark:text-amber-500">
-                <Shield className="h-3.5 w-3.5" fill="currentColor" />
-                Bronze
-              </button>
+              <Link
+                to="/ranking"
+                className="mt-1 inline-flex items-center gap-2 rounded-full border border-border bg-card/60 pl-1 pr-2.5 py-0.5 transition active:opacity-60 hover:bg-accent/40"
+              >
+                <span
+                  className="grid h-7 w-7 place-items-center rounded-2xl shrink-0"
+                  style={{ backgroundColor: "rgba(205, 127, 50, 0.15)", border: "1.5px solid rgba(205, 127, 50, 0.4)" }}
+                >
+                  <Shield className="h-4 w-4 text-[#9A5B12] dark:text-[#CD7F32]" fill="currentColor" />
+                </span>
+                <span className="text-xs font-semibold" style={{ color: "rgb(205, 127, 50)" }}>Bronze</span>
+                <span className="text-[0.625rem] text-muted-foreground/70">· 19º no grupo</span>
+              </Link>
             </div>
           </div>
 
@@ -398,12 +407,11 @@ function MeuTreinoPage() {
             </div>
             <div className="h-px bg-border" />
             <div className="flex items-center gap-2">
-              <Flame className="h-4 w-4 shrink-0 text-amber-500" fill="currentColor" />
-              <p className="text-xs">
-                <span className="font-display font-bold text-amber-500">1 semana de ofensiva</span>
-              </p>
+              <Flame className="h-4 w-4 shrink-0 text-muted-foreground/30" fill="currentColor" />
+              <p className="text-xs text-muted-foreground">Treine 6x esta semana para iniciar sua ofensiva!</p>
             </div>
           </section>
+
 
           {/* Próximo treino */}
           <section className="relative overflow-hidden rounded-xl border border-border bg-card p-5 space-y-3">
@@ -439,20 +447,25 @@ function MeuTreinoPage() {
 
           {/* Ranking + Check-in */}
           <section className="overflow-hidden rounded-2xl border border-border bg-card">
-            <button className="flex w-full items-center justify-between gap-3 p-4 hover:bg-accent/40">
+            <Link to="/ranking" className="flex w-full items-center justify-between gap-3 p-4 transition hover:bg-accent/40 active:opacity-60">
               <div className="flex items-center gap-3">
-                <div className="grid h-11 w-11 place-items-center rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-500">
-                  <Shield className="h-5 w-5" fill="currentColor" />
+                <div
+                  className="grid h-11 w-11 place-items-center rounded-2xl shrink-0"
+                  style={{ backgroundColor: "rgba(205, 127, 50, 0.15)", border: "1.5px solid rgba(205, 127, 50, 0.4)" }}
+                >
+                  <Shield className="h-6 w-6 text-[#9A5B12] dark:text-[#CD7F32]" fill="currentColor" />
                 </div>
                 <div className="text-left">
                   <p className="text-xs text-muted-foreground">seu ranking</p>
-                  <p className="font-display text-lg font-bold text-amber-600 dark:text-amber-500">Bronze</p>
+                  <p className="font-display text-base font-bold leading-tight" style={{ color: "rgb(205, 127, 50)" }}>
+                    Bronze<span className="text-muted-foreground font-semibold"> · 19º no grupo</span>
+                  </p>
                 </div>
               </div>
-              <span className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground">
+              <span className="inline-flex items-center gap-1 text-sm font-medium text-primary shrink-0">
                 ver ranking <ChevronRight className="h-4 w-4" />
               </span>
-            </button>
+            </Link>
             {checkedToday ? (
               <div className="flex w-full items-center justify-center gap-2 border-t border-border/60 py-3 text-sm font-semibold">
                 <CheckCircle2 className="h-4 w-4 text-emerald-500" />
