@@ -714,6 +714,11 @@ function TreinoPage() {
                       <span className="capitalize truncate">{muscle}</span>
                     </p>
                   </div>
+                  {totalCount > 0 && doneCount === totalCount && (
+                    <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-[hsl(var(--success)/0.15)] text-[hsl(var(--success))]">
+                      <Check className="h-3 w-3" strokeWidth={3} />
+                    </span>
+                  )}
                   <ChevronDown className={`h-4 w-4 shrink-0 text-fg-muted/70 transition-transform ${isOpen ? "rotate-180" : ""}`} />
                 </button>
 
