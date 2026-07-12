@@ -253,9 +253,10 @@ function TreinosPage() {
               <h3 className="mb-3 px-1 text-xs font-semibold uppercase tracking-wider text-fg-muted">Histórico recente</h3>
               <div className="space-y-2">
                 {history.map((h) => (
-                  <button
+                  <Link
                     key={h.id}
-                    type="button"
+                    to="/meu-treino/historico/$sessionId"
+                    params={{ sessionId: h.id }}
                     className="flex w-full select-none items-center gap-3 rounded-xl px-4 py-3 text-left transition-colors hover:bg-surface-2/30 active:bg-surface-2/50"
                   >
                     <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-green-500/10">
@@ -281,7 +282,7 @@ function TreinosPage() {
                       </div>
                     </div>
                     <ChevronRight className="h-4 w-4 shrink-0 text-fg-muted/50" />
-                  </button>
+                  </Link>
                 ))}
               </div>
             </div>
