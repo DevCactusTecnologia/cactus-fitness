@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Dumbbell, Check, ChevronRight, FileDown, Clock, Trophy } from "lucide-react";
+import { Dumbbell, Check, ChevronRight, FileDown, Clock, Trophy, Play } from "lucide-react";
 import { AlunoShell } from "@/components/AlunoShell";
 import { supabase } from "@/integrations/supabase/client";
 import { useCurrentUser } from "@/lib/auth";
