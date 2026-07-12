@@ -785,9 +785,27 @@ function TreinoPage() {
                       >
                         <CheckCheck className="h-3.5 w-3.5" /> Completar tudo
                       </button>
-                      <button className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground">
-                        <MessageSquare className="h-3.5 w-3.5" /> Adicionar observação
-                      </button>
+                      {exerciseNotes[r.id] ? (
+                        <button
+                          onClick={() => {
+                            setNoteDraft(exerciseNotes[r.id] ?? "");
+                            setNoteModal({ rowId: r.id, name: r.exercise?.name ?? "Exercício" });
+                          }}
+                          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[hsl(var(--success))] hover:brightness-110"
+                        >
+                          <MessageSquare className="h-3.5 w-3.5" /> Observação adicionada
+                        </button>
+                      ) : (
+                        <button
+                          onClick={() => {
+                            setNoteDraft("");
+                            setNoteModal({ rowId: r.id, name: r.exercise?.name ?? "Exercício" });
+                          }}
+                          className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground"
+                        >
+                          <MessageSquare className="h-3.5 w-3.5" /> Adicionar observação
+                        </button>
+                      )}
                     </div>
                   </div>
                 )}
