@@ -21,7 +21,7 @@ import { AvatarCropDialog } from "@/components/AvatarCropDialog";
 import { getMyRanking } from "@/lib/ranking.functions";
 import { toast } from "sonner";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
-import { usePersonalCustomization } from "@/hooks/usePersonalCustomization";
+import { usePersonalCustomization, isNavItemVisible } from "@/hooks/usePersonalCustomization";
 
 
 
