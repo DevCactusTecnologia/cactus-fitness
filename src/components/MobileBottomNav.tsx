@@ -42,7 +42,7 @@ const ITEMS_BY_SCOPE: Record<Scope, Item[]> = {
   ],
   aluno: [
     { icon: LayoutDashboard, label: "Início", to: "/dashboard/aluno", match: (p) => p === "/dashboard/aluno" },
-    { icon: Dumbbell, label: "Treinos", to: "/meu-treino", match: (p) => p.startsWith("/meu-treino") },
+    { icon: Dumbbell, label: "Meus Treinos", to: "/treinos", match: (p) => p.startsWith("/treinos") || p.startsWith("/meu-treino") },
   ],
 };
 
