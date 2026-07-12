@@ -159,15 +159,20 @@ function TreinosPage() {
             <div className="pointer-events-none mb-4 flex select-none flex-wrap items-center gap-2">
               <span className="inline-flex items-center rounded-md bg-surface-2 px-2.5 py-1 text-xs text-fg-muted">Simples</span>
               <span className="inline-flex items-center rounded-md bg-surface-2 px-2.5 py-1 text-xs text-fg-muted">
-                {total} treino{total === 1 ? "" : "s"}
+                {weeks} semana{weeks === 1 ? "" : "s"}
               </span>
+              {perWeek > 0 && (
+                <span className="inline-flex items-center rounded-md bg-surface-2 px-2.5 py-1 text-xs text-fg-muted">
+                  {perWeek}x por semana
+                </span>
+              )}
               <span className="inline-flex items-center rounded-md bg-surface-2 px-2.5 py-1 text-xs text-fg-muted">
                 {totalDone} concluído{totalDone === 1 ? "" : "s"}
               </span>
             </div>
             <div>
               <div className="mb-1.5 flex items-center justify-between">
-                <span className="text-xs text-fg-muted">Progresso do plano</span>
+                <span className="text-xs text-fg-muted">Semana {currentWeek} de {weeks}</span>
                 <span className="rounded-md bg-surface-2 px-2 py-0.5 text-[0.625rem] font-medium" style={{ color: "rgb(59, 130, 246)" }}>Fase 1</span>
               </div>
               <div className="h-2 overflow-hidden rounded-full bg-surface-3">
