@@ -103,15 +103,15 @@ const historyItems: HistoryItem[] = [
 function MeuProgressoPage() {
   return (
     <AlunoShell>
-      <header className="sticky top-0 z-30 border-b border-border/60 bg-background/70 px-4 py-4 backdrop-blur-xl md:px-6">
-        <div className="mx-auto flex max-w-2xl items-center gap-3">
-          <h1 className="hidden text-2xl font-bold md:block">Meu Progresso</h1>
+      <header className="fixed inset-x-0 top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:left-[72px]">
+        <div className="flex items-center px-4 py-4 md:px-6">
+          <h1 className="font-display text-xl font-bold">Meu Progresso</h1>
         </div>
       </header>
 
-      <main className="p-4 md:p-6">
+      <main className="p-4 pt-[76px] md:p-6 md:pt-[84px]">
         <div className="mx-auto max-w-2xl space-y-8">
-          <h2 className="text-lg font-bold md:hidden">Meu Progresso</h2>
+
 
           <div className="space-y-5">
             <VolumeCard />
