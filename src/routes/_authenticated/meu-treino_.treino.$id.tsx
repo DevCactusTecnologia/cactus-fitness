@@ -17,6 +17,11 @@ export const Route = createFileRoute("/_authenticated/meu-treino_/treino/$id")({
   head: () => ({ meta: [{ title: "Treino · cactusfitness" }] }),
   validateSearch: (search: Record<string, unknown>) => ({
     sessao: typeof search.sessao === "string" ? search.sessao : undefined,
+    bloco: typeof search.bloco === "number"
+      ? search.bloco
+      : typeof search.bloco === "string" && search.bloco !== "" && !isNaN(Number(search.bloco))
+        ? Number(search.bloco)
+        : undefined,
   }),
   component: TreinoPage,
 });
@@ -31,6 +36,7 @@ type ExerciseRow = {
   notes: string | null;
   block_label: string | null;
   session_label: string | null;
+  session_position: number | null;
   exercise: {
     id: number;
     name: string;
@@ -63,6 +69,7 @@ function formatTimer(sec: number) {
 
 function TreinoPage() {
   const { id } = Route.useParams();
+  const { bloco } = Route.useSearch();
   const navigate = useNavigate();
   const { profile } = useCurrentUser();
 
@@ -136,7 +143,7 @@ function TreinoPage() {
           .maybeSingle(),
         supabase
           .from("workout_template_exercises")
-          .select("id, position, sets, reps, load, rest_seconds, notes, block_label, session_label, exercise:exercises(id, name, image_path, video_url, muscles_primary, equipment)")
+          .select("id, position, sets, reps, load, rest_seconds, notes, block_label, session_label, session_position, exercise:exercises(id, name, image_path, video_url, muscles_primary, equipment)")
           .eq("template_id", sw.template_id)
           .order("position", { ascending: true }),
       ]);
@@ -149,7 +156,10 @@ function TreinoPage() {
           allow_pdf: (tpl as any).allow_pdf ?? true,
         });
       }
-      const list = (exs ?? []) as any as ExerciseRow[];
+      const allRows = (exs ?? []) as any as ExerciseRow[];
+      const list = typeof bloco === "number"
+        ? allRows.filter((r) => Number(r.session_position ?? 0) === bloco)
+        : allRows;
       setRows(list);
       if (list[0]?.block_label) setBlockLabel(list[0].block_label);
       if (list[0]) setOpenIds(new Set([list[0].id]));
@@ -208,7 +218,7 @@ function TreinoPage() {
           setSessionId(sid);
           // Reflete a sessão ativa na URL: /meu-treino/treino/<id>?sessao=sessao_<curto>
           const short = sid.replace(/-/g, "").slice(0, 10);
-          navigate({ to: "/meu-treino/treino/$id", params: { id }, search: { sessao: `sessao_${short}` }, replace: true });
+          navigate({ to: "/meu-treino/treino/$id", params: { id }, search: { sessao: `sessao_${short}`, bloco }, replace: true });
           const { data: logs } = await supabase
             .from("set_logs")
             .select("template_exercise_id, set_index, reps, load, rpe, is_extra")
