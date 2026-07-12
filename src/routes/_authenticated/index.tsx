@@ -111,7 +111,7 @@ function SectionCard({
   );
 }
 
-function Shortcut({ icon: Icon, title, sub, k, to }: { icon: React.ElementType; title: string; sub: string; k: string; to?: string }) {
+function Shortcut({ icon: Icon, title, sub, to }: { icon: React.ElementType; title: string; sub: string; k?: string; to?: string }) {
   const cls = "group flex items-center gap-3 rounded-md border border-border bg-surface-2 p-3 text-left transition-colors hover:border-border-strong hover:bg-surface-3";
   const inner = (
     <>
@@ -122,7 +122,6 @@ function Shortcut({ icon: Icon, title, sub, k, to }: { icon: React.ElementType; 
         <div className="text-[0.75rem] font-semibold">{title}</div>
         <div className="truncate text-[0.625rem] lowercase text-fg-muted">{sub}</div>
       </div>
-      <kbd className="rounded border border-border bg-surface-3 px-1.5 py-0.5 font-mono text-[0.625rem] text-fg-secondary">{k}</kbd>
     </>
   );
   if (to) return <Link to={to} className={cls}>{inner}</Link>;
