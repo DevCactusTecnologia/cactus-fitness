@@ -69,6 +69,7 @@ function formatTimer(sec: number) {
 
 function TreinoPage() {
   const { id } = Route.useParams();
+  const { bloco } = Route.useSearch();
   const navigate = useNavigate();
   const { profile } = useCurrentUser();
 
