@@ -304,7 +304,11 @@ function TreinoPage() {
     if (!ok) return;
     setDoneSets((prev) => new Set(prev).add(key));
     const restSec = row.rest_seconds ?? 60;
-    if (restSec > 0) setRest({ total: restSec, left: restSec });
+    if (restSec > 0) {
+      const rowIdx = rows.findIndex((r) => r.id === row.id);
+      const nextName = rows[rowIdx + 1]?.exercise?.name ?? null;
+      setRest({ total: restSec, left: restSec, nextName });
+    }
     if (perms.allow_rpe) setRpePrompt({ row, idx });
   }
 
