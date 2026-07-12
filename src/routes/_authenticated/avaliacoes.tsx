@@ -77,7 +77,7 @@ function AvaliacoesPage() {
   const { id } = Route.useSearch();
   return (
     <AlunoShell>
-      <header className="fixed inset-x-0 top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:left-[72px]">
+      <header className="fixed inset-x-0 top-0 z-50 border-b border-border bg-background/70 backdrop-blur-xl md:left-[72px]">
         <div className="flex items-center px-4 py-4 md:px-6">
           <h1 className="font-display text-xl font-bold">Minhas Avaliações</h1>
         </div>
