@@ -206,6 +206,9 @@ function TreinoPage() {
         }
         if (sid) {
           setSessionId(sid);
+          // Reflete a sessão ativa na URL: /meu-treino/treino/<id>?sessao=sessao_<curto>
+          const short = sid.replace(/-/g, "").slice(0, 10);
+          navigate({ to: "/meu-treino/treino/$id", params: { id }, search: { sessao: `sessao_${short}` }, replace: true });
           const { data: logs } = await supabase
             .from("set_logs")
             .select("template_exercise_id, set_index, reps, load, rpe, is_extra")
