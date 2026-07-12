@@ -283,114 +283,151 @@ function PlayerRow({
   );
 }
 
-const SCORING_RULES = [
+type ScoringRule = { icon: ComponentType<SVGProps<SVGSVGElement> & { size?: number | string }>; label: string; points: string };
+
+const SCORING_RULES: ScoringRule[] = [
   { icon: Dumbbell, label: "treino concluído (a partir de 30 min)", points: "+30 pts" },
   { icon: CalendarCheck, label: "check-in diário (1x por dia)", points: "+5 pts" },
   { icon: Zap, label: "atividade extra registrada", points: "+10 pts" },
-  { icon: Timer, label: "corrida concluída", points: "+30 pts" },
+  { icon: Footprints, label: "corrida concluída", points: "+30 pts" },
 ];
 
-const DIVISIONS = [
-  { label: "Bronze", color: "#CD7F32", bg: "rgba(205, 127, 50, 0.1)", border: "rgba(205, 127, 50, 0.25)" },
-  { label: "Prata", color: "#BFC7CE", bg: "rgba(191, 199, 206, 0.1)", border: "rgba(191, 199, 206, 0.25)" },
-  { label: "Ouro", color: "#F5B942", bg: "rgba(245, 185, 66, 0.1)", border: "rgba(245, 185, 66, 0.25)" },
-  { label: "Platina", color: "#7FD1D6", bg: "rgba(127, 209, 214, 0.1)", border: "rgba(127, 209, 214, 0.25)" },
-  { label: "Diamante", color: "#8AB4F8", bg: "rgba(138, 180, 248, 0.1)", border: "rgba(138, 180, 248, 0.25)" },
-  { label: "Campeão", color: "#C084FC", bg: "rgba(192, 132, 252, 0.1)", border: "rgba(192, 132, 252, 0.25)" },
+type Division = {
+  label: string;
+  icon: ComponentType<SVGProps<SVGSVGElement> & { size?: number | string }>;
+  textLight: string;
+  textDark: string;
+  bg: string;
+  border: string;
+};
+
+const DIVISIONS: Division[] = [
+  { label: "Bronze",   icon: Shield, textLight: "#9A5B12", textDark: "#CD7F32", bg: "rgba(205, 127, 50, 0.1)",  border: "rgba(205, 127, 50, 0.25)" },
+  { label: "Prata",    icon: Medal,  textLight: "#6B7280", textDark: "#BFC7CE", bg: "rgba(191, 199, 206, 0.1)", border: "rgba(191, 199, 206, 0.25)" },
+  { label: "Ouro",     icon: Medal,  textLight: "#8A5A0D", textDark: "#FFC93C", bg: "rgba(255, 201, 60, 0.1)",  border: "rgba(255, 201, 60, 0.25)" },
+  { label: "Platina",  icon: Trophy, textLight: "#0E7C71", textDark: "#5CD1C6", bg: "rgba(92, 209, 198, 0.1)",  border: "rgba(92, 209, 198, 0.25)" },
+  { label: "Diamante", icon: Gem,    textLight: "#2563EB", textDark: "#5AA9FF", bg: "rgba(90, 169, 255, 0.1)",  border: "rgba(90, 169, 255, 0.25)" },
+  { label: "Campeão",  icon: Crown,  textLight: "#5C7A0A", textDark: "#D7F205", bg: "rgba(215, 242, 5, 0.1)",   border: "rgba(215, 242, 5, 0.25)" },
 ];
 
 function HowToScoreModal({ onClose }: { onClose: () => void }) {
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-end justify-center bg-black/60 backdrop-blur-sm sm:items-center"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 animate-in fade-in-0"
       onClick={onClose}
+      role="presentation"
     >
       <div
-        className="relative w-full max-w-md rounded-t-3xl border border-border bg-card p-6 shadow-xl sm:rounded-3xl max-h-[92vh] overflow-y-auto"
+        role="dialog"
+        aria-labelledby="ranking-modal-title"
+        className="relative grid w-full max-w-md gap-4 overflow-y-auto rounded-2xl border border-border bg-background p-6 shadow-lg animate-in zoom-in-95 max-h-[85vh]"
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Close */}
         <button
           type="button"
           onClick={onClose}
-          className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full text-muted-foreground hover:bg-accent hover:text-foreground"
+          className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
           aria-label="fechar"
         >
           <X className="h-4 w-4" />
+          <span className="sr-only">Close</span>
         </button>
 
-        <div className="mb-5 flex items-center gap-2">
-          <div className="grid h-9 w-9 place-items-center rounded-full bg-primary/10">
-            <HelpCircle className="h-5 w-5 text-primary" />
-          </div>
-          <h2 className="font-display text-lg font-bold">como funciona o ranking</h2>
+        {/* Header */}
+        <div className="flex flex-col space-y-1.5 text-left">
+          <h2
+            id="ranking-modal-title"
+            className="font-display flex items-center gap-2 text-lg font-semibold tracking-tight"
+          >
+            <Trophy className="h-5 w-5 text-primary" fill="currentColor" />
+            como funciona o ranking
+          </h2>
         </div>
 
-        <section className="space-y-3">
-          <h3 className="font-display text-xs font-bold uppercase tracking-wide text-muted-foreground">
-            como pontuar
-          </h3>
-          <ul className="space-y-2.5">
-            {SCORING_RULES.map(({ icon: Icon, label, points }) => (
-              <li key={label} className="flex items-center gap-3">
-                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-primary/10 text-primary">
-                  <Icon className="h-4 w-4" />
-                </span>
-                <span className="min-w-0 flex-1 text-sm text-muted-foreground">{label}</span>
-                <span className="shrink-0 font-display text-sm font-bold text-primary tabular-nums">{points}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
+        {/* Body */}
+        <div className="space-y-6 pt-1">
+          {/* como pontuar */}
+          <section className="space-y-3">
+            <h3 className="font-display text-xs font-bold uppercase tracking-wide text-muted-foreground">
+              como pontuar
+            </h3>
+            <ul className="space-y-2.5">
+              {SCORING_RULES.map(({ icon: Icon, label, points }) => (
+                <li key={label} className="flex items-center gap-3">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+                    <Icon className="h-4 w-4" />
+                  </span>
+                  <span className="min-w-0 flex-1 text-sm text-foreground/80">{label}</span>
+                  <span className="shrink-0 font-display text-sm font-bold text-primary tabular-nums">{points}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
 
-        <section className="mt-6 space-y-3">
-          <h3 className="font-display text-xs font-bold uppercase tracking-wide text-muted-foreground">
-            como funcionam os grupos
-          </h3>
-          <p className="flex items-start gap-2 text-sm leading-relaxed text-muted-foreground">
-            <Users className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
-            <span>você compete num grupo de até 20 alunos da sua divisão.</span>
-          </p>
-          <div className="flex flex-wrap items-center gap-1.5 pt-1">
-            {DIVISIONS.map((d, i) => (
-              <span key={d.label} className="flex items-center gap-1.5">
-                <span
-                  className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-[0.625rem] font-semibold"
-                  style={{ backgroundColor: d.bg, border: `1px solid ${d.border}`, color: d.color }}
-                >
-                  <Shield className="h-3 w-3" fill="currentColor" />
-                  {d.label}
-                </span>
-                {i < DIVISIONS.length - 1 && (
-                  <ArrowUp className="h-3 w-3 rotate-90 text-muted-foreground/50" />
-                )}
+          {/* como funcionam os grupos */}
+          <section className="space-y-3">
+            <h3 className="font-display text-xs font-bold uppercase tracking-wide text-muted-foreground">
+              como funcionam os grupos
+            </h3>
+            <p className="flex items-start gap-2 text-sm leading-relaxed text-foreground/80">
+              <Users className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+              <span>você compete num grupo de até 20 alunos da sua divisão.</span>
+            </p>
+            <div className="flex flex-wrap items-center gap-1.5 pt-1">
+              {DIVISIONS.map((d, i) => {
+                const Icon = d.icon;
+                return (
+                  <span key={d.label} className="flex items-center gap-1.5">
+                    <span
+                      className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-[0.625rem] font-semibold dark:[color:var(--tw-dark-color)]"
+                      style={
+                        {
+                          backgroundColor: d.bg,
+                          border: `1px solid ${d.border}`,
+                          color: d.textLight,
+                          ["--tw-dark-color" as any]: d.textDark,
+                        } as React.CSSProperties
+                      }
+                    >
+                      <Icon className="h-3 w-3" fill="currentColor" />
+                      {d.label}
+                    </span>
+                    {i < DIVISIONS.length - 1 && (
+                      <ChevronRight className="h-3 w-3 shrink-0 text-muted-foreground/60" />
+                    )}
+                  </span>
+                );
+              })}
+            </div>
+            <div className="space-y-2 pt-1">
+              <p className="flex items-start gap-2 text-sm leading-relaxed text-foreground/80">
+                <ArrowUp className="mt-0.5 h-4 w-4 shrink-0 text-success" />
+                <span>toda semana o grupo reseta: quem fica no topo (zona de promoção) sobe de divisão.</span>
+              </p>
+              <p className="flex items-start gap-2 text-sm leading-relaxed text-foreground/80">
+                <ArrowDown className="mt-0.5 h-4 w-4 shrink-0 text-destructive" />
+                <span>quem fica no fundo (zona de rebaixamento) é rebaixado.</span>
+              </p>
+            </div>
+          </section>
+
+          {/* temporadas */}
+          <section className="space-y-3">
+            <h3 className="font-display text-xs font-bold uppercase tracking-wide text-muted-foreground">
+              temporadas
+            </h3>
+            <p className="flex items-start gap-2 text-sm leading-relaxed text-foreground/80">
+              <Calendar className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
+              <span>
+                a cada 6 semanas a temporada fecha: todo mundo volta pro bronze e os pontos zeram — começa
+                tudo de novo. (sua melhor divisão fica registrada.)
               </span>
-            ))}
-          </div>
-          <p className="text-sm leading-relaxed text-muted-foreground">
-            toda semana o grupo reseta: quem fica no topo (zona de promoção) sobe de divisão. quem fica no
-            fundo (zona de rebaixamento) é rebaixado.
-          </p>
-        </section>
-
-        <section className="mt-6 space-y-2">
-          <h3 className="font-display text-xs font-bold uppercase tracking-wide text-muted-foreground">
-            temporadas
-          </h3>
-          <p className="text-sm leading-relaxed text-muted-foreground">
-            a cada 6 semanas a temporada fecha: todo mundo volta pro bronze e os pontos zeram — começa tudo
-            de novo.{" "}
-            <span className="text-foreground/70">(sua melhor divisão fica registrada.)</span>
-          </p>
-        </section>
-
-        <button
-          type="button"
-          onClick={onClose}
-          className="mt-6 w-full rounded-full bg-primary py-3 text-sm font-bold text-primary-foreground transition hover:opacity-90"
-        >
-          fechar
-        </button>
+            </p>
+          </section>
+        </div>
       </div>
     </div>
   );
 }
+
