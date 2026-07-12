@@ -234,22 +234,19 @@ function AuthForm({
               autoComplete={mode === "signin" ? "current-password" : "new-password"}
               required
               minLength={6}
-              disabled={!emailValid}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder={emailValid ? (mode === "signup" ? "Crie uma senha (mín. 6)" : "Senha") : "Preencha o email primeiro"}
-              className={`w-full h-12 bg-surface-2 text-foreground placeholder-fg-muted rounded-md px-4 pr-12 text-sm font-body outline-none transition-all duration-200 border focus:border-primary focus:shadow-[0_0_0_3px_var(--primary-glow)] normal-case border-border hover:border-border-strong ${!emailValid ? "opacity-40 cursor-not-allowed" : ""}`}
+              placeholder={mode === "signup" ? "Crie uma senha (mín. 6)" : "Senha"}
+              className="w-full h-12 bg-surface-2 text-foreground placeholder-fg-muted rounded-md px-4 pr-12 text-sm font-body outline-none transition-all duration-200 border focus:border-primary focus:shadow-[0_0_0_3px_var(--primary-glow)] normal-case border-border hover:border-border-strong"
             />
-            {emailValid && (
-              <button
-                type="button"
-                onClick={() => setShowPwd((v) => !v)}
-                className="absolute right-2 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-md text-fg-muted hover:bg-surface-3"
-                aria-label={showPwd ? "Ocultar senha" : "Mostrar senha"}
-              >
-                {showPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={() => setShowPwd((v) => !v)}
+              className="absolute right-2 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-md text-fg-muted hover:bg-surface-3"
+              aria-label={showPwd ? "Ocultar senha" : "Mostrar senha"}
+            >
+              {showPwd ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            </button>
           </div>
         </div>
 
