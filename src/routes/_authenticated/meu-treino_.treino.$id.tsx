@@ -210,10 +210,10 @@ function TreinoPage() {
             .single();
           if (createErr) toast.error("Erro ao iniciar sessão: " + createErr.message);
           sid = created?.id ?? null;
-          if (created?.started_at) startedAtRef.current = new Date(created.started_at).getTime();
-        } else if (existing?.started_at) {
-          startedAtRef.current = new Date(existing.started_at).getTime();
         }
+        // Cronômetro sempre reinicia do zero ao entrar na tela
+        startedAtRef.current = Date.now();
+        setTimer(0);
         if (sid) {
           setSessionId(sid);
           // Reflete a sessão ativa na URL: /meu-treino/treino/<id>?sessao=sessao_<curto>
