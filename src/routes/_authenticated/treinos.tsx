@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Dumbbell, Check, ChevronRight, FileDown, Clock, Trophy } from "lucide-react";
+import { Dumbbell, Check, ChevronRight, FileDown, Clock, Trophy, Play } from "lucide-react";
 import { AlunoShell } from "@/components/AlunoShell";
 import { supabase } from "@/integrations/supabase/client";
 import { useCurrentUser } from "@/lib/auth";
@@ -197,9 +197,6 @@ function TreinosPage() {
                   {perWeek}x por semana
                 </span>
               )}
-              <span className="inline-flex items-center rounded-md bg-surface-2 px-2.5 py-1 text-xs text-fg-muted">
-                {totalDone} concluído{totalDone === 1 ? "" : "s"}
-              </span>
             </div>
             <div>
               <div className="mb-1.5 flex items-center justify-between">
@@ -320,6 +317,22 @@ function TreinosPage() {
             </div>
           )}
         </div>
+
+        {nextIdx >= 0 && items[nextIdx] && (
+          <div className="pointer-events-none fixed inset-x-0 bottom-16 z-30 px-4 md:bottom-6 md:left-[72px]">
+            <div className="pointer-events-auto mx-auto max-w-2xl">
+              <Link
+                to="/meu-treino/treino/$id"
+                params={{ id: items[nextIdx].swId }}
+                search={items[nextIdx].sessionPosition != null ? { bloco: items[nextIdx].sessionPosition as number } : undefined}
+                className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-primary px-6 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/30 transition hover:brightness-110 active:scale-[0.98]"
+              >
+                <Play className="h-4 w-4" fill="currentColor" />
+                Iniciar {items[nextIdx].name}
+              </Link>
+            </div>
+          </div>
+        )}
       </main>
     </AlunoShell>
   );
