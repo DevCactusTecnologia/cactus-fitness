@@ -696,6 +696,9 @@ function Dashboard() {
   const { profile, loading } = useCurrentUser();
   const { data: stats } = useDashboardStats();
   const { data: ownerOverview, isLoading: ownerLoading } = useOwnerOverview();
+  const { data: soloRevenue } = useSoloMonthRevenue();
+  const navigate = useNavigate();
+  const { data: ownerOverview, isLoading: ownerLoading } = useOwnerOverview();
   const navigate = useNavigate();
 
   // Aluno logado nunca vê o painel do personal — vai para /meu-treino
