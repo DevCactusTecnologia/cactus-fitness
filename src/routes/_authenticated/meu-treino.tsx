@@ -14,8 +14,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { applyPrimaryColor } from "@/lib/theme";
 import logoUrl from "@/assets/cactus-logo.png";
 import { useAvatarUrl } from "@/hooks/useAvatarUrl";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { AvatarCropDialog } from "@/components/AvatarCropDialog";
+import { getMyRanking } from "@/lib/ranking.functions";
 
 
 
