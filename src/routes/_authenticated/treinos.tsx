@@ -317,6 +317,22 @@ function TreinosPage() {
             </div>
           )}
         </div>
+
+        {nextIdx >= 0 && items[nextIdx] && (
+          <div className="pointer-events-none fixed inset-x-0 bottom-16 z-30 px-4 md:bottom-6 md:left-[72px]">
+            <div className="pointer-events-auto mx-auto max-w-2xl">
+              <Link
+                to="/meu-treino/treino/$id"
+                params={{ id: items[nextIdx].swId }}
+                search={items[nextIdx].sessionPosition != null ? { bloco: items[nextIdx].sessionPosition as number } : undefined}
+                className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-primary px-6 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/30 transition hover:brightness-110 active:scale-[0.98]"
+              >
+                <Play className="h-4 w-4" fill="currentColor" />
+                Iniciar {items[nextIdx].name}
+              </Link>
+            </div>
+          </div>
+        )}
       </main>
     </AlunoShell>
   );
