@@ -5,7 +5,7 @@ import {
   Folder, ClipboardList, FileText, User as UserIcon, Settings, HeadphonesIcon,
   Droplet, Sun, Camera, Check, CheckCircle2, Flame, Play, ChevronRight, Zap, Dumbbell, Activity,
   Edit3, StickyNote, Bell, Receipt, MessageSquareText, Menu as MenuIcon, ChevronDown, Shield,
-  LayoutDashboard, HeartPulse, Loader2, Undo2,
+  LayoutDashboard, HeartPulse, Loader2, Undo2, CreditCard,
 } from "lucide-react";
 import { useCurrentUser, useSignOut, firstName, initialsFromName } from "@/lib/auth";
 import { colorForId } from "@/lib/avatar-color";
@@ -37,9 +37,10 @@ const RAIL_ITEMS = [
   { icon: TrendingUp, label: "Meu Progresso", to: "/meu-progresso" as const },
   { icon: Trophy, label: "Desafios", to: "/desafios" as const },
   { icon: HeartPulse, label: "Avaliações", to: "/avaliacoes" as const },
+  { icon: CreditCard, label: "Meu Plano", to: "/meu-plano" as const },
 ];
 
-const MOBILE_NAV_ITEMS = RAIL_ITEMS.filter((i) => i.to !== "/meu-progresso");
+const MOBILE_NAV_ITEMS = RAIL_ITEMS.filter((i) => i.to !== "/meu-progresso" && i.to !== "/meu-plano");
 
 
 
