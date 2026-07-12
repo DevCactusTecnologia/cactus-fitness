@@ -42,6 +42,7 @@ const SECTIONS = [
 type Customization = {
   brandTitle: string;
   showBrandTitle: boolean;
+  brandLogoPath: string | null;
   primaryColor: string;
   welcome: string;
   sections: Record<string, boolean>;
@@ -50,6 +51,7 @@ type Customization = {
 const DEFAULTS: Customization = {
   brandTitle: "cactusfitness",
   showBrandTitle: false,
+  brandLogoPath: null,
   primaryColor: "#D7F205",
   welcome: "",
   sections: Object.fromEntries(SECTIONS.map((s) => [s, true])),
@@ -62,35 +64,46 @@ function rgbStringToHex(c: string): string {
   return "#" + [r, g, b].map((v) => v.toString(16).padStart(2, "0")).join("").toUpperCase();
 }
 
+async function signedLogoUrl(path: string | null): Promise<string | null> {
+  if (!path) return null;
+  const { data } = await supabase.storage.from("avatars").createSignedUrl(path, 60 * 60);
+  return data?.signedUrl ?? null;
+}
+
 function useCustomization() {
   return useQuery({
     queryKey: ["profile-customization"],
-    queryFn: async (): Promise<Customization> => {
+    queryFn: async (): Promise<Customization & { brandLogoUrl: string | null }> => {
       const { data: userData } = await supabase.auth.getUser();
       const userId = userData.user?.id;
-      if (!userId) return DEFAULTS;
+      if (!userId) return { ...DEFAULTS, brandLogoUrl: null };
       const { data } = await supabase
         .from("profiles")
-        .select("brand_title, show_brand_title, primary_color, welcome_message, visible_sections")
+        .select("brand_title, show_brand_title, brand_logo_url, primary_color, welcome_message, visible_sections")
         .eq("id", userId)
         .maybeSingle();
       const row = (data ?? {}) as {
         brand_title?: string | null;
         show_brand_title?: boolean | null;
+        brand_logo_url?: string | null;
         primary_color?: string | null;
         welcome_message?: string | null;
         visible_sections?: Record<string, boolean> | null;
       };
+      const brandLogoPath = row.brand_logo_url ?? null;
       return {
         brandTitle: row.brand_title ?? DEFAULTS.brandTitle,
         showBrandTitle: row.show_brand_title ?? DEFAULTS.showBrandTitle,
+        brandLogoPath,
         primaryColor: row.primary_color ?? DEFAULTS.primaryColor,
         welcome: row.welcome_message ?? DEFAULTS.welcome,
         sections: { ...DEFAULTS.sections, ...(row.visible_sections ?? {}) },
+        brandLogoUrl: await signedLogoUrl(brandLogoPath),
       };
     },
   });
 }
+
 
 function PerfilPage() {
   const qc = useQueryClient();
@@ -102,7 +115,12 @@ function PerfilPage() {
   const [savedColor, setSavedColor] = useState(DEFAULTS.primaryColor);
   const [welcome, setWelcome] = useState(DEFAULTS.welcome);
   const [sections, setSections] = useState<Record<string, boolean>>(DEFAULTS.sections);
+
+
+
+  const [brandLogoPath, setBrandLogoPath] = useState<string | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
 
   const { profile } = useCurrentUser();
   const avatarUrl = useAvatarUrl(profile?.avatar_url);
@@ -148,6 +166,8 @@ function PerfilPage() {
     setSavedColor(initial.primaryColor);
     setWelcome(initial.welcome);
     setSections(initial.sections);
+    setBrandLogoPath(initial.brandLogoPath);
+    setLogoPreview(initial.brandLogoUrl);
   }, [initial]);
 
   useEffect(() => {
@@ -164,6 +184,7 @@ function PerfilPage() {
         .update({
           brand_title: payload.brandTitle,
           show_brand_title: payload.showBrandTitle,
+          brand_logo_url: payload.brandLogoPath,
           primary_color: payload.primaryColor,
           welcome_message: payload.welcome,
           visible_sections: payload.sections,
@@ -173,22 +194,40 @@ function PerfilPage() {
     },
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ["profile-customization"] });
+      qc.invalidateQueries({ queryKey: ["personal-customization"] });
     },
     onError: (e: any) => toast.error(e.message ?? "Erro ao salvar"),
   });
 
-  function onLogoChange(e: React.ChangeEvent<HTMLInputElement>) {
+  async function onLogoChange(e: React.ChangeEvent<HTMLInputElement>) {
     const f = e.target.files?.[0];
+    e.target.value = "";
     if (!f) return;
     if (f.size > 5 * 1024 * 1024) {
       toast.error("Arquivo maior que 5MB");
       return;
     }
-    setLogoPreview(URL.createObjectURL(f));
+    if (!profile?.id) return;
+    setUploadingLogo(true);
+    const ext = (f.name.split(".").pop() || "png").toLowerCase();
+    const path = `${profile.id}/logo-${Date.now()}.${ext}`;
+    const { error: upErr } = await supabase.storage
+      .from("avatars")
+      .upload(path, f, { upsert: true, contentType: f.type || "image/png" });
+    if (upErr) {
+      setUploadingLogo(false);
+      toast.error("Falha ao enviar logo");
+      return;
+    }
+    const { data: signed } = await supabase.storage.from("avatars").createSignedUrl(path, 60 * 60);
+    setBrandLogoPath(path);
+    setLogoPreview(signed?.signedUrl ?? URL.createObjectURL(f));
+    setUploadingLogo(false);
+    toast.success("Logo carregada. Clique em Salvar customizações para confirmar.");
   }
 
   async function saveColor() {
-    await saveMutation.mutateAsync({ brandTitle, showBrandTitle, primaryColor, welcome, sections });
+    await saveMutation.mutateAsync({ brandTitle, showBrandTitle, brandLogoPath, primaryColor, welcome, sections });
     applyPrimaryColor(primaryColor);
     setSavedColor(primaryColor);
   }
@@ -200,7 +239,7 @@ function PerfilPage() {
   }
 
   async function onSave() {
-    await saveMutation.mutateAsync({ brandTitle, showBrandTitle, primaryColor, welcome, sections });
+    await saveMutation.mutateAsync({ brandTitle, showBrandTitle, brandLogoPath, primaryColor, welcome, sections });
     applyPrimaryColor(primaryColor);
     setSavedColor(primaryColor);
     toast("Customizações salvas", {
@@ -210,6 +249,7 @@ function PerfilPage() {
 
 
   }
+
 
   const tabs = [
     { id: "metricas" as const, label: "Métricas", icon: BarChart3 },

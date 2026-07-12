@@ -4,6 +4,7 @@ import { UserAvatarMenu } from "@/components/UserAvatarMenu";
 import { NotificationsButton } from "@/components/NotificationsButton";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import logoUrl from "@/assets/cactus-logo.png";
+import { usePersonalCustomization, isNavItemVisible } from "@/hooks/usePersonalCustomization";
 
 export const ALUNO_NAV = [
   { icon: LayoutDashboard, label: "Início", to: "/meu-treino" as const },
@@ -18,29 +19,40 @@ export const ALUNO_NAV = [
 export function AlunoShell({ children }: { children: React.ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const isActive = (to: string) => pathname === to || (to === "/meu-treino" && pathname.startsWith("/meu-treino"));
+  const custom = usePersonalCustomization();
+  const nav = ALUNO_NAV.filter((n) => isNavItemVisible(n.label, custom.visibleSections));
+  const brandLogo = custom.brandLogoUrl;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Rail lateral (desktop) */}
       <aside className="fixed inset-y-0 left-0 z-40 hidden w-[72px] flex-col items-center gap-2 border-r border-border bg-sidebar py-4 md:flex">
         <div className="mb-2 grid h-10 w-10 place-items-center rounded-xl">
-          <span
-            aria-label="CactusFitness"
-            role="img"
-            className="block h-8 w-8 bg-primary"
-            style={{
-              WebkitMaskImage: `url(${logoUrl})`,
-              maskImage: `url(${logoUrl})`,
-              WebkitMaskRepeat: "no-repeat",
-              maskRepeat: "no-repeat",
-              WebkitMaskPosition: "center",
-              maskPosition: "center",
-              WebkitMaskSize: "contain",
-              maskSize: "contain",
-            }}
-          />
+          {brandLogo ? (
+            <img
+              src={brandLogo}
+              alt={custom.brandTitle || "Logo"}
+              className="h-8 w-8 object-contain"
+            />
+          ) : (
+            <span
+              aria-label={custom.brandTitle || "CactusFitness"}
+              role="img"
+              className="block h-8 w-8 bg-primary"
+              style={{
+                WebkitMaskImage: `url(${logoUrl})`,
+                maskImage: `url(${logoUrl})`,
+                WebkitMaskRepeat: "no-repeat",
+                maskRepeat: "no-repeat",
+                WebkitMaskPosition: "center",
+                maskPosition: "center",
+                WebkitMaskSize: "contain",
+                maskSize: "contain",
+              }}
+            />
+          )}
         </div>
-        {ALUNO_NAV.map(({ icon: Icon, label, to }) => {
+        {nav.map(({ icon: Icon, label, to }) => {
           const active = isActive(to);
           return (
             <Link
@@ -77,4 +89,3 @@ export function AlunoShell({ children }: { children: React.ReactNode }) {
     </div>
   );
 }
-

@@ -21,6 +21,8 @@ import { AvatarCropDialog } from "@/components/AvatarCropDialog";
 import { getMyRanking } from "@/lib/ranking.functions";
 import { toast } from "sonner";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
+import { usePersonalCustomization, isNavItemVisible } from "@/hooks/usePersonalCustomization";
+
 
 
 
@@ -77,27 +79,9 @@ function MeuTreinoPage() {
     }
   }, [loading, profile, navigate]);
 
-  // Aplica a cor principal definida pelo personal do aluno
-  useEffect(() => {
-    if (!profile?.id || profile.role !== "aluno") return;
-    let cancelled = false;
-    (async () => {
-      const { data: link } = await supabase
-        .from("alunos")
-        .select("personal_id")
-        .eq("aluno_user_id", profile.id)
-        .maybeSingle();
-      if (cancelled || !link?.personal_id) return;
-      const { data: personal } = await supabase
-        .from("profiles")
-        .select("primary_color")
-        .eq("id", link.personal_id)
-        .maybeSingle();
-      if (cancelled) return;
-      if (personal?.primary_color) applyPrimaryColor(personal.primary_color);
-    })();
-    return () => { cancelled = true; };
-  }, [profile?.id, profile?.role]);
+  // Aplica customização do personal (cor, logo, boas-vindas, seções visíveis)
+  const personalCustom = usePersonalCustomization();
+
 
   const name = firstName(profile?.full_name, profile?.email);
   const initials = initialsFromName(profile?.full_name, profile?.email);
@@ -287,7 +271,7 @@ function MeuTreinoPage() {
             }}
           />
         </div>
-        {RAIL_ITEMS.map(({ icon: Icon, label, to }) => {
+        {RAIL_ITEMS.filter((i) => isNavItemVisible(i.label, personalCustom.visibleSections)).map(({ icon: Icon, label, to }) => {
           const active = to === "/meu-treino";
           return (
             <Link
@@ -393,6 +377,10 @@ function MeuTreinoPage() {
             </div>
             <div className="min-w-0 flex-1">
               <h2 className="font-display text-2xl font-bold leading-tight">Olá, {name}!</h2>
+              {personalCustom.welcomeMessage && (
+                <p className="mt-1 text-sm text-muted-foreground">{personalCustom.welcomeMessage}</p>
+              )}
+
               <Link
                 to="/ranking"
                 className="mt-1 inline-flex max-w-full items-center gap-1.5 rounded-full border border-border bg-card/60 pl-1 pr-2.5 py-0.5 transition active:opacity-60 hover:bg-accent/40"
