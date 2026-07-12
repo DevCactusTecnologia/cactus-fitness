@@ -377,6 +377,7 @@ function TreinoPage() {
 
   async function completeAll(row: ExerciseRow) {
     const total = (row.sets || 0) + (extraSets[row.id] ?? 0);
+    let markedAny = false;
     for (let i = 0; i < total; i++) {
       const key = `${row.id}:${i}`;
       if (doneSets.has(key)) continue;
@@ -384,6 +385,15 @@ function TreinoPage() {
       const ok = await saveSetLog(row, i, { isExtra });
       if (!ok) return;
       setDoneSets((prev) => new Set(prev).add(key));
+      markedAny = true;
+    }
+    if (markedAny) {
+      const restSec = row.rest_seconds ?? 60;
+      if (restSec > 0) {
+        const rowIdx = rows.findIndex((r) => r.id === row.id);
+        const nextName = rows[rowIdx + 1]?.exercise?.name ?? null;
+        setRest({ total: restSec, left: restSec, nextName });
+      }
     }
   }
 
