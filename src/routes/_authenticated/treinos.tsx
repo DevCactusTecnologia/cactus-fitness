@@ -17,7 +17,10 @@ export const Route = createFileRoute("/_authenticated/treinos")({
 
 type WorkoutItem = {
   id: string;
+  swId: string;
   name: string;
+  sessionLabel: string | null;
+  sessionPosition: number | null;
   status: string | null;
   exercises: number;
 };
@@ -63,22 +66,50 @@ function TreinosPage() {
       const list = sws ?? [];
       if (list.length > 0 && list[0].name) setPlanName(String(list[0].name).split(" - ")[0]);
       const templateIds = Array.from(new Set(list.map((s: any) => s.template_id).filter(Boolean)));
-      const countByTpl: Record<string, number> = {};
+      const sessionsByTpl: Record<string, { position: number; label: string | null; count: number }[]> = {};
       if (templateIds.length) {
         const { data: exs } = await supabase
           .from("workout_template_exercises")
-          .select("template_id")
+          .select("template_id, session_position, session_label")
           .in("template_id", templateIds);
+        const bucket: Record<string, Record<number, { label: string | null; count: number }>> = {};
         (exs ?? []).forEach((e: any) => {
-          countByTpl[e.template_id] = (countByTpl[e.template_id] ?? 0) + 1;
+          const tid = e.template_id;
+          const pos = Number(e.session_position ?? 0);
+          bucket[tid] ??= {};
+          bucket[tid][pos] ??= { label: e.session_label ?? null, count: 0 };
+          bucket[tid][pos].count += 1;
+          if (!bucket[tid][pos].label && e.session_label) bucket[tid][pos].label = e.session_label;
+        });
+        Object.entries(bucket).forEach(([tid, byPos]) => {
+          sessionsByTpl[tid] = Object.entries(byPos)
+            .map(([p, v]) => ({ position: Number(p), label: v.label, count: v.count }))
+            .sort((a, b) => a.position - b.position);
         });
       }
-      const mapped: WorkoutItem[] = list.map((s: any) => ({
-        id: s.id,
-        name: s.name ?? "Treino",
-        status: s.status ?? null,
-        exercises: s.template_id ? (countByTpl[s.template_id] ?? 0) : 0,
-      }));
+      const mapped: WorkoutItem[] = list.flatMap((s: any): WorkoutItem[] => {
+        const sessions = s.template_id ? sessionsByTpl[s.template_id] : undefined;
+        if (!sessions || sessions.length === 0) {
+          return [{
+            id: s.id,
+            swId: s.id,
+            name: s.name ?? "Treino",
+            sessionLabel: null,
+            sessionPosition: null,
+            status: s.status ?? null,
+            exercises: 0,
+          }];
+        }
+        return sessions.map((ss) => ({
+          id: `${s.id}:${ss.position}`,
+          swId: s.id,
+          name: ss.label || s.name || "Treino",
+          sessionLabel: ss.label,
+          sessionPosition: ss.position,
+          status: s.status ?? null,
+          exercises: ss.count,
+        }));
+      });
       if (!cancelled) setItems(mapped);
 
       // Derivar semanas e frequência a partir das datas
@@ -209,7 +240,7 @@ function TreinosPage() {
                     <Link
                       key={it.id}
                       to="/meu-treino/treino/$id"
-                      params={{ id: it.id }}
+                      params={{ id: it.swId }}
                       className={`block w-full rounded-xl p-4 text-left transition-colors active:bg-surface-2/30 ${cardClasses}`}
                     >
                       <div className="flex items-start gap-3">
