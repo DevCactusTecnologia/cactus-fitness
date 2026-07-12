@@ -278,7 +278,20 @@ function TreinoPage() {
     [rows, extraSets],
   );
   const completedSets = doneSets.size;
-  const pct = totalSets ? Math.round((completedSets / totalSets) * 100) : 0;
+  const setPct = totalSets ? Math.round((completedSets / totalSets) * 100) : 0;
+  // Progresso baseado no tempo estimado (tempo por série ~30s + descanso)
+  const estimatedTotalSec = useMemo(
+    () => rows.reduce((acc, r) => {
+      const count = (r.sets ?? 0) + (extraSets[r.id] ?? 0);
+      const perSet = 30 + (r.rest_seconds ?? 60);
+      return acc + count * perSet;
+    }, 0),
+    [rows, extraSets],
+  );
+  const pct = estimatedTotalSec
+    ? Math.min(100, Math.round((timer / estimatedTotalSec) * 100))
+    : setPct;
+  void setPct;
 
   const toggleOpen = (rid: string) =>
     setOpenIds((prev) => {
