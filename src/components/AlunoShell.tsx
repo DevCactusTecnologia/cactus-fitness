@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, Dumbbell, Trophy, HeartPulse, TrendingUp, CreditCard } from "lucide-react";
+import { LayoutDashboard, Dumbbell, TrendingUp, ClipboardList, Trophy, CreditCard } from "lucide-react";
 import { UserAvatarMenu } from "@/components/UserAvatarMenu";
 import logoUrl from "@/assets/cactus-logo.png";
 
@@ -7,8 +7,8 @@ export const ALUNO_NAV = [
   { icon: LayoutDashboard, label: "Início", to: "/meu-treino" as const },
   { icon: Dumbbell, label: "Meus Treinos", to: "/treinos" as const },
   { icon: TrendingUp, label: "Meu Progresso", to: "/meu-progresso" as const },
+  { icon: ClipboardList, label: "Avaliações", to: "/avaliacoes" as const },
   { icon: Trophy, label: "Desafios", to: "/desafios" as const },
-  { icon: HeartPulse, label: "Avaliações", to: "/avaliacoes" as const },
   { icon: CreditCard, label: "Meu Plano", to: "/meu-plano" as const },
 ];
 
