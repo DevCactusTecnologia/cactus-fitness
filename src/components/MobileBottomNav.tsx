@@ -9,7 +9,11 @@ import {
   Settings,
   LogOut,
   ChevronRight,
+  ClipboardList,
+  Trophy,
+  Receipt,
 } from "lucide-react";
+
 import {
   Sheet,
   SheetContent,
@@ -41,9 +45,13 @@ const ITEMS_BY_SCOPE: Record<Scope, Item[]> = {
     { icon: Dumbbell, label: "Treinos", to: "/dashboard/academia/treinos", match: (p) => p.startsWith("/dashboard/academia/treinos") },
   ],
   aluno: [
-    { icon: LayoutDashboard, label: "Início", to: "/dashboard/aluno", match: (p) => p === "/dashboard/aluno" },
-    { icon: Dumbbell, label: "Meus Treinos", to: "/treinos", match: (p) => p.startsWith("/treinos") || p.startsWith("/meu-treino") },
+    { icon: LayoutDashboard, label: "Início", to: "/meu-treino", match: (p) => p === "/meu-treino" },
+    { icon: Dumbbell, label: "Treinos", to: "/treinos", match: (p) => p.startsWith("/treinos") || p.startsWith("/meu-treino/") },
+    { icon: ClipboardList, label: "Avaliações", to: "/avaliacoes", match: (p) => p.startsWith("/avaliacoes") },
+    { icon: Trophy, label: "Desafios", to: "/desafios", match: (p) => p.startsWith("/desafios") },
+    { icon: Receipt, label: "Fatura", to: "/meu-plano", match: (p) => p.startsWith("/meu-plano") },
   ],
+
 };
 
 function detectScope(pathname: string): Scope {
@@ -70,9 +78,10 @@ export function MobileBottomNav({ scope: scopeProp }: { scope?: Scope } = {}) {
   const items = ITEMS_BY_SCOPE[scope];
 
   const linkClass = (active: boolean) =>
-    `relative flex min-w-0 flex-1 flex-col items-center gap-0.5 py-1 text-[10px] sm:text-[11px] ${
+    `relative flex min-w-0 flex-1 flex-col items-center gap-0.5 py-1 text-[9px] sm:text-[10px] ${
       active ? "text-primary" : "text-muted-foreground"
     }`;
+
 
   return (
     <nav className="fixed inset-x-0 bottom-0 z-40 flex w-full max-w-full items-stretch justify-around overflow-hidden border-t border-border bg-background/95 px-1.5 py-2 backdrop-blur md:hidden">
@@ -81,7 +90,7 @@ export function MobileBottomNav({ scope: scopeProp }: { scope?: Scope } = {}) {
         return (
           <Link key={i.label} to={i.to!} className={linkClass(active)}>
             <span className="relative">
-              <i.icon className="h-5 w-5" strokeWidth={1.75} />
+              <i.icon className="h-[18px] w-[18px]" strokeWidth={1.75} />
               {i.badge && (
                 <span className="absolute -right-2 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-destructive px-1 text-[10px] font-semibold text-white">
                   {i.badge}
@@ -96,7 +105,7 @@ export function MobileBottomNav({ scope: scopeProp }: { scope?: Scope } = {}) {
       <Sheet>
         <SheetTrigger asChild>
           <button type="button" className={linkClass(false)}>
-            <MenuIcon className="h-5 w-5" strokeWidth={1.75} />
+            <MenuIcon className="h-[18px] w-[18px]" strokeWidth={1.75} />
             <span className="max-w-full truncate px-0.5">Menu</span>
           </button>
         </SheetTrigger>
