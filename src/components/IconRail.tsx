@@ -3,12 +3,15 @@ import {
   LayoutDashboard,
   Users,
   Dumbbell,
-  Flame,
-  HeartPulse,
   Trophy,
-  Shield,
   Wallet,
   Building2,
+  UserCog,
+  Library,
+  ClipboardList,
+  Settings,
+  TrendingUp,
+  CreditCard,
 } from "lucide-react";
 import { UserAvatarMenu } from "@/components/UserAvatarMenu";
 import logoUrl from "@/assets/cactus-logo.png";
@@ -22,33 +25,43 @@ type NavItem = {
   match: (path: string) => boolean;
 };
 
+/**
+ * Ordering rationale (intuitive daily flow):
+ * Painel → quem (pessoas) → o quê (conteúdo/treino) → medir → engajar → dinheiro → config.
+ * Icon rationale: each glyph must map to the page's *domain*, not a generic vibe.
+ */
 const NAV_BY_SCOPE: Record<Scope, NavItem[]> = {
   personal: [
     { icon: LayoutDashboard, label: "Início", to: "/", match: (p) => p === "/" },
     { icon: Users, label: "Alunos", to: "/dashboard/personal/alunos", match: (p) => p.startsWith("/dashboard/personal/alunos") },
     { icon: Dumbbell, label: "Treinos", to: "/dashboard/personal/treinos", match: (p) => p.startsWith("/dashboard/personal/treinos") },
-
+    { icon: Library, label: "Exercícios", to: "/dashboard/personal/exercicios", match: (p) => p.startsWith("/dashboard/personal/exercicios") },
+    { icon: ClipboardList, label: "Avaliações", to: "/dashboard/personal/avaliacoes", match: (p) => p.startsWith("/dashboard/personal/avaliacoes") },
     { icon: Trophy, label: "Desafios", to: "/dashboard/personal/desafios", match: (p) => p.startsWith("/dashboard/personal/desafios") },
-    { icon: HeartPulse, label: "Avaliações", to: "/dashboard/personal/avaliacoes", match: (p) => p.startsWith("/dashboard/personal/avaliacoes") },
+    { icon: Wallet, label: "Financeiro", to: "/dashboard/personal/financeiro", match: (p) => p.startsWith("/dashboard/personal/financeiro") },
+    { icon: Building2, label: "Academia", to: "/dashboard/personal/academia", match: (p) => p.startsWith("/dashboard/personal/academia") },
   ],
   academia: [
     { icon: LayoutDashboard, label: "Painel", to: "/dashboard/academia", match: (p) => p === "/dashboard/academia" },
     { icon: Users, label: "Alunos", to: "/dashboard/academia/alunos" as string, match: (p) => p.startsWith("/dashboard/academia/alunos") },
-    { icon: Shield, label: "Personais", to: "/dashboard/academia/personais" as string, match: (p) => p.startsWith("/dashboard/academia/personais") },
+    { icon: UserCog, label: "Personais", to: "/dashboard/academia/personais" as string, match: (p) => p.startsWith("/dashboard/academia/personais") },
     { icon: Dumbbell, label: "Treinos", to: "/dashboard/academia/treinos" as string, match: (p) => p.startsWith("/dashboard/academia/treinos") },
-    { icon: Flame, label: "Exercícios", to: "/dashboard/academia/exercicios" as string, match: (p) => p.startsWith("/dashboard/academia/exercicios") },
-    { icon: HeartPulse, label: "Avaliações", to: "/dashboard/academia/avaliacoes" as string, match: (p) => p.startsWith("/dashboard/academia/avaliacoes") },
+    { icon: Library, label: "Exercícios", to: "/dashboard/academia/exercicios" as string, match: (p) => p.startsWith("/dashboard/academia/exercicios") },
+    { icon: ClipboardList, label: "Avaliações", to: "/dashboard/academia/avaliacoes" as string, match: (p) => p.startsWith("/dashboard/academia/avaliacoes") },
     { icon: Trophy, label: "Desafios", to: "/dashboard/academia/desafios" as string, match: (p) => p.startsWith("/dashboard/academia/desafios") },
     { icon: Wallet, label: "Financeiro", to: "/dashboard/academia/financeiro" as string, match: (p) => p.startsWith("/dashboard/academia/financeiro") },
-    { icon: Building2, label: "Configurações", to: "/dashboard/academia/configuracoes" as string, match: (p) => p.startsWith("/dashboard/academia/configuracoes") },
+    { icon: Settings, label: "Configurações", to: "/dashboard/academia/configuracoes" as string, match: (p) => p.startsWith("/dashboard/academia/configuracoes") },
   ],
   aluno: [
-    { icon: LayoutDashboard, label: "Início", to: "/dashboard/aluno", match: (p) => p === "/dashboard/aluno" },
+    { icon: LayoutDashboard, label: "Início", to: "/meu-treino", match: (p) => p === "/meu-treino" },
     { icon: Dumbbell, label: "Meus Treinos", to: "/treinos", match: (p) => p.startsWith("/treinos") || p.startsWith("/meu-treino") },
-    { icon: HeartPulse, label: "Avaliações", to: "/avaliacoes", match: (p) => p.startsWith("/avaliacoes") },
+    { icon: TrendingUp, label: "Meu Progresso", to: "/meu-progresso", match: (p) => p.startsWith("/meu-progresso") },
+    { icon: ClipboardList, label: "Avaliações", to: "/avaliacoes", match: (p) => p.startsWith("/avaliacoes") },
     { icon: Trophy, label: "Desafios", to: "/desafios", match: (p) => p.startsWith("/desafios") },
+    { icon: CreditCard, label: "Meu Plano", to: "/meu-plano", match: (p) => p.startsWith("/meu-plano") },
   ],
 };
+
 
 function detectScope(pathname: string): Scope {
   if (pathname.startsWith("/dashboard/academia")) return "academia";
