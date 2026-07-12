@@ -550,7 +550,7 @@ function TreinoPage() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="fixed top-0 inset-x-0 z-30 bg-background/80 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-md items-center justify-between gap-2 px-3 py-2 sm:px-4 sm:py-3">
+        <div className="mx-auto flex max-w-lg items-center justify-between gap-2 px-3 py-2 sm:px-4 sm:py-3">
           <div className="flex min-w-0 items-center gap-2 sm:gap-3">
             <button onClick={() => navigate({ to: "/meu-treino" })} className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-muted-foreground hover:bg-accent sm:h-9 sm:w-9" aria-label="Fechar">
               <X className="h-4 w-4 sm:h-5 sm:w-5" />
