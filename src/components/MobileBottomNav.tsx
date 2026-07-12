@@ -1,6 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
   LayoutDashboard,
+  Home,
   Users,
   Menu as MenuIcon,
   Dumbbell,

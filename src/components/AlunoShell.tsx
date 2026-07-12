@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { LayoutDashboard, Dumbbell, TrendingUp, ClipboardList, Trophy, CreditCard } from "lucide-react";
+import { LayoutDashboard, Home, Dumbbell, TrendingUp, ClipboardList, Trophy, CreditCard } from "lucide-react";
 import { UserAvatarMenu } from "@/components/UserAvatarMenu";
 import { NotificationsButton } from "@/components/NotificationsButton";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
