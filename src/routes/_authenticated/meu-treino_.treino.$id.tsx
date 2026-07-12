@@ -15,6 +15,9 @@ import { jsPDF } from "jspdf";
 
 export const Route = createFileRoute("/_authenticated/meu-treino_/treino/$id")({
   head: () => ({ meta: [{ title: "Treino · cactusfitness" }] }),
+  validateSearch: (search: Record<string, unknown>) => ({
+    sessao: typeof search.sessao === "string" ? search.sessao : undefined,
+  }),
   component: TreinoPage,
 });
 
@@ -203,6 +206,9 @@ function TreinoPage() {
         }
         if (sid) {
           setSessionId(sid);
+          // Reflete a sessão ativa na URL: /meu-treino/treino/<id>?sessao=sessao_<curto>
+          const short = sid.replace(/-/g, "").slice(0, 10);
+          navigate({ to: "/meu-treino/treino/$id", params: { id }, search: { sessao: `sessao_${short}` }, replace: true });
           const { data: logs } = await supabase
             .from("set_logs")
             .select("template_exercise_id, set_index, reps, load, rpe, is_extra")
@@ -575,7 +581,7 @@ function TreinoPage() {
       <header className="fixed top-0 inset-x-0 z-30 bg-background/80 backdrop-blur-xl">
         <div className="mx-auto flex max-w-lg items-center justify-between gap-2 px-3 py-2 sm:px-4 sm:py-3">
           <div className="flex min-w-0 items-center gap-2 sm:gap-3">
-            <button onClick={() => navigate({ to: "/meu-treino" })} className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-muted-foreground hover:bg-accent sm:h-9 sm:w-9" aria-label="Fechar">
+            <button onClick={() => setDiscardOpen(true)} className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-muted-foreground hover:bg-accent sm:h-9 sm:w-9" aria-label="Descartar treino">
               <X className="h-4 w-4 sm:h-5 sm:w-5" />
             </button>
             <div className="min-w-0">
@@ -978,41 +984,42 @@ function TreinoPage() {
             </div>
           </footer>
 
-          {discardOpen && (
-            <div
-              className="fixed inset-0 z-[10001] flex items-center justify-center bg-black/60 p-6"
-              onClick={() => !saving && setDiscardOpen(false)}
-            >
-              <div
-                className="w-full max-w-sm space-y-4 rounded-xl border border-border bg-card p-6"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <div className="flex items-center gap-3">
-                  <AlertTriangle className="h-6 w-6 shrink-0 text-destructive" />
-                  <h3 className="text-lg font-bold">Descartar treino?</h3>
-                </div>
-                <p className="text-sm text-muted-foreground">
-                  Todo o progresso deste treino será perdido. Tem certeza que deseja sair?
-                </p>
-                <div className="flex gap-3">
-                  <button
-                    onClick={() => setDiscardOpen(false)}
-                    disabled={saving}
-                    className="inline-flex h-11 flex-1 items-center justify-center rounded-full border border-border bg-transparent px-6 text-sm font-semibold text-foreground transition hover:border-primary hover:text-primary disabled:opacity-50"
-                  >
-                    Continuar
-                  </button>
-                  <button
-                    onClick={() => { setDiscardOpen(false); void discardFinal(); }}
-                    disabled={saving}
-                    className="inline-flex h-11 flex-1 items-center justify-center rounded-full bg-destructive px-6 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
-                  >
-                    Descartar
-                  </button>
-                </div>
-              </div>
+        </div>
+      )}
+
+      {discardOpen && (
+        <div
+          className="fixed inset-0 z-[10001] flex items-center justify-center bg-black/60 p-6"
+          onClick={() => !saving && setDiscardOpen(false)}
+        >
+          <div
+            className="w-full max-w-sm space-y-4 rounded-xl border border-border bg-card p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3">
+              <AlertTriangle className="h-6 w-6 shrink-0 text-destructive" />
+              <h3 className="text-lg font-bold">Descartar treino?</h3>
             </div>
-          )}
+            <p className="text-sm text-muted-foreground">
+              Todo o progresso deste treino será perdido. Tem certeza que deseja sair?
+            </p>
+            <div className="flex gap-3">
+              <button
+                onClick={() => setDiscardOpen(false)}
+                disabled={saving}
+                className="inline-flex h-11 flex-1 items-center justify-center rounded-full border border-border bg-transparent px-6 text-sm font-semibold text-foreground transition hover:border-primary hover:text-primary disabled:opacity-50"
+              >
+                Continuar
+              </button>
+              <button
+                onClick={() => { setDiscardOpen(false); void discardFinal(); }}
+                disabled={saving}
+                className="inline-flex h-11 flex-1 items-center justify-center rounded-full bg-destructive px-6 text-sm font-semibold text-white transition hover:opacity-90 disabled:opacity-50"
+              >
+                Descartar
+              </button>
+            </div>
+          </div>
         </div>
       )}
 
