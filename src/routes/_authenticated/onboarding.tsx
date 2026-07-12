@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
-import { Barbell, User } from "@phosphor-icons/react";
+import { Barbell, User, Buildings } from "@phosphor-icons/react";
 import { Loader2, ArrowLeft, ArrowRight, AlertCircle, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { completeOnboarding } from "@/lib/onboarding.functions";
@@ -14,7 +14,7 @@ export const Route = createFileRoute("/_authenticated/onboarding")({
   component: OnboardingPage,
 });
 
-type Role = "personal" | "aluno";
+type Role = "owner" | "personal" | "aluno";
 type Step = "role" | "details";
 
 function OnboardingPage() {
