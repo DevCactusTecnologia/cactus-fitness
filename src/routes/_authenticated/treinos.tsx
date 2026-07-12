@@ -236,7 +236,7 @@ function TreinosPage() {
                   return (
                     <Link
                       key={it.id}
-                      to="/meu-treino/treino/$id"
+                      to="/meu-treino/preview/$id"
                       params={{ id: it.swId }}
                       search={it.sessionPosition != null ? { bloco: it.sessionPosition } : undefined}
                       className={`block w-full rounded-xl p-4 text-left transition-colors active:bg-surface-2/30 ${cardClasses}`}
