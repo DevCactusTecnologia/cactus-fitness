@@ -387,6 +387,30 @@ function TreinoPage() {
     }
   }
 
+  async function saveExerciseNote() {
+    if (!noteModal || !sessionId || savingNote) return;
+    const trimmed = noteDraft.trim();
+    setSavingNote(true);
+    try {
+      if (!trimmed) {
+        await supabase.from("session_exercise_notes").delete()
+          .eq("session_id", sessionId)
+          .eq("template_exercise_id", noteModal.rowId);
+        setExerciseNotes((p) => { const n = { ...p }; delete n[noteModal.rowId]; return n; });
+      } else {
+        const { error } = await supabase.from("session_exercise_notes").upsert(
+          { session_id: sessionId, template_exercise_id: noteModal.rowId, note: trimmed },
+          { onConflict: "session_id,template_exercise_id" },
+        );
+        if (error) { toast.error("Erro ao salvar observação: " + error.message); return; }
+        setExerciseNotes((p) => ({ ...p, [noteModal.rowId]: trimmed }));
+      }
+      setNoteModal(null);
+    } finally {
+      setSavingNote(false);
+    }
+  }
+
   const pendingRows = useMemo(() => {
     return rows
       .map((r) => {
