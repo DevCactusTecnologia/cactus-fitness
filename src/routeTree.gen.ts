@@ -19,6 +19,7 @@ import { Route as AuthenticatedPerfilRouteImport } from './routes/_authenticated
 import { Route as AuthenticatedOnboardingRouteImport } from './routes/_authenticated/onboarding'
 import { Route as AuthenticatedMeuTreinoRouteImport } from './routes/_authenticated/meu-treino'
 import { Route as AuthenticatedMeuProgressoRouteImport } from './routes/_authenticated/meu-progresso'
+import { Route as AuthenticatedMeuPlanoRouteImport } from './routes/_authenticated/meu-plano'
 import { Route as AuthenticatedDesafiosRouteImport } from './routes/_authenticated/desafios'
 import { Route as AuthenticatedAvaliacoesRouteImport } from './routes/_authenticated/avaliacoes'
 import { Route as AuthenticatedPersonalRouteRouteImport } from './routes/_authenticated/_personal/route'
@@ -114,6 +115,11 @@ const AuthenticatedMeuProgressoRoute =
     path: '/meu-progresso',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const AuthenticatedMeuPlanoRoute = AuthenticatedMeuPlanoRouteImport.update({
+  id: '/meu-plano',
+  path: '/meu-plano',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedDesafiosRoute = AuthenticatedDesafiosRouteImport.update({
   id: '/desafios',
   path: '/desafios',
@@ -383,6 +389,7 @@ export interface FileRoutesByFullPath {
   '/reset-password': typeof ResetPasswordRoute
   '/avaliacoes': typeof AuthenticatedAvaliacoesRoute
   '/desafios': typeof AuthenticatedDesafiosRoute
+  '/meu-plano': typeof AuthenticatedMeuPlanoRoute
   '/meu-progresso': typeof AuthenticatedMeuProgressoRoute
   '/meu-treino': typeof AuthenticatedMeuTreinoRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
@@ -435,6 +442,7 @@ export interface FileRoutesByTo {
   '/': typeof AuthenticatedIndexRoute
   '/avaliacoes': typeof AuthenticatedAvaliacoesRoute
   '/desafios': typeof AuthenticatedDesafiosRoute
+  '/meu-plano': typeof AuthenticatedMeuPlanoRoute
   '/meu-progresso': typeof AuthenticatedMeuProgressoRoute
   '/meu-treino': typeof AuthenticatedMeuTreinoRoute
   '/onboarding': typeof AuthenticatedOnboardingRoute
@@ -491,6 +499,7 @@ export interface FileRoutesById {
   '/_authenticated/_personal': typeof AuthenticatedPersonalRouteRouteWithChildren
   '/_authenticated/avaliacoes': typeof AuthenticatedAvaliacoesRoute
   '/_authenticated/desafios': typeof AuthenticatedDesafiosRoute
+  '/_authenticated/meu-plano': typeof AuthenticatedMeuPlanoRoute
   '/_authenticated/meu-progresso': typeof AuthenticatedMeuProgressoRoute
   '/_authenticated/meu-treino': typeof AuthenticatedMeuTreinoRoute
   '/_authenticated/onboarding': typeof AuthenticatedOnboardingRoute
@@ -546,6 +555,7 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/avaliacoes'
     | '/desafios'
+    | '/meu-plano'
     | '/meu-progresso'
     | '/meu-treino'
     | '/onboarding'
@@ -598,6 +608,7 @@ export interface FileRouteTypes {
     | '/'
     | '/avaliacoes'
     | '/desafios'
+    | '/meu-plano'
     | '/meu-progresso'
     | '/meu-treino'
     | '/onboarding'
@@ -653,6 +664,7 @@ export interface FileRouteTypes {
     | '/_authenticated/_personal'
     | '/_authenticated/avaliacoes'
     | '/_authenticated/desafios'
+    | '/_authenticated/meu-plano'
     | '/_authenticated/meu-progresso'
     | '/_authenticated/meu-treino'
     | '/_authenticated/onboarding'
@@ -777,6 +789,13 @@ declare module '@tanstack/react-router' {
       path: '/meu-progresso'
       fullPath: '/meu-progresso'
       preLoaderRoute: typeof AuthenticatedMeuProgressoRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/meu-plano': {
+      id: '/_authenticated/meu-plano'
+      path: '/meu-plano'
+      fullPath: '/meu-plano'
+      preLoaderRoute: typeof AuthenticatedMeuPlanoRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/desafios': {
@@ -1240,6 +1259,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedPersonalRouteRoute: typeof AuthenticatedPersonalRouteRouteWithChildren
   AuthenticatedAvaliacoesRoute: typeof AuthenticatedAvaliacoesRoute
   AuthenticatedDesafiosRoute: typeof AuthenticatedDesafiosRoute
+  AuthenticatedMeuPlanoRoute: typeof AuthenticatedMeuPlanoRoute
   AuthenticatedMeuProgressoRoute: typeof AuthenticatedMeuProgressoRoute
   AuthenticatedMeuTreinoRoute: typeof AuthenticatedMeuTreinoRoute
   AuthenticatedOnboardingRoute: typeof AuthenticatedOnboardingRoute
@@ -1258,6 +1278,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedPersonalRouteRoute: AuthenticatedPersonalRouteRouteWithChildren,
   AuthenticatedAvaliacoesRoute: AuthenticatedAvaliacoesRoute,
   AuthenticatedDesafiosRoute: AuthenticatedDesafiosRoute,
+  AuthenticatedMeuPlanoRoute: AuthenticatedMeuPlanoRoute,
   AuthenticatedMeuProgressoRoute: AuthenticatedMeuProgressoRoute,
   AuthenticatedMeuTreinoRoute: AuthenticatedMeuTreinoRoute,
   AuthenticatedOnboardingRoute: AuthenticatedOnboardingRoute,
