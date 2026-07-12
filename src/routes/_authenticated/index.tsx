@@ -50,24 +50,40 @@ function Sparkline({ data = [] }: { data?: number[] }) {
   const width = 72;
   const height = 22;
   const pad = 2;
-  const series = data.length > 0 ? data : [0];
+  // Ensure at least 2 points so a visible line is drawn even without data.
+  const raw = data.length > 0 ? data : [];
+  const series = raw.length >= 2 ? raw : raw.length === 1 ? [raw[0], raw[0]] : [0, 0];
   const max = Math.max(...series, 1);
   const min = Math.min(...series, 0);
   const range = Math.max(max - min, 1);
-  const stepX = series.length > 1 ? (width - pad * 2) / (series.length - 1) : 0;
+  const stepX = (width - pad * 2) / (series.length - 1);
   const points = series.map((v, i) => {
     const x = pad + i * stepX;
-    const y = height - pad - ((v - min) / range) * (height - pad * 2);
+    const flat = max === min;
+    const y = flat ? height - pad - (height - pad * 2) / 2 : height - pad - ((v - min) / range) * (height - pad * 2);
     return [x, y] as const;
   });
   const d = points.map(([x, y], i) => `${i === 0 ? "M" : "L"} ${x.toFixed(2)} ${y.toFixed(2)}`).join(" ");
+  const areaD =
+    d +
+    ` L ${(width - pad).toFixed(2)} ${(height - pad).toFixed(2)}` +
+    ` L ${pad.toFixed(2)} ${(height - pad).toFixed(2)} Z`;
   const stroke = "hsl(var(--primary))";
+  const gradId = "spark-fill";
   return (
     <svg viewBox={`0 0 ${width} ${height}`} className="h-[22px] w-[72px] overflow-visible">
+      <defs>
+        <linearGradient id={gradId} x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%" stopColor={stroke} stopOpacity="0.35" />
+          <stop offset="100%" stopColor={stroke} stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <path d={areaD} fill={`url(#${gradId})`} stroke="none" />
       <path d={d} fill="none" stroke={stroke} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
   );
 }
+
 
 function KpiCard({
   label, value, sub, trend, spark,
