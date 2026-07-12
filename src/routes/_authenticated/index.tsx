@@ -328,6 +328,7 @@ function ActionButton({ icon: Icon, label, onClick }: { icon: React.ElementType;
 function NextEventCard() {
   const [event, setEvent] = useState<{ id: string; title: string; event_date: string; event_time: string; location: string | null } | null>(null);
   useEffect(() => {
+    let cancelled = false;
     const today = new Date().toISOString().slice(0, 10);
     supabase
       .from("events")
@@ -337,8 +338,10 @@ function NextEventCard() {
       .order("event_time", { ascending: true })
       .limit(1)
       .maybeSingle()
-      .then(({ data }) => setEvent(data as never));
+      .then(({ data }) => { if (!cancelled) setEvent(data as never); });
+    return () => { cancelled = true; };
   }, []);
+
   if (!event) return null;
   const d = new Date(`${event.event_date}T${event.event_time}`);
   const dateLabel = `${d.getDate()} de ${d.toLocaleDateString("pt-BR", { month: "long" })} às ${event.event_time.slice(0, 5)}`;
