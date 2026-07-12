@@ -15,6 +15,9 @@ import { jsPDF } from "jspdf";
 
 export const Route = createFileRoute("/_authenticated/meu-treino_/treino/$id")({
   head: () => ({ meta: [{ title: "Treino · cactusfitness" }] }),
+  validateSearch: (search: Record<string, unknown>) => ({
+    sessao: typeof search.sessao === "string" ? search.sessao : undefined,
+  }),
   component: TreinoPage,
 });
 
