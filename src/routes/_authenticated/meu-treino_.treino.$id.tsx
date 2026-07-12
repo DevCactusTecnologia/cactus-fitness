@@ -632,24 +632,24 @@ function TreinoPage() {
         </div>
       )}
 
-      <main className="mx-auto max-w-md px-4 pt-[76px] pb-28">
+      <main className="mx-auto max-w-lg px-4 pt-[76px] pb-28">
         {loading && (
-          <div className="rounded-2xl border border-border bg-card p-6 text-center text-sm text-muted-foreground">
+          <div className="rounded-xl border border-border bg-card p-6 text-center text-sm text-muted-foreground">
             Carregando exercícios...
           </div>
         )}
 
 
-        <div className="my-4 rounded-2xl border border-primary/25 bg-gradient-to-r from-primary/15 via-primary/5 to-transparent px-5 py-4">
-          <div className="inline-flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-primary shadow-[0_0_10px] shadow-primary" />
-            <span className="font-display text-sm font-bold text-primary">{blockLabel}</span>
+        <div className="my-4 flex items-center gap-2 rounded-xl border border-primary/25 bg-primary/5 px-3 py-2">
+          <span className="size-2.5 shrink-0 rounded-full bg-primary" aria-hidden />
+          <div className="min-w-0 flex-1">
+            <p className="font-display text-sm font-bold text-primary">{blockLabel}</p>
+            <p className="text-[0.625rem] text-fg-muted">Bloco 1 de 1 · {rows.length} exercícios</p>
           </div>
-          <p className="mt-1 text-xs text-muted-foreground">Bloco 1 de 1 · {rows.length} exercícios</p>
         </div>
 
         {!loading && rows.length === 0 && (
-          <div className="rounded-2xl border border-border bg-card p-6 text-center text-sm text-muted-foreground">
+          <div className="rounded-xl border border-border bg-card p-6 text-center text-sm text-muted-foreground">
             Este treino ainda não possui exercícios.
           </div>
         )}
