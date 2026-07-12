@@ -77,7 +77,7 @@ function TreinoPage() {
   const [runningSet, setRunningSet] = useState<{ rowId: string; index: number; startedAt: number } | null>(null);
   const [nowTick, setNowTick] = useState(0);
   const [timer, setTimer] = useState(0);
-  const [rest, setRest] = useState<{ total: number; left: number } | null>(null);
+  const [rest, setRest] = useState<{ total: number; left: number; nextName: string | null } | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [rpePrompt, setRpePrompt] = useState<{ row: ExerciseRow; idx: number } | null>(null);
   const startedAtRef = useRef<number>(Date.now());
