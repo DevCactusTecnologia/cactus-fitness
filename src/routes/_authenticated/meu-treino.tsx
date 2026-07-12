@@ -42,7 +42,14 @@ const RAIL_ITEMS = [
   { icon: CreditCard, label: "Meu Plano", to: "/meu-plano" as const },
 ];
 
-const MOBILE_NAV_ITEMS = RAIL_ITEMS.filter((i) => i.to !== "/meu-progresso" && i.to !== "/meu-plano");
+const MOBILE_NAV_ITEMS: { icon: any; label: string; to: (typeof RAIL_ITEMS)[number]["to"] }[] = [
+  { icon: LayoutDashboard, label: "Início", to: "/meu-treino" },
+  { icon: Dumbbell, label: "Treinos", to: "/treinos" },
+  { icon: ClipboardList, label: "Avaliações", to: "/avaliacoes" },
+  { icon: Trophy, label: "Desafios", to: "/desafios" },
+  { icon: Receipt, label: "Fatura", to: "/meu-plano" },
+];
+
 
 
 
@@ -553,13 +560,14 @@ function MeuTreinoPage() {
               <Link
                 key={label}
                 to={to}
-                className={`relative flex flex-col items-center gap-1 py-2.5 text-[10px] font-medium ${
+                className={`relative flex flex-col items-center gap-1 py-2.5 text-[9px] font-medium ${
                   active ? "text-primary" : "text-muted-foreground"
                 }`}
               >
-                <Icon className="h-5 w-5" strokeWidth={active ? 2.25 : 1.75} />
+                <Icon className="h-[18px] w-[18px]" strokeWidth={active ? 2.25 : 1.75} />
                 {label}
               </Link>
+
             );
           })}
         </div>
