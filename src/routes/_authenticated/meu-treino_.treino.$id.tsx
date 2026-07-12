@@ -81,6 +81,10 @@ function TreinoPage() {
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [rpePrompt, setRpePrompt] = useState<{ row: ExerciseRow; idx: number } | null>(null);
   const [pendingOpen, setPendingOpen] = useState(false);
+  const [completedOpen, setCompletedOpen] = useState(false);
+  const [finalRpe, setFinalRpe] = useState<number | null>(null);
+  const [finalNotes, setFinalNotes] = useState("");
+  const [saving, setSaving] = useState(false);
   const startedAtRef = useRef<number>(Date.now());
 
   // Cor principal do personal
