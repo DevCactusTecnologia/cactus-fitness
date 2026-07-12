@@ -562,32 +562,32 @@ function TreinoPage() {
                             </span>
                           </div>
                           {hasLoadCol && (
-                            <div className="flex h-10 w-24 items-center rounded-md border border-border bg-background focus-within:ring-2 focus-within:ring-primary">
+                            <div className={`flex h-10 w-24 items-center rounded-md border bg-background focus-within:ring-2 focus-within:ring-primary ${done ? "border-[hsl(var(--success))]" : "border-border"}`}>
                               <input
                                 type="text"
                                 inputMode="decimal"
                                 placeholder={r.load ? String(r.load) : "0"}
                                 value={loads[loadKey] ?? ""}
                                 onChange={(e) => setLoads((p) => ({ ...p, [loadKey]: e.target.value }))}
-                                className="h-full min-w-0 flex-1 bg-transparent px-1 text-center text-sm font-semibold tabular-nums outline-none placeholder:text-foreground/40"
+                                className={`h-full min-w-0 flex-1 bg-transparent px-1 text-center text-sm font-semibold tabular-nums outline-none placeholder:text-foreground/40 ${done ? "text-[hsl(var(--success))]" : ""}`}
                               />
-                              <span className="pr-2 text-[10px] font-semibold uppercase tracking-wide text-foreground/60">kg</span>
+                              <span className={`pr-2 text-[10px] font-semibold uppercase tracking-wide ${done ? "text-[hsl(var(--success))]" : "text-foreground/60"}`}>kg</span>
                             </div>
                           )}
-                          <div className="flex h-10 w-24 items-center rounded-md border border-border bg-background focus-within:ring-2 focus-within:ring-primary">
+                          <div className={`flex h-10 w-24 items-center rounded-md border bg-background focus-within:ring-2 focus-within:ring-primary ${done ? "border-[hsl(var(--success))]" : "border-border"}`}>
                             <input
                               type="text"
                               inputMode="numeric"
                               placeholder={String(r.reps ?? 12)}
                               value={reps[repsKey] ?? ""}
                               onChange={(e) => setReps((p) => ({ ...p, [repsKey]: e.target.value }))}
-                              className="h-full min-w-0 flex-1 bg-transparent px-1 text-center text-sm font-semibold tabular-nums outline-none placeholder:text-foreground/40"
+                              className={`h-full min-w-0 flex-1 bg-transparent px-1 text-center text-sm font-semibold tabular-nums outline-none placeholder:text-foreground/40 ${done ? "text-[hsl(var(--success))]" : ""}`}
                             />
-                            <span className="pr-2 text-[10px] font-semibold uppercase tracking-wide text-foreground/60">reps</span>
+                            <span className={`pr-2 text-[10px] font-semibold uppercase tracking-wide ${done ? "text-[hsl(var(--success))]" : "text-foreground/60"}`}>reps</span>
                           </div>
                           <div
                             title={`Descansar ${restLabel} após esta série`}
-                            className="grid h-10 w-14 place-items-center rounded-md border border-border bg-muted/40 text-xs font-semibold tabular-nums text-foreground/90"
+                            className={`grid h-10 w-14 place-items-center rounded-md border text-xs font-semibold tabular-nums ${done ? "border-[hsl(var(--success))] text-[hsl(var(--success))] bg-background" : "border-border bg-muted/40 text-foreground/90"}`}
                           >
                             {restLabel}
                           </div>
