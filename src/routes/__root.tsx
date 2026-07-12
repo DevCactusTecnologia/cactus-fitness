@@ -14,6 +14,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { supabase } from "@/integrations/supabase/client";
 import { Toaster } from "@/components/ui/sonner";
 import { ConfirmDialogHost } from "@/components/ui/confirm-dialog";
+import { applyPrimaryColor } from "@/lib/theme";
 
 function NotFoundComponent() {
   return (
@@ -133,7 +134,7 @@ function RootComponent() {
       if (raw) {
         const parsed = JSON.parse(raw);
         if (parsed?.primaryColor) {
-          import("./_authenticated/perfil").then((m) => m.applyPrimaryColor(parsed.primaryColor));
+          applyPrimaryColor(parsed.primaryColor);
         }
       }
     } catch {}

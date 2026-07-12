@@ -11,7 +11,7 @@ import { useCurrentUser, useSignOut, firstName, initialsFromName } from "@/lib/a
 import { colorForId } from "@/lib/avatar-color";
 import { UserAvatarMenu } from "@/components/UserAvatarMenu";
 import { supabase } from "@/integrations/supabase/client";
-import { applyPrimaryColor } from "@/routes/_authenticated/perfil";
+import { applyPrimaryColor } from "@/lib/theme";
 import logoUrl from "@/assets/cactus-logo.png";
 import { useAvatarUrl } from "@/hooks/useAvatarUrl";
 import { useQueryClient } from "@tanstack/react-query";
