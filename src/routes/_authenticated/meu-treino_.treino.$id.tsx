@@ -80,6 +80,7 @@ function TreinoPage() {
   const [rest, setRest] = useState<{ total: number; left: number; nextName: string | null } | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [rpePrompt, setRpePrompt] = useState<{ row: ExerciseRow; idx: number } | null>(null);
+  const [pendingOpen, setPendingOpen] = useState(false);
   const startedAtRef = useRef<number>(Date.now());
 
   // Cor principal do personal
@@ -369,7 +370,18 @@ function TreinoPage() {
     }
   }
 
-  async function finish() {
+  const pendingRows = useMemo(() => {
+    return rows
+      .map((r) => {
+        const total = (r.sets || 0) + (extraSets[r.id] ?? 0);
+        let done = 0;
+        for (let i = 0; i < total; i++) if (doneSets.has(`${r.id}:${i}`)) done++;
+        return { row: r, total, pending: total - done };
+      })
+      .filter((x) => x.pending > 0);
+  }, [rows, extraSets, doneSets]);
+
+  async function doFinish() {
     if (sessionId) {
       const dur = Math.floor((Date.now() - startedAtRef.current) / 1000);
       await supabase.from("workout_sessions").update({
@@ -381,6 +393,14 @@ function TreinoPage() {
     await supabase.from("student_workouts").update({ status: "concluido" }).eq("id", id);
     toast.success("Treino concluído!");
     navigate({ to: "/meu-treino" });
+  }
+
+  function finish() {
+    if (pendingRows.length > 0) {
+      setPendingOpen(true);
+      return;
+    }
+    void doFinish();
   }
 
   function downloadPdf() {
@@ -708,6 +728,60 @@ function TreinoPage() {
           </button>
         </div>
       </div>
+
+      {/* Alerta: itens não concluídos */}
+      {pendingOpen && (
+        <div
+          className="fixed inset-0 z-[10000] flex items-center justify-center bg-black/60 p-6"
+          onClick={() => setPendingOpen(false)}
+        >
+          <div
+            className="w-full max-w-sm space-y-4 rounded-xl border border-border bg-card p-6"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-3">
+              <AlertTriangle className="h-6 w-6 shrink-0 text-amber-500" />
+              <h3 className="text-lg font-bold">Itens não concluídos</h3>
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Há {pendingRows.length} {pendingRows.length === 1 ? "item pendente" : "itens pendentes"} no treino:
+            </p>
+            <div className="max-h-48 space-y-2 overflow-y-auto">
+              {pendingRows.map(({ row, total, pending }) => (
+                <button
+                  key={row.id}
+                  type="button"
+                  onClick={() => {
+                    setPendingOpen(false);
+                    setOpenIds((prev) => new Set(prev).add(row.id));
+                    setTimeout(() => {
+                      document.getElementById(`ex-${row.id}`)?.scrollIntoView({ behavior: "smooth", block: "center" });
+                    }, 50);
+                  }}
+                  className="flex w-full items-center justify-between rounded-lg border border-border bg-muted/40 p-3 text-left transition-colors hover:bg-muted"
+                >
+                  <span className="truncate text-sm font-medium">{row.exercise?.name ?? "Exercício"}</span>
+                  <span className="ml-2 shrink-0 text-xs text-amber-500">{pending}/{total} pendentes</span>
+                </button>
+              ))}
+            </div>
+            <div className="flex flex-col gap-2">
+              <button
+                onClick={() => { setPendingOpen(false); void doFinish(); }}
+                className="inline-flex h-11 w-full items-center justify-center rounded-full bg-[hsl(var(--success))] px-6 text-sm font-semibold text-white transition hover:brightness-110"
+              >
+                Finalizar mesmo assim
+              </button>
+              <button
+                onClick={() => setPendingOpen(false)}
+                className="inline-flex h-11 w-full items-center justify-center rounded-full border border-border bg-transparent px-6 text-sm font-semibold text-foreground transition hover:border-primary hover:text-primary"
+              >
+                Voltar e completar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Prompt de RPE */}
       <Dialog open={!!rpePrompt} onOpenChange={(o) => { if (!o) setRpePrompt(null); }}>
