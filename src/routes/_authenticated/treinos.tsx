@@ -81,6 +81,21 @@ function TreinosPage() {
       }));
       if (!cancelled) setItems(mapped);
 
+      // Derivar semanas e frequência a partir das datas
+      const dates = list.map((s: any) => s.scheduled_for).filter(Boolean) as string[];
+      if (dates.length >= 1) {
+        const parse = (d: string) => { const [y, m, day] = d.split("-").map(Number); return new Date(y, m - 1, day); };
+        const first = parse(dates[0]);
+        const last = parse(dates[dates.length - 1]);
+        const diffDays = Math.round((last.getTime() - first.getTime()) / 86400000);
+        const w = Math.max(1, Math.ceil((diffDays + 1) / 7));
+        const weekdays = new Set(dates.map((d) => parse(d).getDay()));
+        const pw = w > 0 ? Math.max(weekdays.size || 1, Math.round(list.length / w)) : list.length;
+        const today = new Date();
+        const cw = Math.min(w, Math.max(1, Math.floor((today.getTime() - first.getTime()) / (7 * 86400000)) + 1));
+        if (!cancelled) { setWeeks(w); setPerWeek(pw); setCurrentWeek(cw); }
+      }
+
       // Histórico recente: últimas sessões finalizadas
       const { data: sessions } = await supabase
         .from("workout_sessions")
