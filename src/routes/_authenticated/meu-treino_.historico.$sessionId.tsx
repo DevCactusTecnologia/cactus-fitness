@@ -295,7 +295,7 @@ function HistoricoPage() {
               </div>
               <div className="rounded-md bg-surface-2/30 px-2.5 py-1.5">
                 <p className="text-[0.625rem] font-semibold uppercase tracking-wider text-fg-muted">Volume</p>
-                <p className="mt-0.5 text-sm font-bold tabular-nums text-foreground">{totals.volume != null ? totals.volume : "—"}</p>
+                <p className="mt-0.5 text-sm font-bold tabular-nums text-foreground">{totals.volume != null ? `${Math.round(totals.volume)} kg` : "—"}</p>
               </div>
             </div>
 
