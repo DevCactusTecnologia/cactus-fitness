@@ -14,8 +14,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { applyPrimaryColor } from "@/lib/theme";
 import logoUrl from "@/assets/cactus-logo.png";
 import { useAvatarUrl } from "@/hooks/useAvatarUrl";
-import { useQueryClient } from "@tanstack/react-query";
+import { useQueryClient, useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { AvatarCropDialog } from "@/components/AvatarCropDialog";
+import { getMyRanking } from "@/lib/ranking.functions";
 
 
 
@@ -117,6 +119,14 @@ function MeuTreinoPage() {
   const avatarDisplayUrl = useAvatarUrl(profile?.avatar_url);
   const queryClient = useQueryClient();
   const [cropSrc, setCropSrc] = useState<string | null>(null);
+
+  const fetchRanking = useServerFn(getMyRanking);
+  const { data: ranking } = useQuery({
+    queryKey: ["my-ranking", profile?.id],
+    queryFn: () => fetchRanking(),
+    enabled: !!profile?.id && profile?.role === "aluno",
+    staleTime: 60_000,
+  });
 
   const handleAvatarChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -372,7 +382,9 @@ function MeuTreinoPage() {
                   <Shield className="h-4 w-4 text-[#9A5B12] dark:text-[#CD7F32]" fill="currentColor" />
                 </span>
                 <span className="text-xs font-semibold" style={{ color: "rgb(205, 127, 50)" }}>Bronze</span>
-                <span className="text-[0.625rem] text-muted-foreground/70">· 19º no grupo</span>
+                {ranking?.youRank && ranking.totalInGroup > 0 && (
+                  <span className="text-[0.625rem] text-muted-foreground/70">· {ranking.youRank}º no grupo</span>
+                )}
               </Link>
             </div>
           </div>
