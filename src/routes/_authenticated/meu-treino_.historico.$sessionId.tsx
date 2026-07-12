@@ -4,7 +4,7 @@ import { ArrowLeft, Clock, Dumbbell, Trophy, Check } from "lucide-react";
 import { AlunoShell } from "@/components/AlunoShell";
 import { supabase } from "@/integrations/supabase/client";
 
-export const Route = createFileRoute("/_authenticated/meu-treino/historico/$sessionId")({
+export const Route = createFileRoute("/_authenticated/meu-treino_/historico/$sessionId")({
   head: () => ({
     meta: [
       { title: "Detalhes do treino · cactusfitness" },

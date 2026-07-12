@@ -37,6 +37,9 @@ function TreinosPage() {
   const [items, setItems] = useState<WorkoutItem[]>([]);
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [weeks, setWeeks] = useState<number>(1);
+  const [perWeek, setPerWeek] = useState<number>(0);
+  const [currentWeek, setCurrentWeek] = useState<number>(1);
 
   useEffect(() => {
     if (!profile?.id) return;
