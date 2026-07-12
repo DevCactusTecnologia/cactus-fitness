@@ -1,7 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
-import { Barbell, User } from "@phosphor-icons/react";
+import { Barbell, User, Buildings } from "@phosphor-icons/react";
 import { Loader2, ArrowLeft, ArrowRight, AlertCircle, Check } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { completeOnboarding } from "@/lib/onboarding.functions";
@@ -14,7 +14,7 @@ export const Route = createFileRoute("/_authenticated/onboarding")({
   component: OnboardingPage,
 });
 
-type Role = "personal" | "aluno";
+type Role = "owner" | "personal" | "aluno";
 type Step = "role" | "details";
 
 function OnboardingPage() {
@@ -58,19 +58,26 @@ function OnboardingPage() {
       setError("Informe seu nome completo.");
       return;
     }
+    if (role === "owner" && academyName.trim().length < 2) {
+      setError("Informe o nome da sua academia.");
+      return;
+    }
     setLoading(true);
     try {
       const result = await runOnboarding({
         data: {
           role,
           fullName: fullName.trim(),
-          academyName: role === "personal" ? academyName.trim() || undefined : undefined,
+          academyName: role === "owner" ? academyName.trim() : undefined,
         },
       });
-      navigate({
-        to: result.role === "aluno" ? "/meu-treino" : "/",
-        replace: true,
-      });
+      const home =
+        result.role === "aluno"
+          ? "/meu-treino"
+          : result.role === "owner"
+            ? "/dashboard/academia"
+            : "/dashboard/personal";
+      navigate({ to: home, replace: true });
     } catch (err) {
       setError(err instanceof Error ? err.message : "Erro ao concluir cadastro");
       setLoading(false);
@@ -129,9 +136,15 @@ function RoleStep({ onSelect }: { onSelect: (r: Role) => void }) {
 
       <div className="mt-6 space-y-3">
         <RoleCard
+          icon={<Buildings weight="fill" className="h-6 w-6 text-primary" />}
+          title="Sou dono de academia"
+          description="Gerencie personais, alunos, financeiro e toda a operação da sua academia."
+          onClick={() => onSelect("owner")}
+        />
+        <RoleCard
           icon={<Barbell weight="fill" className="h-6 w-6 text-primary" />}
-          title="Sou personal ou dono de academia"
-          description="Cadastre alunos, monte treinos, avaliações e gerencie sua equipe."
+          title="Sou personal trainer"
+          description="Cadastre seus alunos, monte treinos e acompanhe a evolução deles."
           onClick={() => onSelect("personal")}
         />
         <RoleCard
@@ -191,12 +204,18 @@ function DetailsStep({
       </button>
 
       <h1 className="font-display text-2xl font-bold tracking-tight text-foreground sm:text-3xl">
-        {role === "personal" ? "Sobre você e seu trabalho" : "Sobre você"}
+        {role === "owner"
+          ? "Sobre você e sua academia"
+          : role === "personal"
+            ? "Sobre você"
+            : "Sobre você"}
       </h1>
       <p className="mt-2 text-sm text-fg-muted">
-        {role === "personal"
-          ? "Vamos criar seu espaço para começar a cadastrar alunos."
-          : "Só precisamos do seu nome pra começar."}
+        {role === "owner"
+          ? "Vamos criar o espaço da sua academia."
+          : role === "personal"
+            ? "Só precisamos do seu nome pra começar."
+            : "Só precisamos do seu nome pra começar."}
       </p>
 
       <form
@@ -215,21 +234,19 @@ function DetailsStep({
           />
         </div>
 
-        {role === "personal" && (
+        {role === "owner" && (
           <div>
             <label className="text-xs font-semibold uppercase tracking-widest text-fg-muted">
-              Nome da sua academia <span className="text-fg-muted/60 normal-case font-normal">(opcional)</span>
+              Nome da academia
             </label>
             <input
               type="text"
               value={academyName}
               onChange={(e) => setAcademyName(e.target.value)}
-              placeholder={`Ex: Academia de ${fullName.split(" ")[0] || "Você"}`}
+              placeholder="Ex: Academia Cactus"
               className="mt-1.5 w-full h-12 bg-surface-2 text-foreground placeholder-fg-muted rounded-md px-4 text-sm outline-none border focus:border-primary focus:shadow-[0_0_0_3px_var(--primary-glow)] border-border hover:border-border-strong"
+              required
             />
-            <p className="mt-1.5 text-[11px] text-fg-muted">
-              Se você é autônomo, deixe em branco — usamos seu nome.
-            </p>
           </div>
         )}
 
@@ -242,7 +259,11 @@ function DetailsStep({
 
         <button
           type="submit"
-          disabled={loading || fullName.trim().length < 2}
+          disabled={
+            loading ||
+            fullName.trim().length < 2 ||
+            (role === "owner" && academyName.trim().length < 2)
+          }
           className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full transition-all duration-200 ease-out disabled:pointer-events-none disabled:opacity-50 active:scale-[0.97] bg-primary text-primary-foreground shadow-glow hover:shadow-glow-lg hover:-translate-y-0.5 px-8 py-3.5 w-full h-12 text-sm font-semibold"
         >
           {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Concluir e entrar"}
