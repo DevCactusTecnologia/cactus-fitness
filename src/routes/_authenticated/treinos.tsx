@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Dumbbell, Check, ChevronRight, FileDown } from "lucide-react";
+import { Dumbbell, Check, ChevronRight, FileDown, Clock, Trophy } from "lucide-react";
 import { AlunoShell } from "@/components/AlunoShell";
 import { supabase } from "@/integrations/supabase/client";
 import { useCurrentUser } from "@/lib/auth";
@@ -22,10 +22,20 @@ type WorkoutItem = {
   exercises: number;
 };
 
+type HistoryItem = {
+  id: string;
+  workout_name: string;
+  date: string;
+  sets_count: number;
+  duration_min: number | null;
+  week_label: string;
+};
+
 function TreinosPage() {
   const { profile } = useCurrentUser();
   const [planName, setPlanName] = useState<string>("Meu plano");
   const [items, setItems] = useState<WorkoutItem[]>([]);
+  const [history, setHistory] = useState<HistoryItem[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -38,7 +48,7 @@ function TreinosPage() {
         .select("id")
         .eq("aluno_user_id", profile.id)
         .maybeSingle();
-      if (cancelled || !link?.id) { setItems([]); setLoading(false); return; }
+      if (cancelled || !link?.id) { setItems([]); setHistory([]); setLoading(false); return; }
       const { data: sws } = await supabase
         .from("student_workouts")
         .select("id, name, status, template_id, scheduled_for, created_at")
@@ -66,7 +76,44 @@ function TreinosPage() {
         status: s.status ?? null,
         exercises: s.template_id ? (countByTpl[s.template_id] ?? 0) : 0,
       }));
-      if (!cancelled) { setItems(mapped); setLoading(false); }
+      if (!cancelled) setItems(mapped);
+
+      // Histórico recente: últimas sessões finalizadas
+      const { data: sessions } = await supabase
+        .from("workout_sessions")
+        .select("id, student_workout_id, started_at, finished_at, duration_seconds, status")
+        .eq("aluno_user_id", profile.id)
+        .eq("status", "concluido")
+        .order("finished_at", { ascending: false, nullsFirst: false })
+        .limit(5);
+      if (cancelled) return;
+      const sessList = sessions ?? [];
+      const swMap: Record<string, string> = {};
+      list.forEach((s: any) => { swMap[s.id] = s.name ?? "Treino"; });
+      const sessIds = sessList.map((s: any) => s.id);
+      const setsCount: Record<string, number> = {};
+      if (sessIds.length) {
+        const { data: logs } = await supabase
+          .from("set_logs")
+          .select("session_id")
+          .in("session_id", sessIds);
+        (logs ?? []).forEach((l: any) => {
+          setsCount[l.session_id] = (setsCount[l.session_id] ?? 0) + 1;
+        });
+      }
+      const hist: HistoryItem[] = sessList.map((s: any) => {
+        const dt = s.finished_at ? new Date(s.finished_at) : new Date(s.started_at);
+        const date = dt.toLocaleDateString("pt-BR", { day: "2-digit", month: "short" }).replace(".", "");
+        return {
+          id: s.id,
+          workout_name: swMap[s.student_workout_id] ?? "Treino",
+          date,
+          sets_count: setsCount[s.id] ?? 0,
+          duration_min: s.duration_seconds ? Math.round(s.duration_seconds / 60) : null,
+          week_label: "Sem. 1",
+        };
+      });
+      if (!cancelled) { setHistory(hist); setLoading(false); }
     })();
     return () => { cancelled = true; };
   }, [profile?.id]);
@@ -80,10 +127,6 @@ function TreinosPage() {
     <AlunoShell>
       <main className="p-4 md:p-6">
         <div className="mx-auto max-w-2xl space-y-6">
-          <div className="flex items-center gap-2">
-            <h1 className="font-display text-2xl font-bold">Meus Treinos</h1>
-          </div>
-
           {/* Plano */}
           <section className="rounded-xl border border-border bg-surface-1 p-5">
             <div className="mb-2 flex items-start justify-between gap-2">
@@ -180,6 +223,46 @@ function TreinosPage() {
               </div>
             )}
           </div>
+
+          {/* Histórico recente */}
+          {history.length > 0 && (
+            <div>
+              <h3 className="mb-3 px-1 text-xs font-semibold uppercase tracking-wider text-fg-muted">Histórico recente</h3>
+              <div className="space-y-2">
+                {history.map((h) => (
+                  <button
+                    key={h.id}
+                    type="button"
+                    className="flex w-full select-none items-center gap-3 rounded-xl px-4 py-3 text-left transition-colors hover:bg-surface-2/30 active:bg-surface-2/50"
+                  >
+                    <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-green-500/10">
+                      <Trophy className="h-4 w-4 text-green-500" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <p className="truncate text-sm font-semibold">{h.workout_name}</p>
+                        <span className="shrink-0 text-[0.625rem] text-fg-muted/60">{h.week_label}</span>
+                      </div>
+                      <div className="mt-0.5 flex items-center gap-3 text-xs text-fg-muted">
+                        <span>{h.date}</span>
+                        <span className="flex items-center gap-1">
+                          <Dumbbell className="h-3 w-3" />
+                          {h.sets_count}
+                        </span>
+                        {h.duration_min != null && (
+                          <span className="flex items-center gap-1">
+                            <Clock className="h-3 w-3" />
+                            {h.duration_min} min
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    <ChevronRight className="h-4 w-4 shrink-0 text-fg-muted/50" />
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </main>
     </AlunoShell>
