@@ -92,10 +92,21 @@ function HistoricoPage() {
         .select("name, template_id")
         .eq("id", sess.student_workout_id)
         .maybeSingle();
-      if (sw?.name) {
-        setWorkoutName(sw.name);
-        setPlanName(String(sw.name).split(" - ")[0] || "");
+      if (sw?.name) setWorkoutName(sw.name);
+
+      // Nome do plano vem do template
+      if (sw?.template_id) {
+        const { data: tpl } = await supabase
+          .from("workout_templates")
+          .select("name")
+          .eq("id", sw.template_id)
+          .maybeSingle();
+        if (tpl?.name) setPlanName(tpl.name);
       }
+
+      // Semana ISO com base na conclusão
+      const wk = isoWeekNum(sess.finished_at ?? sess.started_at ?? null);
+      if (wk) setWeekLabel(`Sem. ${wk}`);
 
       const { data: logs } = await supabase
         .from("set_logs")
