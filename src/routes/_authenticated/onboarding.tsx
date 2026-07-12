@@ -136,9 +136,15 @@ function RoleStep({ onSelect }: { onSelect: (r: Role) => void }) {
 
       <div className="mt-6 space-y-3">
         <RoleCard
+          icon={<Buildings weight="fill" className="h-6 w-6 text-primary" />}
+          title="Sou dono de academia"
+          description="Gerencie personais, alunos, financeiro e toda a operação da sua academia."
+          onClick={() => onSelect("owner")}
+        />
+        <RoleCard
           icon={<Barbell weight="fill" className="h-6 w-6 text-primary" />}
-          title="Sou personal ou dono de academia"
-          description="Cadastre alunos, monte treinos, avaliações e gerencie sua equipe."
+          title="Sou personal trainer"
+          description="Cadastre seus alunos, monte treinos e acompanhe a evolução deles."
           onClick={() => onSelect("personal")}
         />
         <RoleCard
