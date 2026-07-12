@@ -447,20 +447,25 @@ function MeuTreinoPage() {
 
           {/* Ranking + Check-in */}
           <section className="overflow-hidden rounded-2xl border border-border bg-card">
-            <button className="flex w-full items-center justify-between gap-3 p-4 hover:bg-accent/40">
+            <Link to="/ranking" className="flex w-full items-center justify-between gap-3 p-4 transition hover:bg-accent/40 active:opacity-60">
               <div className="flex items-center gap-3">
-                <div className="grid h-11 w-11 place-items-center rounded-full bg-amber-500/15 text-amber-600 dark:text-amber-500">
-                  <Shield className="h-5 w-5" fill="currentColor" />
+                <div
+                  className="grid h-11 w-11 place-items-center rounded-2xl shrink-0"
+                  style={{ backgroundColor: "rgba(205, 127, 50, 0.15)", border: "1.5px solid rgba(205, 127, 50, 0.4)" }}
+                >
+                  <Shield className="h-6 w-6 text-[#9A5B12] dark:text-[#CD7F32]" fill="currentColor" />
                 </div>
                 <div className="text-left">
                   <p className="text-xs text-muted-foreground">seu ranking</p>
-                  <p className="font-display text-lg font-bold text-amber-600 dark:text-amber-500">Bronze</p>
+                  <p className="font-display text-base font-bold leading-tight" style={{ color: "rgb(205, 127, 50)" }}>
+                    Bronze<span className="text-muted-foreground font-semibold"> · 19º no grupo</span>
+                  </p>
                 </div>
               </div>
-              <span className="inline-flex items-center gap-1 text-sm font-medium text-muted-foreground">
+              <span className="inline-flex items-center gap-1 text-sm font-medium text-primary shrink-0">
                 ver ranking <ChevronRight className="h-4 w-4" />
               </span>
-            </button>
+            </Link>
             {checkedToday ? (
               <div className="flex w-full items-center justify-center gap-2 border-t border-border/60 py-3 text-sm font-semibold">
                 <CheckCircle2 className="h-4 w-4 text-emerald-500" />
