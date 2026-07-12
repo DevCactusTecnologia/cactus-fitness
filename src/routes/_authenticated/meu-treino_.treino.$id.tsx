@@ -6,7 +6,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useCurrentUser } from "@/lib/auth";
-import { applyPrimaryColor } from "@/routes/_authenticated/perfil";
+import { applyPrimaryColor } from "@/lib/theme";
 import { toast } from "@/components/ui/sonner";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
