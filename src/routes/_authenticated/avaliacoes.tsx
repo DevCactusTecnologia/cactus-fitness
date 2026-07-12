@@ -212,7 +212,8 @@ function AvaliacaoDetalhe({ id }: { id: string }) {
 
   if (isLoading) {
     return (
-      <main className="p-4 md:p-6">
+      <main className="p-4 pt-[76px] md:p-6 md:pt-[84px]">
+
         <div className="mx-auto grid max-w-4xl place-items-center py-20 text-muted-foreground">
           <Loader2 className="h-6 w-6 animate-spin" />
         </div>
