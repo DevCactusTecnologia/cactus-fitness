@@ -442,7 +442,7 @@ function TreinoPage() {
       if (sessionId) {
         await supabase.from("workout_sessions").delete().eq("id", sessionId);
       }
-      toast.message("Treino descartado");
+      toast.success("Treino descartado");
       navigate({ to: "/meu-treino" });
     } finally {
       setSaving(false);
