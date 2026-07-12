@@ -115,15 +115,8 @@ function PerfilPage() {
   const [savedColor, setSavedColor] = useState(DEFAULTS.primaryColor);
   const [welcome, setWelcome] = useState(DEFAULTS.welcome);
   const [sections, setSections] = useState<Record<string, boolean>>(DEFAULTS.sections);
-  const [logoPreview, setLogoPreview] = useState<string | null>(null);
 
-  const { profile } = useCurrentUser();
-  const avatarUrl = useAvatarUrl(profile?.avatar_url);
-  const initials = initialsFromName(profile?.full_name, profile?.email);
-  const avatarColor = colorForId(profile?.id ?? "user");
-  const [cropSrc, setCropSrc] = useState<string | null>(null);
-  const [uploadingAvatar, setUploadingAvatar] = useState(false);
-  const avatarInputRef = useRef<HTMLInputElement | null>(null);
+
 
   const [brandLogoPath, setBrandLogoPath] = useState<string | null>(null);
   const [logoPreview, setLogoPreview] = useState<string | null>(null);
