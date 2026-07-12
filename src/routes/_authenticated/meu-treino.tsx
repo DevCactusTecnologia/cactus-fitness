@@ -482,32 +482,31 @@ function MeuTreinoPage() {
 
           {/* Ranking + Check-in */}
           <section className="overflow-hidden rounded-2xl border border-border bg-card">
-            <Link to="/ranking" className="flex w-full items-center justify-between gap-3 p-4 transition hover:bg-accent/40 active:opacity-60">
-              <div className="flex items-center gap-3">
+            <Link to="/ranking" className="flex w-full items-center justify-between gap-2 p-4 transition hover:bg-accent/40 active:opacity-60">
+              <div className="flex min-w-0 flex-1 items-center gap-3">
                 <div
                   className="grid h-11 w-11 place-items-center rounded-2xl shrink-0"
                   style={{ backgroundColor: "rgba(205, 127, 50, 0.15)", border: "1.5px solid rgba(205, 127, 50, 0.4)" }}
                 >
                   <Shield className="h-6 w-6 text-[#9A5B12] dark:text-[#CD7F32]" fill="currentColor" />
                 </div>
-                <div className="min-w-0 text-left">
-                  <p className="text-xs text-muted-foreground">seu ranking</p>
-                  <p className="font-display text-base font-bold leading-tight truncate" style={{ color: "rgb(205, 127, 50)" }}>
+                <div className="min-w-0 flex-1 text-left">
+                  <p className="text-[0.6875rem] text-muted-foreground leading-tight">seu ranking</p>
+                  <p className="font-display text-sm font-bold leading-tight truncate" style={{ color: "rgb(205, 127, 50)" }}>
                     Bronze
-                    <span className="text-muted-foreground font-semibold">
-                      {" · "}
-                      {ranking && ranking.totalInGroup > 0
-                        ? `${ranking.youRank ?? "—"}º no grupo`
-                        : "posição no grupo"}
-                    </span>
+                  </p>
+                  <p className="text-[0.6875rem] text-muted-foreground/80 font-medium leading-tight truncate">
+                    {ranking && ranking.totalInGroup > 0
+                      ? `${ranking.youRank ?? "—"}º no grupo`
+                      : "posição no grupo"}
                   </p>
                 </div>
-
               </div>
-              <span className="inline-flex items-center gap-1 text-sm font-medium text-primary shrink-0">
-                ver ranking <ChevronRight className="h-4 w-4" />
+              <span className="inline-flex items-center gap-0.5 text-xs font-medium text-primary shrink-0 whitespace-nowrap">
+                ver ranking <ChevronRight className="h-3.5 w-3.5" />
               </span>
             </Link>
+
             {checkedToday ? (
               <div className="flex w-full items-center justify-center gap-2 border-t border-border/60 py-3 text-sm font-semibold">
                 <CheckCircle2 className="h-4 w-4 text-emerald-500" />
