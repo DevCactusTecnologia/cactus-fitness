@@ -8,6 +8,7 @@ import {
   Clock,
   MessageSquareText,
   Check,
+  Loader2,
 } from "lucide-react";
 import {
   LineChart,
@@ -20,7 +21,16 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from "recharts";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { AlunoShell } from "@/components/AlunoShell";
+import { useCurrentUser } from "@/lib/auth";
+import {
+  getMyProgress,
+  type HistoryItem,
+  type MuscleRow,
+  type WeekPoint,
+} from "@/lib/progress.functions";
 
 export const Route = createFileRoute("/_authenticated/meu-progresso")({
   head: () => ({
@@ -32,75 +42,21 @@ export const Route = createFileRoute("/_authenticated/meu-progresso")({
   component: MeuProgressoPage,
 });
 
-type MuscleRow = { name: string; primary: number; secondary: number };
-type HistorySet = { n: number; reps: number; load: string };
-type HistoryExercise = { name: string; done: number; total: number; sets: HistorySet[] };
-type HistoryItem = {
-  id: string;
-  weekday: string;
-  date: string;
-  name: string;
-  personal: string;
-  fase: string;
-  exercises: number;
-  seriesDone: number;
-  seriesTotal: number;
-  minutes: number;
-  week: number;
-  totalReps: number;
-  volume: string;
-  reaction: string | null;
-  exerciseList: HistoryExercise[];
-};
-
-const volumeData = [
-  { week: "S24", value: 0 },
-  { week: "S25", value: 0 },
-  { week: "S26", value: 0 },
-  { week: "S27", value: 0 },
-  { week: "S28", value: 0 },
-];
-
-const frequencyData = [
-  { week: "S24", value: 0 },
-  { week: "S25", value: 0 },
-  { week: "S26", value: 0 },
-  { week: "S27", value: 0 },
-  { week: "S28", value: 1 },
-];
-
-const muscleData: MuscleRow[] = [
-  { name: "Abdômen", primary: 1, secondary: 0 },
-];
-
-const historyItems: HistoryItem[] = [
-  {
-    id: "1",
-    weekday: "seg.",
-    date: "06/07",
-    name: "Treino A",
-    personal: "teste — marcos",
-    fase: "Fase 1",
-    exercises: 1,
-    seriesDone: 1,
-    seriesTotal: 1,
-    minutes: 1,
-    week: 1,
-    totalReps: 12,
-    volume: "—",
-    reaction: "💪",
-    exerciseList: [
-      {
-        name: "Abdominal Canivete",
-        done: 1,
-        total: 1,
-        sets: [{ n: 1, reps: 12, load: "-" }],
-      },
-    ],
-  },
-];
-
 function MeuProgressoPage() {
+  const { profile } = useCurrentUser();
+  const fetchProgress = useServerFn(getMyProgress);
+  const { data, isLoading } = useQuery({
+    queryKey: ["my-progress", profile?.id],
+    queryFn: () => fetchProgress(),
+    enabled: !!profile?.id,
+    staleTime: 60_000,
+  });
+
+  const volume: WeekPoint[] = data?.volume ?? [];
+  const frequency: WeekPoint[] = data?.frequency ?? [];
+  const muscles: MuscleRow[] = data?.muscles ?? [];
+  const history: HistoryItem[] = data?.history ?? [];
+
   return (
     <AlunoShell>
       <header className="fixed inset-x-0 top-0 z-50 border-b border-border bg-background/70 backdrop-blur-xl md:left-[72px]">
@@ -111,12 +67,10 @@ function MeuProgressoPage() {
 
       <main className="p-4 pt-[76px] md:p-6 md:pt-[84px]">
         <div className="mx-auto max-w-2xl space-y-8">
-
-
           <div className="space-y-5">
-            <VolumeCard />
-            <FrequencyCard />
-            <MuscleCard />
+            <VolumeCard data={volume} loading={isLoading} />
+            <FrequencyCard data={frequency} loading={isLoading} />
+            <MuscleCard data={muscles} loading={isLoading} />
           </div>
 
           <section className="space-y-3">
@@ -125,14 +79,24 @@ function MeuProgressoPage() {
                 Histórico de treinos
               </h3>
               <span className="text-xs text-muted-foreground">
-                {historyItems.length} {historyItems.length === 1 ? "registro" : "registros"}
+                {history.length} {history.length === 1 ? "registro" : "registros"}
               </span>
             </div>
-            <div className="space-y-2">
-              {historyItems.map((item) => (
-                <HistoryCard key={item.id} item={item} />
-              ))}
-            </div>
+            {isLoading ? (
+              <div className="flex items-center justify-center rounded-lg border border-border bg-card py-10 text-muted-foreground">
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Carregando…
+              </div>
+            ) : history.length === 0 ? (
+              <div className="rounded-lg border border-dashed border-border bg-card py-8 text-center text-sm text-muted-foreground">
+                Nenhum treino concluído ainda. Registre seu primeiro treino para ver seu progresso.
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {history.map((item) => (
+                  <HistoryCard key={item.id} item={item} />
+                ))}
+              </div>
+            )}
           </section>
         </div>
       </main>
@@ -169,7 +133,7 @@ function CardShell({
   );
 }
 
-function VolumeCard() {
+function VolumeCard({ data, loading }: { data: WeekPoint[]; loading: boolean }) {
   return (
     <CardShell
       icon={<TrendingUp className="h-4 w-4" />}
@@ -177,34 +141,40 @@ function VolumeCard() {
       subtitle="Total de carga × reps por semana (kg)"
     >
       <div className="h-[200px] w-full sm:h-[240px]">
-        <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={volumeData} margin={{ top: 5, right: 12, left: 0, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.4} />
-            <XAxis dataKey="week" fontSize={10} stroke="#888" tickLine={false} axisLine={false} />
-            <YAxis fontSize={10} stroke="#888" tickLine={false} axisLine={false} width={30} />
-            <Tooltip
-              contentStyle={{
-                background: "hsl(var(--popover))",
-                border: "1px solid hsl(var(--border))",
-                borderRadius: 8,
-                fontSize: 12,
-              }}
-            />
-            <Line
-              type="monotone"
-              dataKey="value"
-              stroke="hsl(var(--primary))"
-              strokeWidth={2}
-              dot={{ r: 4, fill: "hsl(var(--primary))", strokeWidth: 2, stroke: "hsl(var(--background))" }}
-            />
-          </LineChart>
-        </ResponsiveContainer>
+        {loading ? (
+          <div className="flex h-full items-center justify-center text-muted-foreground">
+            <Loader2 className="h-4 w-4 animate-spin" />
+          </div>
+        ) : (
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart data={data} margin={{ top: 5, right: 12, left: 0, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.4} />
+              <XAxis dataKey="week" fontSize={10} stroke="#888" tickLine={false} axisLine={false} />
+              <YAxis fontSize={10} stroke="#888" tickLine={false} axisLine={false} width={30} />
+              <Tooltip
+                contentStyle={{
+                  background: "hsl(var(--popover))",
+                  border: "1px solid hsl(var(--border))",
+                  borderRadius: 8,
+                  fontSize: 12,
+                }}
+              />
+              <Line
+                type="monotone"
+                dataKey="value"
+                stroke="hsl(var(--primary))"
+                strokeWidth={2}
+                dot={{ r: 4, fill: "hsl(var(--primary))", strokeWidth: 2, stroke: "hsl(var(--background))" }}
+              />
+            </LineChart>
+          </ResponsiveContainer>
+        )}
       </div>
     </CardShell>
   );
 }
 
-function FrequencyCard() {
+function FrequencyCard({ data, loading }: { data: WeekPoint[]; loading: boolean }) {
   return (
     <CardShell
       icon={<BarChart3 className="h-4 w-4" />}
@@ -213,29 +183,35 @@ function FrequencyCard() {
       subtitle="Treinos concluídos por semana"
     >
       <div className="h-[200px] w-full sm:h-[240px]">
-        <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={frequencyData} margin={{ top: 5, right: 12, left: 0, bottom: 5 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.4} />
-            <XAxis dataKey="week" fontSize={10} stroke="#888" tickLine={false} axisLine={false} />
-            <YAxis fontSize={10} stroke="#888" tickLine={false} axisLine={false} width={30} allowDecimals={false} />
-            <Tooltip
-              contentStyle={{
-                background: "hsl(var(--popover))",
-                border: "1px solid hsl(var(--border))",
-                borderRadius: 8,
-                fontSize: 12,
-              }}
-            />
-            <Bar dataKey="value" fill="rgb(59, 130, 246)" radius={[4, 4, 0, 0]} />
-          </BarChart>
-        </ResponsiveContainer>
+        {loading ? (
+          <div className="flex h-full items-center justify-center text-muted-foreground">
+            <Loader2 className="h-4 w-4 animate-spin" />
+          </div>
+        ) : (
+          <ResponsiveContainer width="100%" height="100%">
+            <BarChart data={data} margin={{ top: 5, right: 12, left: 0, bottom: 5 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" opacity={0.4} />
+              <XAxis dataKey="week" fontSize={10} stroke="#888" tickLine={false} axisLine={false} />
+              <YAxis fontSize={10} stroke="#888" tickLine={false} axisLine={false} width={30} allowDecimals={false} />
+              <Tooltip
+                contentStyle={{
+                  background: "hsl(var(--popover))",
+                  border: "1px solid hsl(var(--border))",
+                  borderRadius: 8,
+                  fontSize: 12,
+                }}
+              />
+              <Bar dataKey="value" fill="rgb(59, 130, 246)" radius={[4, 4, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
+        )}
       </div>
     </CardShell>
   );
 }
 
-function MuscleCard() {
-  const max = Math.max(1, ...muscleData.map((m) => m.primary + m.secondary));
+function MuscleCard({ data, loading }: { data: MuscleRow[]; loading: boolean }) {
+  const max = Math.max(1, ...data.map((m) => m.primary + m.secondary));
   return (
     <div className="rounded-xl border border-border bg-card text-foreground">
       <div className="flex flex-col space-y-1.5 px-4 pt-4 pb-2">
@@ -246,30 +222,40 @@ function MuscleCard() {
         <p className="text-xs text-muted-foreground">Séries por grupo muscular (total acumulado)</p>
       </div>
       <div className="px-4 pt-0 pb-4">
-        <div className="space-y-2.5">
-          {muscleData.map((m) => {
-            const pct = ((m.primary + m.secondary) / max) * 100;
-            return (
-              <div key={m.name} className="flex items-center gap-3">
-                <span
-                  className="w-24 shrink-0 truncate text-right text-xs text-muted-foreground"
-                  title={m.name}
-                >
-                  {m.name}
-                </span>
-                <div className="relative h-7 flex-1 overflow-hidden rounded-lg bg-muted/50">
-                  <div
-                    className="absolute inset-y-0 left-0 rounded-lg bg-gradient-to-r from-purple-600/80 to-purple-500 transition-all duration-500"
-                    style={{ width: `${pct}%` }}
-                  />
-                  <span className="absolute inset-y-0 left-2.5 z-10 flex items-center text-xs font-bold text-white">
-                    {m.primary + m.secondary}
+        {loading ? (
+          <div className="flex items-center justify-center py-6 text-muted-foreground">
+            <Loader2 className="h-4 w-4 animate-spin" />
+          </div>
+        ) : data.length === 0 ? (
+          <p className="py-4 text-center text-xs text-muted-foreground">
+            Sem dados ainda — conclua um treino para começar a acompanhar.
+          </p>
+        ) : (
+          <div className="space-y-2.5">
+            {data.map((m) => {
+              const pct = ((m.primary + m.secondary) / max) * 100;
+              return (
+                <div key={m.name} className="flex items-center gap-3">
+                  <span
+                    className="w-24 shrink-0 truncate text-right text-xs text-muted-foreground"
+                    title={m.name}
+                  >
+                    {m.name}
                   </span>
+                  <div className="relative h-7 flex-1 overflow-hidden rounded-lg bg-muted/50">
+                    <div
+                      className="absolute inset-y-0 left-0 rounded-lg bg-gradient-to-r from-purple-600/80 to-purple-500 transition-all duration-500"
+                      style={{ width: `${pct}%` }}
+                    />
+                    <span className="absolute inset-y-0 left-2.5 z-10 flex items-center text-xs font-bold text-white">
+                      {m.primary + m.secondary}
+                    </span>
+                  </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
         <div className="mt-3 flex items-center gap-4 text-[0.625rem] text-muted-foreground">
           <span className="flex items-center gap-1.5">
             <span className="h-2 w-3 rounded-sm bg-purple-500" />
