@@ -417,12 +417,14 @@ function TreinoPage() {
     try {
       if (sessionId) {
         const dur = Math.floor((Date.now() - startedAtRef.current) / 1000);
+        const notesWithRpe = finalRpe
+          ? `${finalNotes ? finalNotes + "\n" : ""}RPE: ${finalRpe}`
+          : (finalNotes || null);
         await supabase.from("workout_sessions").update({
           status: "concluido",
           finished_at: new Date().toISOString(),
           duration_seconds: dur,
-          rpe: finalRpe,
-          notes: finalNotes || null,
+          notes: notesWithRpe,
         }).eq("id", sessionId);
       }
       await supabase.from("student_workouts").update({ status: "concluido" }).eq("id", id);
