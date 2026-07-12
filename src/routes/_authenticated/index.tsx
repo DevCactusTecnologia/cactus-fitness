@@ -250,6 +250,48 @@ function useDashboardStats() {
   });
 }
 
+/**
+ * Personal solo = personal dono da própria academia (owner de alguma org).
+ * Soma lançamentos tipo=receita do mês corrente para essa org.
+ * Retorna null quando o personal trabalha somente em academia de terceiros.
+ */
+function useSoloMonthRevenue() {
+  return useQuery({
+    queryKey: ["solo-month-revenue"],
+    staleTime: 30_000,
+    queryFn: async () => {
+      const { data: u } = await supabase.auth.getUser();
+      const uid = u.user?.id;
+      if (!uid) return null;
+      const { data: ownerMem } = await supabase
+        .from("organization_members")
+        .select("organization_id")
+        .eq("user_id", uid)
+        .eq("role", "owner")
+        .order("created_at", { ascending: true })
+        .limit(1)
+        .maybeSingle();
+      if (!ownerMem?.organization_id) return null;
+      const now = new Date();
+      const start = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
+      const end = new Date(now.getFullYear(), now.getMonth() + 1, 1).toISOString().slice(0, 10);
+      const { data: lancs } = await supabase
+        .from("lancamentos")
+        .select("valor")
+        .eq("organization_id", ownerMem.organization_id)
+        .eq("tipo", "receita")
+        .gte("competencia", start)
+        .lt("competencia", end);
+      const total = (lancs ?? []).reduce((acc: number, r: any) => acc + Number(r.valor ?? 0), 0);
+      return { total, isSolo: true };
+    },
+  });
+}
+
+function formatBRL(v: number) {
+  return v.toLocaleString("pt-BR", { style: "currency", currency: "BRL", minimumFractionDigits: 2 });
+}
+
 
 function greetingFor(hour: number) {
   if (hour < 12) return "Bom dia";
