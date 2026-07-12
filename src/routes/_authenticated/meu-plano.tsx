@@ -29,11 +29,12 @@ const fmtDate = (iso: string) => {
 };
 
 function StatusBadge({ status }: { status: PlanPayment["status"] | "ativa" }) {
+  // Reference uses only two visual variants: primary (ativa/pago) and neutral (pendente/atrasado)
   const map: Record<string, string> = {
-    ativa: "border-primary/40 bg-primary/10 text-primary",
-    pago: "border-emerald-500/40 bg-emerald-500/10 text-emerald-500",
-    pendente: "border-amber-500/40 bg-amber-500/10 text-amber-500",
-    atrasado: "border-red-500/40 bg-red-500/10 text-red-500",
+    ativa: "border-primary/20 bg-primary/15 text-primary",
+    pago: "border-primary/20 bg-primary/15 text-primary",
+    pendente: "border-border bg-surface-3 text-fg-muted",
+    atrasado: "border-border bg-surface-3 text-fg-muted",
   };
   const label =
     status === "ativa"
