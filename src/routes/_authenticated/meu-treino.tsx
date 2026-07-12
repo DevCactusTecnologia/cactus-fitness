@@ -271,7 +271,7 @@ function MeuTreinoPage() {
             }}
           />
         </div>
-        {RAIL_ITEMS.map(({ icon: Icon, label, to }) => {
+        {RAIL_ITEMS.filter((i) => isNavItemVisible(i.label, personalCustom.visibleSections)).map(({ icon: Icon, label, to }) => {
           const active = to === "/meu-treino";
           return (
             <Link
