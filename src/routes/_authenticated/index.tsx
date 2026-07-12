@@ -576,15 +576,13 @@ function OwnerDashboard({ profile }: { profile: any }) {
                   <h2 className="font-display text-base font-bold">Atalhos rápidos</h2>
                   <p className="text-[11px] text-muted-foreground">Ações da administração</p>
                 </div>
-                <span className="text-[10px] uppercase tracking-widest text-muted-foreground">use as teclas</span>
               </div>
               <div className="grid gap-3 p-3 sm:grid-cols-2">
                 {[
-                  { to: "/dashboard/academia/personais", icon: UsersIcon, title: "Equipe", desc: "Cadastrar personais e ajustar papéis", key: "E" },
-                  { to: "/dashboard/personal/alunos", icon: Users, title: "Aluno", desc: "Cadastros e contatos", key: "A" },
-                  { to: "/dashboard/personal/treinos", icon: Dumbbell, title: "Treinos", desc: "Biblioteca compartilhada", key: "T" },
-                  
-                ].map(({ to, icon: Icon, title, desc, key }) => (
+                  { to: "/dashboard/academia/personais", icon: UsersIcon, title: "Equipe", desc: "Cadastrar personais e ajustar papéis" },
+                  { to: "/dashboard/personal/alunos", icon: Users, title: "Aluno", desc: "Cadastros e contatos" },
+                  { to: "/dashboard/personal/treinos", icon: Dumbbell, title: "Treinos", desc: "Biblioteca compartilhada" },
+                ].map(({ to, icon: Icon, title, desc }) => (
                   <Link key={to} to={to} className="group flex items-center gap-3 rounded-lg border border-border bg-background/40 p-3 hover:border-primary/40">
                     <div className="grid h-10 w-10 shrink-0 place-items-center rounded-md bg-primary/15 text-primary">
                       <Icon className="h-4 w-4" />
@@ -593,7 +591,6 @@ function OwnerDashboard({ profile }: { profile: any }) {
                       <div className="truncate text-sm font-semibold">{title}</div>
                       <div className="truncate text-[11px] text-muted-foreground">{desc}</div>
                     </div>
-                    <kbd className="grid h-7 w-7 shrink-0 place-items-center rounded-md border border-border bg-background/60 font-mono text-[11px] font-bold text-muted-foreground">{key}</kbd>
                   </Link>
                 ))}
               </div>
