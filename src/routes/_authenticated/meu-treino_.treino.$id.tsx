@@ -80,6 +80,7 @@ function TreinoPage() {
   const [rest, setRest] = useState<{ total: number; left: number; nextName: string | null } | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [rpePrompt, setRpePrompt] = useState<{ row: ExerciseRow; idx: number } | null>(null);
+  const [pendingOpen, setPendingOpen] = useState(false);
   const startedAtRef = useRef<number>(Date.now());
 
   // Cor principal do personal
