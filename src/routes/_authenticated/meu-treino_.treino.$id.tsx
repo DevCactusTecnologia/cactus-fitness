@@ -108,7 +108,7 @@ function TreinoPage() {
       setLoading(true);
       const { data: sw } = await supabase
         .from("student_workouts")
-        .select("id, name, template_id, aluno_id, aluno:alunos(personal_id)")
+        .select("id, name, template_id, aluno_id, aluno:alunos(personal_id, organization_id)")
         .eq("id", id)
         .maybeSingle();
       if (cancelled) return;
@@ -156,16 +156,27 @@ function TreinoPage() {
           .maybeSingle();
         let sid = existing?.id ?? null;
         if (!sid) {
-          const personalId = (sw as any)?.aluno?.personal_id ?? null;
-          let orgId: string | null = null;
-          if (personalId) {
-            const { data: om } = await supabase
+          let orgId: string | null = (sw as any)?.aluno?.organization_id ?? null;
+          if (!orgId) {
+            const personalId = (sw as any)?.aluno?.personal_id ?? null;
+            if (personalId) {
+              const { data: om } = await supabase
+                .from("organization_members")
+                .select("organization_id")
+                .eq("user_id", personalId)
+                .limit(1)
+                .maybeSingle();
+              orgId = om?.organization_id ?? null;
+            }
+          }
+          if (!orgId) {
+            const { data: om2 } = await supabase
               .from("organization_members")
               .select("organization_id")
-              .eq("user_id", personalId)
+              .eq("user_id", uid)
               .limit(1)
               .maybeSingle();
-            orgId = om?.organization_id ?? null;
+            orgId = om2?.organization_id ?? null;
           }
           const insertPayload: any = { student_workout_id: id, aluno_user_id: uid };
           if (orgId) insertPayload.organization_id = orgId;
