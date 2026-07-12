@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   X, Clock, Check, Play, ChevronDown, ChevronLeft, MessageSquare,
-  AlertTriangle, Timer, Plus, Gauge, CheckCheck, Trophy, Flame, Layers3, Dumbbell,
+  AlertTriangle, Timer, Plus, Gauge, CheckCheck, Trophy, Flame, Layers3, Dumbbell, Trash2,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useCurrentUser } from "@/lib/auth";
@@ -681,17 +681,26 @@ function TreinoPage() {
                           }`}
                         >
                           <div className="w-8 flex justify-center">
-                            <span
-                              className={`grid h-7 w-7 place-items-center rounded-lg text-xs font-bold font-display leading-none ${
-                                done
-                                  ? "bg-muted text-[hsl(var(--success))]"
-                                  : isExtra
-                                    ? "bg-primary/15 text-primary"
+                            {isExtra && !done ? (
+                              <button
+                                type="button"
+                                onClick={() => setExtraSets((p) => ({ ...p, [r.id]: Math.max(0, (p[r.id] ?? 0) - 1) }))}
+                                aria-label="Remover série extra"
+                                className="grid h-7 w-7 place-items-center rounded-lg bg-muted text-destructive hover:bg-destructive/10"
+                              >
+                                <Trash2 className="h-3.5 w-3.5" />
+                              </button>
+                            ) : (
+                              <span
+                                className={`grid h-7 w-7 place-items-center rounded-lg text-xs font-bold font-display leading-none ${
+                                  done
+                                    ? "bg-muted text-[hsl(var(--success))]"
                                     : "bg-muted text-foreground"
-                              }`}
-                            >
-                              {i + 1}
-                            </span>
+                                }`}
+                              >
+                                {i + 1}
+                              </span>
+                            )}
                           </div>
                           {hasLoadCol && (
                             <div className={`flex h-10 w-24 items-center rounded-md border bg-background focus-within:ring-2 focus-within:ring-primary ${done ? "border-[hsl(var(--success))]" : "border-border"}`}>
