@@ -758,11 +758,19 @@ function Dashboard() {
                 trend={stats?.treinosDelta}
                 spark={stats?.treinosSpark}
               />
-              <KpiCard
-                label="Avaliações"
-                value={String(stats?.avaliacoes ?? 0)}
-                sub="em dia"
-              />
+              {soloRevenue?.isSolo ? (
+                <KpiCard
+                  label="Receita do mês"
+                  value={formatBRL(soloRevenue.total)}
+                  sub="lançamentos deste mês"
+                />
+              ) : (
+                <KpiCard
+                  label="Avaliações"
+                  value={String(stats?.avaliacoes ?? 0)}
+                  sub="em dia"
+                />
+              )}
             </div>
 
 
