@@ -496,13 +496,14 @@ function MeuTreinoPage() {
                   <p className="text-[0.6875rem] text-muted-foreground leading-tight">seu ranking</p>
                   <p className="font-display text-[0.9375rem] font-bold leading-tight truncate">
                     <span style={{ color: "rgb(205, 127, 50)" }}>Bronze</span>
-                    <span className="text-muted-foreground/80 font-semibold">
+                    <span className="text-[14px] text-muted-foreground/80 font-semibold">
                       {" · "}
                       {ranking && ranking.totalInGroup > 0
                         ? `${ranking.youRank ?? "—"}º no grupo`
                         : "posição no grupo"}
                     </span>
                   </p>
+
                 </div>
 
               </div>
