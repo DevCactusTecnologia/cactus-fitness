@@ -62,7 +62,6 @@ const NAV_BY_SCOPE: Record<Scope, NavItem[]> = {
   ],
 };
 
-};
 
 function detectScope(pathname: string): Scope {
   if (pathname.startsWith("/dashboard/academia")) return "academia";
