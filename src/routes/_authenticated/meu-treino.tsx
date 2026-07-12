@@ -2,7 +2,7 @@ import { requireAlunoRole } from "@/lib/route-guards";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  Home, MessageSquare, MessageCircle, TrendingUp, Trophy, Users, Utensils, Calendar,
+  House, MessageSquare, MessageCircle, TrendingUp, Trophy, Users, Utensils, Calendar,
   Folder, ClipboardList, FileText, User as UserIcon, Settings, HeadphonesIcon,
   Droplet, Sun, Camera, Check, CheckCircle2, Flame, Play, ChevronRight, Zap, Dumbbell, Activity,
   Edit3, StickyNote, Bell, Receipt, MessageSquareText, Menu as MenuIcon, ChevronDown, Shield,
@@ -40,7 +40,7 @@ export const Route = createFileRoute("/_authenticated/meu-treino")({
 });
 
 const RAIL_ITEMS = [
-  { icon: Home, label: "Início", to: "/meu-treino" as const },
+  { icon: House, label: "Início", to: "/meu-treino" as const },
   { icon: Dumbbell, label: "Meus Treinos", to: "/treinos" as const },
   { icon: TrendingUp, label: "Meu Progresso", to: "/meu-progresso" as const },
   { icon: ClipboardList, label: "Avaliações", to: "/avaliacoes" as const },
@@ -49,7 +49,7 @@ const RAIL_ITEMS = [
 ];
 
 const MOBILE_NAV_ITEMS: { icon: any; label: string; to: (typeof RAIL_ITEMS)[number]["to"] }[] = [
-  { icon: Home, label: "Início", to: "/meu-treino" },
+  { icon: House, label: "Início", to: "/meu-treino" },
   { icon: Dumbbell, label: "Treinos", to: "/treinos" },
   { icon: ClipboardList, label: "Avaliações", to: "/avaliacoes" },
   { icon: Trophy, label: "Desafios", to: "/desafios" },

@@ -1,7 +1,7 @@
 import { Link, useRouterState } from "@tanstack/react-router";
 import {
   LayoutDashboard,
-  Home,
+  House,
   Users,
   Dumbbell,
   Trophy,
@@ -33,7 +33,7 @@ type NavItem = {
  */
 const NAV_BY_SCOPE: Record<Scope, NavItem[]> = {
   personal: [
-    { icon: Home, label: "Início", to: "/", match: (p) => p === "/" },
+    { icon: House, label: "Início", to: "/", match: (p) => p === "/" },
     { icon: Users, label: "Alunos", to: "/dashboard/personal/alunos", match: (p) => p.startsWith("/dashboard/personal/alunos") },
     { icon: Dumbbell, label: "Treinos", to: "/dashboard/personal/treinos", match: (p) => p.startsWith("/dashboard/personal/treinos") },
     { icon: Library, label: "Exercícios", to: "/dashboard/personal/exercicios", match: (p) => p.startsWith("/dashboard/personal/exercicios") },
@@ -54,7 +54,7 @@ const NAV_BY_SCOPE: Record<Scope, NavItem[]> = {
     { icon: Settings, label: "Configurações", to: "/dashboard/academia/configuracoes" as string, match: (p) => p.startsWith("/dashboard/academia/configuracoes") },
   ],
   aluno: [
-    { icon: Home, label: "Início", to: "/meu-treino", match: (p) => p === "/meu-treino" },
+    { icon: House, label: "Início", to: "/meu-treino", match: (p) => p === "/meu-treino" },
     { icon: Dumbbell, label: "Meus Treinos", to: "/treinos", match: (p) => p.startsWith("/treinos") || p.startsWith("/meu-treino") },
     { icon: TrendingUp, label: "Meu Progresso", to: "/meu-progresso", match: (p) => p.startsWith("/meu-progresso") },
     { icon: ClipboardList, label: "Avaliações", to: "/avaliacoes", match: (p) => p.startsWith("/avaliacoes") },
