@@ -19,6 +19,8 @@ import { useQueryClient, useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { AvatarCropDialog } from "@/components/AvatarCropDialog";
 import { getMyRanking } from "@/lib/ranking.functions";
+import { toast } from "sonner";
+
 
 
 
@@ -155,17 +157,25 @@ function MeuTreinoPage() {
     const { error: upErr } = await supabase.storage
       .from("avatars")
       .upload(path, blob, { upsert: true, contentType: "image/jpeg" });
-    if (upErr) { setUploadingAvatar(false); return; }
+    if (upErr) {
+      setUploadingAvatar(false);
+      toast.error("Falha ao enviar a foto: " + upErr.message);
+      return;
+    }
     const { error: dbErr } = await supabase
       .from("profiles")
       .update({ avatar_url: path })
       .eq("id", profile.id);
     setUploadingAvatar(false);
     setCropSrc(null);
-    if (!dbErr) {
-      await queryClient.invalidateQueries({ queryKey: ["current-user-profile", profile.id] });
+    if (dbErr) {
+      toast.error("Foto enviada, mas falha ao salvar no perfil: " + dbErr.message);
+      return;
     }
+    await queryClient.invalidateQueries({ queryKey: ["current-user-profile", profile.id] });
   };
+
+
 
 
   useEffect(() => {
