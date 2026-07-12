@@ -87,7 +87,7 @@ function TreinosPage() {
             .sort((a, b) => a.position - b.position);
         });
       }
-      const mapped: WorkoutItem[] = list.flatMap((s: any) => {
+      const mapped: WorkoutItem[] = list.flatMap((s: any): WorkoutItem[] => {
         const sessions = s.template_id ? sessionsByTpl[s.template_id] : undefined;
         if (!sessions || sessions.length === 0) {
           return [{
