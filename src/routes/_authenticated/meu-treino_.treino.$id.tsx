@@ -385,18 +385,66 @@ function TreinoPage() {
       .filter((x) => x.pending > 0);
   }, [rows, extraSets, doneSets]);
 
-  async function doFinish() {
-    if (sessionId) {
-      const dur = Math.floor((Date.now() - startedAtRef.current) / 1000);
-      await supabase.from("workout_sessions").update({
-        status: "concluido",
-        finished_at: new Date().toISOString(),
-        duration_seconds: dur,
-      }).eq("id", sessionId);
+  const finishStats = useMemo(() => {
+    let series = 0;
+    let reps_total = 0;
+    let volume = 0;
+    for (const r of rows) {
+      const total = (r.sets || 0) + (extraSets[r.id] ?? 0);
+      for (let i = 0; i < total; i++) {
+        const key = `${r.id}:${i}`;
+        if (!doneSets.has(key)) continue;
+        series += 1;
+        const repVal = Number(reps[key] ?? r.reps ?? 0) || 0;
+        const loadVal = Number(loads[key] ?? r.load ?? 0) || 0;
+        reps_total += repVal;
+        volume += repVal * loadVal;
+      }
     }
-    await supabase.from("student_workouts").update({ status: "concluido" }).eq("id", id);
-    toast.success("Treino concluído!");
-    navigate({ to: "/meu-treino" });
+    const minutes = Math.max(0, Math.floor((Date.now() - startedAtRef.current) / 60000));
+    return { minutes, volume: Math.round(volume), series, reps_total };
+    // nowTick keeps this fresh while modal is open
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rows, extraSets, doneSets, reps, loads, nowTick]);
+
+  function doFinish() {
+    setCompletedOpen(true);
+  }
+
+  async function saveFinal() {
+    if (saving) return;
+    setSaving(true);
+    try {
+      if (sessionId) {
+        const dur = Math.floor((Date.now() - startedAtRef.current) / 1000);
+        await supabase.from("workout_sessions").update({
+          status: "concluido",
+          finished_at: new Date().toISOString(),
+          duration_seconds: dur,
+          rpe: finalRpe,
+          notes: finalNotes || null,
+        }).eq("id", sessionId);
+      }
+      await supabase.from("student_workouts").update({ status: "concluido" }).eq("id", id);
+      toast.success("Treino salvo!");
+      navigate({ to: "/meu-treino" });
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function discardFinal() {
+    if (saving) return;
+    setSaving(true);
+    try {
+      if (sessionId) {
+        await supabase.from("workout_sessions").delete().eq("id", sessionId);
+      }
+      toast.message("Treino descartado");
+      navigate({ to: "/meu-treino" });
+    } finally {
+      setSaving(false);
+    }
   }
 
   function finish() {
@@ -404,7 +452,7 @@ function TreinoPage() {
       setPendingOpen(true);
       return;
     }
-    void doFinish();
+    doFinish();
   }
 
   function downloadPdf() {
