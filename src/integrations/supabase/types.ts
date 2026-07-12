@@ -814,6 +814,7 @@ export type Database = {
           id: string
           notes: string | null
           organization_id: string
+          rpe: number | null
           started_at: string
           status: string
           student_workout_id: string
@@ -827,6 +828,7 @@ export type Database = {
           id?: string
           notes?: string | null
           organization_id?: string
+          rpe?: number | null
           started_at?: string
           status?: string
           student_workout_id: string
@@ -840,6 +842,7 @@ export type Database = {
           id?: string
           notes?: string | null
           organization_id?: string
+          rpe?: number | null
           started_at?: string
           status?: string
           student_workout_id?: string
