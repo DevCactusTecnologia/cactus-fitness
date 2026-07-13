@@ -152,6 +152,20 @@ export const listAllOrganizations = createServerFn({ method: "GET" })
       supabaseAdmin.from("alunos").select("organization_id, is_active"),
     ]);
     const profileMap = new Map((profiles.data ?? []).map((p: any) => [p.id, p.full_name]));
+
+    // Fetch owner emails via Auth Admin API
+    const emailMap = new Map<string, string>();
+    await Promise.all(
+      ownerIds.map(async (uid) => {
+        try {
+          const { data } = await supabaseAdmin.auth.admin.getUserById(uid as string);
+          if (data?.user?.email) emailMap.set(uid as string, data.user.email);
+        } catch {
+          /* ignore */
+        }
+      }),
+    );
+
     const memberCounts: Record<string, number> = {};
     (allMembers.data ?? []).forEach((m: any) => {
       memberCounts[m.organization_id] = (memberCounts[m.organization_id] ?? 0) + 1;
@@ -167,10 +181,12 @@ export const listAllOrganizations = createServerFn({ method: "GET" })
     return list.map((o: any) => ({
       ...o,
       owner_name: profileMap.get(o.created_by) ?? null,
+      owner_email: emailMap.get(o.created_by) ?? null,
       member_count: memberCounts[o.id] ?? 0,
       aluno_count: alunoCounts[o.id]?.total ?? 0,
       aluno_ativos: alunoCounts[o.id]?.ativos ?? 0,
     }));
+
   });
 
 const updateOrgSchema = z.object({
