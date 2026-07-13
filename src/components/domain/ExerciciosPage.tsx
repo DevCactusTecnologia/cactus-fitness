@@ -611,8 +611,8 @@ function NewExerciseWizard({
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<FormData>(() => ({
     name: initial?.name ? (isPersonalize ? `${initial.name} (personalizado)` : initial.name) : "",
-    description: initial?.description ?? "",
-    instructions: initial?.instructions ?? "",
+    description: [initial?.description, initial?.instructions].filter(Boolean).join("\n\n"),
+    instructions: "",
     group_id: initial?.group_id ?? null,
     category: initial?.category ?? "",
     difficulty: initial?.difficulty ?? "",
@@ -935,23 +935,13 @@ function NewExerciseWizard({
             <>
               <p className="text-xs text-muted-foreground">Tudo opcional. Salve a qualquer momento.</p>
 
-              <Field label="Descrição">
+              <Field label="Descrição e execução" hint="Explique o exercício e como executá-lo passo a passo.">
                 <textarea
                   value={data.description}
-                  onChange={(e) => setData({ ...data, description: e.target.value })}
-                  placeholder="Breve descrição"
-                  rows={2}
+                  onChange={(e) => setData({ ...data, description: e.target.value, instructions: "" })}
+                  placeholder={"Ex.: Exercício para peitoral.\n1. Deite no banco...\n2. Desça a barra..."}
+                  rows={6}
                   className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2 text-sm focus:outline-none focus:border-primary transition resize-none"
-                />
-              </Field>
-
-              <Field label="Instruções de execução">
-                <textarea
-                  value={data.instructions}
-                  onChange={(e) => setData({ ...data, instructions: e.target.value })}
-                  placeholder={"1. ...\n2. ..."}
-                  rows={4}
-                  className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2 text-sm focus:outline-none focus:border-primary transition resize-none font-mono"
                 />
               </Field>
 
