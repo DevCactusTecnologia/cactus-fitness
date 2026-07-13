@@ -6,7 +6,7 @@ import {
   Loader2, Trash2, Ban, Play, Search, KeyRound, LogOut,
   Crown, UserMinus, UserPlus, AlertTriangle, Sparkles, ArrowUpRight,
   Activity, Zap, Target, Calendar, MoreHorizontal, Copy, CheckCircle2,
-  Clock, XCircle, Filter, LayoutGrid, List as ListIcon, ChevronDown,
+  Clock, XCircle, Filter, LayoutGrid, List as ListIcon, ChevronDown, Mail,
 } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
 import { confirmDialog } from "@/components/ui/confirm-dialog";
@@ -940,16 +940,31 @@ function OrgsTab() {
                   </div>
                 )}
 
-                <div className="mt-4 flex items-center justify-between border-t border-border/60 pt-3 text-[11px] text-muted-foreground">
-                  <div className="flex min-w-0 items-center gap-1.5">
-                    <Crown className="h-3 w-3 shrink-0" />
-                    <span className="truncate">{o.owner_name ?? "Sem dono"}</span>
+                <div className="mt-4 space-y-1.5 border-t border-border/60 pt-3 text-[11px] text-muted-foreground">
+                  <div className="flex items-center justify-between">
+                    <div className="flex min-w-0 items-center gap-1.5">
+                      <Crown className="h-3 w-3 shrink-0" />
+                      <span className="truncate">{o.owner_name ?? "Sem dono"}</span>
+                    </div>
+                    <div className="flex items-center gap-1.5">
+                      <Calendar className="h-3 w-3" />
+                      {new Date(o.created_at).toLocaleDateString("pt-BR", { month: "short", year: "numeric" })}
+                    </div>
                   </div>
-                  <div className="flex items-center gap-1.5">
-                    <Calendar className="h-3 w-3" />
-                    {new Date(o.created_at).toLocaleDateString("pt-BR", { month: "short", year: "numeric" })}
-                  </div>
+                  {o.owner_email && (
+                    <div className="flex min-w-0 items-center gap-1.5">
+                      <Mail className="h-3 w-3 shrink-0" />
+                      <a
+                        href={`mailto:${o.owner_email}`}
+                        className="truncate hover:text-foreground hover:underline"
+                        title={o.owner_email}
+                      >
+                        {o.owner_email}
+                      </a>
+                    </div>
+                  )}
                 </div>
+
 
                 <div className="mt-3 grid grid-cols-2 gap-2">
                   <select
