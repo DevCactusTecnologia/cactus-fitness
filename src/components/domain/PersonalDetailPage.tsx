@@ -1,13 +1,14 @@
 import { notFound, useParams, Link } from "@tanstack/react-router";
-import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
+import { useQuery, useQueryClient, useMutation, useInfiniteQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import {
   ChevronLeft, ChevronRight, Loader2, Mail, Phone, Calendar, Shield, Crown,
-  BadgeCheck, Users as UsersIcon, Pencil, KeyRound, Eye, EyeOff, Lock, Trash2, AlertTriangle,
+  BadgeCheck, Users as UsersIcon, Pencil, KeyRound, Eye, EyeOff, Lock, Trash2, AlertTriangle, Search,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "@/components/ui/sonner";
 import { useNavigate } from "@tanstack/react-router";
+
 import { supabase } from "@/integrations/supabase/client";
 import { IconRail } from "@/components/IconRail";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
@@ -35,8 +36,12 @@ type PersonalDetail = {
   is_active: boolean;
   member_since: string;
   organization_id: string;
-  alunos: { id: string; full_name: string; is_active: boolean; created_at: string }[];
+  alunos_count: number;
 };
+
+type AlunoLite = { id: string; full_name: string; is_active: boolean; created_at: string };
+const ALUNOS_PAGE_SIZE = 20;
+
 
 function usePersonal(personalId: string) {
   return useQuery({
@@ -70,12 +75,11 @@ function usePersonal(personalId: string) {
         .eq("id", personalId)
         .maybeSingle();
 
-      const { data: alunos } = await supabase
+      const { count: alunosCount } = await supabase
         .from("alunos")
-        .select("id, full_name, is_active, created_at")
+        .select("id", { count: "exact", head: true })
         .eq("organization_id", orgId)
-        .eq("personal_id", personalId)
-        .order("created_at", { ascending: false });
+        .eq("personal_id", personalId);
 
       return {
         user_id: personalId,
@@ -87,11 +91,12 @@ function usePersonal(personalId: string) {
         is_active: (member as any).is_active ?? true,
         member_since: member.created_at,
         organization_id: orgId,
-        alunos: (alunos ?? []) as PersonalDetail["alunos"],
+        alunos_count: alunosCount ?? 0,
       };
     },
   });
 }
+
 
 const TABS = ["Alunos", "Informações"];
 
@@ -125,8 +130,57 @@ export function PersonalDetailPage({ scope }: { scope: Scope }) {
   const [passOpen, setPassOpen] = useState(false);
   const [toggleOpen, setToggleOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [alunoQuery, setAlunoQuery] = useState("");
 
   const alunosBase = scope === "academia" ? "/dashboard/academia/alunos" : "/dashboard/personal/alunos";
+
+  const orgId = p?.organization_id;
+  const {
+    data: alunosData,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading: alunosLoading,
+  } = useInfiniteQuery({
+    queryKey: ["personal-alunos", personalId, orgId, alunoQuery.trim().toLowerCase()],
+    enabled: !!orgId,
+    initialPageParam: 0,
+    queryFn: async ({ pageParam }): Promise<AlunoLite[]> => {
+      const from = (pageParam as number) * ALUNOS_PAGE_SIZE;
+      const to = from + ALUNOS_PAGE_SIZE - 1;
+      let query = supabase
+        .from("alunos")
+        .select("id, full_name, is_active, created_at")
+        .eq("organization_id", orgId!)
+        .eq("personal_id", personalId);
+      const term = alunoQuery.trim();
+      if (term) query = query.ilike("full_name", `%${term}%`);
+      const { data, error } = await query
+        .order("created_at", { ascending: false })
+        .order("id", { ascending: false })
+        .range(from, to);
+      if (error) throw error;
+      return (data ?? []) as AlunoLite[];
+    },
+    getNextPageParam: (last, all) => (last.length < ALUNOS_PAGE_SIZE ? undefined : all.length),
+  });
+
+  const alunos = useMemo<AlunoLite[]>(() => (alunosData?.pages ?? []).flat(), [alunosData]);
+
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting && hasNextPage && !isFetchingNextPage) fetchNextPage();
+      },
+      { rootMargin: "300px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
 
   if (isLoading || !p) {
     return (
@@ -200,8 +254,9 @@ export function PersonalDetailPage({ scope }: { scope: Scope }) {
                     {p.is_active ? "Ativo" : "Inativo"}
                   </span>
                   <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
-                    <UsersIcon className="h-3 w-3" /> {p.alunos.length} {p.alunos.length === 1 ? "aluno" : "alunos"}
+                    <UsersIcon className="h-3 w-3" /> {p.alunos_count} {p.alunos_count === 1 ? "aluno" : "alunos"}
                   </span>
+
                 </div>
               </div>
             </div>
@@ -226,44 +281,77 @@ export function PersonalDetailPage({ scope }: { scope: Scope }) {
 
             <div className="p-5 md:p-6">
               {tab === 0 && (
-                <div className="space-y-2">
-                  {p.alunos.length === 0 ? (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 rounded-full border border-border bg-background/40 px-4 py-2 text-sm">
+                    <Search className="h-4 w-4 text-muted-foreground" />
+                    <input
+                      value={alunoQuery}
+                      onChange={(e) => setAlunoQuery(e.target.value)}
+                      placeholder="buscar aluno..."
+                      className="w-full bg-transparent placeholder:text-muted-foreground focus:outline-none"
+                    />
+                  </div>
+
+                  {alunosLoading ? (
+                    <div className="grid place-items-center py-10">
+                      <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                    </div>
+                  ) : alunos.length === 0 ? (
                     <div className="flex flex-col items-center gap-2 py-10 text-center">
                       <div className="grid h-12 w-12 place-items-center rounded-full bg-primary/10 text-primary">
                         <UsersIcon className="h-5 w-5" />
                       </div>
-                      <p className="text-sm font-medium">Nenhum aluno vinculado</p>
-                      <p className="text-xs text-muted-foreground">Este personal ainda não atende alunos.</p>
+                      <p className="text-sm font-medium">
+                        {alunoQuery ? "Nenhum aluno encontrado" : "Nenhum aluno vinculado"}
+                      </p>
+                      {!alunoQuery && (
+                        <p className="text-xs text-muted-foreground">Este personal ainda não atende alunos.</p>
+                      )}
                     </div>
                   ) : (
-                    p.alunos.map((a) => (
-                      <Link
-                        key={a.id}
-                        to={`${alunosBase}/$alunoId` as "/dashboard/personal/alunos/$alunoId"}
-                        params={{ alunoId: a.id }}
-                        className="flex items-center justify-between gap-3 rounded-lg border border-border bg-background/40 p-3 transition hover:bg-accent"
-                      >
-                        <div className="flex min-w-0 items-center gap-3">
-                          <div
-                            className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-sm font-bold font-display"
-                            style={{ backgroundColor: colorForId(a.id).bg, color: colorForId(a.id).fg }}
-                          >
-                            {initialsFromName(a.full_name, null)}
-                          </div>
-                          <div className="min-w-0">
-                            <div className="truncate text-sm font-medium">{a.full_name}</div>
-                            <div className="text-xs text-muted-foreground">
-                              {a.is_active ? "Ativo" : "Desativado"} · desde{" "}
-                              {new Date(a.created_at).toLocaleDateString("pt-BR")}
+                    <div className="space-y-2">
+                      {alunos.map((a) => (
+                        <Link
+                          key={a.id}
+                          to={`${alunosBase}/$alunoId` as "/dashboard/personal/alunos/$alunoId"}
+                          params={{ alunoId: a.id }}
+                          className="flex items-center justify-between gap-3 rounded-lg border border-border bg-background/40 p-3 transition hover:bg-accent"
+                        >
+                          <div className="flex min-w-0 items-center gap-3">
+                            <div
+                              className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-sm font-bold font-display"
+                              style={{ backgroundColor: colorForId(a.id).bg, color: colorForId(a.id).fg }}
+                            >
+                              {initialsFromName(a.full_name, null)}
+                            </div>
+                            <div className="min-w-0">
+                              <div className="truncate text-sm font-medium">{a.full_name}</div>
+                              <div className="text-xs text-muted-foreground">
+                                {a.is_active ? "Ativo" : "Desativado"} · desde{" "}
+                                {new Date(a.created_at).toLocaleDateString("pt-BR")}
+                              </div>
                             </div>
                           </div>
+                          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                        </Link>
+                      ))}
+                      {hasNextPage && (
+                        <div
+                          ref={sentinelRef}
+                          className="flex items-center justify-center py-4 text-xs text-muted-foreground"
+                        >
+                          {isFetchingNextPage ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            "Carregando mais..."
+                          )}
                         </div>
-                        <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                      </Link>
-                    ))
+                      )}
+                    </div>
                   )}
                 </div>
               )}
+
 
               {tab === 1 && (
                 <>
