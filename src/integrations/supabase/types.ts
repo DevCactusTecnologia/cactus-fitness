@@ -578,6 +578,7 @@ export type Database = {
           slug: string | null
           subscription_status: string
           suspended_at: string | null
+          type: string
           updated_at: string
         }
         Insert: {
@@ -591,6 +592,7 @@ export type Database = {
           slug?: string | null
           subscription_status?: string
           suspended_at?: string | null
+          type?: string
           updated_at?: string
         }
         Update: {
@@ -604,6 +606,7 @@ export type Database = {
           slug?: string | null
           subscription_status?: string
           suspended_at?: string | null
+          type?: string
           updated_at?: string
         }
         Relationships: []
