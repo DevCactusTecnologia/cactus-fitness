@@ -616,8 +616,8 @@ function NewExerciseWizard({
   }));
   const [mediaTab, setMediaTab] = useState<"none" | "url" | "photo" | "video">(() => {
     if (initial?.video_url) return "url";
-    if (initial?.video_path) return "video";
-    if (initial?.image_path) return "photo";
+    if (initial?.video_path && !isPersonalize) return "video";
+    if (initial?.image_path && !isPersonalize) return "photo";
     return "none";
   });
   const [uploading, setUploading] = useState<null | "photo" | "video">(null);
