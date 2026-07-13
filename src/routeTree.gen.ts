@@ -23,9 +23,11 @@ import { Route as AuthenticatedMeuProgressoRouteImport } from './routes/_authent
 import { Route as AuthenticatedMeuPlanoRouteImport } from './routes/_authenticated/meu-plano'
 import { Route as AuthenticatedDesafiosRouteImport } from './routes/_authenticated/desafios'
 import { Route as AuthenticatedAvaliacoesRouteImport } from './routes/_authenticated/avaliacoes'
+import { Route as AuthenticatedSuperAdminRouteRouteImport } from './routes/_authenticated/_super-admin/route'
 import { Route as AuthenticatedPersonalRouteRouteImport } from './routes/_authenticated/_personal/route'
 import { Route as AuthenticatedAlunoRouteRouteImport } from './routes/_authenticated/_aluno/route'
 import { Route as AuthenticatedAcademiaRouteRouteImport } from './routes/_authenticated/_academia/route'
+import { Route as AuthenticatedSuperAdminSuperAdminIndexRouteImport } from './routes/_authenticated/_super-admin/super-admin.index'
 import { Route as AuthenticatedMeuTreinoTreinoIdRouteImport } from './routes/_authenticated/meu-treino_.treino.$id'
 import { Route as AuthenticatedMeuTreinoPreviewIdRouteImport } from './routes/_authenticated/meu-treino_.preview.$id'
 import { Route as AuthenticatedMeuTreinoHistoricoSessionIdRouteImport } from './routes/_authenticated/meu-treino_.historico.$sessionId'
@@ -137,6 +139,11 @@ const AuthenticatedAvaliacoesRoute = AuthenticatedAvaliacoesRouteImport.update({
   path: '/avaliacoes',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedSuperAdminRouteRoute =
+  AuthenticatedSuperAdminRouteRouteImport.update({
+    id: '/_super-admin',
+    getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
 const AuthenticatedPersonalRouteRoute =
   AuthenticatedPersonalRouteRouteImport.update({
     id: '/_personal',
@@ -150,6 +157,12 @@ const AuthenticatedAcademiaRouteRoute =
   AuthenticatedAcademiaRouteRouteImport.update({
     id: '/_academia',
     getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedSuperAdminSuperAdminIndexRoute =
+  AuthenticatedSuperAdminSuperAdminIndexRouteImport.update({
+    id: '/super-admin/',
+    path: '/super-admin/',
+    getParentRoute: () => AuthenticatedSuperAdminRouteRoute,
   } as any)
 const AuthenticatedMeuTreinoTreinoIdRoute =
   AuthenticatedMeuTreinoTreinoIdRouteImport.update({
@@ -407,6 +420,7 @@ export interface FileRoutesByFullPath {
   '/meu-treino/historico/$sessionId': typeof AuthenticatedMeuTreinoHistoricoSessionIdRoute
   '/meu-treino/preview/$id': typeof AuthenticatedMeuTreinoPreviewIdRoute
   '/meu-treino/treino/$id': typeof AuthenticatedMeuTreinoTreinoIdRoute
+  '/super-admin/': typeof AuthenticatedSuperAdminSuperAdminIndexRoute
   '/dashboard/academia/configuracoes': typeof AuthenticatedAcademiaDashboardAcademiaConfiguracoesRoute
   '/dashboard/academia/desafios': typeof AuthenticatedAcademiaDashboardAcademiaDesafiosRoute
   '/dashboard/academia/exercicios': typeof AuthenticatedAcademiaDashboardAcademiaExerciciosRoute
@@ -461,6 +475,7 @@ export interface FileRoutesByTo {
   '/meu-treino/historico/$sessionId': typeof AuthenticatedMeuTreinoHistoricoSessionIdRoute
   '/meu-treino/preview/$id': typeof AuthenticatedMeuTreinoPreviewIdRoute
   '/meu-treino/treino/$id': typeof AuthenticatedMeuTreinoTreinoIdRoute
+  '/super-admin': typeof AuthenticatedSuperAdminSuperAdminIndexRoute
   '/dashboard/academia/configuracoes': typeof AuthenticatedAcademiaDashboardAcademiaConfiguracoesRoute
   '/dashboard/academia/desafios': typeof AuthenticatedAcademiaDashboardAcademiaDesafiosRoute
   '/dashboard/academia/exercicios': typeof AuthenticatedAcademiaDashboardAcademiaExerciciosRoute
@@ -506,6 +521,7 @@ export interface FileRoutesById {
   '/_authenticated/_academia': typeof AuthenticatedAcademiaRouteRouteWithChildren
   '/_authenticated/_aluno': typeof AuthenticatedAlunoRouteRouteWithChildren
   '/_authenticated/_personal': typeof AuthenticatedPersonalRouteRouteWithChildren
+  '/_authenticated/_super-admin': typeof AuthenticatedSuperAdminRouteRouteWithChildren
   '/_authenticated/avaliacoes': typeof AuthenticatedAvaliacoesRoute
   '/_authenticated/desafios': typeof AuthenticatedDesafiosRoute
   '/_authenticated/meu-plano': typeof AuthenticatedMeuPlanoRoute
@@ -520,6 +536,7 @@ export interface FileRoutesById {
   '/_authenticated/meu-treino_/historico/$sessionId': typeof AuthenticatedMeuTreinoHistoricoSessionIdRoute
   '/_authenticated/meu-treino_/preview/$id': typeof AuthenticatedMeuTreinoPreviewIdRoute
   '/_authenticated/meu-treino_/treino/$id': typeof AuthenticatedMeuTreinoTreinoIdRoute
+  '/_authenticated/_super-admin/super-admin/': typeof AuthenticatedSuperAdminSuperAdminIndexRoute
   '/_authenticated/_academia/dashboard/academia/configuracoes': typeof AuthenticatedAcademiaDashboardAcademiaConfiguracoesRoute
   '/_authenticated/_academia/dashboard/academia/desafios': typeof AuthenticatedAcademiaDashboardAcademiaDesafiosRoute
   '/_authenticated/_academia/dashboard/academia/exercicios': typeof AuthenticatedAcademiaDashboardAcademiaExerciciosRoute
@@ -576,6 +593,7 @@ export interface FileRouteTypes {
     | '/meu-treino/historico/$sessionId'
     | '/meu-treino/preview/$id'
     | '/meu-treino/treino/$id'
+    | '/super-admin/'
     | '/dashboard/academia/configuracoes'
     | '/dashboard/academia/desafios'
     | '/dashboard/academia/exercicios'
@@ -630,6 +648,7 @@ export interface FileRouteTypes {
     | '/meu-treino/historico/$sessionId'
     | '/meu-treino/preview/$id'
     | '/meu-treino/treino/$id'
+    | '/super-admin'
     | '/dashboard/academia/configuracoes'
     | '/dashboard/academia/desafios'
     | '/dashboard/academia/exercicios'
@@ -674,6 +693,7 @@ export interface FileRouteTypes {
     | '/_authenticated/_academia'
     | '/_authenticated/_aluno'
     | '/_authenticated/_personal'
+    | '/_authenticated/_super-admin'
     | '/_authenticated/avaliacoes'
     | '/_authenticated/desafios'
     | '/_authenticated/meu-plano'
@@ -688,6 +708,7 @@ export interface FileRouteTypes {
     | '/_authenticated/meu-treino_/historico/$sessionId'
     | '/_authenticated/meu-treino_/preview/$id'
     | '/_authenticated/meu-treino_/treino/$id'
+    | '/_authenticated/_super-admin/super-admin/'
     | '/_authenticated/_academia/dashboard/academia/configuracoes'
     | '/_authenticated/_academia/dashboard/academia/desafios'
     | '/_authenticated/_academia/dashboard/academia/exercicios'
@@ -832,6 +853,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAvaliacoesRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/_super-admin': {
+      id: '/_authenticated/_super-admin'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedSuperAdminRouteRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/_personal': {
       id: '/_authenticated/_personal'
       path: ''
@@ -852,6 +880,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/'
       preLoaderRoute: typeof AuthenticatedAcademiaRouteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/_super-admin/super-admin/': {
+      id: '/_authenticated/_super-admin/super-admin/'
+      path: '/super-admin'
+      fullPath: '/super-admin/'
+      preLoaderRoute: typeof AuthenticatedSuperAdminSuperAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedSuperAdminRouteRoute
     }
     '/_authenticated/meu-treino_/treino/$id': {
       id: '/_authenticated/meu-treino_/treino/$id'
@@ -1273,10 +1308,26 @@ const AuthenticatedPersonalRouteRouteWithChildren =
     AuthenticatedPersonalRouteRouteChildren,
   )
 
+interface AuthenticatedSuperAdminRouteRouteChildren {
+  AuthenticatedSuperAdminSuperAdminIndexRoute: typeof AuthenticatedSuperAdminSuperAdminIndexRoute
+}
+
+const AuthenticatedSuperAdminRouteRouteChildren: AuthenticatedSuperAdminRouteRouteChildren =
+  {
+    AuthenticatedSuperAdminSuperAdminIndexRoute:
+      AuthenticatedSuperAdminSuperAdminIndexRoute,
+  }
+
+const AuthenticatedSuperAdminRouteRouteWithChildren =
+  AuthenticatedSuperAdminRouteRoute._addFileChildren(
+    AuthenticatedSuperAdminRouteRouteChildren,
+  )
+
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAcademiaRouteRoute: typeof AuthenticatedAcademiaRouteRouteWithChildren
   AuthenticatedAlunoRouteRoute: typeof AuthenticatedAlunoRouteRouteWithChildren
   AuthenticatedPersonalRouteRoute: typeof AuthenticatedPersonalRouteRouteWithChildren
+  AuthenticatedSuperAdminRouteRoute: typeof AuthenticatedSuperAdminRouteRouteWithChildren
   AuthenticatedAvaliacoesRoute: typeof AuthenticatedAvaliacoesRoute
   AuthenticatedDesafiosRoute: typeof AuthenticatedDesafiosRoute
   AuthenticatedMeuPlanoRoute: typeof AuthenticatedMeuPlanoRoute
@@ -1297,6 +1348,8 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAcademiaRouteRoute: AuthenticatedAcademiaRouteRouteWithChildren,
   AuthenticatedAlunoRouteRoute: AuthenticatedAlunoRouteRouteWithChildren,
   AuthenticatedPersonalRouteRoute: AuthenticatedPersonalRouteRouteWithChildren,
+  AuthenticatedSuperAdminRouteRoute:
+    AuthenticatedSuperAdminRouteRouteWithChildren,
   AuthenticatedAvaliacoesRoute: AuthenticatedAvaliacoesRoute,
   AuthenticatedDesafiosRoute: AuthenticatedDesafiosRoute,
   AuthenticatedMeuPlanoRoute: AuthenticatedMeuPlanoRoute,

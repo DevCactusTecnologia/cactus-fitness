@@ -1,8 +1,9 @@
 import { supabase } from "@/integrations/supabase/client";
 
-export type AppRole = "owner" | "staff" | "personal" | "aluno";
+export type AppRole = "super_admin" | "owner" | "staff" | "personal" | "aluno";
 
 const ROLE_PRIORITY: Record<AppRole, number> = {
+  super_admin: 0,
   owner: 1,
   staff: 2,
   personal: 3,

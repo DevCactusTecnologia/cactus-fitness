@@ -572,8 +572,12 @@ export type Database = {
           created_by: string
           id: string
           logo_url: string | null
+          max_alunos: number | null
           name: string
+          plan: string
           slug: string | null
+          subscription_status: string
+          suspended_at: string | null
           updated_at: string
         }
         Insert: {
@@ -581,8 +585,12 @@ export type Database = {
           created_by: string
           id?: string
           logo_url?: string | null
+          max_alunos?: number | null
           name: string
+          plan?: string
           slug?: string | null
+          subscription_status?: string
+          suspended_at?: string | null
           updated_at?: string
         }
         Update: {
@@ -590,8 +598,12 @@ export type Database = {
           created_by?: string
           id?: string
           logo_url?: string | null
+          max_alunos?: number | null
           name?: string
+          plan?: string
           slug?: string | null
+          subscription_status?: string
+          suspended_at?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -1103,7 +1115,7 @@ export type Database = {
       solo_org_for_personal: { Args: { _user_id: string }; Returns: string }
     }
     Enums: {
-      app_role: "personal" | "aluno" | "owner" | "staff"
+      app_role: "personal" | "aluno" | "owner" | "staff" | "super_admin"
       desafio_tipo: "treino_realizado"
       lancamento_categoria:
         | "mensalidade"
@@ -1240,7 +1252,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["personal", "aluno", "owner", "staff"],
+      app_role: ["personal", "aluno", "owner", "staff", "super_admin"],
       desafio_tipo: ["treino_realizado"],
       lancamento_categoria: [
         "mensalidade",
