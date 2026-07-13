@@ -886,6 +886,14 @@ function OrgsTab() {
                 </div>
 
                 <div className="mt-3 flex flex-wrap items-center gap-1.5">
+                  <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-bold ${
+                    o.type === "personal_solo"
+                      ? "border-violet-500/30 bg-violet-500/10 text-violet-500"
+                      : "border-primary/30 bg-primary/10 text-primary"
+                  }`}>
+                    {o.type === "personal_solo" ? <Crown className="h-2.5 w-2.5" /> : <Building2 className="h-2.5 w-2.5" />}
+                    {o.type === "personal_solo" ? "Personal solo" : "Academia"}
+                  </span>
                   <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-bold ${badge.className}`}>
                     {badge.icon} {badge.label}
                   </span>
