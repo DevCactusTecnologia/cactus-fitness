@@ -1,6 +1,6 @@
 import { Link, useNavigate, useSearch } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { useQuery, useMutation, useQueryClient, useInfiniteQuery } from "@tanstack/react-query";
 import {
   Plus,
   Users,
@@ -164,18 +164,52 @@ export function AlunosPage({ scope }: { scope: Scope }) {
     return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7)}`;
   };
 
-  const { data: alunos = [], isLoading } = useQuery({
+  const PAGE_SIZE = 20;
+  const {
+    data,
+    isLoading,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+  } = useInfiniteQuery({
     queryKey: ["alunos", scope],
-    queryFn: async (): Promise<AlunoRow[]> => {
+    initialPageParam: 0,
+    queryFn: async ({ pageParam }): Promise<AlunoRow[]> => {
+      const from = (pageParam as number) * PAGE_SIZE;
+      const to = from + PAGE_SIZE - 1;
       const { data, error } = await supabase
         .from("alunos")
         .select("id, full_name, email, is_active, updated_at, created_at")
         .order("created_at", { ascending: false })
-        .order("id", { ascending: false });
+        .order("id", { ascending: false })
+        .range(from, to);
       if (error) throw error;
       return (data ?? []) as AlunoRow[];
     },
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage.length < PAGE_SIZE ? undefined : allPages.length,
   });
+
+  const alunos = useMemo<AlunoRow[]>(
+    () => (data?.pages ?? []).flat(),
+    [data],
+  );
+
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      { rootMargin: "300px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   const counts = useMemo(
     () => ({
@@ -346,6 +380,18 @@ export function AlunosPage({ scope }: { scope: Scope }) {
                     </Link>
                   ),
                 )
+              )}
+              {hasNextPage && (
+                <div
+                  ref={sentinelRef}
+                  className="flex items-center justify-center py-6 text-xs text-muted-foreground"
+                >
+                  {isFetchingNextPage ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    "Carregando mais..."
+                  )}
+                </div>
               )}
             </div>
           </div>
