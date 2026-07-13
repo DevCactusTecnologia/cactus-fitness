@@ -103,8 +103,13 @@ export const superAdminMetrics = createServerFn({ method: "GET" })
       return c / o.max_alunos >= 0.85;
     }).length;
 
+    const academias = orgList.filter((o: any) => (o.type ?? "academia") === "academia");
+    const soloStudios = orgList.filter((o: any) => o.type === "personal_solo");
+
     return {
       totalOrgs: orgList.length,
+      totalAcademias: academias.length,
+      totalPersonalSolo: soloStudios.length,
       activeOrgs: orgList.filter((o: any) => !o.suspended_at && o.subscription_status === "active").length,
       suspendedOrgs: orgList.filter((o: any) => !!o.suspended_at).length,
       newOrgsThisMonth,
