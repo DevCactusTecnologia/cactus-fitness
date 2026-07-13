@@ -728,43 +728,32 @@ function NewExerciseWizard({
 
           {/* Grupo muscular */}
           <Field label="Grupo muscular *">
-            <div className="flex flex-wrap gap-2">
+            <select
+              value={data.group_id}
+              onChange={(e) => setData({ ...data, group_id: e.target.value })}
+              className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2.5 text-sm focus:outline-none focus:border-primary transition"
+            >
+              <option value="">Selecione um grupo muscular</option>
               {groups.map((g) => (
-                <button
-                  key={g.id}
-                  type="button"
-                  onClick={() => setData({ ...data, group_id: g.id })}
-                  className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
-                    data.group_id === g.id
-                      ? "border-primary bg-primary/15 text-primary"
-                      : "border-border bg-muted/30 text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  {g.name}
-                </button>
+                <option key={g.id} value={g.id}>{g.name}</option>
               ))}
-            </div>
+            </select>
           </Field>
 
           {/* Categoria */}
           <Field label="Categoria" hint="(modalidade)">
-            <div className="flex flex-wrap gap-2">
+            <select
+              value={data.category}
+              onChange={(e) => setData({ ...data, category: e.target.value })}
+              className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2.5 text-sm focus:outline-none focus:border-primary transition"
+            >
+              <option value="">Selecione uma categoria</option>
               {CATEGORIES.map((c) => (
-                <button
-                  key={c}
-                  type="button"
-                  onClick={() => setData({ ...data, category: data.category === c ? "" : c })}
-                  className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
-                    data.category === c
-                      ? "border-primary bg-primary/15 text-primary"
-                      : "border-border bg-muted/30 text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  {c}
-                </button>
+                <option key={c} value={c}>{c}</option>
               ))}
-            </div>
+            </select>
           </Field>
+
 
           {/* Dificuldade */}
           <Field label="Dificuldade">
