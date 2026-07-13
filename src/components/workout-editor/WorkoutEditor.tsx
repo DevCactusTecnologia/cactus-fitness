@@ -3090,9 +3090,11 @@ function ExercisePicker({
   });
 
   const filtered = useMemo(() => {
-    const s = deferredQ.trim().toLowerCase();
+    const norm = (t: string) => t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+    const s = norm(deferredQ.trim());
     return catalog.filter((e) => {
-      if (s && !(e.name.toLowerCase().includes(s) || (e.group ?? "").toLowerCase().includes(s))) return false;
+      if (s && !(norm(e.name).includes(s) || norm(e.group ?? "").includes(s))) return false;
+
       if (difficultyFilter) {
         const k = (e.difficulty ?? "").toLowerCase();
         if (difficultyFilter === "inici" && !k.startsWith("inici")) return false;
