@@ -572,8 +572,12 @@ export type Database = {
           created_by: string
           id: string
           logo_url: string | null
+          max_alunos: number | null
           name: string
+          plan: string
           slug: string | null
+          subscription_status: string
+          suspended_at: string | null
           updated_at: string
         }
         Insert: {
@@ -581,8 +585,12 @@ export type Database = {
           created_by: string
           id?: string
           logo_url?: string | null
+          max_alunos?: number | null
           name: string
+          plan?: string
           slug?: string | null
+          subscription_status?: string
+          suspended_at?: string | null
           updated_at?: string
         }
         Update: {
@@ -590,8 +598,12 @@ export type Database = {
           created_by?: string
           id?: string
           logo_url?: string | null
+          max_alunos?: number | null
           name?: string
+          plan?: string
           slug?: string | null
+          subscription_status?: string
+          suspended_at?: string | null
           updated_at?: string
         }
         Relationships: []
