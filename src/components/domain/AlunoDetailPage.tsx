@@ -178,9 +178,6 @@ export function AlunoDetailPage({ scope }: { scope: Scope }) {
                   <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${aluno.is_active ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"}`}>
                     {aluno.is_active ? "Ativo" : "Desativado"}
                   </span>
-                  <button className="inline-flex items-center gap-1 rounded-full border border-dashed border-muted-foreground/40 px-2.5 py-1 text-xs font-medium text-muted-foreground hover:text-foreground">
-                    <Tag className="h-3 w-3" /> Adicionar categorias
-                  </button>
                   <button
                     type="button"
                     onClick={() => setPasswordOpen(true)}
