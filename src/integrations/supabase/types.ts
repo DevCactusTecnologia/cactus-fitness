@@ -611,6 +611,51 @@ export type Database = {
         }
         Relationships: []
       }
+      plans: {
+        Row: {
+          accent: string
+          created_at: string
+          features: Json
+          icon: string
+          is_active: boolean
+          max_alunos: number | null
+          name: string
+          price_cents: number
+          slug: string
+          sort_order: number
+          tagline: string
+          updated_at: string
+        }
+        Insert: {
+          accent?: string
+          created_at?: string
+          features?: Json
+          icon?: string
+          is_active?: boolean
+          max_alunos?: number | null
+          name: string
+          price_cents?: number
+          slug: string
+          sort_order?: number
+          tagline?: string
+          updated_at?: string
+        }
+        Update: {
+          accent?: string
+          created_at?: string
+          features?: Json
+          icon?: string
+          is_active?: boolean
+          max_alunos?: number | null
+          name?: string
+          price_cents?: number
+          slug?: string
+          sort_order?: number
+          tagline?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null

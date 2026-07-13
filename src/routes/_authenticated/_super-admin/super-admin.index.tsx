@@ -7,6 +7,7 @@ import {
   Crown, UserMinus, UserPlus, AlertTriangle, Sparkles, ArrowUpRight,
   Activity, Zap, Target, Calendar, MoreHorizontal, Copy, CheckCircle2,
   Clock, XCircle, Filter, LayoutGrid, List as ListIcon, ChevronDown, Mail,
+  Plus, Pencil, Save, X as XIcon,
 } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
 import { confirmDialog } from "@/components/ui/confirm-dialog";
@@ -22,6 +23,13 @@ import {
   deleteUserAccount,
   resetUserPassword,
 } from "@/lib/super-admin.functions";
+import {
+  listPlansCatalog,
+  createPlan,
+  updatePlan,
+  deletePlan,
+  type PlanRow,
+} from "@/lib/plans-catalog.functions";
 
 type Tab = "overview" | "orgs" | "users" | "plans";
 
@@ -1468,59 +1476,31 @@ function UsersTab() {
 
 /* ------------------------ PLANOS ------------------------ */
 
-const PLAN_PRICING_LOCAL: Record<string, number> = { free: 0, starter: 49, pro: 149, enterprise: 399 };
+const ICON_CHOICES = ["sparkles", "zap", "crown", "shield"] as const;
+type IconChoice = (typeof ICON_CHOICES)[number];
 
-const PLAN_META: Record<string, {
-  tagline: string;
-  gradient: string;
-  border: string;
-  text: string;
-  chip: string;
-  icon: React.ReactNode;
-  features: string[];
-  defaultLimit: number | null;
-}> = {
-  free: {
-    tagline: "Onboarding e testes",
-    gradient: "from-muted-foreground/15 to-transparent",
-    border: "border-border",
-    text: "text-muted-foreground",
-    chip: "bg-muted text-muted-foreground",
-    icon: <Sparkles className="h-4 w-4" />,
-    features: ["Até 10 alunos", "1 profissional", "Suporte por email"],
-    defaultLimit: 10,
-  },
-  starter: {
-    tagline: "Personais e microacademias",
-    gradient: "from-sky-500/20 to-transparent",
-    border: "border-sky-500/30",
-    text: "text-sky-500",
-    chip: "bg-sky-500/15 text-sky-500",
-    icon: <Zap className="h-4 w-4" />,
-    features: ["Até 50 alunos", "3 profissionais", "Financeiro básico"],
-    defaultLimit: 50,
-  },
-  pro: {
-    tagline: "Academias em crescimento",
-    gradient: "from-primary/25 to-transparent",
-    border: "border-primary/40",
-    text: "text-primary",
-    chip: "bg-primary/15 text-primary",
-    icon: <Crown className="h-4 w-4" />,
-    features: ["Até 250 alunos", "Equipe ilimitada", "Avaliações + IA"],
-    defaultLimit: 250,
-  },
-  enterprise: {
-    tagline: "Redes e franquias",
-    gradient: "from-amber-500/25 to-transparent",
-    border: "border-amber-500/40",
-    text: "text-amber-500",
-    chip: "bg-amber-500/15 text-amber-500",
-    icon: <Shield className="h-4 w-4" />,
-    features: ["Alunos ilimitados", "SLA dedicado", "Onboarding assistido"],
-    defaultLimit: null,
-  },
+function planIcon(name: string) {
+  switch (name) {
+    case "zap": return <Zap className="h-4 w-4" />;
+    case "crown": return <Crown className="h-4 w-4" />;
+    case "shield": return <Shield className="h-4 w-4" />;
+    default: return <Sparkles className="h-4 w-4" />;
+  }
+}
+
+const ACCENT_CHOICES = ["muted", "sky", "primary", "amber", "emerald", "rose"] as const;
+type AccentChoice = (typeof ACCENT_CHOICES)[number];
+
+const ACCENT_MAP: Record<string, { gradient: string; border: string; text: string; chip: string; bar: string }> = {
+  muted:   { gradient: "from-muted-foreground/15 to-transparent", border: "border-border",          text: "text-muted-foreground", chip: "bg-muted text-muted-foreground",     bar: "bg-muted-foreground/60" },
+  sky:     { gradient: "from-sky-500/20 to-transparent",           border: "border-sky-500/30",     text: "text-sky-500",           chip: "bg-sky-500/15 text-sky-500",         bar: "bg-sky-500" },
+  primary: { gradient: "from-primary/25 to-transparent",           border: "border-primary/40",     text: "text-primary",           chip: "bg-primary/15 text-primary",         bar: "bg-primary" },
+  amber:   { gradient: "from-amber-500/25 to-transparent",         border: "border-amber-500/40",   text: "text-amber-500",         chip: "bg-amber-500/15 text-amber-500",     bar: "bg-amber-500" },
+  emerald: { gradient: "from-emerald-500/25 to-transparent",       border: "border-emerald-500/40", text: "text-emerald-500",       chip: "bg-emerald-500/15 text-emerald-500", bar: "bg-emerald-500" },
+  rose:    { gradient: "from-rose-500/25 to-transparent",           border: "border-rose-500/40",   text: "text-rose-500",           chip: "bg-rose-500/15 text-rose-500",        bar: "bg-rose-500" },
 };
+
+function accentOf(a: string) { return ACCENT_MAP[a] ?? ACCENT_MAP.muted; }
 
 type PlanBuckets = Record<string, {
   orgs: any[];
@@ -1534,14 +1514,69 @@ type PlanBuckets = Record<string, {
   revenue: number;
 }>;
 
+type PlanFormState = {
+  mode: "create" | "edit";
+  original?: PlanRow;
+  slug: string;
+  name: string;
+  tagline: string;
+  price_reais: string;
+  max_alunos: string;
+  features: string;
+  icon: IconChoice;
+  accent: AccentChoice;
+  is_active: boolean;
+  sort_order: number;
+};
+
+function emptyForm(nextOrder: number): PlanFormState {
+  return {
+    mode: "create",
+    slug: "",
+    name: "",
+    tagline: "",
+    price_reais: "0",
+    max_alunos: "",
+    features: "",
+    icon: "sparkles",
+    accent: "muted",
+    is_active: true,
+    sort_order: nextOrder,
+  };
+}
+
+function formFromPlan(p: PlanRow): PlanFormState {
+  return {
+    mode: "edit",
+    original: p,
+    slug: p.slug,
+    name: p.name,
+    tagline: p.tagline,
+    price_reais: (p.price_cents / 100).toFixed(2).replace(".", ","),
+    max_alunos: p.max_alunos == null ? "" : String(p.max_alunos),
+    features: (p.features ?? []).join("\n"),
+    icon: (ICON_CHOICES as readonly string[]).includes(p.icon) ? (p.icon as IconChoice) : "sparkles",
+    accent: (ACCENT_CHOICES as readonly string[]).includes(p.accent) ? (p.accent as AccentChoice) : "muted",
+    is_active: p.is_active,
+    sort_order: p.sort_order,
+  };
+}
+
 function PlansTab() {
   const qc = useQueryClient();
   const [selectedPlan, setSelectedPlan] = useState<string>("pro");
   const [q, setQ] = useState("");
+  const [editor, setEditor] = useState<PlanFormState | null>(null);
 
-  const { data, isLoading, isError, error, refetch } = useQuery({
+  const orgsQ = useQuery({
     queryKey: ["super-admin", "orgs"],
     queryFn: () => listAllOrganizations(),
+    retry: 1,
+  });
+
+  const catalogQ = useQuery({
+    queryKey: ["super-admin", "plans-catalog"],
+    queryFn: () => listPlansCatalog(),
     retry: 1,
   });
 
@@ -1554,33 +1589,88 @@ function PlansTab() {
     onError: (e: any) => toast.error(e.message),
   });
 
-  const list = data ?? [];
+  const savePlanMut = useMutation({
+    mutationFn: async (form: PlanFormState) => {
+      const price_cents = Math.round(parseFloat(form.price_reais.replace(",", ".")) * 100);
+      const max = form.max_alunos.trim();
+      const payload = {
+        slug: form.slug.trim().toLowerCase(),
+        name: form.name.trim(),
+        tagline: form.tagline.trim(),
+        price_cents: Number.isFinite(price_cents) && price_cents >= 0 ? price_cents : 0,
+        max_alunos: max === "" ? null : Math.max(1, parseInt(max, 10) || 1),
+        features: form.features.split("\n").map((s) => s.trim()).filter(Boolean),
+        icon: form.icon,
+        accent: form.accent,
+        is_active: form.is_active,
+        sort_order: form.sort_order,
+      };
+      return form.mode === "create" ? createPlan({ data: payload }) : updatePlan({ data: payload });
+    },
+    onSuccess: () => {
+      toast.success("Plano salvo.");
+      setEditor(null);
+      qc.invalidateQueries({ queryKey: ["super-admin", "plans-catalog"] });
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  const deletePlanMut = useMutation({
+    mutationFn: (slug: string) => deletePlan({ data: { slug } }),
+    onSuccess: () => {
+      toast.success("Plano removido.");
+      qc.invalidateQueries({ queryKey: ["super-admin", "plans-catalog"] });
+    },
+    onError: (e: any) => toast.error(e.message),
+  });
+
+  const list = orgsQ.data ?? [];
+  const catalog = catalogQ.data ?? [];
+
+  const planLabel = useMemo<Record<string, string>>(() => {
+    const m: Record<string, string> = {};
+    catalog.forEach((p) => { m[p.slug] = p.name; });
+    return m;
+  }, [catalog]);
+
+  const planPricing = useMemo<Record<string, number>>(() => {
+    const m: Record<string, number> = {};
+    catalog.forEach((p) => { m[p.slug] = p.price_cents / 100; });
+    return m;
+  }, [catalog]);
 
   const buckets: PlanBuckets = useMemo(() => {
     const b: PlanBuckets = {};
-    Object.keys(PLAN_LABEL).forEach((p) => {
-      b[p] = { orgs: [], active: 0, trialing: 0, pastDue: 0, suspended: 0, totalAlunos: 0, alunosAtivos: 0, nearLimit: 0, revenue: 0 };
+    catalog.forEach((p) => {
+      b[p.slug] = { orgs: [], active: 0, trialing: 0, pastDue: 0, suspended: 0, totalAlunos: 0, alunosAtivos: 0, nearLimit: 0, revenue: 0 };
     });
     list.forEach((o: any) => {
-      const bucket = b[o.plan] ?? b.free;
+      if (!b[o.plan]) {
+        b[o.plan] = { orgs: [], active: 0, trialing: 0, pastDue: 0, suspended: 0, totalAlunos: 0, alunosAtivos: 0, nearLimit: 0, revenue: 0 };
+      }
+      const bucket = b[o.plan];
       bucket.orgs.push(o);
       bucket.totalAlunos += o.aluno_count ?? 0;
       bucket.alunosAtivos += o.aluno_ativos ?? 0;
+      const price = planPricing[o.plan] ?? 0;
       if (o.suspended_at) bucket.suspended++;
-      else if (o.subscription_status === "active") { bucket.active++; bucket.revenue += PLAN_PRICING_LOCAL[o.plan] ?? 0; }
-      else if (o.subscription_status === "trialing") { bucket.trialing++; bucket.revenue += PLAN_PRICING_LOCAL[o.plan] ?? 0; }
+      else if (o.subscription_status === "active") { bucket.active++; bucket.revenue += price; }
+      else if (o.subscription_status === "trialing") { bucket.trialing++; bucket.revenue += price; }
       else if (o.subscription_status === "past_due") bucket.pastDue++;
       if (!o.suspended_at && o.max_alunos && (o.aluno_ativos / o.max_alunos) >= 0.85) bucket.nearLimit++;
     });
     return b;
-  }, [list]);
+  }, [list, catalog, planPricing]);
 
   const totalMRR = useMemo(() => Object.values(buckets).reduce((s, b) => s + b.revenue, 0), [buckets]);
   const totalPaying = useMemo(() => Object.values(buckets).reduce((s, b) => s + b.active + b.trialing, 0), [buckets]);
   const totalOrgs = list.length;
 
-  const selectedBucket = buckets[selectedPlan] ?? { orgs: [] as any[], revenue: 0, active: 0, trialing: 0, pastDue: 0, suspended: 0, totalAlunos: 0, alunosAtivos: 0, nearLimit: 0 };
-  const selectedMeta = PLAN_META[selectedPlan];
+  // Garante que selectedPlan seja válido
+  const validSelected = catalog.some((p) => p.slug === selectedPlan) ? selectedPlan : (catalog[0]?.slug ?? "pro");
+  const selectedBucket = buckets[validSelected] ?? { orgs: [] as any[], revenue: 0, active: 0, trialing: 0, pastDue: 0, suspended: 0, totalAlunos: 0, alunosAtivos: 0, nearLimit: 0 };
+  const selectedPlanRow = catalog.find((p) => p.slug === validSelected);
+  const selectedAccent = accentOf(selectedPlanRow?.accent ?? "muted");
   const selectedRows = useMemo(() => {
     if (!q.trim()) return selectedBucket.orgs;
     const s = q.trim().toLowerCase();
@@ -1589,8 +1679,11 @@ function PlansTab() {
     );
   }, [selectedBucket, q]);
 
-  if (isLoading) return <Spinner />;
-  if (isError) return <LoadError error={error} onRetry={() => refetch()} />;
+  if (orgsQ.isLoading || catalogQ.isLoading) return <Spinner />;
+  if (orgsQ.isError) return <LoadError error={orgsQ.error} onRetry={() => orgsQ.refetch()} />;
+  if (catalogQ.isError) return <LoadError error={catalogQ.error} onRetry={() => catalogQ.refetch()} />;
+
+  const nextOrder = (catalog[catalog.length - 1]?.sort_order ?? 0) + 1;
 
   return (
     <div className="space-y-5">
@@ -1613,19 +1706,18 @@ function PlansTab() {
               </div>
             </div>
 
-            {/* Barra de distribuição por plano */}
             <div className="mt-6">
               <div className="flex h-3 overflow-hidden rounded-full bg-muted">
-                {(["enterprise", "pro", "starter", "free"] as const).map((id) => {
-                  const c = buckets[id]?.orgs.length ?? 0;
+                {catalog.map((p) => {
+                  const c = buckets[p.slug]?.orgs.length ?? 0;
                   if (!c || totalOrgs === 0) return null;
-                  return <div key={id} className={PLAN_COLORS[id]} style={{ width: `${(c / totalOrgs) * 100}%` }} title={`${PLAN_LABEL[id]}: ${c}`} />;
+                  return <div key={p.slug} className={accentOf(p.accent).bar} style={{ width: `${(c / totalOrgs) * 100}%` }} title={`${p.name}: ${c}`} />;
                 })}
               </div>
               <div className="mt-2 flex flex-wrap gap-3 text-[11px]">
-                {(["enterprise", "pro", "starter", "free"] as const).map((id) => (
-                  <span key={id} className="inline-flex items-center gap-1.5 text-muted-foreground">
-                    <span className={`h-2 w-2 rounded-full ${PLAN_COLORS[id]}`} /> {PLAN_LABEL[id]} · {buckets[id]?.orgs.length ?? 0}
+                {catalog.map((p) => (
+                  <span key={p.slug} className="inline-flex items-center gap-1.5 text-muted-foreground">
+                    <span className={`h-2 w-2 rounded-full ${accentOf(p.accent).bar}`} /> {p.name} · {buckets[p.slug]?.orgs.length ?? 0}
                   </span>
                 ))}
               </div>
@@ -1634,30 +1726,58 @@ function PlansTab() {
         </div>
 
         <div className="rounded-3xl border border-border bg-card p-5">
-          <div className="flex items-center gap-2">
-            <span className="grid h-8 w-8 place-items-center rounded-lg bg-primary/15 text-primary">
-              <Target className="h-4 w-4" />
-            </span>
-            <div>
-              <div className="font-display text-sm font-bold">Oportunidades de upsell</div>
-              <div className="text-[11px] text-muted-foreground">Academias no limite ou em plano free</div>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="grid h-8 w-8 place-items-center rounded-lg bg-primary/15 text-primary">
+                <Target className="h-4 w-4" />
+              </span>
+              <div>
+                <div className="font-display text-sm font-bold">Catálogo de planos</div>
+                <div className="text-[11px] text-muted-foreground">{catalog.length} plano(s) cadastrado(s)</div>
+              </div>
             </div>
+            <button
+              onClick={() => setEditor(emptyForm(nextOrder))}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90"
+            >
+              <Plus className="h-3.5 w-3.5" /> Novo plano
+            </button>
           </div>
           <ul className="mt-4 space-y-2">
-            {(["free", "starter", "pro"] as const).map((p) => {
-              const nl = buckets[p]?.nearLimit ?? 0;
-              const meta = PLAN_META[p];
+            {catalog.map((p) => {
+              const acc = accentOf(p.accent);
               return (
-                <li key={p} className="flex items-center justify-between rounded-xl border border-border/60 bg-background/40 px-3 py-2">
-                  <div className="flex items-center gap-2">
-                    <span className={`grid h-6 w-6 place-items-center rounded-md ${meta.chip}`}>{meta.icon}</span>
-                    <div>
-                      <div className="text-xs font-semibold">{PLAN_LABEL[p]}</div>
-                      <div className="text-[10px] text-muted-foreground">no limite (≥85%)</div>
+                <li key={p.slug} className="flex items-center justify-between rounded-xl border border-border/60 bg-background/40 px-3 py-2">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className={`grid h-6 w-6 place-items-center rounded-md ${acc.chip}`}>{planIcon(p.icon)}</span>
+                    <div className="min-w-0">
+                      <div className="text-xs font-semibold truncate">{p.name} {!p.is_active && <span className="ml-1 rounded bg-muted px-1 text-[9px] uppercase text-muted-foreground">inativo</span>}</div>
+                      <div className="text-[10px] text-muted-foreground truncate">{p.max_alunos == null ? "∞ alunos" : `${p.max_alunos} alunos`} · {p.price_cents === 0 ? "Grátis" : formatBRL(p.price_cents / 100) + "/mês"}</div>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <div className={`font-display text-lg font-bold ${nl > 0 ? "text-amber-500" : "text-muted-foreground"}`}>{nl}</div>
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => setEditor(formFromPlan(p))}
+                      className="rounded-md border border-border bg-background p-1.5 text-muted-foreground hover:text-foreground"
+                      title="Editar plano"
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                    </button>
+                    <button
+                      onClick={async () => {
+                        const ok = await confirmDialog({
+                          title: `Excluir plano ${p.name}?`,
+                          description: "Só é possível remover planos sem academias vinculadas.",
+                          confirmLabel: "Excluir",
+                          destructive: true,
+                        });
+                        if (ok) deletePlanMut.mutate(p.slug);
+                      }}
+                      className="rounded-md border border-border bg-background p-1.5 text-muted-foreground hover:text-rose-500"
+                      title="Excluir plano"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
                   </div>
                 </li>
               );
@@ -1668,85 +1788,95 @@ function PlansTab() {
 
       {/* Cards de plano (comparativo) */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {(Object.keys(PLAN_LABEL) as (keyof typeof PLAN_LABEL)[]).map((planId) => {
-          const meta = PLAN_META[planId];
-          const b = buckets[planId];
-          const price = PLAN_PRICING_LOCAL[planId] ?? 0;
+        {catalog.map((p) => {
+          const acc = accentOf(p.accent);
+          const b = buckets[p.slug];
+          const price = p.price_cents / 100;
           const share = totalOrgs > 0 ? Math.round((b.orgs.length / totalOrgs) * 100) : 0;
-          const isSelected = selectedPlan === planId;
+          const isSelected = validSelected === p.slug;
           return (
-            <button
-              key={planId}
-              onClick={() => setSelectedPlan(planId)}
-              className={`group relative overflow-hidden rounded-2xl border bg-card p-5 text-left transition hover:shadow-lg ${
-                isSelected ? `${meta.border} shadow-lg ring-1 ring-current ${meta.text}` : "border-border hover:border-foreground/30"
+            <div
+              key={p.slug}
+              className={`group relative overflow-hidden rounded-2xl border bg-card text-left transition hover:shadow-lg ${
+                isSelected ? `${acc.border} shadow-lg ring-1 ring-current ${acc.text}` : "border-border hover:border-foreground/30"
               }`}
             >
-              <div className={`absolute inset-x-0 top-0 h-24 bg-gradient-to-b ${meta.gradient} opacity-80`} />
-              <div className="relative">
-                <div className="flex items-center justify-between">
-                  <span className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest ${meta.chip}`}>
-                    {meta.icon} {PLAN_LABEL[planId]}
-                  </span>
-                  {isSelected && <span className={`text-[10px] font-bold ${meta.text}`}>SELECIONADO</span>}
-                </div>
-                <div className="mt-2 text-[11px] text-muted-foreground">{meta.tagline}</div>
-                <div className="mt-3 flex items-baseline gap-1">
-                  <span className="font-display text-3xl font-bold tracking-tight">
-                    {price === 0 ? "Grátis" : formatBRL(price)}
-                  </span>
-                  {price > 0 && <span className="text-[11px] text-muted-foreground">/mês</span>}
-                </div>
-
-                <div className="mt-4 grid grid-cols-2 gap-2 text-center">
-                  <div className="rounded-lg bg-background/60 py-2">
-                    <div className="font-display text-lg font-bold">{b.orgs.length}</div>
-                    <div className="text-[9px] font-semibold uppercase tracking-widest text-muted-foreground">Academias</div>
+              <button onClick={() => setSelectedPlan(p.slug)} className="block w-full p-5 text-left">
+                <div className={`absolute inset-x-0 top-0 h-24 bg-gradient-to-b ${acc.gradient} opacity-80`} />
+                <div className="relative">
+                  <div className="flex items-center justify-between">
+                    <span className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest ${acc.chip}`}>
+                      {planIcon(p.icon)} {p.name}
+                    </span>
+                    {isSelected && <span className={`text-[10px] font-bold ${acc.text}`}>SELECIONADO</span>}
                   </div>
-                  <div className="rounded-lg bg-background/60 py-2">
-                    <div className={`font-display text-lg font-bold ${meta.text}`}>{formatBRL(b.revenue)}</div>
-                    <div className="text-[9px] font-semibold uppercase tracking-widest text-muted-foreground">MRR</div>
+                  <div className="mt-2 text-[11px] text-muted-foreground">{p.tagline}</div>
+                  <div className="mt-3 flex items-baseline gap-1">
+                    <span className="font-display text-3xl font-bold tracking-tight">
+                      {price === 0 ? "Grátis" : formatBRL(price)}
+                    </span>
+                    {price > 0 && <span className="text-[11px] text-muted-foreground">/mês</span>}
+                  </div>
+
+                  <div className="mt-4 grid grid-cols-2 gap-2 text-center">
+                    <div className="rounded-lg bg-background/60 py-2">
+                      <div className="font-display text-lg font-bold">{b.orgs.length}</div>
+                      <div className="text-[9px] font-semibold uppercase tracking-widest text-muted-foreground">Academias</div>
+                    </div>
+                    <div className="rounded-lg bg-background/60 py-2">
+                      <div className={`font-display text-lg font-bold ${acc.text}`}>{formatBRL(b.revenue)}</div>
+                      <div className="text-[9px] font-semibold uppercase tracking-widest text-muted-foreground">MRR</div>
+                    </div>
+                  </div>
+
+                  <div className="mt-3">
+                    <div className="flex items-center justify-between text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                      <span>Fatia</span><span>{share}%</span>
+                    </div>
+                    <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted">
+                      <div className={`h-full ${acc.bar}`} style={{ width: `${share}%` }} />
+                    </div>
+                  </div>
+
+                  <ul className="mt-4 space-y-1.5">
+                    {(p.features ?? []).map((f) => (
+                      <li key={f} className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                        <CheckCircle2 className={`h-3 w-3 shrink-0 ${acc.text}`} /> {f}
+                      </li>
+                    ))}
+                  </ul>
+
+                  <div className="mt-3 flex items-center gap-2 text-[10px]">
+                    {b.active > 0 && <span className="rounded-full bg-emerald-500/10 px-1.5 py-0.5 font-bold text-emerald-500">{b.active} ativas</span>}
+                    {b.trialing > 0 && <span className="rounded-full bg-sky-500/10 px-1.5 py-0.5 font-bold text-sky-500">{b.trialing} trial</span>}
+                    {b.pastDue > 0 && <span className="rounded-full bg-rose-500/10 px-1.5 py-0.5 font-bold text-rose-500">{b.pastDue} vencidas</span>}
                   </div>
                 </div>
-
-                <div className="mt-3">
-                  <div className="flex items-center justify-between text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-                    <span>Fatia</span><span>{share}%</span>
-                  </div>
-                  <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted">
-                    <div className={`h-full ${PLAN_COLORS[planId]}`} style={{ width: `${share}%` }} />
-                  </div>
-                </div>
-
-                <ul className="mt-4 space-y-1.5">
-                  {meta.features.map((f) => (
-                    <li key={f} className="flex items-center gap-2 text-[11px] text-muted-foreground">
-                      <CheckCircle2 className={`h-3 w-3 shrink-0 ${meta.text}`} /> {f}
-                    </li>
-                  ))}
-                </ul>
-
-                <div className="mt-3 flex items-center gap-2 text-[10px]">
-                  {b.active > 0 && <span className="rounded-full bg-emerald-500/10 px-1.5 py-0.5 font-bold text-emerald-500">{b.active} ativas</span>}
-                  {b.trialing > 0 && <span className="rounded-full bg-sky-500/10 px-1.5 py-0.5 font-bold text-sky-500">{b.trialing} trial</span>}
-                  {b.pastDue > 0 && <span className="rounded-full bg-rose-500/10 px-1.5 py-0.5 font-bold text-rose-500">{b.pastDue} vencidas</span>}
-                </div>
+              </button>
+              <div className="relative flex justify-end gap-1 border-t border-border/60 bg-background/40 px-3 py-2">
+                <button
+                  onClick={() => setEditor(formFromPlan(p))}
+                  className="inline-flex items-center gap-1 rounded-md border border-border bg-background px-2 py-1 text-[10px] font-semibold text-muted-foreground hover:text-foreground"
+                >
+                  <Pencil className="h-3 w-3" /> Editar
+                </button>
               </div>
-            </button>
+            </div>
           );
         })}
       </div>
 
       {/* Detalhe do plano selecionado */}
+      {selectedPlanRow && (
       <div className="overflow-hidden rounded-2xl border border-border bg-card">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-muted/30 px-5 py-4">
           <div className="flex items-center gap-3">
-            <span className={`grid h-10 w-10 place-items-center rounded-xl ${selectedMeta.chip}`}>
-              {selectedMeta.icon}
+            <span className={`grid h-10 w-10 place-items-center rounded-xl ${selectedAccent.chip}`}>
+              {planIcon(selectedPlanRow.icon)}
             </span>
             <div>
               <h2 className="font-display text-base font-bold">
-                Academias no plano {PLAN_LABEL[selectedPlan]}
+                Academias no plano {selectedPlanRow.name}
               </h2>
               <div className="text-[11px] text-muted-foreground">
                 {selectedBucket.orgs.length} academia(s) · {selectedBucket.alunosAtivos}/{selectedBucket.totalAlunos} alunos ativos · {formatBRL(selectedBucket.revenue)} MRR
@@ -1770,7 +1900,7 @@ function PlansTab() {
           <div className="py-14 text-center">
             <Building2 className="mx-auto h-8 w-8 text-muted-foreground/50" />
             <div className="mt-2 text-sm font-semibold">Nenhuma academia neste plano</div>
-            <div className="text-xs text-muted-foreground">Assim que uma academia migrar para {PLAN_LABEL[selectedPlan]}, ela aparecerá aqui.</div>
+            <div className="text-xs text-muted-foreground">Assim que uma academia migrar para {selectedPlanRow.name}, ela aparecerá aqui.</div>
           </div>
         ) : (
           <ul>
@@ -1832,8 +1962,8 @@ function PlansTab() {
                     className="rounded-md border border-border bg-background px-2 py-1 text-xs font-semibold"
                     title="Mudar plano"
                   >
-                    {Object.entries(PLAN_LABEL).map(([id, l]) => (
-                      <option key={id} value={id}>Mover → {l}</option>
+                    {catalog.map((p) => (
+                      <option key={p.slug} value={p.slug}>Mover → {p.name}</option>
                     ))}
                   </select>
                 </li>
@@ -1842,13 +1972,13 @@ function PlansTab() {
           </ul>
         )}
 
-        {selectedMeta.defaultLimit !== null && selectedBucket.orgs.some((o: any) => o.max_alunos == null) && (
+        {selectedPlanRow.max_alunos !== null && selectedBucket.orgs.some((o: any) => o.max_alunos == null) && (
           <div className="flex items-center justify-between gap-3 border-t border-border bg-muted/20 px-5 py-3 text-[11px] text-muted-foreground">
-            <span>Algumas academias estão sem limite definido. Aplicar padrão do plano ({selectedMeta.defaultLimit} alunos)?</span>
+            <span>Algumas academias estão sem limite definido. Aplicar padrão do plano ({selectedPlanRow.max_alunos} alunos)?</span>
             <button
               onClick={() => {
                 selectedBucket.orgs.forEach((o: any) => {
-                  if (o.max_alunos == null) updateMut.mutate({ orgId: o.id, max_alunos: selectedMeta.defaultLimit });
+                  if (o.max_alunos == null) updateMut.mutate({ orgId: o.id, max_alunos: selectedPlanRow.max_alunos });
                 });
               }}
               className="rounded-md border border-border bg-background px-2.5 py-1 font-semibold hover:bg-accent"
@@ -1857,6 +1987,121 @@ function PlansTab() {
             </button>
           </div>
         )}
+      </div>
+      )}
+
+      {editor && (
+        <PlanEditorDialog
+          form={editor}
+          onChange={setEditor}
+          onClose={() => setEditor(null)}
+          onSave={() => savePlanMut.mutate(editor)}
+          saving={savePlanMut.isPending}
+        />
+      )}
+    </div>
+  );
+}
+
+function PlanEditorDialog({
+  form, onChange, onClose, onSave, saving,
+}: {
+  form: PlanFormState;
+  onChange: (f: PlanFormState) => void;
+  onClose: () => void;
+  onSave: () => void;
+  saving: boolean;
+}) {
+  const set = <K extends keyof PlanFormState>(k: K, v: PlanFormState[K]) => onChange({ ...form, [k]: v });
+  const acc = accentOf(form.accent);
+  const canSave = form.slug.trim().length >= 2 && form.name.trim().length >= 1 && !saving;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={onClose}>
+      <div className="w-full max-w-2xl rounded-2xl border border-border bg-card shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between border-b border-border px-5 py-4">
+          <div className="flex items-center gap-2">
+            <span className={`grid h-8 w-8 place-items-center rounded-lg ${acc.chip}`}>{planIcon(form.icon)}</span>
+            <div>
+              <div className="font-display text-base font-bold">
+                {form.mode === "create" ? "Novo plano" : `Editar: ${form.original?.name}`}
+              </div>
+              <div className="text-[11px] text-muted-foreground">Definições aplicadas em novos cadastros e mudanças de plano.</div>
+            </div>
+          </div>
+          <button onClick={onClose} className="rounded-md p-1.5 text-muted-foreground hover:bg-accent"><XIcon className="h-4 w-4" /></button>
+        </div>
+
+        <div className="grid gap-4 p-5 sm:grid-cols-2">
+          <label className="space-y-1">
+            <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Identificador (slug)</span>
+            <input
+              value={form.slug}
+              disabled={form.mode === "edit"}
+              onChange={(e) => set("slug", e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, ""))}
+              placeholder="ex.: elite"
+              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm disabled:opacity-60"
+            />
+            <span className="text-[10px] text-muted-foreground">Só letras minúsculas, números, _ e -. Não pode ser alterado depois.</span>
+          </label>
+          <label className="space-y-1">
+            <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Nome exibido</span>
+            <input value={form.name} onChange={(e) => set("name", e.target.value)} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm" />
+          </label>
+
+          <label className="space-y-1 sm:col-span-2">
+            <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Subtítulo</span>
+            <input value={form.tagline} onChange={(e) => set("tagline", e.target.value)} placeholder="Ex.: Academias em crescimento" className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm" />
+          </label>
+
+          <label className="space-y-1">
+            <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Preço mensal (R$)</span>
+            <input inputMode="decimal" value={form.price_reais} onChange={(e) => set("price_reais", e.target.value)} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm" />
+          </label>
+          <label className="space-y-1">
+            <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Limite de alunos</span>
+            <input inputMode="numeric" value={form.max_alunos} onChange={(e) => set("max_alunos", e.target.value.replace(/[^0-9]/g, ""))} placeholder="vazio = ilimitado" className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm" />
+          </label>
+
+          <label className="space-y-1">
+            <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Ícone</span>
+            <select value={form.icon} onChange={(e) => set("icon", e.target.value as IconChoice)} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm">
+              {ICON_CHOICES.map((i) => <option key={i} value={i}>{i}</option>)}
+            </select>
+          </label>
+          <label className="space-y-1">
+            <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Cor de destaque</span>
+            <select value={form.accent} onChange={(e) => set("accent", e.target.value as AccentChoice)} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm">
+              {ACCENT_CHOICES.map((a) => <option key={a} value={a}>{a}</option>)}
+            </select>
+          </label>
+
+          <label className="space-y-1 sm:col-span-2">
+            <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Recursos (uma linha por item)</span>
+            <textarea value={form.features} onChange={(e) => set("features", e.target.value)} rows={4} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm" />
+          </label>
+
+          <label className="flex items-center gap-2 text-sm">
+            <input type="checkbox" checked={form.is_active} onChange={(e) => set("is_active", e.target.checked)} />
+            <span>Plano ativo (aparece para novas academias)</span>
+          </label>
+          <label className="space-y-1">
+            <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Ordem de exibição</span>
+            <input type="number" value={form.sort_order} onChange={(e) => set("sort_order", parseInt(e.target.value, 10) || 0)} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm" />
+          </label>
+        </div>
+
+        <div className="flex items-center justify-end gap-2 border-t border-border px-5 py-3">
+          <button onClick={onClose} className="rounded-lg border border-border bg-background px-4 py-2 text-sm font-semibold hover:bg-accent">Cancelar</button>
+          <button
+            onClick={onSave}
+            disabled={!canSave}
+            className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+          >
+            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+            Salvar plano
+          </button>
+        </div>
       </div>
     </div>
   );
