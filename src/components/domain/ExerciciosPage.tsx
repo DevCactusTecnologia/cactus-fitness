@@ -748,6 +748,17 @@ function NewExerciseWizard({
 
         {/* Body */}
         <div className="overflow-y-auto px-5 md:px-6 py-5 flex-1 space-y-5">
+          {isPersonalize && (
+            <div className="rounded-xl border border-primary/30 bg-primary/10 px-4 py-3 text-xs text-primary flex gap-2.5 items-start">
+              <Info className="h-4 w-4 shrink-0 mt-0.5" />
+              <div className="space-y-1 text-foreground/90">
+                <p className="font-semibold text-primary">Você está criando uma cópia personalizada</p>
+                <p>
+                  O exercício original <span className="font-semibold">{initial?.name}</span> não será alterado. Ajuste o que quiser (nome, mídia, instruções, músculos…) e a sua versão será salva na aba <span className="font-semibold">Meus Exercícios</span>, disponível só para você.
+                </p>
+              </div>
+            </div>
+          )}
           {/* Mídia — no topo, igual ao modal de detalhes */}
           <div>
             <div className="inline-flex rounded-lg border border-border bg-muted/30 p-1 text-xs font-semibold mb-3">
