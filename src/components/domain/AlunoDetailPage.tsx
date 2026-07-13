@@ -1095,13 +1095,15 @@ function ChangePasswordDialog({
     );
 
     let pct = 0;
-    const id = toast.custom(() => renderToast("tmp", pct, "uploading", "Salvando nova senha…"), { duration: Infinity, unstyled: true });
+    const toastOpts = { classNames: { toast: "!bg-transparent !border-0 !shadow-none !p-0" } } as any;
+    const id = toast.custom(() => renderToast("tmp", pct, "uploading", "Salvando nova senha…"), { duration: Infinity, ...toastOpts });
     const update = (p: number, status: "uploading" | "done" | "error", subtitle: string) =>
       toast.custom(() => renderToast(id, p, status, subtitle), {
         id,
         duration: status === "uploading" ? Infinity : 3500,
-        unstyled: true,
+        ...toastOpts,
       });
+
 
     const timer = setInterval(() => {
       pct = Math.min(pct + Math.random() * 18, 90);
