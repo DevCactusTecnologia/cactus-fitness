@@ -274,7 +274,7 @@ export function ExerciciosPage({ scope }: { scope: Scope }) {
                 <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1.5">Grupo muscular</p>
                 <div className="flex flex-wrap gap-2">
                   <GroupChip label="Todos" active={activeGroup === "all"} onClick={() => setActiveGroup("all")} />
-                  {groups.map((g) => (
+                  {groups.filter(isMuscleGroup).map((g) => (
                     <GroupChip key={g.id} label={g.name} active={activeGroup === g.id} onClick={() => setActiveGroup(g.id)} />
                   ))}
                 </div>
