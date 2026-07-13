@@ -729,31 +729,36 @@ function NewExerciseWizard({
 
           {/* Grupo muscular */}
           <Field label="Grupo muscular *">
-            <select
-              value={data.group_id ?? ""}
-              onChange={(e) => setData({ ...data, group_id: e.target.value ? Number(e.target.value) : null })}
-
-              className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2.5 text-sm focus:outline-none focus:border-primary transition"
+            <Select
+              value={data.group_id != null ? String(data.group_id) : ""}
+              onValueChange={(v) => setData({ ...data, group_id: v ? Number(v) : null })}
             >
-              <option value="">Selecione um grupo muscular</option>
-              {groups.map((g) => (
-                <option key={g.id} value={g.id}>{g.name}</option>
-              ))}
-            </select>
+              <SelectTrigger className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2.5 text-sm h-auto focus:border-primary transition">
+                <SelectValue placeholder="Selecione um grupo muscular" />
+              </SelectTrigger>
+              <SelectContent>
+                {groups.map((g) => (
+                  <SelectItem key={g.id} value={String(g.id)}>{g.name}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </Field>
 
           {/* Categoria */}
           <Field label="Categoria" hint="(modalidade)">
-            <select
-              value={data.category}
-              onChange={(e) => setData({ ...data, category: e.target.value })}
-              className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2.5 text-sm focus:outline-none focus:border-primary transition"
+            <Select
+              value={data.category || undefined}
+              onValueChange={(v) => setData({ ...data, category: v })}
             >
-              <option value="">Selecione uma categoria</option>
-              {CATEGORIES.map((c) => (
-                <option key={c} value={c}>{c}</option>
-              ))}
-            </select>
+              <SelectTrigger className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2.5 text-sm h-auto focus:border-primary transition">
+                <SelectValue placeholder="Selecione uma categoria" />
+              </SelectTrigger>
+              <SelectContent>
+                {CATEGORIES.map((c) => (
+                  <SelectItem key={c} value={c}>{c}</SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </Field>
 
 
