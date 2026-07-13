@@ -559,9 +559,10 @@ function OrgsTab() {
   const [view, setView] = useState<OrgView>("grid");
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["super-admin", "orgs"],
     queryFn: () => listAllOrganizations(),
+    retry: 1,
   });
 
   const list = data ?? [];
