@@ -641,7 +641,7 @@ function NewExerciseWizard({
     if (!name) { setSaving(false); setError("Informe o nome do exercício."); return; }
     if (data.group_id == null) { setSaving(false); setError("Selecione o grupo muscular."); return; }
 
-    const payload = {
+    const payload: any = {
       name,
       description: data.description.trim() || null,
       instructions: data.instructions.trim() || null,
@@ -655,15 +655,26 @@ function NewExerciseWizard({
       video_url: data.video_url.trim() || null,
       image_path: data.image_path || null,
       video_path: data.video_path || null,
-      owner_id: personalId,
-      is_active: true,
     };
 
-    const { error: err } = await (supabase.from("exercises") as any).insert(payload);
+    let err: any = null;
+    if (isEdit && initial) {
+      // RLS já garante que só o dono edita (owner_id = auth.uid()).
+      const res = await (supabase.from("exercises") as any)
+        .update(payload)
+        .eq("id", initial.id);
+      err = res.error;
+    } else {
+      payload.owner_id = personalId;
+      payload.is_active = true;
+      const res = await (supabase.from("exercises") as any).insert(payload);
+      err = res.error;
+    }
     setSaving(false);
     if (err) { setError(`Erro ao salvar: ${err.message}`); return; }
     onCreated();
   };
+
 
   const toggle = (arr: string[], m: string) =>
     arr.includes(m) ? arr.filter((x) => x !== m) : [...arr, m];
