@@ -1590,6 +1590,7 @@ function PlansTab() {
   }, [selectedBucket, q]);
 
   if (isLoading) return <Spinner />;
+  if (isError) return <LoadError error={error} onRetry={() => refetch()} />;
 
   return (
     <div className="space-y-5">
