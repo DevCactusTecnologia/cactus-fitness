@@ -29,16 +29,42 @@ export const changeAlunoPassword = createServerFn({ method: "POST" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const email = aluno.email.trim().toLowerCase();
 
-    // Case 1: já tem conta vinculada — apenas atualiza senha (e sincroniza e-mail)
+    // Case 1: já tem conta vinculada — atualiza senha e sincroniza e-mail
     if (aluno.aluno_user_id) {
-      const { error } = await supabaseAdmin.auth.admin.updateUserById(aluno.aluno_user_id, {
+      // Busca o usuário atual para decidir se precisa alterar e-mail
+      const { data: existing, error: getErr } = await supabaseAdmin.auth.admin.getUserById(aluno.aluno_user_id);
+      if (getErr) throw new Error(getErr.message);
+      const currentEmail = (existing.user?.email ?? "").toLowerCase();
+
+      // 1) Atualiza senha e confirma e-mail (garante que login por senha funcione)
+      const { error: pwdErr } = await supabaseAdmin.auth.admin.updateUserById(aluno.aluno_user_id, {
         password: newPassword,
-        email,
         email_confirm: true,
       });
-      if (error) throw new Error(error.message);
+      if (pwdErr) throw new Error(pwdErr.message);
+
+      // 2) Se o e-mail mudou, aplica em chamada separada (evita conflitos com secure email change)
+      if (currentEmail !== email) {
+        const { error: emailErr } = await supabaseAdmin.auth.admin.updateUserById(aluno.aluno_user_id, {
+          email,
+          email_confirm: true,
+        });
+        if (emailErr) throw new Error(emailErr.message);
+      }
+
+      // 3) Normaliza o e-mail no registro do aluno para bater com o auth
+      if (aluno.email !== email) {
+        await supabaseAdmin.from("alunos").update({ email }).eq("id", alunoId);
+      }
+
+      // 4) Garante papel "aluno"
+      await supabaseAdmin
+        .from("user_roles")
+        .upsert({ user_id: aluno.aluno_user_id, role: "aluno" }, { onConflict: "user_id,role" });
+
       return { ok: true, created: false };
     }
+
 
     // Case 2: não tem conta ainda — verificar se já existe usuário com este email
     let existingUserId: string | null = null;
