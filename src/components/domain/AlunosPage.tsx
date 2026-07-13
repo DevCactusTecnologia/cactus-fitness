@@ -102,8 +102,6 @@ export function AlunosPage({ scope }: { scope: Scope }) {
     full_name: "",
     email: "",
     phone: "",
-    objective: "",
-    notes: "",
   });
   const [formError, setFormError] = useState<string | null>(null);
   const queryClient = useQueryClient();
@@ -122,14 +120,11 @@ export function AlunosPage({ scope }: { scope: Scope }) {
       const { data: userData } = await supabase.auth.getUser();
       const personalId = userData.user?.id;
       if (!personalId) throw new Error("Sessão expirada. Faça login novamente.");
-      // TODO(scope=academia): let owner choose which personal to assign to.
       const { error } = await supabase.from("alunos").insert({
         personal_id: personalId,
         full_name: payload.full_name.trim(),
         email: payload.email.trim() || null,
         phone: payload.phone.trim() || null,
-        objective: payload.objective.trim() || null,
-        notes: payload.notes.trim() || null,
         is_active: true,
       });
       if (error) throw error;
@@ -137,7 +132,7 @@ export function AlunosPage({ scope }: { scope: Scope }) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["alunos", scope] });
       setOpenNew(false);
-      setForm({ full_name: "", email: "", phone: "", objective: "", notes: "" });
+      setForm({ full_name: "", email: "", phone: "" });
       setFormError(null);
     },
     onError: (e: Error) => setFormError(e.message),
