@@ -1,13 +1,14 @@
 import { notFound, useParams, Link } from "@tanstack/react-router";
-import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
+import { useQuery, useQueryClient, useMutation, useInfiniteQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import {
   ChevronLeft, ChevronRight, Loader2, Mail, Phone, Calendar, Shield, Crown,
-  BadgeCheck, Users as UsersIcon, Pencil, KeyRound, Eye, EyeOff, Lock, Trash2, AlertTriangle,
+  BadgeCheck, Users as UsersIcon, Pencil, KeyRound, Eye, EyeOff, Lock, Trash2, AlertTriangle, Search,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "@/components/ui/sonner";
 import { useNavigate } from "@tanstack/react-router";
+
 import { supabase } from "@/integrations/supabase/client";
 import { IconRail } from "@/components/IconRail";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
