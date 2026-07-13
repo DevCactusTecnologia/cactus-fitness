@@ -191,13 +191,15 @@ const PLAN_COLORS: Record<string, string> = {
 
 function OverviewTab() {
   const navigate = useNavigate();
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["super-admin", "metrics"],
     queryFn: () => superAdminMetrics(),
+    retry: 1,
   });
 
   if (isLoading) return <Spinner />;
-  if (!data) return null;
+  if (isError) return <LoadError error={error} onRetry={() => refetch()} />;
+  if (!data) return <LoadError error={new Error("Sem dados.")} onRetry={() => refetch()} />;
 
   const alunoOccupancy = data.totalAlunos > 0 ? Math.round((data.alunosAtivos / data.totalAlunos) * 100) : 0;
   const orgSeries = data.series.map((s: any) => s.orgs);
