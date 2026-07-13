@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
-  Dumbbell, FolderPlus, Plus,
+  Dumbbell, Plus,
   ChevronDown, Layers, FileText,
   ArrowLeft, Search, ChevronRight,
 } from "lucide-react";
@@ -11,12 +11,6 @@ import logoUrl from "@/assets/cactus-logo.png";
 
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { IconRail } from "@/components/IconRail";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import type { Scope } from "@/lib/scope";
 
 type ScopePaths = {
@@ -32,38 +26,6 @@ function pathsFor(scope: Scope): ScopePaths {
     novoTemplate: `${base}/novo-template`,
     modelo: `${base}/modelo/$modeloId`,
   };
-}
-
-function NovoModeloMenu({ trigger, paths }: { trigger: React.ReactNode; paths: ScopePaths }) {
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-72 rounded-xl p-2">
-        <DropdownMenuItem asChild className="gap-3 rounded-lg p-3 focus:bg-muted">
-          <Link to={paths.novoPlano} className="flex items-start">
-            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-[oklch(0.55_0.22_300)]/15 text-[oklch(0.75_0.18_300)]">
-              <Layers className="h-5 w-5" />
-            </span>
-            <span className="flex flex-col">
-              <span className="text-sm font-semibold text-foreground">Modelo de Plano</span>
-              <span className="text-xs text-muted-foreground">Agrupa vários treinos em uma rotina semanal</span>
-            </span>
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild className="gap-3 rounded-lg p-3 focus:bg-muted">
-          <Link to={paths.novoTemplate} className="flex items-start">
-            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-[oklch(0.6_0.18_240)]/15 text-[oklch(0.75_0.15_240)]">
-              <Dumbbell className="h-5 w-5" />
-            </span>
-            <span className="flex flex-col">
-              <span className="text-sm font-semibold text-foreground">Template de Treino</span>
-              <span className="text-xs text-muted-foreground">Treino único reutilizável (ex: Peito/Tríceps)</span>
-            </span>
-          </Link>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
 }
 
 /* ---------- Page ---------- */
@@ -160,34 +122,26 @@ export function TreinosPage({ scope }: { scope: Scope }) {
                 Cactus<span className="italic font-normal">Fitness</span>
               </span>
             </div>
-            <NovoModeloMenu
-              paths={paths}
-              trigger={
-                <button className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.25)] hover:brightness-110">
-                  <Plus className="h-4 w-4" />
-                  Modelo
-                </button>
-              }
-            />
+            <Link
+              to={paths.novoTemplate}
+              className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.25)] hover:brightness-110"
+            >
+              <Plus className="h-4 w-4" />
+              Modelo
+            </Link>
           </div>
 
           {/* Desktop header */}
           <div className="hidden w-full flex-wrap items-center justify-between gap-3 md:flex">
             <h1 className="font-display text-2xl font-bold tracking-tight md:text-3xl">Modelos Prontos</h1>
             <div className="flex items-center gap-4">
-              <button className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground">
-                <FolderPlus className="h-4 w-4" />
-                Nova pasta
-              </button>
-              <NovoModeloMenu
-                paths={paths}
-                trigger={
-                  <button className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.25)] hover:brightness-110">
-                    <Plus className="h-4 w-4" />
-                    Modelo de Treino
-                  </button>
-                }
-              />
+              <Link
+                to={paths.novoTemplate}
+                className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.25)] hover:brightness-110"
+              >
+                <Plus className="h-4 w-4" />
+                Novo modelo
+              </Link>
             </div>
           </div>
         </div>

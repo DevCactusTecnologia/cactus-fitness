@@ -198,8 +198,13 @@ function reducer(state: State, action: Action): State {
     case "REPLACE_SESSIONS":
       return { ...state, sessions: action.sessions };
 
-    case "ADD_SESSION":
-      return { ...state, sessions: [...state.sessions, emptySession(state.sessions.length)] };
+    case "ADD_SESSION": {
+      // Promote from template to plan: rename the placeholder single session so it renders correctly.
+      const sessions = state.sessions.map((s, i) =>
+        i === 0 && s.label === "__single__" ? { ...s, label: "Treino A" } : s,
+      );
+      return { ...state, sessions: [...sessions, emptySession(sessions.length)] };
+    }
     case "REMOVE_SESSION":
       return { ...state, sessions: state.sessions.filter(s => s.id !== action.sessionId) };
     case "MOVE_SESSION": {
@@ -325,7 +330,7 @@ function reducer(state: State, action: Action): State {
 }
 
 export function WorkoutEditor({
-  kind,
+  kind: initialKind,
   editSlug,
   alunoId,
 }: {
@@ -347,12 +352,13 @@ export function WorkoutEditor({
     periodize: false,
     duration_weeks: null,
     start_date: null,
-    sessions: kind === "plan"
+    sessions: initialKind === "plan"
       ? [emptySession(0)]
       : [{ id: uid(), label: "__single__", blocks: [emptyBlock(0)] }],
-  }), [kind]);
+  }), [initialKind]);
 
   const [state, rawDispatch] = useReducer(reducer, initial);
+  const [kind, setKind] = useState<EditorKind>(initialKind);
   const [activeTarget, setActiveTarget] = useState<{ sessionId: string; blockId: string } | null>(null);
   const [saving, setSaving] = useState(false);
   const [mobilePanelOpen, setMobilePanelOpen] = useState(false);
@@ -366,6 +372,8 @@ export function WorkoutEditor({
 
   const dispatch = useMemo<React.Dispatch<Action>>(() => (action) => {
     if (!suppressDirtyRef.current) setTouched(true);
+    // Auto-promote template → plan when the user adds a second session.
+    if (action.type === "ADD_SESSION") setKind("plan");
     rawDispatch(action);
   }, []);
 
@@ -487,7 +495,7 @@ export function WorkoutEditor({
         const sKeys = [...sessionMap.keys()].sort((a, b) => a - b);
         if (sKeys.length === 0) {
           sessions.push(
-            kind === "plan"
+            tpl.kind === "plan"
               ? emptySession(0)
               : { id: uid(), label: "__single__", blocks: [emptyBlock(0)] },
           );
@@ -526,6 +534,7 @@ export function WorkoutEditor({
         // multiple actions. Easier: use a dedicated action.
         dispatch({ type: "REPLACE_SESSIONS", sessions } as unknown as Action);
         setTemplateId(tpl.id);
+        setKind(tpl.kind === "plan" ? "plan" : "template");
         hydratedRef.current = true;
       } catch (err) {
         console.error(err);
@@ -537,7 +546,7 @@ export function WorkoutEditor({
     return () => {
       cancelled = true;
     };
-  }, [editSlug, kind]);
+  }, [editSlug, initialKind]);
 
   const title = isEdit
     ? kind === "plan"
@@ -1383,7 +1392,7 @@ export function WorkoutEditor({
               </button>
             </div>
           ) : (
-            <div className="mt-5 max-w-md">
+            <div className="mt-5 max-w-md space-y-3">
               <TemplateBlocksCard
                 sessionId={state.sessions[0].id}
                 blocks={state.sessions[0].blocks}
@@ -1394,6 +1403,13 @@ export function WorkoutEditor({
                 }}
                 activeBlockId={activeTarget?.blockId ?? null}
               />
+              <button
+                type="button"
+                onClick={() => dispatch({ type: "ADD_SESSION" })}
+                className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-full border border-dashed border-border/70 px-4 text-sm font-medium text-muted-foreground hover:bg-muted"
+              >
+                <Plus className="h-4 w-4" /> Adicionar outra sessão (virar plano)
+              </button>
             </div>
           )}
             </div>
