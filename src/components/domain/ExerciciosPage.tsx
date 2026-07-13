@@ -241,27 +241,44 @@ export function ExerciciosPage({ scope }: { scope: Scope }) {
             <button
               onClick={() => setShowFilters((v) => !v)}
               className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
-                showFilters || activeGroup !== "all"
+                showFilters || activeGroup !== "all" || activeCategory !== "all"
                   ? "border-primary/50 bg-primary/15 text-primary"
                   : "border-border bg-card text-muted-foreground hover:text-foreground"
               }`}
             >
               <FilterIcon className="h-3.5 w-3.5" />
               Filtros
-              {activeGroup !== "all" && (
-                <span className="ml-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-primary/25 px-1 text-[10px]">1</span>
+              {(activeGroup !== "all" ? 1 : 0) + (activeCategory !== "all" ? 1 : 0) > 0 && (
+                <span className="ml-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-primary/25 px-1 text-[10px]">
+                  {(activeGroup !== "all" ? 1 : 0) + (activeCategory !== "all" ? 1 : 0)}
+                </span>
               )}
             </button>
           </div>
 
           {showFilters && (
-            <div className="mb-4 flex flex-wrap gap-2">
-              <GroupChip label="Todos" active={activeGroup === "all"} onClick={() => setActiveGroup("all")} />
-              {groups.map((g) => (
-                <GroupChip key={g.id} label={g.name} active={activeGroup === g.id} onClick={() => setActiveGroup(g.id)} />
-              ))}
+            <div className="mb-4 space-y-3">
+              <div>
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1.5">Grupo muscular</p>
+                <div className="flex flex-wrap gap-2">
+                  <GroupChip label="Todos" active={activeGroup === "all"} onClick={() => setActiveGroup("all")} />
+                  {groups.map((g) => (
+                    <GroupChip key={g.id} label={g.name} active={activeGroup === g.id} onClick={() => setActiveGroup(g.id)} />
+                  ))}
+                </div>
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1.5">Categoria</p>
+                <div className="flex flex-wrap gap-2">
+                  <GroupChip label="Todas" active={activeCategory === "all"} onClick={() => setActiveCategory("all")} />
+                  {CATEGORIES.map((c) => (
+                    <GroupChip key={c} label={c} active={activeCategory === c} onClick={() => setActiveCategory(c)} />
+                  ))}
+                </div>
+              </div>
             </div>
           )}
+
 
           {loading ? (
             <div className="mt-10 flex items-center justify-center gap-2 text-sm text-muted-foreground">
