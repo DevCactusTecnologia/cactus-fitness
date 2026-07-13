@@ -66,7 +66,7 @@ const NAV_BY_SCOPE: Record<Scope, NavItem[]> = {
   ],
   super_admin: [
     { icon: TrendingUp, label: "Visão geral", to: "/super-admin", search: { tab: "overview" }, match: (p, s) => p.startsWith("/super-admin") && (!s.tab || s.tab === "overview") },
-    { icon: Building2, label: "Academias", to: "/super-admin", search: { tab: "orgs" }, match: (p, s) => p.startsWith("/super-admin") && s.tab === "orgs" },
+    { icon: Building2, label: "Tenants", to: "/super-admin", search: { tab: "orgs" }, match: (p, s) => p.startsWith("/super-admin") && s.tab === "orgs" },
     { icon: Users, label: "Usuários", to: "/super-admin", search: { tab: "users" }, match: (p, s) => p.startsWith("/super-admin") && s.tab === "users" },
     { icon: CreditCard, label: "Planos", to: "/super-admin", search: { tab: "plans" }, match: (p, s) => p.startsWith("/super-admin") && s.tab === "plans" },
   ],
