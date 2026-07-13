@@ -770,14 +770,6 @@ function NewExerciseWizard({
               ))}
             </div>
 
-            {mediaTab === "none" && (
-              <div className="aspect-video w-full rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border border-border">
-                <div className="text-center text-muted-foreground">
-                  <Video className="h-8 w-8 mx-auto mb-2 opacity-60" />
-                  <p className="text-xs">Sem mídia — opcional</p>
-                </div>
-              </div>
-            )}
 
             {mediaTab === "url" && (
               <>
