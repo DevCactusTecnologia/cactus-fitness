@@ -546,10 +546,13 @@ function orgInitials(name: string) {
     .join("") || "?";
 }
 
+type TenantTypeFilter = "all" | "academia" | "personal_solo";
+
 function OrgsTab() {
   const qc = useQueryClient();
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<OrgFilter>("all");
+  const [typeFilter, setTypeFilter] = useState<TenantTypeFilter>("all");
   const [planFilter, setPlanFilter] = useState<string>("all");
   const [view, setView] = useState<OrgView>("grid");
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
