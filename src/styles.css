@@ -210,6 +210,14 @@
     [data-mobile-fit="true"] * {
       min-width: 0;
     }
+
+    /* iOS Safari faz zoom automático em campos com font-size < 16px
+       e não desfaz — força tamanho mínimo em inputs no mobile. */
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="color"]),
+    select,
+    textarea {
+      font-size: 16px !important;
+    }
   }
 
   .font-display { font-family: var(--font-display), system-ui, sans-serif; }
