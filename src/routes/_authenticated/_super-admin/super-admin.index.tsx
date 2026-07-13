@@ -5,7 +5,8 @@ import {
   Shield, Building2, Users, TrendingUp, TrendingDown, CreditCard,
   Loader2, Trash2, Ban, Play, Search, KeyRound, LogOut,
   Crown, UserMinus, UserPlus, AlertTriangle, Sparkles, ArrowUpRight,
-  Activity, Zap, Target,
+  Activity, Zap, Target, Calendar, MoreHorizontal, Copy, CheckCircle2,
+  Clock, XCircle, Filter, LayoutGrid, List as ListIcon, ChevronDown,
 } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
 import { confirmDialog } from "@/components/ui/confirm-dialog";
