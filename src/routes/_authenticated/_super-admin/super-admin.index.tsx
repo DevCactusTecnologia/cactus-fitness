@@ -1138,7 +1138,6 @@ function UsersTab() {
   const [filter, setFilter] = useState<UserFilter>("all");
   const [sort, setSort] = useState<UserSort>("recent");
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
-  const [selected, setSelected] = useState<Set<string>>(new Set());
 
   const { data, isLoading } = useQuery({
     queryKey: ["super-admin", "users"],
@@ -1232,24 +1231,6 @@ function UsersTab() {
     } catch { toast.error("Não foi possível copiar."); }
   }
 
-  function toggleSelected(id: string) {
-    setSelected((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
-      return next;
-    });
-  }
-
-  function toggleAllVisible() {
-    setSelected((prev) => {
-      const allIn = filtered.every((u: any) => prev.has(u.id));
-      const next = new Set(prev);
-      if (allIn) filtered.forEach((u: any) => next.delete(u.id));
-      else filtered.forEach((u: any) => next.add(u.id));
-      return next;
-    });
-  }
-
   const filterChips: { id: UserFilter; label: string; count: number }[] = [
     { id: "all", label: "Todos", count: stats.total },
     { id: "super_admin", label: "Super Admin", count: stats.roleCounts.super_admin ?? 0 },
@@ -1264,38 +1245,21 @@ function UsersTab() {
 
   return (
     <div className="space-y-5">
-      {/* Header + KPIs */}
-      <div className="rounded-3xl border border-border bg-gradient-to-br from-primary/10 via-card to-card p-5">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-primary/80">
-              <Users className="h-3.5 w-3.5" /> Usuários globais
-            </div>
-            <div className="mt-1 font-display text-3xl font-bold tracking-tight">
-              {stats.total} <span className="text-base font-medium text-muted-foreground">contas</span>
-            </div>
-            <div className="mt-1 text-xs text-muted-foreground">
-              {stats.active7} ativas nos últimos 7 dias · {stats.verified} verificadas
-            </div>
+      {/* Header enxuto */}
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+            <Users className="h-3.5 w-3.5" /> Usuários globais
           </div>
-          <div className="grid grid-cols-2 gap-3 sm:min-w-[420px] sm:grid-cols-4">
-            <div className="rounded-xl border border-border/60 bg-background/40 p-3">
-              <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Verificados</div>
-              <div className="mt-1 font-display text-lg font-bold text-emerald-500">{stats.verified}</div>
-            </div>
-            <div className="rounded-xl border border-border/60 bg-background/40 p-3">
-              <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Pendentes</div>
-              <div className="mt-1 font-display text-lg font-bold text-amber-500">{stats.unverified}</div>
-            </div>
-            <div className="rounded-xl border border-border/60 bg-background/40 p-3">
-              <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Ativos 7d</div>
-              <div className="mt-1 font-display text-lg font-bold text-primary">{stats.active7}</div>
-            </div>
-            <div className="rounded-xl border border-border/60 bg-background/40 p-3">
-              <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Sem papel</div>
-              <div className="mt-1 font-display text-lg font-bold text-rose-500">{stats.noRole}</div>
-            </div>
+          <div className="mt-1 font-display text-2xl font-bold tracking-tight">
+            {stats.total} <span className="text-sm font-medium text-muted-foreground">contas</span>
           </div>
+        </div>
+        <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
+          <span><b className="text-emerald-500">{stats.verified}</b> verificadas</span>
+          <span><b className="text-amber-500">{stats.unverified}</b> pendentes</span>
+          <span><b className="text-primary">{stats.active7}</b> ativas 7d</span>
+          <span><b className="text-rose-500">{stats.noRole}</b> sem papel</span>
         </div>
       </div>
 
@@ -1345,19 +1309,6 @@ function UsersTab() {
           <div className="ml-auto text-xs text-muted-foreground">{filtered.length} resultado(s)</div>
         </div>
 
-        {selected.size > 0 && (
-          <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-primary/40 bg-primary/5 px-3 py-2 text-xs">
-            <div className="font-semibold text-primary">{selected.size} selecionado(s)</div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setSelected(new Set())}
-                className="rounded-md border border-border bg-background px-2.5 py-1 font-semibold hover:bg-accent"
-              >
-                Limpar seleção
-              </button>
-            </div>
-          </div>
-        )}
       </div>
 
       {isLoading && <Spinner />}
@@ -1374,12 +1325,6 @@ function UsersTab() {
       {!isLoading && filtered.length > 0 && (
         <div className="overflow-hidden rounded-2xl border border-border bg-card">
           <div className="flex items-center gap-3 border-b border-border bg-muted/30 px-4 py-2 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
-            <input
-              type="checkbox"
-              checked={filtered.length > 0 && filtered.every((u: any) => selected.has(u.id))}
-              onChange={toggleAllVisible}
-              className="h-3.5 w-3.5 rounded border-border"
-            />
             <span>Usuário</span>
             <span className="ml-auto hidden sm:inline">Papéis</span>
           </div>
@@ -1387,22 +1332,13 @@ function UsersTab() {
             {filtered.map((u: any) => {
               const menuOpen = openMenuId === u.id;
               const isSelf = false; // super admin cannot delete self anyway
-              const isSelected = selected.has(u.id);
               const hue = avatarHue(u.id);
               const roles: string[] = u.roles ?? [];
               return (
                 <li
                   key={u.id}
-                  className={`group flex flex-wrap items-center gap-3 border-b border-border/60 px-4 py-3 transition ${
-                    isSelected ? "bg-primary/5" : "hover:bg-accent/30"
-                  }`}
+                  className="group flex flex-wrap items-center gap-3 border-b border-border/60 px-4 py-3 transition hover:bg-accent/30"
                 >
-                  <input
-                    type="checkbox"
-                    checked={isSelected}
-                    onChange={() => toggleSelected(u.id)}
-                    className="h-3.5 w-3.5 shrink-0 rounded border-border"
-                  />
                   <div
                     className="grid h-10 w-10 shrink-0 place-items-center rounded-full font-display text-xs font-bold text-white"
                     style={{ background: `linear-gradient(135deg, hsl(${hue} 70% 55%), hsl(${(hue + 40) % 360} 70% 45%))` }}
