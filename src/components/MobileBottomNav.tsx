@@ -41,12 +41,15 @@ const ITEMS_BY_SCOPE: Record<Scope, Item[]> = {
     { icon: House, label: "Início", to: "/", match: (p) => p === "/" },
     { icon: Users, label: "Alunos", to: "/dashboard/personal/alunos", match: (p) => p.startsWith("/dashboard/personal/alunos") },
     { icon: Dumbbell, label: "Treinos", to: "/dashboard/personal/treinos", match: (p) => p.startsWith("/dashboard/personal/treinos") },
+    { icon: Library, label: "Exercícios", to: "/dashboard/personal/exercicios", match: (p) => p.startsWith("/dashboard/personal/exercicios") },
   ],
   academia: [
     { icon: LayoutDashboard, label: "Painel", to: "/dashboard/academia", match: (p) => p === "/dashboard/academia" },
     { icon: Users, label: "Alunos", to: "/dashboard/academia/alunos", match: (p) => p.startsWith("/dashboard/academia/alunos") },
     { icon: Dumbbell, label: "Treinos", to: "/dashboard/academia/treinos", match: (p) => p.startsWith("/dashboard/academia/treinos") },
+    { icon: Library, label: "Exercícios", to: "/dashboard/academia/exercicios", match: (p) => p.startsWith("/dashboard/academia/exercicios") },
   ],
+
   aluno: [
     { icon: House, label: "Início", to: "/meu-treino", match: (p) => p === "/meu-treino" },
     { icon: Bell, label: "Notificações", to: "/notificacoes", match: (p) => p.startsWith("/notificacoes") },
