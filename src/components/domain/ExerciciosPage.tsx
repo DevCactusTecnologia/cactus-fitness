@@ -627,6 +627,7 @@ function NewExerciseWizard({
 
   // Load existing media previews on edit
   useEffect(() => {
+    if (isPersonalize) return;
     let cancelled = false;
     (async () => {
       if (initial?.image_path) {
@@ -639,7 +640,7 @@ function NewExerciseWizard({
       }
     })();
     return () => { cancelled = true; };
-  }, [initial?.image_path, initial?.video_path]);
+  }, [initial?.image_path, initial?.video_path, isPersonalize]);
 
 
   const toggleSection = (k: string) =>
