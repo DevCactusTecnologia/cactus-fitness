@@ -1138,7 +1138,6 @@ function UsersTab() {
   const [filter, setFilter] = useState<UserFilter>("all");
   const [sort, setSort] = useState<UserSort>("recent");
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
-  const [selected, setSelected] = useState<Set<string>>(new Set());
 
   const { data, isLoading } = useQuery({
     queryKey: ["super-admin", "users"],
