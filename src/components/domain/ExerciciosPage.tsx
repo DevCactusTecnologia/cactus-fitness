@@ -25,8 +25,12 @@ type Exercise = {
   equipment?: string | null;
   difficulty?: string | null;
   objective?: string | null;
+  category?: string | null;
   video_url?: string | null;
+  image_path?: string | null;
+  video_path?: string | null;
 };
+
 
 const OBJECTIVES = [
   "Capacidade Aeróbia",
