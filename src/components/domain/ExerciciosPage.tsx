@@ -347,12 +347,21 @@ function ExerciseRow({
           <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold text-muted-foreground bg-muted">
             {groupName}
           </span>
+          {ex.difficulty && (
+            <>
+              <span className="text-[11px] text-muted-foreground/60">·</span>
+              <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold text-muted-foreground bg-muted">
+                {ex.difficulty}
+              </span>
+            </>
+          )}
           {isMine && (
             <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold text-primary bg-primary/15">
               Meu
             </span>
           )}
         </div>
+
       </div>
     </button>
   );
