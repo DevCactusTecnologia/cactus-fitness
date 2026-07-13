@@ -9,6 +9,7 @@ import {
 import { toast } from "@/components/ui/sonner";
 import { confirmDialog } from "@/components/ui/confirm-dialog";
 import { supabase } from "@/integrations/supabase/client";
+import { IconRail } from "@/components/IconRail";
 import {
   superAdminMetrics,
   listAllOrganizations,
@@ -20,7 +21,14 @@ import {
   resetUserPassword,
 } from "@/lib/super-admin.functions";
 
+type Tab = "overview" | "orgs" | "users" | "plans";
+
 export const Route = createFileRoute("/_authenticated/_super-admin/super-admin/")({
+  validateSearch: (search: Record<string, unknown>): { tab?: Tab } => {
+    const tab = search.tab;
+    if (tab === "overview" || tab === "orgs" || tab === "users" || tab === "plans") return { tab };
+    return {};
+  },
   head: () => ({
     meta: [
       { title: "Super Admin · cactusfitness" },
@@ -29,6 +37,7 @@ export const Route = createFileRoute("/_authenticated/_super-admin/super-admin/"
   }),
   component: SuperAdminPage,
 });
+
 
 type Tab = "overview" | "orgs" | "users" | "plans";
 
