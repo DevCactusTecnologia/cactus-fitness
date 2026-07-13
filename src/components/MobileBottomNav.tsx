@@ -23,6 +23,8 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { useSignOut } from "@/lib/auth";
+import { TenantSwitcher } from "@/components/TenantSwitcher";
+
 
 type Scope = "personal" | "academia" | "aluno";
 
