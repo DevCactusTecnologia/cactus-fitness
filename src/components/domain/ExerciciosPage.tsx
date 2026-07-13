@@ -135,15 +135,19 @@ export function ExerciciosPage({ scope }: { scope: Scope }) {
     return m;
   }, [groups]);
 
+  const normalize = (s: string) =>
+    s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+
   const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
+    const q = normalize(query.trim());
     return exercises.filter((x) => {
       if (tab === "mine" && x.owner_id !== personalId) return false;
       if (activeGroup !== "all" && x.group_id !== activeGroup) return false;
-      if (q && !x.name.toLowerCase().includes(q)) return false;
+      if (q && !normalize(x.name).includes(q)) return false;
       return true;
     });
   }, [exercises, query, activeGroup, tab, personalId]);
+
 
   useEffect(() => { setVisible(PAGE_SIZE); }, [query, activeGroup, tab]);
 
