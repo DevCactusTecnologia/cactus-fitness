@@ -586,6 +586,7 @@ function OrgsTab() {
       });
     }
     if (planFilter !== "all") arr = arr.filter((o: any) => o.plan === planFilter);
+    if (typeFilter !== "all") arr = arr.filter((o: any) => (o.type ?? "academia") === typeFilter);
     if (q.trim()) {
       const s = q.trim().toLowerCase();
       arr = arr.filter(
@@ -596,7 +597,16 @@ function OrgsTab() {
       );
     }
     return arr;
-  }, [list, filter, planFilter, q]);
+  }, [list, filter, planFilter, typeFilter, q]);
+
+  const typeCounts = useMemo(() => {
+    const c = { academia: 0, personal_solo: 0 };
+    list.forEach((o: any) => {
+      if (o.type === "personal_solo") c.personal_solo++;
+      else c.academia++;
+    });
+    return c;
+  }, [list]);
 
   const totalRevenue = useMemo(
     () =>
