@@ -835,8 +835,12 @@ function OrgsTab() {
                   </div>
                 )}
                 <div className="flex items-start gap-3">
-                  <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-primary/25 to-primary/5 font-display text-sm font-bold text-primary">
-                    {orgInitials(o.name)}
+                  <div className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl font-display text-sm font-bold ${
+                    o.type === "personal_solo"
+                      ? "bg-gradient-to-br from-violet-500/30 to-violet-500/5 text-violet-500"
+                      : "bg-gradient-to-br from-primary/25 to-primary/5 text-primary"
+                  }`}>
+                    {o.type === "personal_solo" ? <Crown className="h-5 w-5" /> : orgInitials(o.name)}
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="truncate font-display text-base font-bold">{o.name}</div>
