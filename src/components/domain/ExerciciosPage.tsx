@@ -863,7 +863,7 @@ function NewExerciseWizard({
                   <SelectValue placeholder="Selecione um grupo muscular" />
                 </SelectTrigger>
                 <SelectContent>
-                  {groups.map((g) => (
+                  {groups.filter(isMuscleGroup).map((g) => (
                     <SelectItem key={g.id} value={String(g.id)}>{g.name}</SelectItem>
                   ))}
                 </SelectContent>
