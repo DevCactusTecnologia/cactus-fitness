@@ -75,12 +75,11 @@ function usePersonal(personalId: string) {
         .eq("id", personalId)
         .maybeSingle();
 
-      const { data: alunos } = await supabase
+      const { count: alunosCount } = await supabase
         .from("alunos")
-        .select("id, full_name, is_active, created_at")
+        .select("id", { count: "exact", head: true })
         .eq("organization_id", orgId)
-        .eq("personal_id", personalId)
-        .order("created_at", { ascending: false });
+        .eq("personal_id", personalId);
 
       return {
         user_id: personalId,
@@ -92,11 +91,12 @@ function usePersonal(personalId: string) {
         is_active: (member as any).is_active ?? true,
         member_since: member.created_at,
         organization_id: orgId,
-        alunos: (alunos ?? []) as PersonalDetail["alunos"],
+        alunos_count: alunosCount ?? 0,
       };
     },
   });
 }
+
 
 const TABS = ["Alunos", "Informações"];
 
