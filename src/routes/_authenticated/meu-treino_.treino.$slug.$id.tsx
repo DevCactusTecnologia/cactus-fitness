@@ -13,17 +13,16 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from "@/components/ui/dialog";
 import { jsPDF } from "jspdf";
+import { blockIndexToLetter, letterToBlockIndex } from "@/lib/slug";
 
 export const Route = createFileRoute("/_authenticated/meu-treino_/treino/$slug/$id")({
   beforeLoad: ({ location }) => requireAlunoRole(location),
   head: () => ({ meta: [{ title: "Treino · cactusfitness" }] }),
   validateSearch: (search: Record<string, unknown>) => ({
     sessao: typeof search.sessao === "string" ? search.sessao : undefined,
-    bloco: typeof search.bloco === "number"
-      ? search.bloco
-      : typeof search.bloco === "string" && search.bloco !== "" && !isNaN(Number(search.bloco))
-        ? Number(search.bloco)
-        : undefined,
+    dia: typeof search.dia === "string" && /^[a-z]$/i.test(search.dia)
+      ? search.dia.toLowerCase()
+      : undefined,
   }),
   component: TreinoPage,
 });
@@ -70,8 +69,9 @@ function formatTimer(sec: number) {
 }
 
 function TreinoPage() {
-  const { id } = Route.useParams();
-  const { bloco } = Route.useSearch();
+  const { id, slug } = Route.useParams();
+  const { dia } = Route.useSearch();
+  const bloco = letterToBlockIndex(dia);
   const navigate = useNavigate();
   const { profile } = useCurrentUser();
 
