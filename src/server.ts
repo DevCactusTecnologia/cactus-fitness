@@ -7,6 +7,8 @@ type ServerEntry = {
   fetch: (request: Request, env: unknown, ctx: unknown) => Promise<Response> | Response;
 };
 
+type WorkerEnv = Record<string, string | number | boolean | undefined>;
+
 let serverEntryPromise: Promise<ServerEntry> | undefined;
 
 async function getServerEntry(): Promise<ServerEntry> {
@@ -16,6 +18,19 @@ async function getServerEntry(): Promise<ServerEntry> {
     );
   }
   return serverEntryPromise;
+}
+
+function syncWorkerEnvToProcessEnv(env: unknown) {
+  if (!env || typeof env !== "object") return;
+  if (typeof process === "undefined") return;
+  process.env ??= {};
+
+  for (const [key, value] of Object.entries(env as WorkerEnv)) {
+    if (process.env[key] != null || value == null) continue;
+    if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
+      process.env[key] = String(value);
+    }
+  }
 }
 
 // h3 swallows in-handler throws into a normal 500 Response with body
@@ -47,6 +62,7 @@ function isH3SwallowedErrorBody(body: string): boolean {
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
     try {
+      syncWorkerEnvToProcessEnv(env);
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
       return await normalizeCatastrophicSsrResponse(response);
