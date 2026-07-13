@@ -334,11 +334,18 @@ function OverviewTab() {
       {/* KPIs com sparklines */}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard
-          label="Academias"
+          label="Tenants"
           value={data.totalOrgs}
           icon={<Building2 className="h-4 w-4" />}
           trend={<Delta current={data.newOrgsThisMonth} previous={data.newOrgsPrevMonth} suffix="" />}
-          sub={<div className="mt-2"><Sparkline values={orgSeries} /></div>}
+          sub={
+            <div className="mt-2 space-y-1.5">
+              <div className="flex items-center justify-between text-[10px] text-muted-foreground">
+                <span>{data.totalAcademias ?? 0} academias · {data.totalPersonalSolo ?? 0} personais solo</span>
+              </div>
+              <Sparkline values={orgSeries} />
+            </div>
+          }
           accent="primary"
         />
         <KpiCard
