@@ -36,8 +36,12 @@ type PersonalDetail = {
   is_active: boolean;
   member_since: string;
   organization_id: string;
-  alunos: { id: string; full_name: string; is_active: boolean; created_at: string }[];
+  alunos_count: number;
 };
+
+type AlunoLite = { id: string; full_name: string; is_active: boolean; created_at: string };
+const ALUNOS_PAGE_SIZE = 20;
+
 
 function usePersonal(personalId: string) {
   return useQuery({
