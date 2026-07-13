@@ -2,6 +2,15 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+async function assertSuperAdmin(supabase: any, userId: string) {
+  const { data, error } = await supabase.rpc("has_role", {
+    _user_id: userId,
+    _role: "super_admin",
+  });
+  if (error) throw new Error(error.message);
+  if (!data) throw new Error("Acesso negado.");
+}
+
 export const superAdminMetrics = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
@@ -197,7 +206,6 @@ export const updateOrganization = createServerFn({ method: "POST" })
   .inputValidator((d) => updateOrgSchema.parse(d))
   .handler(async ({ context, data }) => {
     await assertSuperAdmin(context.supabase, context.userId);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const patch: Record<string, any> = {};
     if (data.plan !== undefined) patch.plan = data.plan;
@@ -208,7 +216,7 @@ export const updateOrganization = createServerFn({ method: "POST" })
 
     if (Object.keys(patch).length === 0) return { ok: true };
 
-    const { error } = await supabaseAdmin.from("organizations").update(patch as any).eq("id", data.orgId);
+    const { error } = await context.supabase.from("organizations").update(patch as any).eq("id", data.orgId);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -218,8 +226,7 @@ export const deleteOrganization = createServerFn({ method: "POST" })
   .inputValidator((d) => z.object({ orgId: z.string().uuid() }).parse(d))
   .handler(async ({ context, data }) => {
     await assertSuperAdmin(context.supabase, context.userId);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error } = await supabaseAdmin.from("organizations").delete().eq("id", data.orgId);
+    const { error } = await context.supabase.from("organizations").delete().eq("id", data.orgId);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -228,45 +235,38 @@ export const listAllUsers = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertSuperAdmin(context.supabase, context.userId);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const all: any[] = [];
-    let page = 1;
-    while (true) {
-      const { data, error } = await supabaseAdmin.auth.admin.listUsers({ page, perPage: 200 });
-      if (error) throw new Error(error.message);
-      const users = (data as any)?.users ?? [];
-      all.push(...users);
-      if (users.length < 200) break;
-      page++;
-      if (page > 25) break;
-    }
-
-    const ids = all.map((u) => u.id);
     const [profiles, roles] = await Promise.all([
-      ids.length
-        ? supabaseAdmin.from("profiles").select("id, full_name").in("id", ids)
-        : Promise.resolve({ data: [] as any[] }),
-      ids.length
-        ? supabaseAdmin.from("user_roles").select("user_id, role").in("user_id", ids)
-        : Promise.resolve({ data: [] as any[] }),
+      context.supabase.from("profiles").select("id, full_name, created_at"),
+      context.supabase.from("user_roles").select("user_id, role"),
     ]);
-    const profileMap = new Map((profiles.data ?? []).map((p: any) => [p.id, p.full_name]));
+    if (profiles.error) throw new Error(profiles.error.message);
+    if (roles.error) throw new Error(roles.error.message);
+
+    const profileRows = profiles.data ?? [];
+    const ids = Array.from(new Set([
+      ...profileRows.map((p: any) => p.id),
+      ...(roles.data ?? []).map((r: any) => r.user_id),
+    ]));
+    const profileMap = new Map(profileRows.map((p: any) => [p.id, p]));
     const rolesMap: Record<string, string[]> = {};
     (roles.data ?? []).forEach((r: any) => {
       (rolesMap[r.user_id] ??= []).push(r.role);
     });
 
-    return all
-      .map((u) => ({
-        id: u.id as string,
-        email: (u.email as string) ?? null,
-        created_at: u.created_at as string,
-        last_sign_in_at: (u.last_sign_in_at as string) ?? null,
-        email_confirmed_at: (u.email_confirmed_at as string) ?? null,
-        full_name: profileMap.get(u.id) ?? null,
-        roles: rolesMap[u.id] ?? [],
-      }))
+    return ids
+      .map((id) => {
+        const profile = profileMap.get(id) as any;
+        return {
+          id: id as string,
+          email: null,
+          created_at: (profile?.created_at as string) ?? new Date(0).toISOString(),
+          last_sign_in_at: null,
+          email_confirmed_at: null,
+          full_name: profile?.full_name ?? null,
+          roles: rolesMap[id] ?? [],
+        };
+      })
       .sort((a, b) => (a.created_at < b.created_at ? 1 : -1));
   });
 
@@ -284,14 +284,13 @@ export const toggleUserRole = createServerFn({ method: "POST" })
     if (data.userId === context.userId && data.role === "super_admin" && !data.grant) {
       throw new Error("Você não pode remover seu próprio papel de Super Admin.");
     }
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     if (data.grant) {
-      const { error } = await supabaseAdmin
+      const { error } = await context.supabase
         .from("user_roles")
         .upsert({ user_id: data.userId, role: data.role }, { onConflict: "user_id,role" });
       if (error) throw new Error(error.message);
     } else {
-      const { error } = await supabaseAdmin
+      const { error } = await context.supabase
         .from("user_roles")
         .delete()
         .eq("user_id", data.userId)
