@@ -1768,8 +1768,8 @@ function PlansTab() {
                         const ok = await confirmDialog({
                           title: `Excluir plano ${p.name}?`,
                           description: "Só é possível remover planos sem academias vinculadas.",
-                          confirmText: "Excluir",
-                          variant: "destructive",
+                          confirmLabel: "Excluir",
+                          destructive: true,
                         });
                         if (ok) deletePlanMut.mutate(p.slug);
                       }}
