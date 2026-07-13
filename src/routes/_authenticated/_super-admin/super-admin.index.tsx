@@ -83,32 +83,8 @@ function SuperAdminPage() {
             <LogOut className="h-3.5 w-3.5" /> Sair
           </button>
         </div>
-        <div className="mx-auto flex max-w-7xl gap-1 overflow-x-auto px-4 sm:px-6">
-          {(
-            [
-              ["overview", "Visão geral", TrendingUp],
-              ["orgs", "Academias", Building2],
-              ["users", "Usuários", Users],
-              ["plans", "Planos", CreditCard],
-            ] as const
-          ).map(([id, label, Icon]) => {
-            const active = tab === id;
-            return (
-              <button
-                key={id}
-                onClick={() => navigate({ to: "/super-admin", search: { tab: id } })}
-                className={`inline-flex items-center gap-1.5 border-b-2 px-3 py-2 text-sm font-semibold transition ${
-                  active
-                    ? "border-primary text-primary"
-                    : "border-transparent text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                <Icon className="h-4 w-4" /> {label}
-              </button>
-            );
-          })}
-        </div>
       </header>
+
 
 
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
