@@ -633,7 +633,7 @@ function NewExerciseWizard({
   const [uploading, setUploading] = useState<null | "photo" | "video">(null);
   const [imagePreview, setImagePreview] = useState<string>("");
   const [videoPreview, setVideoPreview] = useState<string>("");
-  const [openAdvanced, setOpenAdvanced] = useState<Set<string>>(new Set());
+  const [step, setStep] = useState<1 | 2 | 3>(1);
 
   // Load existing media previews on edit
   useEffect(() => {
@@ -652,13 +652,6 @@ function NewExerciseWizard({
     return () => { cancelled = true; };
   }, [initial?.image_path, initial?.video_path, isPersonalize]);
 
-
-  const toggleSection = (k: string) =>
-    setOpenAdvanced((s) => {
-      const n = new Set(s);
-      n.has(k) ? n.delete(k) : n.add(k);
-      return n;
-    });
 
   const uploadFile = async (file: File, kind: "photo" | "video") => {
     setUploading(kind); setError(null);
@@ -682,13 +675,14 @@ function NewExerciseWizard({
     }
   };
 
-  const canSave = data.name.trim().length > 0 && data.group_id !== null && !saving;
+  const step1Valid = data.name.trim().length > 0 && data.group_id !== null;
+  const canSave = step1Valid && !saving;
 
   const submit = async () => {
     setSaving(true); setError(null);
     const name = data.name.trim();
-    if (!name) { setSaving(false); setError("Informe o nome do exercício."); return; }
-    if (data.group_id == null) { setSaving(false); setError("Selecione o grupo muscular."); return; }
+    if (!name) { setSaving(false); setError("Informe o nome do exercício."); setStep(1); return; }
+    if (data.group_id == null) { setSaving(false); setError("Selecione o grupo muscular."); setStep(1); return; }
 
     const payload: any = {
       name,
@@ -708,10 +702,7 @@ function NewExerciseWizard({
 
     let err: any = null;
     if (isEdit && initial) {
-      // RLS já garante que só o dono edita (owner_id = auth.uid()).
-      const res = await (supabase.from("exercises") as any)
-        .update(payload)
-        .eq("id", initial.id);
+      const res = await (supabase.from("exercises") as any).update(payload).eq("id", initial.id);
       err = res.error;
     } else {
       payload.owner_id = personalId;
@@ -724,9 +715,14 @@ function NewExerciseWizard({
     onCreated();
   };
 
-
   const toggle = (arr: string[], m: string) =>
     arr.includes(m) ? arr.filter((x) => x !== m) : [...arr, m];
+
+  const STEPS = [
+    { n: 1, label: "Básico" },
+    { n: 2, label: "Mídia" },
+    { n: 3, label: "Detalhes" },
+  ] as const;
 
   return (
     <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/60 backdrop-blur-sm p-0 md:p-4" onClick={onClose}>
@@ -738,185 +734,208 @@ function NewExerciseWizard({
         <div className="px-5 md:px-6 py-4 border-b border-border flex items-start justify-between gap-3">
           <div className="min-w-0">
             <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
-              {isEdit ? "Editar exercício" : isPersonalize ? "Personalizar exercício" : "Novo exercício"}
+              {isEdit ? "Editar exercício" : isPersonalize ? "Personalizar exercício" : "Novo exercício"} · Etapa {step} de 3
             </p>
             <h2 className="text-xl md:text-2xl font-bold font-display leading-tight">
-              {isEdit ? (data.name || "Editar") : isPersonalize ? (data.name || "Personalizar") : "Criar exercício"}
+              {STEPS[step - 1].label}
             </h2>
-            {!isEdit && (
-              <p className="text-xs text-muted-foreground mt-0.5">
-                {isPersonalize ? "Uma cópia" : "Será"} salv{isPersonalize ? "a" : "o"} na aba <span className="font-semibold text-foreground">Meus Exercícios</span>.
-              </p>
-            )}
           </div>
           <button onClick={onClose} className="grid h-9 w-9 place-items-center rounded-full bg-muted hover:bg-muted/70 transition shrink-0">
             <X className="h-4 w-4" />
           </button>
         </div>
 
-
+        {/* Stepper */}
+        <div className="px-5 md:px-6 pt-4">
+          <div className="flex items-center gap-2">
+            {STEPS.map((s, i) => {
+              const active = s.n === step;
+              const done = s.n < step;
+              return (
+                <div key={s.n} className="flex items-center gap-2 flex-1">
+                  <button
+                    type="button"
+                    onClick={() => { if (s.n < step || (s.n === 2 && step1Valid) || (s.n === 3 && step1Valid)) setStep(s.n); }}
+                    className={`h-1.5 flex-1 rounded-full transition ${
+                      active ? "bg-primary" : done ? "bg-primary/60" : "bg-muted"
+                    }`}
+                    aria-label={`Ir para ${s.label}`}
+                  />
+                  {i < STEPS.length - 1 && <span className="sr-only">·</span>}
+                </div>
+              );
+            })}
+          </div>
+        </div>
 
         {/* Body */}
         <div className="overflow-y-auto px-5 md:px-6 py-5 flex-1 space-y-5">
-          {isPersonalize && (
-            <div className="rounded-xl border border-primary/30 bg-primary/10 px-4 py-3 text-xs text-primary flex gap-2.5 items-start">
-              <Info className="h-4 w-4 shrink-0 mt-0.5" />
+          {isPersonalize && step === 1 && (
+            <div className="rounded-xl border border-primary/30 bg-primary/10 px-4 py-3 text-xs flex gap-2.5 items-start">
+              <Info className="h-4 w-4 shrink-0 mt-0.5 text-primary" />
               <div className="space-y-1 text-foreground/90">
                 <p className="font-semibold text-primary">Você está criando uma cópia personalizada</p>
                 <p>
-                  O exercício original <span className="font-semibold">{initial?.name}</span> não será alterado. Ajuste o que quiser (nome, mídia, instruções, músculos…) e a sua versão será salva na aba <span className="font-semibold">Meus Exercícios</span>, disponível só para você.
+                  O exercício original <span className="font-semibold">{initial?.name}</span> não será alterado. A sua versão será salva na aba <span className="font-semibold">Meus Exercícios</span>, disponível só para você.
                 </p>
               </div>
             </div>
           )}
-          {/* Mídia — no topo, igual ao modal de detalhes */}
-          <div>
-            <div className="inline-flex rounded-lg border border-border bg-muted/30 p-1 text-xs font-semibold mb-3">
-              {([
-                { id: "none", label: "Sem mídia" },
-                { id: "url", label: "YouTube" },
-                { id: "photo", label: "Foto" },
-                { id: "video", label: "Vídeo" },
-              ] as const).map((t) => (
-                <button
-                  key={t.id}
-                  type="button"
-                  onClick={() => setMediaTab(t.id)}
-                  className={`px-3 py-1.5 rounded-md transition ${
-                    mediaTab === t.id ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  {t.label}
-                </button>
-              ))}
-            </div>
 
+          {!isPersonalize && !isEdit && step === 1 && (
+            <p className="text-xs text-muted-foreground">
+              Será salvo na aba <span className="font-semibold text-foreground">Meus Exercícios</span>.
+            </p>
+          )}
 
-            {mediaTab === "url" && (
-              <>
+          {/* Etapa 1 — Básico */}
+          {step === 1 && (
+            <>
+              <Field label="Nome *">
                 <input
-                  value={data.video_url}
-                  onChange={(e) => setData({ ...data, video_url: e.target.value, video_path: "" })}
-                  placeholder="https://youtube.com/watch?v=..."
+                  autoFocus
+                  value={data.name}
+                  onChange={(e) => setData({ ...data, name: e.target.value })}
+                  placeholder="Ex: Agachamento"
                   className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2.5 text-sm focus:outline-none focus:border-primary transition"
                 />
-                {data.video_url && (
-                  <div className="mt-3 aspect-video w-full rounded-xl overflow-hidden bg-black">
-                    <iframe src={toEmbedUrl(data.video_url)} className="w-full h-full" title="preview" allowFullScreen />
-                  </div>
-                )}
-              </>
-            )}
+              </Field>
 
-            {mediaTab === "photo" && (
-              <>
-                <label className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border bg-muted/20 px-4 py-6 cursor-pointer hover:bg-muted/40 transition">
-                  <Info className="h-5 w-5 text-muted-foreground" />
-                  <span className="text-sm font-medium">{uploading === "photo" ? "Enviando..." : "Escolher imagem (JPG/PNG, máx. 20MB)"}</span>
-                  <input
-                    type="file" accept="image/*" className="hidden" disabled={uploading === "photo"}
-                    onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadFile(f, "photo"); }}
-                  />
-                </label>
-                {imagePreview && (
-                  <img src={imagePreview} alt="preview" className="mt-3 w-full max-h-72 object-contain rounded-xl bg-black" />
-                )}
-              </>
-            )}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Field label="Grupo muscular *">
+                  <Select
+                    value={data.group_id != null ? String(data.group_id) : ""}
+                    onValueChange={(v) => setData({ ...data, group_id: v ? Number(v) : null })}
+                  >
+                    <SelectTrigger className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2.5 text-sm h-auto focus:border-primary transition">
+                      <SelectValue placeholder="Selecione" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {groups.filter(isMuscleGroup).map((g) => (
+                        <SelectItem key={g.id} value={String(g.id)}>{g.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
 
-            {mediaTab === "video" && (
-              <>
-                <label className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border bg-muted/20 px-4 py-6 cursor-pointer hover:bg-muted/40 transition">
-                  <Video className="h-5 w-5 text-muted-foreground" />
-                  <span className="text-sm font-medium">{uploading === "video" ? "Enviando..." : "Escolher vídeo (MP4/MOV, máx. 20MB)"}</span>
-                  <input
-                    type="file" accept="video/*" className="hidden" disabled={uploading === "video"}
-                    onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadFile(f, "video"); }}
-                  />
-                </label>
-                {videoPreview && (
-                  <video src={videoPreview} controls className="mt-3 w-full max-h-72 rounded-xl bg-black" />
-                )}
-              </>
-            )}
-          </div>
+                <Field label="Categoria" hint="(modalidade)">
+                  <Select
+                    value={data.category || undefined}
+                    onValueChange={(v) => setData({ ...data, category: v })}
+                  >
+                    <SelectTrigger className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2.5 text-sm h-auto focus:border-primary transition">
+                      <SelectValue placeholder="Selecione" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {CATEGORIES.map((c) => (
+                        <SelectItem key={c} value={c}>{c}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </Field>
+              </div>
 
-          {/* Nome */}
-          <Field label="Nome *">
-            <input
-              autoFocus
-              value={data.name}
-              onChange={(e) => setData({ ...data, name: e.target.value })}
-              placeholder="Ex: Agachamento"
-              className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2.5 text-sm focus:outline-none focus:border-primary transition"
-            />
-          </Field>
-
-          {/* Grupo + Categoria em grid (como InfoTiles do detalhe) */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Field label="Grupo muscular *">
-              <Select
-                value={data.group_id != null ? String(data.group_id) : ""}
-                onValueChange={(v) => setData({ ...data, group_id: v ? Number(v) : null })}
-              >
-                <SelectTrigger className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2.5 text-sm h-auto focus:border-primary transition">
-                  <SelectValue placeholder="Selecione um grupo muscular" />
-                </SelectTrigger>
-                <SelectContent>
-                  {groups.filter(isMuscleGroup).map((g) => (
-                    <SelectItem key={g.id} value={String(g.id)}>{g.name}</SelectItem>
+              <Field label="Dificuldade">
+                <div className="flex flex-wrap gap-2">
+                  {DIFFICULTIES.map((d) => (
+                    <button
+                      key={d}
+                      type="button"
+                      onClick={() => setData({ ...data, difficulty: data.difficulty === d ? "" : d })}
+                      className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+                        data.difficulty === d
+                          ? "border-primary bg-primary/15 text-primary"
+                          : "border-border bg-muted/30 text-muted-foreground hover:text-foreground"
+                      }`}
+                    >
+                      {d}
+                    </button>
                   ))}
-                </SelectContent>
-              </Select>
-            </Field>
+                </div>
+              </Field>
+            </>
+          )}
 
-            <Field label="Categoria" hint="(modalidade)">
-              <Select
-                value={data.category || undefined}
-                onValueChange={(v) => setData({ ...data, category: v })}
-              >
-                <SelectTrigger className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2.5 text-sm h-auto focus:border-primary transition">
-                  <SelectValue placeholder="Selecione uma categoria" />
-                </SelectTrigger>
-                <SelectContent>
-                  {CATEGORIES.map((c) => (
-                    <SelectItem key={c} value={c}>{c}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </Field>
-          </div>
+          {/* Etapa 2 — Mídia */}
+          {step === 2 && (
+            <div>
+              <p className="text-xs text-muted-foreground mb-3">Adicione um vídeo ou foto para o aluno visualizar a execução. Opcional — pode pular.</p>
+              <div className="inline-flex rounded-lg border border-border bg-muted/30 p-1 text-xs font-semibold mb-3">
+                {([
+                  { id: "none", label: "Sem mídia" },
+                  { id: "url", label: "YouTube" },
+                  { id: "photo", label: "Foto" },
+                  { id: "video", label: "Vídeo" },
+                ] as const).map((t) => (
+                  <button
+                    key={t.id}
+                    type="button"
+                    onClick={() => setMediaTab(t.id)}
+                    className={`px-3 py-1.5 rounded-md transition ${
+                      mediaTab === t.id ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+                    }`}
+                  >
+                    {t.label}
+                  </button>
+                ))}
+              </div>
 
-          {/* Dificuldade */}
-          <Field label="Dificuldade">
-            <div className="flex flex-wrap gap-2">
-              {DIFFICULTIES.map((d) => (
-                <button
-                  key={d}
-                  type="button"
-                  onClick={() => setData({ ...data, difficulty: data.difficulty === d ? "" : d })}
-                  className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
-                    data.difficulty === d
-                      ? "border-primary bg-primary/15 text-primary"
-                      : "border-border bg-muted/30 text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  {d}
-                </button>
-              ))}
+              {mediaTab === "url" && (
+                <>
+                  <input
+                    value={data.video_url}
+                    onChange={(e) => setData({ ...data, video_url: e.target.value, video_path: "" })}
+                    placeholder="https://youtube.com/watch?v=..."
+                    className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2.5 text-sm focus:outline-none focus:border-primary transition"
+                  />
+                  {data.video_url && (
+                    <div className="mt-3 aspect-video w-full rounded-xl overflow-hidden bg-black">
+                      <iframe src={toEmbedUrl(data.video_url)} className="w-full h-full" title="preview" allowFullScreen />
+                    </div>
+                  )}
+                </>
+              )}
+
+              {mediaTab === "photo" && (
+                <>
+                  <label className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border bg-muted/20 px-4 py-6 cursor-pointer hover:bg-muted/40 transition">
+                    <Info className="h-5 w-5 text-muted-foreground" />
+                    <span className="text-sm font-medium">{uploading === "photo" ? "Enviando..." : "Escolher imagem (JPG/PNG, máx. 20MB)"}</span>
+                    <input
+                      type="file" accept="image/*" className="hidden" disabled={uploading === "photo"}
+                      onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadFile(f, "photo"); }}
+                    />
+                  </label>
+                  {imagePreview && (
+                    <img src={imagePreview} alt="preview" className="mt-3 w-full max-h-72 object-contain rounded-xl bg-black" />
+                  )}
+                </>
+              )}
+
+              {mediaTab === "video" && (
+                <>
+                  <label className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border bg-muted/20 px-4 py-6 cursor-pointer hover:bg-muted/40 transition">
+                    <Video className="h-5 w-5 text-muted-foreground" />
+                    <span className="text-sm font-medium">{uploading === "video" ? "Enviando..." : "Escolher vídeo (MP4/MOV, máx. 20MB)"}</span>
+                    <input
+                      type="file" accept="video/*" className="hidden" disabled={uploading === "video"}
+                      onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadFile(f, "video"); }}
+                    />
+                  </label>
+                  {videoPreview && (
+                    <video src={videoPreview} controls className="mt-3 w-full max-h-72 rounded-xl bg-black" />
+                  )}
+                </>
+              )}
             </div>
-          </Field>
+          )}
 
+          {/* Etapa 3 — Detalhes (tudo opcional) */}
+          {step === 3 && (
+            <>
+              <p className="text-xs text-muted-foreground">Tudo opcional. Salve a qualquer momento.</p>
 
-
-          {/* Avançado — accordions */}
-          <div className="rounded-xl border border-border divide-y divide-border/60">
-            <AdvancedSection
-              title="Descrição e instruções"
-              open={openAdvanced.has("desc")}
-              onToggle={() => toggleSection("desc")}
-            >
-              <div className="space-y-3">
+              <Field label="Descrição">
                 <textarea
                   value={data.description}
                   onChange={(e) => setData({ ...data, description: e.target.value })}
@@ -924,107 +943,90 @@ function NewExerciseWizard({
                   rows={2}
                   className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2 text-sm focus:outline-none focus:border-primary transition resize-none"
                 />
+              </Field>
+
+              <Field label="Instruções de execução">
                 <textarea
                   value={data.instructions}
                   onChange={(e) => setData({ ...data, instructions: e.target.value })}
-                  placeholder={"Instruções passo a passo:\n1. ...\n2. ..."}
-                  rows={5}
+                  placeholder={"1. ...\n2. ..."}
+                  rows={4}
                   className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2 text-sm focus:outline-none focus:border-primary transition resize-none font-mono"
                 />
-              </div>
-            </AdvancedSection>
+              </Field>
 
-            <AdvancedSection
-              title="Músculos trabalhados"
-              open={openAdvanced.has("musc")}
-              onToggle={() => toggleSection("musc")}
-            >
-              <div className="space-y-4">
-                <div>
-                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1.5">Primários</p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {MUSCLE_OPTIONS.map((m) => (
-                      <button
-                        key={`p-${m}`} type="button"
-                        onClick={() => setData({ ...data, muscles_primary: toggle(data.muscles_primary, m) })}
-                        className={`rounded-full border px-2.5 py-1 text-[11px] font-medium transition ${
-                          data.muscles_primary.includes(m)
-                            ? "border-primary bg-primary/15 text-primary"
-                            : "border-border bg-muted/30 text-muted-foreground hover:text-foreground"
-                        }`}
-                      >{m}</button>
-                    ))}
-                  </div>
-                </div>
-                <div>
-                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1.5">Secundários</p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {MUSCLE_OPTIONS.map((m) => (
-                      <button
-                        key={`s-${m}`} type="button"
-                        onClick={() => setData({ ...data, muscles_secondary: toggle(data.muscles_secondary, m) })}
-                        className={`rounded-full border px-2.5 py-1 text-[11px] font-medium transition ${
-                          data.muscles_secondary.includes(m)
-                            ? "border-primary bg-primary/15 text-primary"
-                            : "border-border bg-muted/30 text-muted-foreground hover:text-foreground"
-                        }`}
-                      >{m}</button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </AdvancedSection>
+              <Field label="Objetivo">
+                <Select
+                  value={data.objective || undefined}
+                  onValueChange={(v) => setData({ ...data, objective: v })}
+                >
+                  <SelectTrigger className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2.5 text-sm h-auto focus:border-primary transition">
+                    <SelectValue placeholder="Selecione" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {OBJECTIVES.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </Field>
 
-            <AdvancedSection
-              title="Equipamentos e objetivo"
-              open={openAdvanced.has("equip")}
-              onToggle={() => toggleSection("equip")}
-            >
-              <div className="space-y-4">
-                <div>
-                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1.5">Objetivo</p>
-                  <Select
-                    value={data.objective || undefined}
-                    onValueChange={(v) => setData({ ...data, objective: v })}
-                  >
-                    <SelectTrigger className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2 text-sm h-auto focus:border-primary transition">
-                      <SelectValue placeholder="Selecione..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {OBJECTIVES.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
+              <Field label="Músculos primários">
+                <div className="flex flex-wrap gap-1.5">
+                  {MUSCLE_OPTIONS.map((m) => (
+                    <button
+                      key={`p-${m}`} type="button"
+                      onClick={() => setData({ ...data, muscles_primary: toggle(data.muscles_primary, m) })}
+                      className={`rounded-full border px-2.5 py-1 text-[11px] font-medium transition ${
+                        data.muscles_primary.includes(m)
+                          ? "border-primary bg-primary/15 text-primary"
+                          : "border-border bg-muted/30 text-muted-foreground hover:text-foreground"
+                      }`}
+                    >{m}</button>
+                  ))}
                 </div>
-                <div>
-                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1.5">Equipamentos</p>
-                  <div className="max-h-[220px] overflow-y-auto pr-1">
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                      {equipments.map((eq) => {
-                        const active = data.equipment.includes(eq.name);
-                        return (
-                          <button
-                            key={eq.id} type="button"
-                            onClick={() => setData({ ...data, equipment: toggle(data.equipment, eq.name) })}
-                            className={`flex items-center justify-between gap-2 px-3 py-2 rounded-lg border text-xs text-left transition-colors ${
-                              active
-                                ? "border-primary bg-primary/15 text-primary"
-                                : "border-border bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-foreground"
-                            }`}
-                          >
-                            <span className="truncate">{eq.name}</span>
-                            {active && <Check className="h-3.5 w-3.5 shrink-0" />}
-                          </button>
-                        );
-                      })}
-                      {equipments.length === 0 && (
-                        <p className="col-span-full text-xs text-muted-foreground">Nenhum equipamento cadastrado.</p>
-                      )}
-                    </div>
-                  </div>
+              </Field>
+
+              <Field label="Músculos secundários">
+                <div className="flex flex-wrap gap-1.5">
+                  {MUSCLE_OPTIONS.map((m) => (
+                    <button
+                      key={`s-${m}`} type="button"
+                      onClick={() => setData({ ...data, muscles_secondary: toggle(data.muscles_secondary, m) })}
+                      className={`rounded-full border px-2.5 py-1 text-[11px] font-medium transition ${
+                        data.muscles_secondary.includes(m)
+                          ? "border-primary bg-primary/15 text-primary"
+                          : "border-border bg-muted/30 text-muted-foreground hover:text-foreground"
+                      }`}
+                    >{m}</button>
+                  ))}
                 </div>
-              </div>
-            </AdvancedSection>
-          </div>
+              </Field>
+
+              <Field label="Equipamentos">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-[220px] overflow-y-auto pr-1">
+                  {equipments.map((eq) => {
+                    const active = data.equipment.includes(eq.name);
+                    return (
+                      <button
+                        key={eq.id} type="button"
+                        onClick={() => setData({ ...data, equipment: toggle(data.equipment, eq.name) })}
+                        className={`flex items-center justify-between gap-2 px-3 py-2 rounded-lg border text-xs text-left transition-colors ${
+                          active
+                            ? "border-primary bg-primary/15 text-primary"
+                            : "border-border bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+                        }`}
+                      >
+                        <span className="truncate">{eq.name}</span>
+                        {active && <Check className="h-3.5 w-3.5 shrink-0" />}
+                      </button>
+                    );
+                  })}
+                  {equipments.length === 0 && (
+                    <p className="col-span-full text-xs text-muted-foreground">Nenhum equipamento cadastrado.</p>
+                  )}
+                </div>
+              </Field>
+            </>
+          )}
 
           {error && (
             <div className="rounded-lg bg-destructive/10 border border-destructive/30 text-destructive px-3 py-2 text-xs">{error}</div>
@@ -1034,42 +1036,49 @@ function NewExerciseWizard({
         {/* Footer */}
         <div className="px-5 md:px-6 py-4 border-t border-border flex items-center gap-3">
           <button
-            onClick={onClose}
+            onClick={step === 1 ? onClose : () => setStep((s) => (s - 1) as 1 | 2 | 3)}
             disabled={saving}
             className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted/40 px-4 py-2.5 text-sm font-semibold text-muted-foreground hover:text-foreground disabled:opacity-40 transition"
           >
-            Cancelar
+            {step === 1 ? "Cancelar" : (<><ArrowLeft className="h-4 w-4" /> Voltar</>)}
           </button>
-          <button
-            onClick={submit}
-            disabled={!canSave}
-            className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-full bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.35)] hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed transition"
-          >
-            {saving ? <><Loader2 className="h-4 w-4 animate-spin" /> Salvando...</> : <><Check className="h-4 w-4" /> {isEdit ? "Salvar alterações" : isPersonalize ? "Salvar em Meus Exercícios" : "Salvar exercício"}</>}
-          </button>
+
+          {step < 3 ? (
+            <>
+              {step === 2 && (
+                <button
+                  onClick={submit}
+                  disabled={!canSave}
+                  className="inline-flex items-center justify-center gap-1.5 rounded-full border border-border bg-muted/40 px-4 py-2.5 text-sm font-semibold text-foreground hover:bg-muted/70 disabled:opacity-40 transition"
+                >
+                  Salvar agora
+                </button>
+              )}
+              <button
+                onClick={() => setStep((s) => (s + 1) as 1 | 2 | 3)}
+                disabled={step === 1 && !step1Valid}
+                className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-full bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.35)] hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed transition"
+              >
+                Continuar <ArrowRight className="h-4 w-4" />
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={submit}
+              disabled={!canSave}
+              className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-full bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.35)] hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed transition"
+            >
+              {saving ? <><Loader2 className="h-4 w-4 animate-spin" /> Salvando...</> : <><Check className="h-4 w-4" /> {isEdit ? "Salvar alterações" : isPersonalize ? "Salvar em Meus Exercícios" : "Salvar exercício"}</>}
+            </button>
+          )}
         </div>
       </div>
     </div>
   );
 }
 
-function AdvancedSection({
-  title, open, onToggle, children,
-}: { title: string; open: boolean; onToggle: () => void; children: React.ReactNode }) {
-  return (
-    <div>
-      <button
-        type="button"
-        onClick={onToggle}
-        className="w-full flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-left hover:bg-muted/30 transition"
-      >
-        <span>{title}</span>
-        <ArrowRight className={`h-4 w-4 text-muted-foreground transition-transform ${open ? "rotate-90" : ""}`} />
-      </button>
-      {open && <div className="px-4 pb-4">{children}</div>}
-    </div>
-  );
-}
+
+
 
 
 function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
