@@ -168,6 +168,7 @@ function AuthForm({
     }
 
     const roleHome: Record<AppRole, string> = {
+      super_admin: "/super-admin",
       aluno: "/meu-treino",
       owner: "/dashboard/academia",
       staff: "/dashboard/academia",
@@ -176,6 +177,7 @@ function AuthForm({
 
     // Prefixes each role is allowed to land on directly via ?redirect=
     const allowedPrefixes: Record<AppRole, string[]> = {
+      super_admin: ["/super-admin", "/perfil"],
       aluno: ["/meu-treino", "/meu-progresso", "/meu-plano", "/avaliacoes", "/desafios", "/treinos", "/perfil", "/ranking"],
       owner: ["/dashboard/academia", "/perfil"],
       staff: ["/dashboard/academia", "/perfil"],
