@@ -296,8 +296,11 @@ function AcademiaPage() {
                   ))}
                 </ul>
               </section>
+
+              <SoloStudioSection />
             </>
           )}
+
         </div>
       </main>
       <MobileBottomNav />
