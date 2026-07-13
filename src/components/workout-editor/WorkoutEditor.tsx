@@ -546,7 +546,7 @@ export function WorkoutEditor({
     return () => {
       cancelled = true;
     };
-  }, [editSlug, kind]);
+  }, [editSlug, initialKind]);
 
   const title = isEdit
     ? kind === "plan"
