@@ -1,20 +1,15 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { resolveActiveOrg } from "./active-org.server";
 
 async function resolveOwnerOrg(supabase: any, userId: string) {
-  const { data, error } = await supabase
-    .from("organization_members")
-    .select("organization_id, role")
-    .eq("user_id", userId)
-    .in("role", ["owner", "staff"])
-    .order("created_at", { ascending: true })
-    .limit(1)
-    .maybeSingle();
-  if (error) throw new Error(error.message);
-  if (!data) throw new Error("Nenhuma academia encontrada.");
-  return { orgId: data.organization_id as string, myRole: data.role as string };
+  const { orgId, myRole } = await resolveActiveOrg(supabase, userId, {
+    allowedRoles: ["owner", "staff"],
+  });
+  return { orgId, myRole };
 }
+
 
 const updateSchema = z.object({
   personalId: z.string().uuid(),

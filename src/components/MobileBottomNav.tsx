@@ -23,6 +23,8 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { useSignOut } from "@/lib/auth";
+import { TenantSwitcher } from "@/components/TenantSwitcher";
+
 
 type Scope = "personal" | "academia" | "aluno";
 
@@ -111,9 +113,15 @@ export function MobileBottomNav({ scope: scopeProp }: { scope?: Scope } = {}) {
         <SheetContent side="bottom" className="rounded-t-2xl">
           <SheetHeader className="text-left">
             <SheetTitle className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-              Conta
+              Contexto & conta
             </SheetTitle>
           </SheetHeader>
+
+          <div className="mt-3">
+            <TenantSwitcher />
+          </div>
+
+
 
           <div className="mt-3 flex flex-col gap-2">
             {MENU_LINKS.map((l) => (
