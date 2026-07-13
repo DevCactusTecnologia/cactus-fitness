@@ -7,7 +7,7 @@ import {
   Crown, UserMinus, UserPlus,
 } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
-import { confirm } from "@/components/ui/confirm-dialog";
+import { confirmDialog } from "@/components/ui/confirm-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import {
   superAdminMetrics,
