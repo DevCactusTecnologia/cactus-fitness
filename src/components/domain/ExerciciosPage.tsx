@@ -470,13 +470,14 @@ function Section({ icon: Icon, title, children }: { icon: React.ElementType; tit
   );
 }
 
-/* ---------- Wizard Novo Exercício (6 etapas) ---------- */
+/* ---------- Novo Exercício — tela única ---------- */
 
-type WizardData = {
+type FormData = {
   name: string;
   description: string;
   instructions: string;
   group_id: number | null;
+  category: string;
   difficulty: string;
   objective: string;
   equipment: string[];
@@ -487,27 +488,11 @@ type WizardData = {
   video_path: string;
 };
 
-
-
-const STEPS = [
-  { id: 1, label: "Nome" },
-  { id: 2, label: "Instruções" },
-  { id: 3, label: "Detalhes" },
-  { id: 4, label: "Músculos" },
-  { id: 5, label: "Vídeo" },
-  { id: 6, label: "Revisão" },
-];
-
-const STEP_META: Record<number, { title: string; subtitle: string }> = {
-  1: { title: "Informações básicas", subtitle: "Como o exercício se chama e do que se trata" },
-  2: { title: "Instruções de execução", subtitle: "Passo a passo (opcional)" },
-  3: { title: "Detalhes", subtitle: "Grupo, equipamento e dificuldade" },
-  4: { title: "Músculos", subtitle: "Selecione os músculos trabalhados" },
-  5: { title: "Vídeo", subtitle: "Link demonstrativo (opcional)" },
-  6: { title: "Revisão", subtitle: "Confira antes de salvar" },
-};
-
 const DIFFICULTIES = ["Iniciante", "Intermediário", "Avançado"];
+const CATEGORIES = [
+  "Musculação", "Aeróbico", "Funcional", "Alongamento",
+  "Em casa", "Mobilidade", "Elástico", "MAT Pilates", "Laboral",
+];
 const MUSCLE_OPTIONS = [
   "Peitoral maior", "Peitoral menor", "Deltoide anterior", "Deltoide medial", "Deltoide posterior",
   "Bíceps", "Tríceps", "Antebraço", "Trapézio", "Grande dorsal", "Romboides", "Lombar",
@@ -520,20 +505,27 @@ function NewExerciseWizard({
 }: {
   groups: Group[]; equipments: Equipment[]; personalId: string; onClose: () => void; onCreated: () => void;
 }) {
-  const [step, setStep] = useState(1);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [data, setData] = useState<WizardData>({
+  const [data, setData] = useState<FormData>({
     name: "", description: "", instructions: "",
-    group_id: groups[0]?.id ?? null,
-    difficulty: "", objective: "", equipment: [],
+    group_id: null,
+    category: "", difficulty: "", objective: "", equipment: [],
     muscles_primary: [], muscles_secondary: [],
     video_url: "", image_path: "", video_path: "",
   });
-  const [mediaTab, setMediaTab] = useState<"url" | "photo" | "video">("url");
+  const [mediaTab, setMediaTab] = useState<"none" | "url" | "photo" | "video">("none");
   const [uploading, setUploading] = useState<null | "photo" | "video">(null);
   const [imagePreview, setImagePreview] = useState<string>("");
   const [videoPreview, setVideoPreview] = useState<string>("");
+  const [openAdvanced, setOpenAdvanced] = useState<Set<string>>(new Set());
+
+  const toggleSection = (k: string) =>
+    setOpenAdvanced((s) => {
+      const n = new Set(s);
+      n.has(k) ? n.delete(k) : n.add(k);
+      return n;
+    });
 
   const uploadFile = async (file: File, kind: "photo" | "video") => {
     setUploading(kind); setError(null);
@@ -557,22 +549,20 @@ function NewExerciseWizard({
     }
   };
 
-  const meta = STEP_META[step];
-  const canNext = step === 1 ? data.name.trim().length > 0 : step === 3 ? data.group_id !== null : true;
+  const canSave = data.name.trim().length > 0 && data.group_id !== null && !saving;
 
   const submit = async () => {
     setSaving(true); setError(null);
-
-    // Validação obrigatória — impede perda silenciosa
     const name = data.name.trim();
-    if (!name) { setSaving(false); setStep(1); setError("Informe o nome do exercício."); return; }
-    if (data.group_id == null) { setSaving(false); setStep(3); setError("Selecione o grupo muscular."); return; }
+    if (!name) { setSaving(false); setError("Informe o nome do exercício."); return; }
+    if (data.group_id == null) { setSaving(false); setError("Selecione o grupo muscular."); return; }
 
     const payload = {
       name,
       description: data.description.trim() || null,
       instructions: data.instructions.trim() || null,
       group_id: data.group_id,
+      category: data.category || null,
       difficulty: data.difficulty || null,
       objective: data.objective || null,
       equipment: data.equipment.length ? data.equipment.join(", ") : null,
@@ -585,38 +575,10 @@ function NewExerciseWizard({
       is_active: true,
     };
 
-    const { data: inserted, error: err } = await (supabase.from("exercises") as any)
-      .insert(payload)
-      .select("*")
-      .single();
-
-    if (err) {
-      setSaving(false);
-      setError(`Erro ao salvar: ${err.message}`);
-      return;
-    }
-
-    // Verifica se todos os campos foram persistidos (evita perda silenciosa)
-    const missing: string[] = [];
-    for (const [k, v] of Object.entries(payload)) {
-      if (v === null || (Array.isArray(v) && v.length === 0)) continue;
-      const stored = inserted?.[k];
-      const eq =
-        Array.isArray(v)
-          ? Array.isArray(stored) && stored.length === v.length && v.every((x, i) => x === stored[i])
-          : stored === v;
-      if (!eq) missing.push(k);
-    }
-
+    const { error: err } = await (supabase.from("exercises") as any).insert(payload);
     setSaving(false);
-
-    if (missing.length > 0) {
-      setError(`Alguns campos não foram salvos: ${missing.join(", ")}. Verifique o schema da tabela.`);
-      return;
-    }
-
+    if (err) { setError(`Erro ao salvar: ${err.message}`); return; }
     onCreated();
-
   };
 
   const toggle = (arr: string[], m: string) =>
@@ -625,368 +587,321 @@ function NewExerciseWizard({
   return (
     <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/60 backdrop-blur-sm p-0 md:p-4" onClick={onClose}>
       <div
-        className="w-full md:max-w-3xl bg-card border border-border rounded-t-2xl md:rounded-2xl overflow-hidden shadow-2xl max-h-[95vh] flex flex-col"
+        className="w-full md:max-w-2xl bg-card border border-border rounded-t-2xl md:rounded-2xl overflow-hidden shadow-2xl max-h-[95vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="px-5 md:px-6 py-4 border-b border-border relative">
-          <div className="flex items-start justify-between gap-3">
-            <div className="min-w-0">
-              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Novo exercício · Passo {step} de 6</p>
-              <h2 className="text-xl md:text-2xl font-bold font-display leading-tight">{meta.title}</h2>
-              <p className="text-xs text-muted-foreground mt-0.5">{meta.subtitle}</p>
-            </div>
-            <button onClick={onClose} className="grid h-9 w-9 place-items-center rounded-full bg-muted hover:bg-muted/70 transition shrink-0">
-              <X className="h-4 w-4" />
-            </button>
+        <div className="px-5 md:px-6 py-4 border-b border-border flex items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Novo exercício</p>
+            <h2 className="text-xl md:text-2xl font-bold font-display leading-tight">Criar exercício</h2>
+            <p className="text-xs text-muted-foreground mt-0.5">Será salvo em <span className="font-semibold text-foreground">Meus Exercícios</span>.</p>
           </div>
-
-          {/* Stepper */}
-          <div className="mt-4 overflow-x-auto -mx-1 px-1">
-            <div className="flex items-center gap-2 min-w-max">
-              {STEPS.map((s, i) => {
-                const done = s.id < step;
-                const current = s.id === step;
-                return (
-                  <div key={s.id} className="flex items-center gap-2">
-                    <div className={`flex items-center gap-1.5 ${current ? "" : ""}`}>
-                      <span className={`grid h-6 w-6 place-items-center rounded-full text-[10px] font-bold transition ${
-                        done ? "bg-primary/20 text-primary" :
-                        current ? "bg-primary text-primary-foreground shadow-[0_0_12px_rgba(76,175,80,0.5)]" :
-                        "bg-muted text-muted-foreground"
-                      }`}>
-                        {done ? <Check className="h-3 w-3" /> : s.id}
-                      </span>
-                      <span className={`text-[11px] font-semibold ${current ? "text-foreground" : done ? "text-primary" : "text-muted-foreground"}`}>{s.label}</span>
-                    </div>
-                    {i < STEPS.length - 1 && <span className={`h-px w-6 ${done ? "bg-primary/40" : "bg-border"}`} />}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+          <button onClick={onClose} className="grid h-9 w-9 place-items-center rounded-full bg-muted hover:bg-muted/70 transition shrink-0">
+            <X className="h-4 w-4" />
+          </button>
         </div>
 
         {/* Body */}
-        <div className="overflow-y-auto px-5 md:px-6 py-5 flex-1">
-          {step === 1 && (
-            <div className="space-y-4">
-              <h3 className="text-base font-bold">Informações Básicas</h3>
-              <Field label="Nome do Exercício *">
+        <div className="overflow-y-auto px-5 md:px-6 py-5 flex-1 space-y-5">
+          {/* Nome */}
+          <Field label="Nome *">
+            <input
+              autoFocus
+              value={data.name}
+              onChange={(e) => setData({ ...data, name: e.target.value })}
+              placeholder="Ex: Agachamento"
+              className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2.5 text-sm focus:outline-none focus:border-primary transition"
+            />
+          </Field>
+
+          {/* Grupo muscular */}
+          <Field label="Grupo muscular *">
+            <div className="flex flex-wrap gap-2">
+              {groups.map((g) => (
+                <button
+                  key={g.id}
+                  type="button"
+                  onClick={() => setData({ ...data, group_id: g.id })}
+                  className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+                    data.group_id === g.id
+                      ? "border-primary bg-primary/15 text-primary"
+                      : "border-border bg-muted/30 text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {g.name}
+                </button>
+              ))}
+            </div>
+          </Field>
+
+          {/* Categoria */}
+          <Field label="Categoria" hint="(modalidade)">
+            <div className="flex flex-wrap gap-2">
+              {CATEGORIES.map((c) => (
+                <button
+                  key={c}
+                  type="button"
+                  onClick={() => setData({ ...data, category: data.category === c ? "" : c })}
+                  className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+                    data.category === c
+                      ? "border-primary bg-primary/15 text-primary"
+                      : "border-border bg-muted/30 text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {c}
+                </button>
+              ))}
+            </div>
+          </Field>
+
+          {/* Dificuldade */}
+          <Field label="Dificuldade">
+            <div className="flex flex-wrap gap-2">
+              {DIFFICULTIES.map((d) => (
+                <button
+                  key={d}
+                  type="button"
+                  onClick={() => setData({ ...data, difficulty: data.difficulty === d ? "" : d })}
+                  className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+                    data.difficulty === d
+                      ? "border-primary bg-primary/15 text-primary"
+                      : "border-border bg-muted/30 text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {d}
+                </button>
+              ))}
+            </div>
+          </Field>
+
+          {/* Mídia */}
+          <Field label="Mídia" hint="(opcional)">
+            <div className="inline-flex rounded-lg border border-border bg-muted/30 p-1 text-xs font-semibold mb-3">
+              {([
+                { id: "none", label: "Sem mídia" },
+                { id: "url", label: "YouTube" },
+                { id: "photo", label: "Foto" },
+                { id: "video", label: "Vídeo" },
+              ] as const).map((t) => (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => setMediaTab(t.id)}
+                  className={`px-3 py-1.5 rounded-md transition ${
+                    mediaTab === t.id ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+
+            {mediaTab === "url" && (
+              <>
                 <input
-                  autoFocus
-                  value={data.name}
-                  onChange={(e) => setData({ ...data, name: e.target.value })}
-                  placeholder="Ex: Agachamento"
+                  value={data.video_url}
+                  onChange={(e) => setData({ ...data, video_url: e.target.value, video_path: "" })}
+                  placeholder="https://youtube.com/watch?v=..."
                   className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2.5 text-sm focus:outline-none focus:border-primary transition"
                 />
-              </Field>
-              <Field label="Descrição" hint="(opcional)">
+                {data.video_url && (
+                  <div className="mt-3 aspect-video w-full rounded-xl overflow-hidden bg-black">
+                    <iframe src={toEmbedUrl(data.video_url)} className="w-full h-full" title="preview" allowFullScreen />
+                  </div>
+                )}
+              </>
+            )}
+
+            {mediaTab === "photo" && (
+              <>
+                <label className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border bg-muted/20 px-4 py-6 cursor-pointer hover:bg-muted/40 transition">
+                  <Info className="h-5 w-5 text-muted-foreground" />
+                  <span className="text-sm font-medium">{uploading === "photo" ? "Enviando..." : "Escolher imagem (JPG/PNG, máx. 20MB)"}</span>
+                  <input
+                    type="file" accept="image/*" className="hidden" disabled={uploading === "photo"}
+                    onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadFile(f, "photo"); }}
+                  />
+                </label>
+                {imagePreview && (
+                  <img src={imagePreview} alt="preview" className="mt-3 w-full max-h-72 object-contain rounded-xl bg-black" />
+                )}
+              </>
+            )}
+
+            {mediaTab === "video" && (
+              <>
+                <label className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border bg-muted/20 px-4 py-6 cursor-pointer hover:bg-muted/40 transition">
+                  <Video className="h-5 w-5 text-muted-foreground" />
+                  <span className="text-sm font-medium">{uploading === "video" ? "Enviando..." : "Escolher vídeo (MP4/MOV, máx. 20MB)"}</span>
+                  <input
+                    type="file" accept="video/*" className="hidden" disabled={uploading === "video"}
+                    onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadFile(f, "video"); }}
+                  />
+                </label>
+                {videoPreview && (
+                  <video src={videoPreview} controls className="mt-3 w-full max-h-72 rounded-xl bg-black" />
+                )}
+              </>
+            )}
+          </Field>
+
+          {/* Avançado — accordions */}
+          <div className="rounded-xl border border-border divide-y divide-border/60">
+            <AdvancedSection
+              title="Descrição e instruções"
+              open={openAdvanced.has("desc")}
+              onToggle={() => toggleSection("desc")}
+            >
+              <div className="space-y-3">
                 <textarea
                   value={data.description}
                   onChange={(e) => setData({ ...data, description: e.target.value })}
-                  placeholder="Breve descrição do exercício"
-                  rows={4}
-                  className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2.5 text-sm focus:outline-none focus:border-primary transition resize-none"
+                  placeholder="Breve descrição"
+                  rows={2}
+                  className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2 text-sm focus:outline-none focus:border-primary transition resize-none"
                 />
-              </Field>
-            </div>
-          )}
-
-          {step === 2 && (
-            <div className="space-y-4">
-              <h3 className="text-base font-bold">Instruções</h3>
-              <Field label="Instruções Detalhadas" hint="(opcional)">
-                <p className="text-xs text-muted-foreground mb-2">Descreva passo a passo como realizar o exercício. Use números para cada etapa.</p>
                 <textarea
                   value={data.instructions}
                   onChange={(e) => setData({ ...data, instructions: e.target.value })}
-                  placeholder={"Exemplo:\n1. Posicione os pés na largura dos ombros\n2. Flexione os joelhos mantendo a coluna ereta\n3. Retorne à posição inicial controlando o movimento"}
-                  rows={8}
-                  className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2.5 text-sm focus:outline-none focus:border-primary transition resize-none font-mono"
+                  placeholder={"Instruções passo a passo:\n1. ...\n2. ..."}
+                  rows={5}
+                  className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2 text-sm focus:outline-none focus:border-primary transition resize-none font-mono"
                 />
-              </Field>
-            </div>
-          )}
+              </div>
+            </AdvancedSection>
 
-          {step === 3 && (
-            <div className="space-y-4">
-              <h3 className="text-base font-bold">Detalhes</h3>
-              <Field label="Grupo muscular *">
-                <div className="flex flex-wrap gap-2">
-                  {groups.map((g) => (
-                    <button
-                      key={g.id}
-                      type="button"
-                      onClick={() => setData({ ...data, group_id: g.id })}
-                      className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
-                        data.group_id === g.id
-                          ? "border-primary bg-primary/15 text-primary"
-                          : "border-border bg-muted/30 text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      {g.name}
-                    </button>
-                  ))}
-                </div>
-              </Field>
-              <Field label="Dificuldade">
-                <div className="flex flex-wrap gap-2">
-                  {DIFFICULTIES.map((d) => (
-                    <button
-                      key={d}
-                      type="button"
-                      onClick={() => setData({ ...data, difficulty: data.difficulty === d ? "" : d })}
-                      className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
-                        data.difficulty === d
-                          ? "border-primary bg-primary/15 text-primary"
-                          : "border-border bg-muted/30 text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      {d}
-                    </button>
-                  ))}
-                </div>
-              </Field>
-              <Field label="Objetivo" hint="(opcional)">
-                <select
-                  value={data.objective}
-                  onChange={(e) => setData({ ...data, objective: e.target.value })}
-                  className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2.5 text-sm text-foreground focus:outline-none focus:border-primary transition [&>option]:bg-card [&>option]:text-foreground"
-                >
-                  <option value="" className="bg-card text-foreground">Selecione...</option>
-                  {OBJECTIVES.map((o) => (
-                    <option key={o} value={o} className="bg-card text-foreground">{o}</option>
-                  ))}
-                </select>
-              </Field>
-
-              <Field label="Equipamentos" hint="(opcional)">
-                <div className="max-h-[260px] overflow-y-auto pr-1">
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                    {equipments.map((eq) => {
-                      const active = data.equipment.includes(eq.name);
-                      return (
-                        <button
-                          key={eq.id}
-                          type="button"
-                          onClick={() => setData({ ...data, equipment: toggle(data.equipment, eq.name) })}
-                          className={`flex items-center justify-between gap-2 px-3 py-2.5 rounded-lg border text-sm text-left transition-colors ${
-                            active
-                              ? "border-primary bg-primary/15 text-primary"
-                              : "border-border bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-foreground"
-                          }`}
-                        >
-                          <span className="truncate">{eq.name}</span>
-                          {active && <Check className="h-3.5 w-3.5 shrink-0" />}
-                        </button>
-                      );
-                    })}
-                    {equipments.length === 0 && (
-                      <p className="col-span-full text-xs text-muted-foreground">Nenhum equipamento cadastrado.</p>
-                    )}
+            <AdvancedSection
+              title="Músculos trabalhados"
+              open={openAdvanced.has("musc")}
+              onToggle={() => toggleSection("musc")}
+            >
+              <div className="space-y-4">
+                <div>
+                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1.5">Primários</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {MUSCLE_OPTIONS.map((m) => (
+                      <button
+                        key={`p-${m}`} type="button"
+                        onClick={() => setData({ ...data, muscles_primary: toggle(data.muscles_primary, m) })}
+                        className={`rounded-full border px-2.5 py-1 text-[11px] font-medium transition ${
+                          data.muscles_primary.includes(m)
+                            ? "border-primary bg-primary/15 text-primary"
+                            : "border-border bg-muted/30 text-muted-foreground hover:text-foreground"
+                        }`}
+                      >{m}</button>
+                    ))}
                   </div>
                 </div>
-              </Field>
-
-            </div>
-          )}
-
-          {step === 4 && (
-            <div className="space-y-5">
-              <h3 className="text-base font-bold">Músculos</h3>
-              <Field label="Primários">
-                <div className="flex flex-wrap gap-1.5">
-                  {MUSCLE_OPTIONS.map((m) => (
-                    <button
-                      key={m}
-                      type="button"
-                      onClick={() => setData({ ...data, muscles_primary: toggle(data.muscles_primary, m) })}
-                      className={`rounded-full border px-2.5 py-1 text-[11px] font-medium transition ${
-                        data.muscles_primary.includes(m)
-                          ? "border-primary bg-primary/15 text-primary"
-                          : "border-border bg-muted/30 text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      {m}
-                    </button>
-                  ))}
+                <div>
+                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1.5">Secundários</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {MUSCLE_OPTIONS.map((m) => (
+                      <button
+                        key={`s-${m}`} type="button"
+                        onClick={() => setData({ ...data, muscles_secondary: toggle(data.muscles_secondary, m) })}
+                        className={`rounded-full border px-2.5 py-1 text-[11px] font-medium transition ${
+                          data.muscles_secondary.includes(m)
+                            ? "border-primary bg-primary/15 text-primary"
+                            : "border-border bg-muted/30 text-muted-foreground hover:text-foreground"
+                        }`}
+                      >{m}</button>
+                    ))}
+                  </div>
                 </div>
-              </Field>
-              <Field label="Secundários">
-                <div className="flex flex-wrap gap-1.5">
-                  {MUSCLE_OPTIONS.map((m) => (
-                    <button
-                      key={m}
-                      type="button"
-                      onClick={() => setData({ ...data, muscles_secondary: toggle(data.muscles_secondary, m) })}
-                      className={`rounded-full border px-2.5 py-1 text-[11px] font-medium transition ${
-                        data.muscles_secondary.includes(m)
-                          ? "border-primary bg-primary/15 text-primary"
-                          : "border-border bg-muted/30 text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      {m}
-                    </button>
-                  ))}
-                </div>
-              </Field>
-            </div>
-          )}
-
-          {step === 5 && (
-            <div className="space-y-4">
-              <h3 className="text-base font-bold">Mídia</h3>
-              <p className="text-xs text-muted-foreground">Adicione uma URL do YouTube ou faça upload de foto/vídeo (opcional).</p>
-
-              <div className="inline-flex rounded-lg border border-border bg-muted/30 p-1 text-xs font-semibold">
-                {([
-                  { id: "url", label: "URL YouTube" },
-                  { id: "photo", label: "Upload Foto" },
-                  { id: "video", label: "Upload Vídeo" },
-                ] as const).map((t) => (
-                  <button
-                    key={t.id}
-                    type="button"
-                    onClick={() => setMediaTab(t.id)}
-                    className={`px-3 py-1.5 rounded-md transition ${
-                      mediaTab === t.id ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
-                    }`}
-                  >
-                    {t.label}
-                  </button>
-                ))}
               </div>
+            </AdvancedSection>
 
-              {mediaTab === "url" && (
-                <>
-                  <Field label="URL do vídeo" hint="(YouTube, Vimeo, etc.)">
-                    <input
-                      value={data.video_url}
-                      onChange={(e) => setData({ ...data, video_url: e.target.value, video_path: "" })}
-                      placeholder="https://youtube.com/watch?v=..."
-                      className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2.5 text-sm focus:outline-none focus:border-primary transition"
-                    />
-                  </Field>
-                  {data.video_url && (
-                    <div className="aspect-video w-full rounded-xl overflow-hidden bg-black">
-                      <iframe src={toEmbedUrl(data.video_url)} className="w-full h-full" title="preview" allowFullScreen />
+            <AdvancedSection
+              title="Equipamentos e objetivo"
+              open={openAdvanced.has("equip")}
+              onToggle={() => toggleSection("equip")}
+            >
+              <div className="space-y-4">
+                <div>
+                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1.5">Objetivo</p>
+                  <select
+                    value={data.objective}
+                    onChange={(e) => setData({ ...data, objective: e.target.value })}
+                    className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary transition [&>option]:bg-card [&>option]:text-foreground"
+                  >
+                    <option value="">Selecione...</option>
+                    {OBJECTIVES.map((o) => <option key={o} value={o}>{o}</option>)}
+                  </select>
+                </div>
+                <div>
+                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1.5">Equipamentos</p>
+                  <div className="max-h-[220px] overflow-y-auto pr-1">
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                      {equipments.map((eq) => {
+                        const active = data.equipment.includes(eq.name);
+                        return (
+                          <button
+                            key={eq.id} type="button"
+                            onClick={() => setData({ ...data, equipment: toggle(data.equipment, eq.name) })}
+                            className={`flex items-center justify-between gap-2 px-3 py-2 rounded-lg border text-xs text-left transition-colors ${
+                              active
+                                ? "border-primary bg-primary/15 text-primary"
+                                : "border-border bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+                            }`}
+                          >
+                            <span className="truncate">{eq.name}</span>
+                            {active && <Check className="h-3.5 w-3.5 shrink-0" />}
+                          </button>
+                        );
+                      })}
+                      {equipments.length === 0 && (
+                        <p className="col-span-full text-xs text-muted-foreground">Nenhum equipamento cadastrado.</p>
+                      )}
                     </div>
-                  )}
-                </>
-              )}
+                  </div>
+                </div>
+              </div>
+            </AdvancedSection>
+          </div>
 
-              {mediaTab === "photo" && (
-                <Field label="Foto do exercício" hint="(JPG, PNG · máx. 20MB)">
-                  <label className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border bg-muted/20 px-4 py-8 cursor-pointer hover:bg-muted/40 transition">
-                    <Info className="h-6 w-6 text-muted-foreground" />
-                    <span className="text-sm font-medium">{uploading === "photo" ? "Enviando..." : "Clique para escolher uma imagem"}</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      disabled={uploading === "photo"}
-                      onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadFile(f, "photo"); }}
-                    />
-                  </label>
-                  {imagePreview && (
-                    <img src={imagePreview} alt="preview" className="mt-3 w-full max-h-72 object-contain rounded-xl bg-black" />
-                  )}
-                </Field>
-              )}
-
-              {mediaTab === "video" && (
-                <Field label="Vídeo do exercício" hint="(MP4, MOV · máx. 20MB)">
-                  <label className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border bg-muted/20 px-4 py-8 cursor-pointer hover:bg-muted/40 transition">
-                    <Video className="h-6 w-6 text-muted-foreground" />
-                    <span className="text-sm font-medium">{uploading === "video" ? "Enviando..." : "Clique para escolher um vídeo"}</span>
-                    <input
-                      type="file"
-                      accept="video/*"
-                      className="hidden"
-                      disabled={uploading === "video"}
-                      onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadFile(f, "video"); }}
-                    />
-                  </label>
-                  {videoPreview && (
-                    <video src={videoPreview} controls className="mt-3 w-full max-h-72 rounded-xl bg-black" />
-                  )}
-                </Field>
-              )}
-            </div>
-          )}
-
-
-
-          {step === 6 && (
-            <div className="space-y-4">
-              <h3 className="text-base font-bold">Revisão</h3>
-              <ReviewRow label="Nome" value={data.name} />
-              <ReviewRow label="Descrição" value={data.description || "—"} />
-              <ReviewRow label="Grupo" value={groups.find((g) => g.id === data.group_id)?.name ?? "—"} />
-              <ReviewRow label="Dificuldade" value={data.difficulty || "—"} />
-              <ReviewRow label="Objetivo" value={data.objective || "—"} />
-              <ReviewRow label="Equipamentos" value={data.equipment.join(", ") || "—"} />
-
-              <ReviewRow label="Músculos primários" value={data.muscles_primary.join(", ") || "—"} />
-              <ReviewRow label="Músculos secundários" value={data.muscles_secondary.join(", ") || "—"} />
-              <ReviewRow label="Vídeo" value={data.video_url || "—"} />
-              <ReviewRow label="Instruções" value={data.instructions || "—"} />
-              {error && (
-                <div className="rounded-lg bg-destructive/10 border border-destructive/30 text-destructive px-3 py-2 text-xs">{error}</div>
-              )}
-            </div>
+          {error && (
+            <div className="rounded-lg bg-destructive/10 border border-destructive/30 text-destructive px-3 py-2 text-xs">{error}</div>
           )}
         </div>
 
         {/* Footer */}
         <div className="px-5 md:px-6 py-4 border-t border-border flex items-center gap-3">
           <button
-            onClick={() => setStep((s) => Math.max(1, s - 1))}
-            disabled={step === 1 || saving}
-            className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted/40 px-4 py-2.5 text-sm font-semibold text-muted-foreground hover:text-foreground disabled:opacity-40 disabled:cursor-not-allowed transition"
+            onClick={onClose}
+            disabled={saving}
+            className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted/40 px-4 py-2.5 text-sm font-semibold text-muted-foreground hover:text-foreground disabled:opacity-40 transition"
           >
-            <ArrowLeft className="h-4 w-4" /> Anterior
+            Cancelar
           </button>
-          {step < 6 ? (
-            <button
-              onClick={() => setStep((s) => Math.min(6, s + 1))}
-              disabled={!canNext}
-              className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-full bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.35)] hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed transition"
-            >
-              Próximo <ArrowRight className="h-4 w-4" />
-            </button>
-          ) : (
-            <button
-              onClick={submit}
-              disabled={saving || !data.name.trim() || data.group_id === null}
-              className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-full bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.35)] hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed transition"
-            >
-              {saving ? <><Loader2 className="h-4 w-4 animate-spin" /> Salvando...</> : <><Check className="h-4 w-4" /> Salvar exercício</>}
-            </button>
-          )}
+          <button
+            onClick={submit}
+            disabled={!canSave}
+            className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-full bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.35)] hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed transition"
+          >
+            {saving ? <><Loader2 className="h-4 w-4 animate-spin" /> Salvando...</> : <><Check className="h-4 w-4" /> Salvar exercício</>}
+          </button>
         </div>
       </div>
     </div>
   );
 }
 
-function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
+function AdvancedSection({
+  title, open, onToggle, children,
+}: { title: string; open: boolean; onToggle: () => void; children: React.ReactNode }) {
   return (
     <div>
-      <label className="block text-sm font-semibold mb-1.5">
-        {label} {hint && <span className="text-xs text-muted-foreground font-normal">{hint}</span>}
-      </label>
-      {children}
+      <button
+        type="button"
+        onClick={onToggle}
+        className="w-full flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-left hover:bg-muted/30 transition"
+      >
+        <span>{title}</span>
+        <ArrowRight className={`h-4 w-4 text-muted-foreground transition-transform ${open ? "rotate-90" : ""}`} />
+      </button>
+      {open && <div className="px-4 pb-4">{children}</div>}
     </div>
   );
 }
 
-function ReviewRow({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="flex items-start gap-3 py-2 border-b border-border/40 last:border-0">
-      <span className="text-xs text-muted-foreground w-40 shrink-0 font-semibold uppercase tracking-wider">{label}</span>
-      <span className="text-sm flex-1 break-words">{value}</span>
-    </div>
-  );
-}
