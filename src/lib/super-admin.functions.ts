@@ -2,15 +2,6 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-async function assertSuperAdmin(supabase: any, userId: string) {
-  const { data, error } = await supabase.rpc("has_role", {
-    _user_id: userId,
-    _role: "super_admin",
-  });
-  if (error) throw new Error(error.message);
-  if (!data) throw new Error("Acesso negado.");
-}
-
 export const superAdminMetrics = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
@@ -205,7 +196,12 @@ export const updateOrganization = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => updateOrgSchema.parse(d))
   .handler(async ({ context, data }) => {
-    await assertSuperAdmin(context.supabase, context.userId);
+    const { data: isSuperAdmin, error: roleError } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "super_admin",
+    });
+    if (roleError) throw new Error(roleError.message);
+    if (!isSuperAdmin) throw new Error("Acesso negado.");
 
     const patch: Record<string, any> = {};
     if (data.plan !== undefined) patch.plan = data.plan;
@@ -225,7 +221,12 @@ export const deleteOrganization = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ orgId: z.string().uuid() }).parse(d))
   .handler(async ({ context, data }) => {
-    await assertSuperAdmin(context.supabase, context.userId);
+    const { data: isSuperAdmin, error: roleError } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "super_admin",
+    });
+    if (roleError) throw new Error(roleError.message);
+    if (!isSuperAdmin) throw new Error("Acesso negado.");
     const { error } = await context.supabase.from("organizations").delete().eq("id", data.orgId);
     if (error) throw new Error(error.message);
     return { ok: true };
@@ -234,7 +235,12 @@ export const deleteOrganization = createServerFn({ method: "POST" })
 export const listAllUsers = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    await assertSuperAdmin(context.supabase, context.userId);
+    const { data: isSuperAdmin, error: roleError } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "super_admin",
+    });
+    if (roleError) throw new Error(roleError.message);
+    if (!isSuperAdmin) throw new Error("Acesso negado.");
 
     const [profiles, roles] = await Promise.all([
       context.supabase.from("profiles").select("id, full_name, created_at"),
@@ -280,7 +286,12 @@ export const toggleUserRole = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => roleSchema.parse(d))
   .handler(async ({ context, data }) => {
-    await assertSuperAdmin(context.supabase, context.userId);
+    const { data: isSuperAdmin, error: roleError } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "super_admin",
+    });
+    if (roleError) throw new Error(roleError.message);
+    if (!isSuperAdmin) throw new Error("Acesso negado.");
     if (data.userId === context.userId && data.role === "super_admin" && !data.grant) {
       throw new Error("Você não pode remover seu próprio papel de Super Admin.");
     }
@@ -304,7 +315,12 @@ export const deleteUserAccount = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ userId: z.string().uuid() }).parse(d))
   .handler(async ({ context, data }) => {
-    await assertSuperAdmin(context.supabase, context.userId);
+    const { data: isSuperAdmin, error: roleError } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "super_admin",
+    });
+    if (roleError) throw new Error(roleError.message);
+    if (!isSuperAdmin) throw new Error("Acesso negado.");
     if (data.userId === context.userId) throw new Error("Você não pode excluir sua própria conta.");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.auth.admin.deleteUser(data.userId);
@@ -321,7 +337,12 @@ export const resetUserPassword = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => resetPassSchema.parse(d))
   .handler(async ({ context, data }) => {
-    await assertSuperAdmin(context.supabase, context.userId);
+    const { data: isSuperAdmin, error: roleError } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "super_admin",
+    });
+    if (roleError) throw new Error(roleError.message);
+    if (!isSuperAdmin) throw new Error("Acesso negado.");
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.auth.admin.updateUserById(data.userId, {
       password: data.newPassword,
