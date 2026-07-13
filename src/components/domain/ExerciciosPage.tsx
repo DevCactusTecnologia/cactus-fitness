@@ -633,7 +633,7 @@ function NewExerciseWizard({
   const [uploading, setUploading] = useState<null | "photo" | "video">(null);
   const [imagePreview, setImagePreview] = useState<string>("");
   const [videoPreview, setVideoPreview] = useState<string>("");
-  const [openAdvanced, setOpenAdvanced] = useState<Set<string>>(new Set());
+  const [step, setStep] = useState<1 | 2 | 3>(1);
 
   // Load existing media previews on edit
   useEffect(() => {
