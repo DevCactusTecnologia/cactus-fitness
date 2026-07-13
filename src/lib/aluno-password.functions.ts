@@ -104,12 +104,13 @@ export const changeAlunoPassword = createServerFn({ method: "POST" })
       .from("user_roles")
       .upsert({ user_id: authUserId, role: "aluno" }, { onConflict: "user_id,role" });
 
-    // Vincula ao aluno
+    // Vincula ao aluno e normaliza e-mail
     const { error: linkErr } = await supabaseAdmin
       .from("alunos")
-      .update({ aluno_user_id: authUserId })
+      .update({ aluno_user_id: authUserId, email })
       .eq("id", alunoId);
     if (linkErr) throw new Error(linkErr.message);
+
 
     return { ok: true, created: !existingUserId };
   });
