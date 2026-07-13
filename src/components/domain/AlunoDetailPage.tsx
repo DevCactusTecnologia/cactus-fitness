@@ -29,6 +29,7 @@ import { colorForId } from "@/lib/avatar-color";
 type Aluno = {
   id: string;
   full_name: string;
+  nickname: string | null;
   email: string | null;
   phone: string | null;
   birth_date: string | null;
