@@ -13,7 +13,9 @@ import {
   ClipboardList,
   Trophy,
   CreditCard,
+  Library,
 } from "lucide-react";
+
 
 import {
   Sheet,
