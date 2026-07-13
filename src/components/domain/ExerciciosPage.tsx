@@ -600,7 +600,7 @@ function NewExerciseWizard({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<FormData>(() => ({
-    name: initial?.name ?? "",
+    name: initial?.name ? (isPersonalize ? `${initial.name} (personalizado)` : initial.name) : "",
     description: initial?.description ?? "",
     instructions: initial?.instructions ?? "",
     group_id: initial?.group_id ?? null,
@@ -611,8 +611,8 @@ function NewExerciseWizard({
     muscles_primary: initial?.muscles_primary ?? [],
     muscles_secondary: initial?.muscles_secondary ?? [],
     video_url: initial?.video_url ?? "",
-    image_path: initial?.image_path ?? "",
-    video_path: initial?.video_path ?? "",
+    image_path: isPersonalize ? "" : (initial?.image_path ?? ""),
+    video_path: isPersonalize ? "" : (initial?.video_path ?? ""),
   }));
   const [mediaTab, setMediaTab] = useState<"none" | "url" | "photo" | "video">(() => {
     if (initial?.video_url) return "url";
