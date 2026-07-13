@@ -94,11 +94,14 @@ export function ExerciciosPage({ scope }: { scope: Scope }) {
 
   const [query, setQuery] = useState("");
   const [activeGroup, setActiveGroup] = useState<number | "all">("all");
+  const [activeCategory, setActiveCategory] = useState<string | "all">("all");
   const [tab, setTab] = useState<TabId>("all");
   const [visible, setVisible] = useState(PAGE_SIZE);
   const [showFilters, setShowFilters] = useState(false);
   const [showWizard, setShowWizard] = useState(false);
+  const [editingEx, setEditingEx] = useState<Exercise | null>(null);
   const [detailEx, setDetailEx] = useState<Exercise | null>(null);
+
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const personalId = usePersonalId();
 
