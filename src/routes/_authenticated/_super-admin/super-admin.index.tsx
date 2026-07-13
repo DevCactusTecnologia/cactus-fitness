@@ -2,9 +2,10 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import {
-  Shield, Building2, Users, TrendingUp, CreditCard,
+  Shield, Building2, Users, TrendingUp, TrendingDown, CreditCard,
   Loader2, Trash2, Ban, Play, Search, KeyRound, LogOut,
-  Crown, UserMinus, UserPlus,
+  Crown, UserMinus, UserPlus, AlertTriangle, Sparkles, ArrowUpRight,
+  Activity, DollarSign, Zap, Clock, Target,
 } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
 import { confirmDialog } from "@/components/ui/confirm-dialog";
