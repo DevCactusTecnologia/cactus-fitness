@@ -688,14 +688,21 @@ function NewExerciseWizard({
         {/* Header */}
         <div className="px-5 md:px-6 py-4 border-b border-border flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Novo exercício</p>
-            <h2 className="text-xl md:text-2xl font-bold font-display leading-tight">Criar exercício</h2>
-            <p className="text-xs text-muted-foreground mt-0.5">Será salvo em <span className="font-semibold text-foreground">Meus Exercícios</span>.</p>
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+              {isEdit ? "Editar exercício" : "Novo exercício"}
+            </p>
+            <h2 className="text-xl md:text-2xl font-bold font-display leading-tight">
+              {isEdit ? data.name || "Editar" : "Criar exercício"}
+            </h2>
+            {!isEdit && (
+              <p className="text-xs text-muted-foreground mt-0.5">Será salvo em <span className="font-semibold text-foreground">Meus Exercícios</span>.</p>
+            )}
           </div>
           <button onClick={onClose} className="grid h-9 w-9 place-items-center rounded-full bg-muted hover:bg-muted/70 transition shrink-0">
             <X className="h-4 w-4" />
           </button>
         </div>
+
 
         {/* Body */}
         <div className="overflow-y-auto px-5 md:px-6 py-5 flex-1 space-y-5">
