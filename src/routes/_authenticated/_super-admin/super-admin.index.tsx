@@ -2017,89 +2017,91 @@ function PlanEditorDialog({
   const canSave = form.slug.trim().length >= 2 && form.name.trim().length >= 1 && !saving;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4" onClick={onClose}>
-      <div className="w-full max-w-2xl rounded-2xl border border-border bg-card shadow-2xl" onClick={(e) => e.stopPropagation()}>
-        <div className="flex items-center justify-between border-b border-border px-5 py-4">
-          <div className="flex items-center gap-2">
-            <span className={`grid h-8 w-8 place-items-center rounded-lg ${acc.chip}`}>{planIcon(form.icon)}</span>
-            <div>
-              <div className="font-display text-base font-bold">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-3 sm:p-4" onClick={onClose}>
+      <div
+        className="flex max-h-[92vh] w-full max-w-xl flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between border-b border-border px-4 py-2.5">
+          <div className="flex min-w-0 items-center gap-2">
+            <span className={`grid h-7 w-7 shrink-0 place-items-center rounded-md ${acc.chip}`}>{planIcon(form.icon)}</span>
+            <div className="min-w-0">
+              <div className="truncate font-display text-sm font-bold leading-tight">
                 {form.mode === "create" ? "Novo plano" : `Editar: ${form.original?.name}`}
               </div>
-              <div className="text-[11px] text-muted-foreground">Definições aplicadas em novos cadastros e mudanças de plano.</div>
+              <div className="truncate text-[10px] text-muted-foreground">Aplicado em novos cadastros e mudanças de plano.</div>
             </div>
           </div>
-          <button onClick={onClose} className="rounded-md p-1.5 text-muted-foreground hover:bg-accent"><XIcon className="h-4 w-4" /></button>
+          <button onClick={onClose} className="ml-2 shrink-0 rounded-md p-1 text-muted-foreground hover:bg-accent"><XIcon className="h-4 w-4" /></button>
         </div>
 
-        <div className="grid gap-4 p-5 sm:grid-cols-2">
-          <label className="space-y-1">
-            <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Identificador (slug)</span>
+        <div className="grid gap-2.5 overflow-y-auto p-4 sm:grid-cols-2">
+          <label className="space-y-0.5">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Slug</span>
             <input
               value={form.slug}
               disabled={form.mode === "edit"}
               onChange={(e) => set("slug", e.target.value.toLowerCase().replace(/[^a-z0-9_-]/g, ""))}
               placeholder="ex.: elite"
-              className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm disabled:opacity-60"
+              className="w-full rounded-md border border-border bg-background px-2.5 py-1.5 text-sm disabled:opacity-60"
             />
-            <span className="text-[10px] text-muted-foreground">Só letras minúsculas, números, _ e -. Não pode ser alterado depois.</span>
           </label>
-          <label className="space-y-1">
-            <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Nome exibido</span>
-            <input value={form.name} onChange={(e) => set("name", e.target.value)} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm" />
-          </label>
-
-          <label className="space-y-1 sm:col-span-2">
-            <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Subtítulo</span>
-            <input value={form.tagline} onChange={(e) => set("tagline", e.target.value)} placeholder="Ex.: Academias em crescimento" className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm" />
+          <label className="space-y-0.5">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Nome</span>
+            <input value={form.name} onChange={(e) => set("name", e.target.value)} className="w-full rounded-md border border-border bg-background px-2.5 py-1.5 text-sm" />
           </label>
 
-          <label className="space-y-1">
-            <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Preço mensal (R$)</span>
-            <input inputMode="decimal" value={form.price_reais} onChange={(e) => set("price_reais", e.target.value)} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm" />
-          </label>
-          <label className="space-y-1">
-            <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Limite de alunos</span>
-            <input inputMode="numeric" value={form.max_alunos} onChange={(e) => set("max_alunos", e.target.value.replace(/[^0-9]/g, ""))} placeholder="vazio = ilimitado" className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm" />
+          <label className="space-y-0.5 sm:col-span-2">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Subtítulo</span>
+            <input value={form.tagline} onChange={(e) => set("tagline", e.target.value)} placeholder="Ex.: Academias em crescimento" className="w-full rounded-md border border-border bg-background px-2.5 py-1.5 text-sm" />
           </label>
 
-          <label className="space-y-1">
-            <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Ícone</span>
-            <select value={form.icon} onChange={(e) => set("icon", e.target.value as IconChoice)} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm">
+          <label className="space-y-0.5">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Preço mensal (R$)</span>
+            <input inputMode="decimal" value={form.price_reais} onChange={(e) => set("price_reais", e.target.value)} className="w-full rounded-md border border-border bg-background px-2.5 py-1.5 text-sm" />
+          </label>
+          <label className="space-y-0.5">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Limite de alunos</span>
+            <input inputMode="numeric" value={form.max_alunos} onChange={(e) => set("max_alunos", e.target.value.replace(/[^0-9]/g, ""))} placeholder="vazio = ilimitado" className="w-full rounded-md border border-border bg-background px-2.5 py-1.5 text-sm" />
+          </label>
+
+          <label className="space-y-0.5">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Ícone</span>
+            <select value={form.icon} onChange={(e) => set("icon", e.target.value as IconChoice)} className="w-full rounded-md border border-border bg-background px-2.5 py-1.5 text-sm">
               {ICON_CHOICES.map((i) => <option key={i} value={i}>{i}</option>)}
             </select>
           </label>
-          <label className="space-y-1">
-            <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Cor de destaque</span>
-            <select value={form.accent} onChange={(e) => set("accent", e.target.value as AccentChoice)} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm">
+          <label className="space-y-0.5">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Cor</span>
+            <select value={form.accent} onChange={(e) => set("accent", e.target.value as AccentChoice)} className="w-full rounded-md border border-border bg-background px-2.5 py-1.5 text-sm">
               {ACCENT_CHOICES.map((a) => <option key={a} value={a}>{a}</option>)}
             </select>
           </label>
 
-          <label className="space-y-1 sm:col-span-2">
-            <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Recursos (uma linha por item)</span>
-            <textarea value={form.features} onChange={(e) => set("features", e.target.value)} rows={4} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm" />
+          <label className="space-y-0.5 sm:col-span-2">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Recursos (uma linha por item)</span>
+            <textarea value={form.features} onChange={(e) => set("features", e.target.value)} rows={3} className="w-full rounded-md border border-border bg-background px-2.5 py-1.5 text-sm" />
           </label>
 
-          <label className="flex items-center gap-2 text-sm">
+          <label className="flex items-center gap-2 text-xs">
             <input type="checkbox" checked={form.is_active} onChange={(e) => set("is_active", e.target.checked)} />
-            <span>Plano ativo (aparece para novas academias)</span>
+            <span>Ativo (aparece para novos cadastros)</span>
           </label>
-          <label className="space-y-1">
-            <span className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">Ordem de exibição</span>
-            <input type="number" value={form.sort_order} onChange={(e) => set("sort_order", parseInt(e.target.value, 10) || 0)} className="w-full rounded-lg border border-border bg-background px-3 py-2 text-sm" />
+          <label className="space-y-0.5">
+            <span className="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Ordem</span>
+            <input type="number" value={form.sort_order} onChange={(e) => set("sort_order", parseInt(e.target.value, 10) || 0)} className="w-full rounded-md border border-border bg-background px-2.5 py-1.5 text-sm" />
           </label>
         </div>
 
-        <div className="flex items-center justify-end gap-2 border-t border-border px-5 py-3">
-          <button onClick={onClose} className="rounded-lg border border-border bg-background px-4 py-2 text-sm font-semibold hover:bg-accent">Cancelar</button>
+        <div className="flex items-center justify-end gap-2 border-t border-border px-4 py-2.5">
+          <button onClick={onClose} className="rounded-md border border-border bg-background px-3 py-1.5 text-xs font-semibold hover:bg-accent">Cancelar</button>
           <button
             onClick={onSave}
             disabled={!canSave}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground hover:bg-primary/90 disabled:opacity-50"
           >
-            {saving ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
-            Salvar plano
+            {saving ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Save className="h-3.5 w-3.5" />}
+            Salvar
           </button>
         </div>
       </div>
