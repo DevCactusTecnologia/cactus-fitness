@@ -85,6 +85,7 @@ function SidebarIconBtn({
   active,
   badge,
   to,
+  search,
   label,
   onClick,
 }: {
@@ -92,6 +93,7 @@ function SidebarIconBtn({
   active?: boolean;
   badge?: string;
   to?: string;
+  search?: Record<string, string>;
   label?: string;
   onClick?: () => void;
 }) {
@@ -115,9 +117,10 @@ function SidebarIconBtn({
       )}
     </>
   );
-  if (to) return <Link to={to} title={label} className={`${base} ${styles}`}>{inner}</Link>;
+  if (to) return <Link to={to} search={search as never} title={label} className={`${base} ${styles}`}>{inner}</Link>;
   return <button onClick={onClick} title={label} className={`${base} ${styles}`}>{inner}</button>;
 }
+
 
 export function IconRail({ scope: scopeProp }: { scope?: Scope } = {}) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
