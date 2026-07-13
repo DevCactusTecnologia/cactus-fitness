@@ -13,6 +13,7 @@ import {
   Settings,
   TrendingUp,
   CreditCard,
+  Shield,
 } from "lucide-react";
 import { UserAvatarMenu } from "@/components/UserAvatarMenu";
 import logoUrl from "@/assets/cactus-logo.png";
