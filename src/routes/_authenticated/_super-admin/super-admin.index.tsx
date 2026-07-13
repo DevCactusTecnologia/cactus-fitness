@@ -1231,24 +1231,6 @@ function UsersTab() {
     } catch { toast.error("Não foi possível copiar."); }
   }
 
-  function toggleSelected(id: string) {
-    setSelected((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
-      return next;
-    });
-  }
-
-  function toggleAllVisible() {
-    setSelected((prev) => {
-      const allIn = filtered.every((u: any) => prev.has(u.id));
-      const next = new Set(prev);
-      if (allIn) filtered.forEach((u: any) => next.delete(u.id));
-      else filtered.forEach((u: any) => next.add(u.id));
-      return next;
-    });
-  }
-
   const filterChips: { id: UserFilter; label: string; count: number }[] = [
     { id: "all", label: "Todos", count: stats.total },
     { id: "super_admin", label: "Super Admin", count: stats.roleCounts.super_admin ?? 0 },
