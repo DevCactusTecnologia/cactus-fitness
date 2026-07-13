@@ -124,6 +124,7 @@ function SidebarIconBtn({
 
 export function IconRail({ scope: scopeProp }: { scope?: Scope } = {}) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const search = useRouterState({ select: (s) => s.location.search as Record<string, unknown> });
   const scope = scopeProp ?? detectScope(pathname);
   const { data: inAcademia } = useIsPersonalInAcademia();
   const items = NAV_BY_SCOPE[scope].filter((n) => {
@@ -150,7 +151,7 @@ export function IconRail({ scope: scopeProp }: { scope?: Scope } = {}) {
         />
       </div>
       {items.map((n) => (
-        <SidebarIconBtn key={n.label} icon={n.icon} to={n.to} label={n.label} active={n.match(pathname)} />
+        <SidebarIconBtn key={n.label} icon={n.icon} to={n.to} search={n.search} label={n.label} active={n.match(pathname, search)} />
       ))}
       <div className="mt-auto flex flex-col items-center gap-2">
         <UserAvatarMenu />
@@ -158,3 +159,4 @@ export function IconRail({ scope: scopeProp }: { scope?: Scope } = {}) {
     </aside>
   );
 }
+
