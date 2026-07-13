@@ -748,6 +748,86 @@ function NewExerciseWizard({
 
         {/* Body */}
         <div className="overflow-y-auto px-5 md:px-6 py-5 flex-1 space-y-5">
+          {/* Mídia — no topo, igual ao modal de detalhes */}
+          <div>
+            <div className="inline-flex rounded-lg border border-border bg-muted/30 p-1 text-xs font-semibold mb-3">
+              {([
+                { id: "none", label: "Sem mídia" },
+                { id: "url", label: "YouTube" },
+                { id: "photo", label: "Foto" },
+                { id: "video", label: "Vídeo" },
+              ] as const).map((t) => (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => setMediaTab(t.id)}
+                  className={`px-3 py-1.5 rounded-md transition ${
+                    mediaTab === t.id ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+
+            {mediaTab === "none" && (
+              <div className="aspect-video w-full rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border border-border">
+                <div className="text-center text-muted-foreground">
+                  <Video className="h-8 w-8 mx-auto mb-2 opacity-60" />
+                  <p className="text-xs">Sem mídia — opcional</p>
+                </div>
+              </div>
+            )}
+
+            {mediaTab === "url" && (
+              <>
+                <input
+                  value={data.video_url}
+                  onChange={(e) => setData({ ...data, video_url: e.target.value, video_path: "" })}
+                  placeholder="https://youtube.com/watch?v=..."
+                  className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2.5 text-sm focus:outline-none focus:border-primary transition"
+                />
+                {data.video_url && (
+                  <div className="mt-3 aspect-video w-full rounded-xl overflow-hidden bg-black">
+                    <iframe src={toEmbedUrl(data.video_url)} className="w-full h-full" title="preview" allowFullScreen />
+                  </div>
+                )}
+              </>
+            )}
+
+            {mediaTab === "photo" && (
+              <>
+                <label className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border bg-muted/20 px-4 py-6 cursor-pointer hover:bg-muted/40 transition">
+                  <Info className="h-5 w-5 text-muted-foreground" />
+                  <span className="text-sm font-medium">{uploading === "photo" ? "Enviando..." : "Escolher imagem (JPG/PNG, máx. 20MB)"}</span>
+                  <input
+                    type="file" accept="image/*" className="hidden" disabled={uploading === "photo"}
+                    onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadFile(f, "photo"); }}
+                  />
+                </label>
+                {imagePreview && (
+                  <img src={imagePreview} alt="preview" className="mt-3 w-full max-h-72 object-contain rounded-xl bg-black" />
+                )}
+              </>
+            )}
+
+            {mediaTab === "video" && (
+              <>
+                <label className="flex flex-col items-center justify-center gap-2 rounded-xl border-2 border-dashed border-border bg-muted/20 px-4 py-6 cursor-pointer hover:bg-muted/40 transition">
+                  <Video className="h-5 w-5 text-muted-foreground" />
+                  <span className="text-sm font-medium">{uploading === "video" ? "Enviando..." : "Escolher vídeo (MP4/MOV, máx. 20MB)"}</span>
+                  <input
+                    type="file" accept="video/*" className="hidden" disabled={uploading === "video"}
+                    onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadFile(f, "video"); }}
+                  />
+                </label>
+                {videoPreview && (
+                  <video src={videoPreview} controls className="mt-3 w-full max-h-72 rounded-xl bg-black" />
+                )}
+              </>
+            )}
+          </div>
+
           {/* Nome */}
           <Field label="Nome *">
             <input
@@ -759,40 +839,40 @@ function NewExerciseWizard({
             />
           </Field>
 
-          {/* Grupo muscular */}
-          <Field label="Grupo muscular *">
-            <Select
-              value={data.group_id != null ? String(data.group_id) : ""}
-              onValueChange={(v) => setData({ ...data, group_id: v ? Number(v) : null })}
-            >
-              <SelectTrigger className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2.5 text-sm h-auto focus:border-primary transition">
-                <SelectValue placeholder="Selecione um grupo muscular" />
-              </SelectTrigger>
-              <SelectContent>
-                {groups.map((g) => (
-                  <SelectItem key={g.id} value={String(g.id)}>{g.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </Field>
+          {/* Grupo + Categoria em grid (como InfoTiles do detalhe) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Field label="Grupo muscular *">
+              <Select
+                value={data.group_id != null ? String(data.group_id) : ""}
+                onValueChange={(v) => setData({ ...data, group_id: v ? Number(v) : null })}
+              >
+                <SelectTrigger className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2.5 text-sm h-auto focus:border-primary transition">
+                  <SelectValue placeholder="Selecione um grupo muscular" />
+                </SelectTrigger>
+                <SelectContent>
+                  {groups.map((g) => (
+                    <SelectItem key={g.id} value={String(g.id)}>{g.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
 
-          {/* Categoria */}
-          <Field label="Categoria" hint="(modalidade)">
-            <Select
-              value={data.category || undefined}
-              onValueChange={(v) => setData({ ...data, category: v })}
-            >
-              <SelectTrigger className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2.5 text-sm h-auto focus:border-primary transition">
-                <SelectValue placeholder="Selecione uma categoria" />
-              </SelectTrigger>
-              <SelectContent>
-                {CATEGORIES.map((c) => (
-                  <SelectItem key={c} value={c}>{c}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </Field>
-
+            <Field label="Categoria" hint="(modalidade)">
+              <Select
+                value={data.category || undefined}
+                onValueChange={(v) => setData({ ...data, category: v })}
+              >
+                <SelectTrigger className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2.5 text-sm h-auto focus:border-primary transition">
+                  <SelectValue placeholder="Selecione uma categoria" />
+                </SelectTrigger>
+                <SelectContent>
+                  {CATEGORIES.map((c) => (
+                    <SelectItem key={c} value={c}>{c}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
+          </div>
 
           {/* Dificuldade */}
           <Field label="Dificuldade">
@@ -813,6 +893,7 @@ function NewExerciseWizard({
               ))}
             </div>
           </Field>
+
 
           {/* Mídia */}
           <Field label="Mídia" hint="(opcional)">
