@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { ArrowLeft, X, Play, Clock, Dumbbell } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
-export const Route = createFileRoute("/_authenticated/meu-treino_/preview/$id")({
+export const Route = createFileRoute("/_authenticated/meu-treino_/preview/$slug/$id")({
   beforeLoad: ({ location }) => requireAlunoRole(location),
   head: () => ({
     meta: [
@@ -34,8 +34,9 @@ type Row = {
 };
 
 function PreviewPage() {
-  const { id } = Route.useParams();
-  const { bloco } = Route.useSearch();
+  const { id, slug } = Route.useParams();
+  const { dia } = Route.useSearch();
+  const bloco = letterToBlockIndex(dia);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [workoutName, setWorkoutName] = useState("Treino");

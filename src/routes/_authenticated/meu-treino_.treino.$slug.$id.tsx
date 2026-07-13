@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { jsPDF } from "jspdf";
 
-export const Route = createFileRoute("/_authenticated/meu-treino_/treino/$id")({
+export const Route = createFileRoute("/_authenticated/meu-treino_/treino/$slug/$id")({
   beforeLoad: ({ location }) => requireAlunoRole(location),
   head: () => ({ meta: [{ title: "Treino · cactusfitness" }] }),
   validateSearch: (search: Record<string, unknown>) => ({
