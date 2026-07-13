@@ -13,18 +13,20 @@ import {
   Settings,
   TrendingUp,
   CreditCard,
+  Shield,
 } from "lucide-react";
 import { UserAvatarMenu } from "@/components/UserAvatarMenu";
 import logoUrl from "@/assets/cactus-logo.png";
 import { useIsPersonalInAcademia } from "@/hooks/useIsPersonalInAcademia";
 
-type Scope = "personal" | "academia" | "aluno";
+type Scope = "personal" | "academia" | "aluno" | "super_admin";
 
 type NavItem = {
   icon: React.ElementType;
   label: string;
   to: string;
-  match: (path: string) => boolean;
+  search?: Record<string, string>;
+  match: (path: string, search: Record<string, unknown>) => boolean;
 };
 
 /**
@@ -62,10 +64,17 @@ const NAV_BY_SCOPE: Record<Scope, NavItem[]> = {
     { icon: Trophy, label: "Desafios", to: "/desafios", match: (p) => p.startsWith("/desafios") },
     { icon: CreditCard, label: "Meu Plano", to: "/meu-plano", match: (p) => p.startsWith("/meu-plano") },
   ],
+  super_admin: [
+    { icon: TrendingUp, label: "Visão geral", to: "/super-admin", search: { tab: "overview" }, match: (p, s) => p.startsWith("/super-admin") && (!s.tab || s.tab === "overview") },
+    { icon: Building2, label: "Academias", to: "/super-admin", search: { tab: "orgs" }, match: (p, s) => p.startsWith("/super-admin") && s.tab === "orgs" },
+    { icon: Users, label: "Usuários", to: "/super-admin", search: { tab: "users" }, match: (p, s) => p.startsWith("/super-admin") && s.tab === "users" },
+    { icon: CreditCard, label: "Planos", to: "/super-admin", search: { tab: "plans" }, match: (p, s) => p.startsWith("/super-admin") && s.tab === "plans" },
+  ],
 };
 
 
 function detectScope(pathname: string): Scope {
+  if (pathname.startsWith("/super-admin")) return "super_admin";
   if (pathname.startsWith("/dashboard/academia")) return "academia";
   if (pathname.startsWith("/dashboard/aluno")) return "aluno";
   return "personal";
@@ -76,6 +85,7 @@ function SidebarIconBtn({
   active,
   badge,
   to,
+  search,
   label,
   onClick,
 }: {
@@ -83,6 +93,7 @@ function SidebarIconBtn({
   active?: boolean;
   badge?: string;
   to?: string;
+  search?: Record<string, string>;
   label?: string;
   onClick?: () => void;
 }) {
@@ -106,12 +117,14 @@ function SidebarIconBtn({
       )}
     </>
   );
-  if (to) return <Link to={to} title={label} className={`${base} ${styles}`}>{inner}</Link>;
+  if (to) return <Link to={to} search={search as never} title={label} className={`${base} ${styles}`}>{inner}</Link>;
   return <button onClick={onClick} title={label} className={`${base} ${styles}`}>{inner}</button>;
 }
 
+
 export function IconRail({ scope: scopeProp }: { scope?: Scope } = {}) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
+  const search = useRouterState({ select: (s) => s.location.search as Record<string, unknown> });
   const scope = scopeProp ?? detectScope(pathname);
   const { data: inAcademia } = useIsPersonalInAcademia();
   const items = NAV_BY_SCOPE[scope].filter((n) => {
@@ -138,7 +151,7 @@ export function IconRail({ scope: scopeProp }: { scope?: Scope } = {}) {
         />
       </div>
       {items.map((n) => (
-        <SidebarIconBtn key={n.label} icon={n.icon} to={n.to} label={n.label} active={n.match(pathname)} />
+        <SidebarIconBtn key={n.label} icon={n.icon} to={n.to} search={n.search} label={n.label} active={n.match(pathname, search)} />
       ))}
       <div className="mt-auto flex flex-col items-center gap-2">
         <UserAvatarMenu />
@@ -146,3 +159,4 @@ export function IconRail({ scope: scopeProp }: { scope?: Scope } = {}) {
     </aside>
   );
 }
+

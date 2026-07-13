@@ -9,6 +9,7 @@ import {
 import { toast } from "@/components/ui/sonner";
 import { confirmDialog } from "@/components/ui/confirm-dialog";
 import { supabase } from "@/integrations/supabase/client";
+import { IconRail } from "@/components/IconRail";
 import {
   superAdminMetrics,
   listAllOrganizations,
@@ -20,7 +21,14 @@ import {
   resetUserPassword,
 } from "@/lib/super-admin.functions";
 
+type Tab = "overview" | "orgs" | "users" | "plans";
+
 export const Route = createFileRoute("/_authenticated/_super-admin/super-admin/")({
+  validateSearch: (search: Record<string, unknown>): { tab?: Tab } => {
+    const tab = search.tab;
+    if (tab === "overview" || tab === "orgs" || tab === "users" || tab === "plans") return { tab };
+    return {};
+  },
   head: () => ({
     meta: [
       { title: "Super Admin · cactusfitness" },
@@ -30,7 +38,6 @@ export const Route = createFileRoute("/_authenticated/_super-admin/super-admin/"
   component: SuperAdminPage,
 });
 
-type Tab = "overview" | "orgs" | "users" | "plans";
 
 const PLAN_LABEL: Record<string, string> = {
   free: "Free",
@@ -47,7 +54,7 @@ const STATUS_LABEL: Record<string, string> = {
 };
 
 function SuperAdminPage() {
-  const [tab, setTab] = useState<Tab>("overview");
+  const { tab = "overview" } = Route.useSearch();
   const navigate = useNavigate();
 
   async function signOut() {
@@ -56,7 +63,8 @@ function SuperAdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div className="min-h-screen bg-background text-foreground md:pl-[72px]">
+      <IconRail scope="super_admin" />
       <header className="sticky top-0 z-20 border-b border-border bg-background/85 backdrop-blur">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3 sm:px-6">
           <div className="flex items-center gap-3">
@@ -88,7 +96,7 @@ function SuperAdminPage() {
             return (
               <button
                 key={id}
-                onClick={() => setTab(id)}
+                onClick={() => navigate({ to: "/super-admin", search: { tab: id } })}
                 className={`inline-flex items-center gap-1.5 border-b-2 px-3 py-2 text-sm font-semibold transition ${
                   active
                     ? "border-primary text-primary"
@@ -101,6 +109,7 @@ function SuperAdminPage() {
           })}
         </div>
       </header>
+
 
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
         {tab === "overview" && <OverviewTab />}
