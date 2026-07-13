@@ -303,57 +303,7 @@ function PerfilPage() {
 
             {tab === "customizar" && (
               <div className="flex flex-col space-y-4">
-                {/* Foto de Perfil */}
-                <section className="rounded-xl border border-border bg-card text-foreground">
-                  <div className="flex flex-col space-y-1.5 p-4">
-                    <h3 className="font-display text-base font-bold tracking-tight sm:text-lg">
-                      Foto de perfil
-                    </h3>
-                    <p className="text-xs text-muted-foreground sm:text-sm">
-                      Aparece no painel e para seus alunos
-                    </p>
-                  </div>
-                  <div className="p-4">
-                    <div className="flex items-center gap-4">
-                      <button
-                        type="button"
-                        onClick={() => avatarInputRef.current?.click()}
-                        className="group relative grid h-20 w-20 shrink-0 place-items-center overflow-hidden rounded-full ring-2 ring-primary/70 font-display text-xl font-bold transition active:scale-95"
-                        style={avatarUrl ? undefined : { backgroundColor: avatarColor.bg, color: avatarColor.fg }}
-                      >
-                        {avatarUrl ? (
-                          <img src={avatarUrl} alt="Avatar" className="h-full w-full object-cover" />
-                        ) : (
-                          <span>{initials}</span>
-                        )}
-                        <span className="absolute inset-0 grid place-items-center bg-black/50 opacity-0 transition group-hover:opacity-100">
-                          <Camera className="h-5 w-5 text-white" />
-                        </span>
-                      </button>
-                      <div className="min-w-0 flex-1">
-                        <button
-                          type="button"
-                          onClick={() => avatarInputRef.current?.click()}
-                          disabled={uploadingAvatar}
-                          className="inline-flex h-9 items-center gap-2 rounded-full border border-border bg-transparent px-4 text-sm font-semibold text-foreground transition hover:bg-muted disabled:opacity-60"
-                        >
-                          {uploadingAvatar ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
-                          {avatarUrl ? "Trocar foto" : "Enviar foto"}
-                        </button>
-                        <p className="mt-2 text-[0.625rem] text-muted-foreground">
-                          JPG ou PNG. Máx 5MB.
-                        </p>
-                      </div>
-                      <input
-                        ref={avatarInputRef}
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={handleAvatarPick}
-                      />
-                    </div>
-                  </div>
-                </section>
+                {/* Foto de perfil removida — usar card "Logo / Marca" */}
 
                 {/* Logo / Marca */}
                 <section className="rounded-xl border border-border bg-card text-foreground">
