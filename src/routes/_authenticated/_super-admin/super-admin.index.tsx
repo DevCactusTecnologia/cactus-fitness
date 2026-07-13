@@ -1537,9 +1537,10 @@ function PlansTab() {
   const [selectedPlan, setSelectedPlan] = useState<string>("pro");
   const [q, setQ] = useState("");
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["super-admin", "orgs"],
     queryFn: () => listAllOrganizations(),
+    retry: 1,
   });
 
   const updateMut = useMutation({
