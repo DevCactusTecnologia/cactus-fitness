@@ -102,6 +102,8 @@ export function AlunosPage({ scope }: { scope: Scope }) {
   const [openNew, setOpenNew] = useState(false);
   const [form, setForm] = useState({
     full_name: "",
+    nickname: "",
+    birth_date: "",
     email: "",
     phone: "",
   });
@@ -125,16 +127,18 @@ export function AlunosPage({ scope }: { scope: Scope }) {
       const { error } = await supabase.from("alunos").insert({
         personal_id: personalId,
         full_name: payload.full_name.trim(),
+        nickname: payload.nickname.trim() || null,
+        birth_date: payload.birth_date || null,
         email: payload.email.trim() || null,
         phone: payload.phone.trim() || null,
         is_active: true,
-      });
+      } as any);
       if (error) throw error;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["alunos", scope] });
       setOpenNew(false);
-      setForm({ full_name: "", email: "", phone: "" });
+      setForm({ full_name: "", nickname: "", birth_date: "", email: "", phone: "" });
       setFormError(null);
     },
     onError: (e: Error) => setFormError(e.message),
