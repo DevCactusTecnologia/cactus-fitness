@@ -330,7 +330,7 @@ function reducer(state: State, action: Action): State {
 }
 
 export function WorkoutEditor({
-  kind,
+  kind: initialKind,
   editSlug,
   alunoId,
 }: {
@@ -352,10 +352,10 @@ export function WorkoutEditor({
     periodize: false,
     duration_weeks: null,
     start_date: null,
-    sessions: kind === "plan"
+    sessions: initialKind === "plan"
       ? [emptySession(0)]
       : [{ id: uid(), label: "__single__", blocks: [emptyBlock(0)] }],
-  }), [kind]);
+  }), [initialKind]);
 
   const [state, rawDispatch] = useReducer(reducer, initial);
   const [activeTarget, setActiveTarget] = useState<{ sessionId: string; blockId: string } | null>(null);
