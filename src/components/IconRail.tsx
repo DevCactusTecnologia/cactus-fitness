@@ -16,8 +16,10 @@ import {
   Shield,
 } from "lucide-react";
 import { UserAvatarMenu } from "@/components/UserAvatarMenu";
+import { TenantSwitcher } from "@/components/TenantSwitcher";
 import logoUrl from "@/assets/cactus-logo.png";
 import { useIsPersonalInAcademia } from "@/hooks/useIsPersonalInAcademia";
+
 
 type Scope = "personal" | "academia" | "aluno" | "super_admin";
 
