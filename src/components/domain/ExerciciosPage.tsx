@@ -101,6 +101,7 @@ export function ExerciciosPage({ scope }: { scope: Scope }) {
   const [showFilters, setShowFilters] = useState(false);
   const [showWizard, setShowWizard] = useState(false);
   const [editingEx, setEditingEx] = useState<Exercise | null>(null);
+  const [personalizingEx, setPersonalizingEx] = useState<Exercise | null>(null);
   const [detailEx, setDetailEx] = useState<Exercise | null>(null);
 
   const sentinelRef = useRef<HTMLDivElement | null>(null);
@@ -323,6 +324,7 @@ export function ExerciciosPage({ scope }: { scope: Scope }) {
           groups={groups}
           equipments={equipments}
           personalId={personalId}
+          mode="new"
           onClose={() => setShowWizard(false)}
           onCreated={async () => { setShowWizard(false); setTab("mine"); await loadData(); }}
         />
@@ -334,8 +336,21 @@ export function ExerciciosPage({ scope }: { scope: Scope }) {
           equipments={equipments}
           personalId={personalId}
           initial={editingEx}
+          mode="edit"
           onClose={() => setEditingEx(null)}
           onCreated={async () => { setEditingEx(null); await loadData(); }}
+        />
+      )}
+
+      {personalizingEx && personalId && (
+        <NewExerciseWizard
+          groups={groups}
+          equipments={equipments}
+          personalId={personalId}
+          initial={personalizingEx}
+          mode="personalize"
+          onClose={() => setPersonalizingEx(null)}
+          onCreated={async () => { setPersonalizingEx(null); setTab("mine"); await loadData(); }}
         />
       )}
 
@@ -343,9 +358,10 @@ export function ExerciciosPage({ scope }: { scope: Scope }) {
         <ExerciseDetailModal
           ex={detailEx}
           groupName={groupById.get(detailEx.group_id)?.name ?? ""}
-          canEdit={detailEx.owner_id === personalId}
+          isOwner={detailEx.owner_id === personalId}
           onClose={() => setDetailEx(null)}
           onEdit={() => { setEditingEx(detailEx); setDetailEx(null); }}
+          onPersonalize={() => { setPersonalizingEx(detailEx); setDetailEx(null); }}
         />
       )}
     </div>
@@ -420,8 +436,8 @@ function ExerciseRow({
 /* ---------- Modal de Detalhes ---------- */
 
 function ExerciseDetailModal({
-  ex, groupName, canEdit, onClose, onEdit,
-}: { ex: Exercise; groupName: string; canEdit?: boolean; onClose: () => void; onEdit?: () => void }) {
+  ex, groupName, isOwner, onClose, onEdit, onPersonalize,
+}: { ex: Exercise; groupName: string; isOwner?: boolean; onClose: () => void; onEdit?: () => void; onPersonalize?: () => void }) {
   return (
     <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/60 backdrop-blur-sm p-0 md:p-4" onClick={onClose}>
       <div
@@ -434,7 +450,7 @@ function ExerciseDetailModal({
             <h2 className="text-lg font-bold font-display truncate">{ex.name}</h2>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            {canEdit && onEdit && (
+            {isOwner && onEdit && (
               <button
                 onClick={onEdit}
                 className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted/40 px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted/70 transition"
@@ -442,11 +458,21 @@ function ExerciseDetailModal({
                 Editar
               </button>
             )}
+            {!isOwner && onPersonalize && (
+              <button
+                onClick={onPersonalize}
+                title='Uma cópia será salva na aba "Meus Exercícios"'
+                className="inline-flex items-center gap-1.5 rounded-full border border-primary/50 bg-primary/15 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/25 transition"
+              >
+                Personalizar exercício
+              </button>
+            )}
             <button onClick={onClose} className="grid h-9 w-9 place-items-center rounded-full bg-muted hover:bg-muted/70 transition">
               <X className="h-4 w-4" />
             </button>
           </div>
         </div>
+
 
 
         <div className="overflow-y-auto px-5 py-4 space-y-5">
@@ -562,17 +588,19 @@ const MUSCLE_OPTIONS = [
 ];
 
 function NewExerciseWizard({
-  groups, equipments, personalId, initial, onClose, onCreated,
+  groups, equipments, personalId, initial, mode = "new", onClose, onCreated,
 }: {
   groups: Group[]; equipments: Equipment[]; personalId: string;
   initial?: Exercise | null;
+  mode?: "new" | "edit" | "personalize";
   onClose: () => void; onCreated: () => void;
 }) {
-  const isEdit = !!initial;
+  const isEdit = mode === "edit";
+  const isPersonalize = mode === "personalize";
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<FormData>(() => ({
-    name: initial?.name ?? "",
+    name: initial?.name ? (isPersonalize ? `${initial.name} (personalizado)` : initial.name) : "",
     description: initial?.description ?? "",
     instructions: initial?.instructions ?? "",
     group_id: initial?.group_id ?? null,
@@ -583,13 +611,13 @@ function NewExerciseWizard({
     muscles_primary: initial?.muscles_primary ?? [],
     muscles_secondary: initial?.muscles_secondary ?? [],
     video_url: initial?.video_url ?? "",
-    image_path: initial?.image_path ?? "",
-    video_path: initial?.video_path ?? "",
+    image_path: isPersonalize ? "" : (initial?.image_path ?? ""),
+    video_path: isPersonalize ? "" : (initial?.video_path ?? ""),
   }));
   const [mediaTab, setMediaTab] = useState<"none" | "url" | "photo" | "video">(() => {
     if (initial?.video_url) return "url";
-    if (initial?.video_path) return "video";
-    if (initial?.image_path) return "photo";
+    if (initial?.video_path && !isPersonalize) return "video";
+    if (initial?.image_path && !isPersonalize) return "photo";
     return "none";
   });
   const [uploading, setUploading] = useState<null | "photo" | "video">(null);
@@ -599,6 +627,7 @@ function NewExerciseWizard({
 
   // Load existing media previews on edit
   useEffect(() => {
+    if (isPersonalize) return;
     let cancelled = false;
     (async () => {
       if (initial?.image_path) {
@@ -611,7 +640,7 @@ function NewExerciseWizard({
       }
     })();
     return () => { cancelled = true; };
-  }, [initial?.image_path, initial?.video_path]);
+  }, [initial?.image_path, initial?.video_path, isPersonalize]);
 
 
   const toggleSection = (k: string) =>
@@ -699,13 +728,15 @@ function NewExerciseWizard({
         <div className="px-5 md:px-6 py-4 border-b border-border flex items-start justify-between gap-3">
           <div className="min-w-0">
             <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
-              {isEdit ? "Editar exercício" : "Novo exercício"}
+              {isEdit ? "Editar exercício" : isPersonalize ? "Personalizar exercício" : "Novo exercício"}
             </p>
             <h2 className="text-xl md:text-2xl font-bold font-display leading-tight">
-              {isEdit ? data.name || "Editar" : "Criar exercício"}
+              {isEdit ? (data.name || "Editar") : isPersonalize ? (data.name || "Personalizar") : "Criar exercício"}
             </h2>
             {!isEdit && (
-              <p className="text-xs text-muted-foreground mt-0.5">Será salvo em <span className="font-semibold text-foreground">Meus Exercícios</span>.</p>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {isPersonalize ? "Uma cópia" : "Será"} salv{isPersonalize ? "a" : "o"} na aba <span className="font-semibold text-foreground">Meus Exercícios</span>.
+              </p>
             )}
           </div>
           <button onClick={onClose} className="grid h-9 w-9 place-items-center rounded-full bg-muted hover:bg-muted/70 transition shrink-0">
@@ -714,76 +745,11 @@ function NewExerciseWizard({
         </div>
 
 
+
         {/* Body */}
         <div className="overflow-y-auto px-5 md:px-6 py-5 flex-1 space-y-5">
-          {/* Nome */}
-          <Field label="Nome *">
-            <input
-              autoFocus
-              value={data.name}
-              onChange={(e) => setData({ ...data, name: e.target.value })}
-              placeholder="Ex: Agachamento"
-              className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2.5 text-sm focus:outline-none focus:border-primary transition"
-            />
-          </Field>
-
-          {/* Grupo muscular */}
-          <Field label="Grupo muscular *">
-            <Select
-              value={data.group_id != null ? String(data.group_id) : ""}
-              onValueChange={(v) => setData({ ...data, group_id: v ? Number(v) : null })}
-            >
-              <SelectTrigger className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2.5 text-sm h-auto focus:border-primary transition">
-                <SelectValue placeholder="Selecione um grupo muscular" />
-              </SelectTrigger>
-              <SelectContent>
-                {groups.map((g) => (
-                  <SelectItem key={g.id} value={String(g.id)}>{g.name}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </Field>
-
-          {/* Categoria */}
-          <Field label="Categoria" hint="(modalidade)">
-            <Select
-              value={data.category || undefined}
-              onValueChange={(v) => setData({ ...data, category: v })}
-            >
-              <SelectTrigger className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2.5 text-sm h-auto focus:border-primary transition">
-                <SelectValue placeholder="Selecione uma categoria" />
-              </SelectTrigger>
-              <SelectContent>
-                {CATEGORIES.map((c) => (
-                  <SelectItem key={c} value={c}>{c}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </Field>
-
-
-          {/* Dificuldade */}
-          <Field label="Dificuldade">
-            <div className="flex flex-wrap gap-2">
-              {DIFFICULTIES.map((d) => (
-                <button
-                  key={d}
-                  type="button"
-                  onClick={() => setData({ ...data, difficulty: data.difficulty === d ? "" : d })}
-                  className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
-                    data.difficulty === d
-                      ? "border-primary bg-primary/15 text-primary"
-                      : "border-border bg-muted/30 text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  {d}
-                </button>
-              ))}
-            </div>
-          </Field>
-
-          {/* Mídia */}
-          <Field label="Mídia" hint="(opcional)">
+          {/* Mídia — no topo, igual ao modal de detalhes */}
+          <div>
             <div className="inline-flex rounded-lg border border-border bg-muted/30 p-1 text-xs font-semibold mb-3">
               {([
                 { id: "none", label: "Sem mídia" },
@@ -803,6 +769,15 @@ function NewExerciseWizard({
                 </button>
               ))}
             </div>
+
+            {mediaTab === "none" && (
+              <div className="aspect-video w-full rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border border-border">
+                <div className="text-center text-muted-foreground">
+                  <Video className="h-8 w-8 mx-auto mb-2 opacity-60" />
+                  <p className="text-xs">Sem mídia — opcional</p>
+                </div>
+              </div>
+            )}
 
             {mediaTab === "url" && (
               <>
@@ -851,7 +826,75 @@ function NewExerciseWizard({
                 )}
               </>
             )}
+          </div>
+
+          {/* Nome */}
+          <Field label="Nome *">
+            <input
+              autoFocus
+              value={data.name}
+              onChange={(e) => setData({ ...data, name: e.target.value })}
+              placeholder="Ex: Agachamento"
+              className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2.5 text-sm focus:outline-none focus:border-primary transition"
+            />
           </Field>
+
+          {/* Grupo + Categoria em grid (como InfoTiles do detalhe) */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <Field label="Grupo muscular *">
+              <Select
+                value={data.group_id != null ? String(data.group_id) : ""}
+                onValueChange={(v) => setData({ ...data, group_id: v ? Number(v) : null })}
+              >
+                <SelectTrigger className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2.5 text-sm h-auto focus:border-primary transition">
+                  <SelectValue placeholder="Selecione um grupo muscular" />
+                </SelectTrigger>
+                <SelectContent>
+                  {groups.map((g) => (
+                    <SelectItem key={g.id} value={String(g.id)}>{g.name}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
+
+            <Field label="Categoria" hint="(modalidade)">
+              <Select
+                value={data.category || undefined}
+                onValueChange={(v) => setData({ ...data, category: v })}
+              >
+                <SelectTrigger className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2.5 text-sm h-auto focus:border-primary transition">
+                  <SelectValue placeholder="Selecione uma categoria" />
+                </SelectTrigger>
+                <SelectContent>
+                  {CATEGORIES.map((c) => (
+                    <SelectItem key={c} value={c}>{c}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </Field>
+          </div>
+
+          {/* Dificuldade */}
+          <Field label="Dificuldade">
+            <div className="flex flex-wrap gap-2">
+              {DIFFICULTIES.map((d) => (
+                <button
+                  key={d}
+                  type="button"
+                  onClick={() => setData({ ...data, difficulty: data.difficulty === d ? "" : d })}
+                  className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+                    data.difficulty === d
+                      ? "border-primary bg-primary/15 text-primary"
+                      : "border-border bg-muted/30 text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {d}
+                </button>
+              ))}
+            </div>
+          </Field>
+
+
 
           {/* Avançado — accordions */}
           <div className="rounded-xl border border-border divide-y divide-border/60">
@@ -989,7 +1032,7 @@ function NewExerciseWizard({
             disabled={!canSave}
             className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-full bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.35)] hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed transition"
           >
-            {saving ? <><Loader2 className="h-4 w-4 animate-spin" /> Salvando...</> : <><Check className="h-4 w-4" /> {isEdit ? "Salvar alterações" : "Salvar exercício"}</>}
+            {saving ? <><Loader2 className="h-4 w-4 animate-spin" /> Salvando...</> : <><Check className="h-4 w-4" /> {isEdit ? "Salvar alterações" : isPersonalize ? "Salvar em Meus Exercícios" : "Salvar exercício"}</>}
           </button>
         </div>
       </div>
