@@ -173,7 +173,21 @@ export function AlunoDetailPage({ scope }: { scope: Scope }) {
               </div>
 
               <div className="min-w-0 flex-1">
-                <h2 className="truncate text-xl font-bold md:text-2xl font-display">{aluno.full_name}</h2>
+                <div className="flex items-center gap-2">
+                  <h2 className="truncate text-xl font-bold md:text-2xl font-display">{aluno.full_name}</h2>
+                  <button
+                    type="button"
+                    onClick={() => setEditOpen(true)}
+                    className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-muted-foreground transition hover:bg-accent hover:text-foreground"
+                    aria-label="Editar aluno"
+                    title="Editar aluno"
+                  >
+                    <Pencil className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+                {aluno.nickname && (
+                  <p className="truncate text-xs text-muted-foreground">"{aluno.nickname}"</p>
+                )}
                 <p className="truncate text-sm text-muted-foreground">{aluno.email ?? "Sem e-mail cadastrado"}</p>
                 <div className="mt-2 flex flex-wrap items-center gap-2">
                   <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${aluno.is_active ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"}`}>
@@ -190,6 +204,7 @@ export function AlunoDetailPage({ scope }: { scope: Scope }) {
               </div>
             </div>
           </div>
+
 
 
           <button
