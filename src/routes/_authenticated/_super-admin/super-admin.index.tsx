@@ -672,13 +672,19 @@ function OrgsTab() {
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-primary/80">
-              <Building2 className="h-3.5 w-3.5" /> Academias no SaaS
+              <Building2 className="h-3.5 w-3.5" /> Tenants do SaaS
             </div>
             <div className="mt-1 font-display text-3xl font-bold tracking-tight">
               {list.length} <span className="text-base font-medium text-muted-foreground">organizações</span>
             </div>
-            <div className="mt-1 text-xs text-muted-foreground">
-              {counts.active} ativas · {counts.trialing} em trial · {counts.past_due} vencidas
+            <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+              <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">
+                <Building2 className="h-2.5 w-2.5" /> {typeCounts.academia} academias
+              </span>
+              <span className="inline-flex items-center gap-1 rounded-full bg-violet-500/10 px-2 py-0.5 text-[10px] font-bold text-violet-500">
+                <Crown className="h-2.5 w-2.5" /> {typeCounts.personal_solo} personais solo
+              </span>
+              <span>· {counts.active} ativas · {counts.trialing} em trial · {counts.past_due} vencidas</span>
             </div>
           </div>
           <div className="grid grid-cols-3 gap-3 sm:min-w-[420px]">
