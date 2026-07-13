@@ -12,6 +12,9 @@ import {
   CalendarDays,
   ArrowUpDown,
   Loader2,
+  User,
+  Mail,
+  Phone,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
@@ -22,14 +25,13 @@ import type { Scope } from "@/lib/scope";
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+
 
 type AlunoRow = {
   id: string;
@@ -100,8 +102,6 @@ export function AlunosPage({ scope }: { scope: Scope }) {
     full_name: "",
     email: "",
     phone: "",
-    objective: "",
-    notes: "",
   });
   const [formError, setFormError] = useState<string | null>(null);
   const queryClient = useQueryClient();
@@ -120,14 +120,11 @@ export function AlunosPage({ scope }: { scope: Scope }) {
       const { data: userData } = await supabase.auth.getUser();
       const personalId = userData.user?.id;
       if (!personalId) throw new Error("Sessão expirada. Faça login novamente.");
-      // TODO(scope=academia): let owner choose which personal to assign to.
       const { error } = await supabase.from("alunos").insert({
         personal_id: personalId,
         full_name: payload.full_name.trim(),
         email: payload.email.trim() || null,
         phone: payload.phone.trim() || null,
-        objective: payload.objective.trim() || null,
-        notes: payload.notes.trim() || null,
         is_active: true,
       });
       if (error) throw error;
@@ -135,7 +132,7 @@ export function AlunosPage({ scope }: { scope: Scope }) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["alunos", scope] });
       setOpenNew(false);
-      setForm({ full_name: "", email: "", phone: "", objective: "", notes: "" });
+      setForm({ full_name: "", email: "", phone: "" });
       setFormError(null);
     },
     onError: (e: Error) => setFormError(e.message),
@@ -356,99 +353,124 @@ export function AlunosPage({ scope }: { scope: Scope }) {
           if (!o) setFormError(null);
         }}
       >
-        <DialogContent className="max-w-lg">
-          <DialogHeader>
-            <DialogTitle>Novo aluno</DialogTitle>
-            <DialogDescription>
-              Cadastre um novo aluno para começar a montar treinos.
-            </DialogDescription>
-          </DialogHeader>
-          <form onSubmit={submitNew} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="full_name">Nome completo *</Label>
-              <Input
-                id="full_name"
-                value={form.full_name}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, full_name: e.target.value }))
-                }
-                placeholder="Ex: Maria Silva"
-                autoFocus
-              />
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="email">E-mail</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={form.email}
-                  onChange={(e) =>
-                    setForm((f) => ({ ...f, email: e.target.value }))
-                  }
-                  placeholder="aluno@email.com"
-                />
+        <DialogContent className="max-w-md p-0 overflow-hidden">
+          <form onSubmit={submitNew}>
+            <div className="flex items-center gap-4 border-b border-border bg-gradient-to-br from-primary/10 via-primary/5 to-transparent px-6 py-5">
+              <div
+                className="grid h-14 w-14 shrink-0 place-items-center rounded-full text-lg font-bold font-display ring-2 ring-primary/40 transition"
+                style={{
+                  backgroundColor: form.full_name
+                    ? colorForId(form.full_name).bg
+                    : "hsl(var(--muted))",
+                  color: form.full_name
+                    ? colorForId(form.full_name).fg
+                    : "hsl(var(--muted-foreground))",
+                }}
+              >
+                {form.full_name
+                  ? initialsFromName(form.full_name, form.email)
+                  : "?"}
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="phone">Telefone</Label>
-                <Input
-                  id="phone"
-                  inputMode="tel"
-                  value={form.phone}
-                  onChange={(e) =>
-                    setForm((f) => ({
-                      ...f,
-                      phone: formatPhone(e.target.value),
-                    }))
-                  }
-                  placeholder="(11) 99999-9999"
-                  maxLength={15}
-                />
+              <div className="min-w-0">
+                <DialogHeader className="space-y-0.5 text-left">
+                  <DialogTitle className="text-lg">Novo aluno</DialogTitle>
+                </DialogHeader>
+                <p className="text-xs text-muted-foreground">
+                  Só o essencial. Você completa o perfil depois.
+                </p>
               </div>
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="objective">Objetivo</Label>
-              <Input
-                id="objective"
-                value={form.objective}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, objective: e.target.value }))
-                }
-                placeholder="Ex: hipertrofia, emagrecimento"
-              />
+
+            <div className="space-y-4 px-6 py-5">
+              <div className="space-y-1.5">
+                <Label htmlFor="full_name" className="text-xs font-medium text-muted-foreground">
+                  Nome completo
+                </Label>
+                <div className="relative">
+                  <User className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    id="full_name"
+                    value={form.full_name}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, full_name: e.target.value }))
+                    }
+                    placeholder="Ex: Maria Silva"
+                    autoFocus
+                    className="pl-9"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="phone" className="text-xs font-medium text-muted-foreground">
+                  Telefone <span className="text-muted-foreground/70">(opcional)</span>
+                </Label>
+                <div className="relative">
+                  <Phone className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    id="phone"
+                    inputMode="tel"
+                    value={form.phone}
+                    onChange={(e) =>
+                      setForm((f) => ({
+                        ...f,
+                        phone: formatPhone(e.target.value),
+                      }))
+                    }
+                    placeholder="(11) 99999-9999"
+                    maxLength={15}
+                    className="pl-9"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label htmlFor="email" className="text-xs font-medium text-muted-foreground">
+                  E-mail <span className="text-muted-foreground/70">(opcional)</span>
+                </Label>
+                <div className="relative">
+                  <Mail className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                  <Input
+                    id="email"
+                    type="email"
+                    value={form.email}
+                    onChange={(e) =>
+                      setForm((f) => ({ ...f, email: e.target.value }))
+                    }
+                    placeholder="aluno@email.com"
+                    className="pl-9"
+                  />
+                </div>
+                <p className="text-[11px] text-muted-foreground">
+                  Necessário para o aluno acessar o app.
+                </p>
+              </div>
+
+              {formError && (
+                <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
+                  {formError}
+                </p>
+              )}
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="notes">Observações</Label>
-              <Textarea
-                id="notes"
-                value={form.notes}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, notes: e.target.value }))
-                }
-                rows={3}
-                placeholder="Anotações internas sobre o aluno"
-              />
-            </div>
-            {formError && (
-              <p className="text-sm text-destructive">{formError}</p>
-            )}
-            <DialogFooter>
+
+            <DialogFooter className="border-t border-border bg-muted/30 px-6 py-3">
               <button
                 type="button"
                 onClick={() => setOpenNew(false)}
-                className="rounded-md border border-border px-4 py-2 text-sm hover:bg-accent"
+                className="rounded-md px-4 py-2 text-sm text-muted-foreground hover:bg-accent hover:text-foreground"
               >
                 Cancelar
               </button>
               <button
                 type="submit"
-                disabled={createAluno.isPending}
-                className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:brightness-110 disabled:opacity-60"
+                disabled={createAluno.isPending || !form.full_name.trim()}
+                className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.35)] hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
               >
                 {createAluno.isPending && (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 )}
-                Cadastrar aluno
+                Cadastrar
               </button>
             </DialogFooter>
           </form>
