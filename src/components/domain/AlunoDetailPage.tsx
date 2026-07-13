@@ -1063,7 +1063,7 @@ function ChangePasswordDialog({
       status: "uploading" | "done" | "error",
       subtitle: string,
     ) => (
-      <div className="pointer-events-auto flex w-[340px] items-center gap-3 overflow-hidden rounded-2xl border border-border/60 bg-card/95 p-3 shadow-[0_20px_50px_-15px_rgba(0,0,0,0.6),0_0_40px_-10px_hsl(var(--primary)/0.35)] backdrop-blur-xl">
+      <div className="pointer-events-auto flex w-[340px] items-center gap-3 overflow-hidden rounded-2xl border border-border bg-card p-3">
         <div className="relative grid h-10 w-10 shrink-0 place-items-center rounded-full bg-primary/10">
           {status === "uploading" ? (
             <Loader2 className="h-4 w-4 animate-spin text-primary" />
