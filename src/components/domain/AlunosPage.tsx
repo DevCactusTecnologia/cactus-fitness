@@ -381,6 +381,18 @@ export function AlunosPage({ scope }: { scope: Scope }) {
                   ),
                 )
               )}
+              {hasNextPage && (
+                <div
+                  ref={sentinelRef}
+                  className="flex items-center justify-center py-6 text-xs text-muted-foreground"
+                >
+                  {isFetchingNextPage ? (
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  ) : (
+                    "Carregando mais..."
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
