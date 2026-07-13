@@ -20,6 +20,14 @@ import { useCurrentUser, firstName, initialsFromName } from "@/lib/auth";
 import { redirect } from "@tanstack/react-router";
 import { getCurrentSessionRoles, getPrimaryClientRole } from "@/lib/client-roles";
 
+async function userHasAcademiaMembership(userId: string) {
+  const { data } = await supabase
+    .from("organization_members")
+    .select("role, organizations!inner(type)")
+    .eq("user_id", userId);
+  return (data ?? []).some((m: any) => m.organizations?.type === "academia");
+}
+
 export const Route = createFileRoute("/_authenticated/")({
   beforeLoad: async ({ search, location }) => {
     // Preserve forbidden flag (avoid loop redirects)
@@ -36,9 +44,12 @@ export const Route = createFileRoute("/_authenticated/")({
       throw redirect({ to: "/meu-treino" });
     }
     if (role === "owner" || role === "staff") {
-      throw redirect({ to: "/dashboard/academia" });
+      // Só vai para o painel da academia se realmente for membro de uma organização type=academia.
+      // Personal-solo tem role global "owner" da própria org type=personal_solo — deve seguir para o dashboard do personal.
+      if (await userHasAcademiaMembership(user.id)) {
+        throw redirect({ to: "/dashboard/academia" });
+      }
     }
-    // personal role renders the Dashboard at "/"
     if (!role) {
       throw redirect({ to: "/onboarding" });
     }
@@ -519,8 +530,9 @@ function useOwnerOverview() {
       if (!uid) return null;
       const { data: mine } = await supabase
         .from("organization_members")
-        .select("organization_id, role")
+        .select("organization_id, role, organizations!inner(type)")
         .eq("user_id", uid)
+        .eq("organizations.type", "academia")
         .order("created_at", { ascending: true })
         .limit(1)
         .maybeSingle();
