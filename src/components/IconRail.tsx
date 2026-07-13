@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { UserAvatarMenu } from "@/components/UserAvatarMenu";
 import logoUrl from "@/assets/cactus-logo.png";
+import { useIsPersonalInAcademia } from "@/hooks/useIsPersonalInAcademia";
 
 type Scope = "personal" | "academia" | "aluno";
 
