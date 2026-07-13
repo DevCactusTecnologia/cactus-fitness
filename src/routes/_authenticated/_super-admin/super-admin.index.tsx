@@ -1326,19 +1326,6 @@ function UsersTab() {
           <div className="ml-auto text-xs text-muted-foreground">{filtered.length} resultado(s)</div>
         </div>
 
-        {selected.size > 0 && (
-          <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-primary/40 bg-primary/5 px-3 py-2 text-xs">
-            <div className="font-semibold text-primary">{selected.size} selecionado(s)</div>
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => setSelected(new Set())}
-                className="rounded-md border border-border bg-background px-2.5 py-1 font-semibold hover:bg-accent"
-              >
-                Limpar seleção
-              </button>
-            </div>
-          </div>
-        )}
       </div>
 
       {isLoading && <Spinner />}
