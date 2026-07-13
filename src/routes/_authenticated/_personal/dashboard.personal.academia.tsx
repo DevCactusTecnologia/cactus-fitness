@@ -307,3 +307,183 @@ function AcademiaPage() {
     </div>
   );
 }
+
+function SoloStudioSection() {
+  const qc = useQueryClient();
+  const { data, isLoading } = useQuery({
+    queryKey: ["my-solo-status"],
+    queryFn: () => getMySoloStatus(),
+    staleTime: 30_000,
+  });
+
+  const [editing, setEditing] = useState(false);
+  const [nameDraft, setNameDraft] = useState("");
+  const [confirmingOff, setConfirmingOff] = useState(false);
+
+  const activateMut = useMutation({
+    mutationFn: () => activateSoloStudio({ data: {} }),
+    onSuccess: () => {
+      toast.success("Studio pessoal ativado!");
+      qc.invalidateQueries({ queryKey: ["my-solo-status"] });
+      qc.invalidateQueries({ queryKey: ["is-personal-in-academia"] });
+    },
+    onError: (e: any) => toast.error(e.message ?? "Erro ao ativar."),
+  });
+
+  const deactivateMut = useMutation({
+    mutationFn: () => deactivateSoloStudio(),
+    onSuccess: (r: any) => {
+      if (r?.removed) toast.success("Studio pessoal desativado.");
+      setConfirmingOff(false);
+      qc.invalidateQueries({ queryKey: ["my-solo-status"] });
+    },
+    onError: (e: any) => toast.error(e.message ?? "Erro ao desativar."),
+  });
+
+  const renameMut = useMutation({
+    mutationFn: (name: string) => renameSoloStudio({ data: { name } }),
+    onSuccess: () => {
+      toast.success("Nome atualizado.");
+      setEditing(false);
+      qc.invalidateQueries({ queryKey: ["my-solo-status"] });
+    },
+    onError: (e: any) => toast.error(e.message ?? "Erro ao renomear."),
+  });
+
+  if (isLoading || !data || !("eligible" in data) || !data.eligible) return null;
+
+  // Personal solo puro (sem academia): não mostra nada — o studio já é o único tenant dele.
+  if (data.active && !data.in_academia) return null;
+
+  return (
+    <section className="mt-6 rounded-2xl border border-violet-500/30 bg-gradient-to-br from-violet-500/5 via-card to-card p-5">
+      <div className="flex items-start gap-3">
+        <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-violet-500/15 text-violet-400">
+          <Sparkles className="h-5 w-5" />
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <h2 className="font-display text-base font-bold">Meu Studio pessoal</h2>
+            {data.active && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-bold text-emerald-500">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Ativo
+              </span>
+            )}
+          </div>
+          <p className="mt-1 text-xs text-muted-foreground">
+            {data.active
+              ? "Você atende alunos particulares fora da academia — isolados no seu Studio."
+              : "Ative para atender alunos particulares (fora da academia) com plano, financeiro e agenda próprios."}
+          </p>
+
+          {!data.active && (
+            <div className="mt-4">
+              <button
+                onClick={() => activateMut.mutate()}
+                disabled={activateMut.isPending}
+                className="inline-flex items-center gap-1.5 rounded-lg bg-violet-500 px-4 py-2 text-sm font-semibold text-white hover:bg-violet-600 disabled:opacity-50"
+              >
+                {activateMut.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Power className="h-4 w-4" />}
+                Ativar Studio pessoal
+              </button>
+              <p className="mt-2 text-[11px] text-muted-foreground">
+                Você continua atendendo os alunos da academia normalmente.
+              </p>
+            </div>
+          )}
+
+          {data.active && data.solo && (
+            <div className="mt-4 space-y-3">
+              <div className="rounded-lg border border-border/60 bg-background/40 p-3">
+                {editing ? (
+                  <div className="flex items-center gap-2">
+                    <input
+                      value={nameDraft}
+                      onChange={(e) => setNameDraft(e.target.value)}
+                      className="flex-1 rounded-md border border-border bg-background px-2 py-1.5 text-sm"
+                    />
+                    <button
+                      onClick={() => renameMut.mutate(nameDraft)}
+                      disabled={renameMut.isPending || nameDraft.trim().length < 2}
+                      className="inline-flex items-center gap-1 rounded-md bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground disabled:opacity-50"
+                    >
+                      {renameMut.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <Check className="h-3.5 w-3.5" />} Salvar
+                    </button>
+                    <button
+                      onClick={() => setEditing(false)}
+                      className="rounded-md px-2 py-1.5 text-xs text-muted-foreground hover:text-foreground"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="min-w-0">
+                      <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Nome do Studio</div>
+                      <div className="mt-0.5 truncate text-sm font-semibold">{data.solo.name}</div>
+                    </div>
+                    <button
+                      onClick={() => { setNameDraft(data.solo!.name); setEditing(true); }}
+                      className="grid h-7 w-7 place-items-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground"
+                      title="Renomear"
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                )}
+              </div>
+
+              <div className="grid grid-cols-4 gap-2 text-center">
+                {[
+                  { label: "Alunos", v: data.usage.alunos },
+                  { label: "Lanç.", v: data.usage.lancamentos },
+                  { label: "Treinos", v: data.usage.templates },
+                  { label: "Exerc.", v: data.usage.exercicios },
+                ].map((s) => (
+                  <div key={s.label} className="rounded-md border border-border/60 bg-background/40 p-2">
+                    <div className="font-display text-sm font-bold">{s.v}</div>
+                    <div className="text-[10px] text-muted-foreground">{s.label}</div>
+                  </div>
+                ))}
+              </div>
+
+              {confirmingOff ? (
+                <div className="rounded-lg border border-destructive/40 bg-destructive/5 p-3">
+                  <div className="text-xs font-semibold text-destructive">Desativar Studio pessoal?</div>
+                  <div className="mt-1 text-[11px] text-muted-foreground">
+                    O tenant será removido. Só é possível porque está vazio.
+                  </div>
+                  <div className="mt-3 flex gap-2">
+                    <button
+                      onClick={() => deactivateMut.mutate()}
+                      disabled={deactivateMut.isPending}
+                      className="inline-flex items-center gap-1 rounded-md bg-destructive px-3 py-1.5 text-xs font-semibold text-destructive-foreground disabled:opacity-50"
+                    >
+                      {deactivateMut.isPending ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <PowerOff className="h-3.5 w-3.5" />} Confirmar
+                    </button>
+                    <button
+                      onClick={() => setConfirmingOff(false)}
+                      className="rounded-md px-3 py-1.5 text-xs text-muted-foreground hover:text-foreground"
+                    >
+                      Cancelar
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  onClick={() => setConfirmingOff(true)}
+                  disabled={!data.can_deactivate}
+                  className="inline-flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-semibold text-muted-foreground hover:border-destructive/40 hover:text-destructive disabled:opacity-40"
+                  title={data.can_deactivate ? "Desativar Studio" : "Studio tem dados — não pode ser desativado"}
+                >
+                  <PowerOff className="h-3.5 w-3.5" /> Desativar Studio
+                </button>
+              )}
+            </div>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
