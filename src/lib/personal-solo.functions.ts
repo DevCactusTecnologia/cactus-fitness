@@ -2,6 +2,28 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+/** Lista todos os tenants em que o usuário atual é membro, com role e tipo. */
+export const listMyOrgs = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context;
+    const { data, error } = await supabase
+      .from("organization_members")
+      .select("role, created_at, organizations!inner(id, name, type, created_by)")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: true });
+    if (error) throw new Error(error.message);
+    return (data ?? []).map((m: any) => ({
+      id: m.organizations.id as string,
+      name: m.organizations.name as string,
+      type: (m.organizations.type ?? "academia") as "academia" | "personal_solo",
+      role: m.role as string,
+      is_owner: m.organizations.created_by === userId,
+    }));
+  });
+
+
+
 /**
  * Personal-solo tenants:
  * - Um "Studio pessoal" é uma organização type='personal_solo' cujo owner é o próprio personal.
