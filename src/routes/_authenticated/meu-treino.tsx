@@ -13,6 +13,7 @@ import { colorForId } from "@/lib/avatar-color";
 import { UserAvatarMenu } from "@/components/UserAvatarMenu";
 import { supabase } from "@/integrations/supabase/client";
 import { applyPrimaryColor } from "@/lib/theme";
+import { slugify, blockIndexToLetter } from "@/lib/slug";
 import logoUrl from "@/assets/cactus-logo.png";
 import { useAvatarUrl } from "@/hooks/useAvatarUrl";
 import { useQueryClient, useQuery } from "@tanstack/react-query";

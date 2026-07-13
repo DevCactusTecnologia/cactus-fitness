@@ -5,6 +5,7 @@ import { Dumbbell, Check, ChevronRight, FileDown, Clock, Trophy, Play } from "lu
 import { AlunoShell } from "@/components/AlunoShell";
 import { supabase } from "@/integrations/supabase/client";
 import { useCurrentUser } from "@/lib/auth";
+import { slugify, blockIndexToLetter } from "@/lib/slug";
 
 export const Route = createFileRoute("/_authenticated/treinos")({
   beforeLoad: ({ location }) => requireAlunoRole(location),
