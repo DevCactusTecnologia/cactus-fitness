@@ -534,6 +534,7 @@ export function WorkoutEditor({
         // multiple actions. Easier: use a dedicated action.
         dispatch({ type: "REPLACE_SESSIONS", sessions } as unknown as Action);
         setTemplateId(tpl.id);
+        setKind(tpl.kind === "plan" ? "plan" : "template");
         hydratedRef.current = true;
       } catch (err) {
         console.error(err);
