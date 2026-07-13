@@ -281,44 +281,77 @@ export function PersonalDetailPage({ scope }: { scope: Scope }) {
 
             <div className="p-5 md:p-6">
               {tab === 0 && (
-                <div className="space-y-2">
-                  {p.alunos.length === 0 ? (
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 rounded-full border border-border bg-background/40 px-4 py-2 text-sm">
+                    <Search className="h-4 w-4 text-muted-foreground" />
+                    <input
+                      value={alunoQuery}
+                      onChange={(e) => setAlunoQuery(e.target.value)}
+                      placeholder="buscar aluno..."
+                      className="w-full bg-transparent placeholder:text-muted-foreground focus:outline-none"
+                    />
+                  </div>
+
+                  {alunosLoading ? (
+                    <div className="grid place-items-center py-10">
+                      <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+                    </div>
+                  ) : alunos.length === 0 ? (
                     <div className="flex flex-col items-center gap-2 py-10 text-center">
                       <div className="grid h-12 w-12 place-items-center rounded-full bg-primary/10 text-primary">
                         <UsersIcon className="h-5 w-5" />
                       </div>
-                      <p className="text-sm font-medium">Nenhum aluno vinculado</p>
-                      <p className="text-xs text-muted-foreground">Este personal ainda não atende alunos.</p>
+                      <p className="text-sm font-medium">
+                        {alunoQuery ? "Nenhum aluno encontrado" : "Nenhum aluno vinculado"}
+                      </p>
+                      {!alunoQuery && (
+                        <p className="text-xs text-muted-foreground">Este personal ainda não atende alunos.</p>
+                      )}
                     </div>
                   ) : (
-                    p.alunos.map((a) => (
-                      <Link
-                        key={a.id}
-                        to={`${alunosBase}/$alunoId` as "/dashboard/personal/alunos/$alunoId"}
-                        params={{ alunoId: a.id }}
-                        className="flex items-center justify-between gap-3 rounded-lg border border-border bg-background/40 p-3 transition hover:bg-accent"
-                      >
-                        <div className="flex min-w-0 items-center gap-3">
-                          <div
-                            className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-sm font-bold font-display"
-                            style={{ backgroundColor: colorForId(a.id).bg, color: colorForId(a.id).fg }}
-                          >
-                            {initialsFromName(a.full_name, null)}
-                          </div>
-                          <div className="min-w-0">
-                            <div className="truncate text-sm font-medium">{a.full_name}</div>
-                            <div className="text-xs text-muted-foreground">
-                              {a.is_active ? "Ativo" : "Desativado"} · desde{" "}
-                              {new Date(a.created_at).toLocaleDateString("pt-BR")}
+                    <div className="space-y-2">
+                      {alunos.map((a) => (
+                        <Link
+                          key={a.id}
+                          to={`${alunosBase}/$alunoId` as "/dashboard/personal/alunos/$alunoId"}
+                          params={{ alunoId: a.id }}
+                          className="flex items-center justify-between gap-3 rounded-lg border border-border bg-background/40 p-3 transition hover:bg-accent"
+                        >
+                          <div className="flex min-w-0 items-center gap-3">
+                            <div
+                              className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-sm font-bold font-display"
+                              style={{ backgroundColor: colorForId(a.id).bg, color: colorForId(a.id).fg }}
+                            >
+                              {initialsFromName(a.full_name, null)}
+                            </div>
+                            <div className="min-w-0">
+                              <div className="truncate text-sm font-medium">{a.full_name}</div>
+                              <div className="text-xs text-muted-foreground">
+                                {a.is_active ? "Ativo" : "Desativado"} · desde{" "}
+                                {new Date(a.created_at).toLocaleDateString("pt-BR")}
+                              </div>
                             </div>
                           </div>
+                          <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                        </Link>
+                      ))}
+                      {hasNextPage && (
+                        <div
+                          ref={sentinelRef}
+                          className="flex items-center justify-center py-4 text-xs text-muted-foreground"
+                        >
+                          {isFetchingNextPage ? (
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                          ) : (
+                            "Carregando mais..."
+                          )}
                         </div>
-                        <ChevronRight className="h-4 w-4 text-muted-foreground" />
-                      </Link>
-                    ))
+                      )}
+                    </div>
                   )}
                 </div>
               )}
+
 
               {tab === 1 && (
                 <>
