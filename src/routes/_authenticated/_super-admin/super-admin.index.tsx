@@ -1142,9 +1142,10 @@ function UsersTab() {
   const [sort, setSort] = useState<UserSort>("recent");
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["super-admin", "users"],
     queryFn: () => listAllUsers(),
+    retry: 1,
   });
 
   const list = data ?? [];
