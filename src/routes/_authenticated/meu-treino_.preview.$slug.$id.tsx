@@ -3,8 +3,9 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ArrowLeft, X, Play, Clock, Dumbbell } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { slugify, blockIndexToLetter, letterToBlockIndex } from "@/lib/slug";
 
-export const Route = createFileRoute("/_authenticated/meu-treino_/preview/$id")({
+export const Route = createFileRoute("/_authenticated/meu-treino_/preview/$slug/$id")({
   beforeLoad: ({ location }) => requireAlunoRole(location),
   head: () => ({
     meta: [
@@ -13,11 +14,9 @@ export const Route = createFileRoute("/_authenticated/meu-treino_/preview/$id")(
     ],
   }),
   validateSearch: (search: Record<string, unknown>) => ({
-    bloco: typeof search.bloco === "number"
-      ? search.bloco
-      : typeof search.bloco === "string" && search.bloco !== "" && !isNaN(Number(search.bloco))
-        ? Number(search.bloco)
-        : undefined,
+    dia: typeof search.dia === "string" && /^[a-z]$/i.test(search.dia)
+      ? search.dia.toLowerCase()
+      : undefined,
   }),
   component: PreviewPage,
 });
@@ -34,8 +33,9 @@ type Row = {
 };
 
 function PreviewPage() {
-  const { id } = Route.useParams();
-  const { bloco } = Route.useSearch();
+  const { id, slug } = Route.useParams();
+  const { dia } = Route.useSearch();
+  const bloco = letterToBlockIndex(dia);
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [workoutName, setWorkoutName] = useState("Treino");
@@ -151,9 +151,9 @@ function PreviewPage() {
         <div className="pointer-events-none fixed inset-x-0 bottom-0 z-30 border-t border-border bg-background/95 px-4 py-4 backdrop-blur">
           <div className="pointer-events-auto mx-auto max-w-3xl">
             <Link
-              to="/meu-treino/treino/$id"
-              params={{ id }}
-              search={bloco != null ? { bloco } : {}}
+              to="/meu-treino/treino/$slug/$id"
+              params={{ slug: slugify(workoutName), id }}
+              search={(() => { const d = blockIndexToLetter(bloco); return d ? { dia: d } : {}; })()}
               className="flex h-14 w-full items-center justify-center gap-2 rounded-full bg-primary px-6 text-base font-bold text-primary-foreground shadow-lg shadow-primary/30 transition hover:brightness-110 active:scale-[0.98]"
             >
               <Play className="h-5 w-5" fill="currentColor" />
