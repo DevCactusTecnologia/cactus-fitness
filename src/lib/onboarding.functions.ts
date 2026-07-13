@@ -36,8 +36,10 @@ export const completeOnboarding = createServerFn({ method: "POST" })
       }
     }
 
-    // Se dono da academia, cria a organização e vira owner
-    if (data.role === "owner") {
+    // Cria organização para owner (academia) OU personal (studio solo).
+    // Personal solo é um tenant como qualquer academia: tem plano, limite,
+    // assinatura e aparece no Super Admin (organizations.type = 'personal_solo').
+    if (data.role === "owner" || data.role === "personal") {
       const { data: existing } = await supabase
         .from("organization_members")
         .select("organization_id")
@@ -47,13 +49,23 @@ export const completeOnboarding = createServerFn({ method: "POST" })
         .maybeSingle();
 
       if (!existing) {
-        const name = data.academyName!.trim();
+        const isSolo = data.role === "personal";
+        const displayName = data.fullName.trim();
+        const name = isSolo
+          ? `Studio de ${displayName}`
+          : data.academyName!.trim();
+
         const { data: org, error: orgErr } = await supabase
           .from("organizations")
-          .insert({ name, created_by: userId })
+          .insert({
+            name,
+            created_by: userId,
+            type: isSolo ? "personal_solo" : "academia",
+          } as any)
           .select("id")
           .single();
         if (orgErr) throw new Error(orgErr.message);
+
         const { error: memErr } = await supabase
           .from("organization_members")
           .insert({

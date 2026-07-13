@@ -334,11 +334,18 @@ function OverviewTab() {
       {/* KPIs com sparklines */}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <KpiCard
-          label="Academias"
+          label="Tenants"
           value={data.totalOrgs}
           icon={<Building2 className="h-4 w-4" />}
           trend={<Delta current={data.newOrgsThisMonth} previous={data.newOrgsPrevMonth} suffix="" />}
-          sub={<div className="mt-2"><Sparkline values={orgSeries} /></div>}
+          sub={
+            <div className="mt-2 space-y-1.5">
+              <div className="flex items-center justify-between text-[10px] text-muted-foreground">
+                <span>{data.totalAcademias ?? 0} academias · {data.totalPersonalSolo ?? 0} personais solo</span>
+              </div>
+              <Sparkline values={orgSeries} />
+            </div>
+          }
           accent="primary"
         />
         <KpiCard
@@ -539,10 +546,13 @@ function orgInitials(name: string) {
     .join("") || "?";
 }
 
+type TenantTypeFilter = "all" | "academia" | "personal_solo";
+
 function OrgsTab() {
   const qc = useQueryClient();
   const [q, setQ] = useState("");
   const [filter, setFilter] = useState<OrgFilter>("all");
+  const [typeFilter, setTypeFilter] = useState<TenantTypeFilter>("all");
   const [planFilter, setPlanFilter] = useState<string>("all");
   const [view, setView] = useState<OrgView>("grid");
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
@@ -576,6 +586,7 @@ function OrgsTab() {
       });
     }
     if (planFilter !== "all") arr = arr.filter((o: any) => o.plan === planFilter);
+    if (typeFilter !== "all") arr = arr.filter((o: any) => (o.type ?? "academia") === typeFilter);
     if (q.trim()) {
       const s = q.trim().toLowerCase();
       arr = arr.filter(
@@ -586,7 +597,16 @@ function OrgsTab() {
       );
     }
     return arr;
-  }, [list, filter, planFilter, q]);
+  }, [list, filter, planFilter, typeFilter, q]);
+
+  const typeCounts = useMemo(() => {
+    const c = { academia: 0, personal_solo: 0 };
+    list.forEach((o: any) => {
+      if (o.type === "personal_solo") c.personal_solo++;
+      else c.academia++;
+    });
+    return c;
+  }, [list]);
 
   const totalRevenue = useMemo(
     () =>
@@ -652,13 +672,19 @@ function OrgsTab() {
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
             <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-primary/80">
-              <Building2 className="h-3.5 w-3.5" /> Academias no SaaS
+              <Building2 className="h-3.5 w-3.5" /> Tenants do SaaS
             </div>
             <div className="mt-1 font-display text-3xl font-bold tracking-tight">
               {list.length} <span className="text-base font-medium text-muted-foreground">organizações</span>
             </div>
-            <div className="mt-1 text-xs text-muted-foreground">
-              {counts.active} ativas · {counts.trialing} em trial · {counts.past_due} vencidas
+            <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+              <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-bold text-primary">
+                <Building2 className="h-2.5 w-2.5" /> {typeCounts.academia} academias
+              </span>
+              <span className="inline-flex items-center gap-1 rounded-full bg-violet-500/10 px-2 py-0.5 text-[10px] font-bold text-violet-500">
+                <Crown className="h-2.5 w-2.5" /> {typeCounts.personal_solo} personais solo
+              </span>
+              <span>· {counts.active} ativas · {counts.trialing} em trial · {counts.past_due} vencidas</span>
             </div>
           </div>
           <div className="grid grid-cols-3 gap-3 sm:min-w-[420px]">
@@ -707,7 +733,29 @@ function OrgsTab() {
           ))}
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <div className="relative min-w-[220px] flex-1">
+          {/* Segmentado por tipo */}
+          <div className="flex items-center rounded-lg border border-border bg-card p-0.5 text-xs font-semibold">
+            {([
+              { id: "all" as const, label: "Todos", count: list.length },
+              { id: "academia" as const, label: "Academias", count: typeCounts.academia },
+              { id: "personal_solo" as const, label: "Personais solo", count: typeCounts.personal_solo },
+            ]).map((t) => {
+              const on = typeFilter === t.id;
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => setTypeFilter(t.id)}
+                  className={`inline-flex items-center gap-1 rounded-md px-2.5 py-1 transition ${
+                    on ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-accent"
+                  }`}
+                >
+                  {t.label}
+                  <span className={`rounded-full px-1.5 text-[10px] ${on ? "bg-white/25" : "bg-muted"}`}>{t.count}</span>
+                </button>
+              );
+            })}
+          </div>
+          <div className="relative min-w-[200px] flex-1">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <input
               value={q}
@@ -787,8 +835,12 @@ function OrgsTab() {
                   </div>
                 )}
                 <div className="flex items-start gap-3">
-                  <div className="grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-primary/25 to-primary/5 font-display text-sm font-bold text-primary">
-                    {orgInitials(o.name)}
+                  <div className={`grid h-11 w-11 shrink-0 place-items-center rounded-xl font-display text-sm font-bold ${
+                    o.type === "personal_solo"
+                      ? "bg-gradient-to-br from-violet-500/30 to-violet-500/5 text-violet-500"
+                      : "bg-gradient-to-br from-primary/25 to-primary/5 text-primary"
+                  }`}>
+                    {o.type === "personal_solo" ? <Crown className="h-5 w-5" /> : orgInitials(o.name)}
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="truncate font-display text-base font-bold">{o.name}</div>
@@ -838,6 +890,14 @@ function OrgsTab() {
                 </div>
 
                 <div className="mt-3 flex flex-wrap items-center gap-1.5">
+                  <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-bold ${
+                    o.type === "personal_solo"
+                      ? "border-violet-500/30 bg-violet-500/10 text-violet-500"
+                      : "border-primary/30 bg-primary/10 text-primary"
+                  }`}>
+                    {o.type === "personal_solo" ? <Crown className="h-2.5 w-2.5" /> : <Building2 className="h-2.5 w-2.5" />}
+                    {o.type === "personal_solo" ? "Personal solo" : "Academia"}
+                  </span>
                   <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-bold ${badge.className}`}>
                     {badge.icon} {badge.label}
                   </span>
