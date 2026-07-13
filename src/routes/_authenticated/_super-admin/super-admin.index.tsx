@@ -1245,38 +1245,21 @@ function UsersTab() {
 
   return (
     <div className="space-y-5">
-      {/* Header + KPIs */}
-      <div className="rounded-3xl border border-border bg-gradient-to-br from-primary/10 via-card to-card p-5">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-primary/80">
-              <Users className="h-3.5 w-3.5" /> Usuários globais
-            </div>
-            <div className="mt-1 font-display text-3xl font-bold tracking-tight">
-              {stats.total} <span className="text-base font-medium text-muted-foreground">contas</span>
-            </div>
-            <div className="mt-1 text-xs text-muted-foreground">
-              {stats.active7} ativas nos últimos 7 dias · {stats.verified} verificadas
-            </div>
+      {/* Header enxuto */}
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+            <Users className="h-3.5 w-3.5" /> Usuários globais
           </div>
-          <div className="grid grid-cols-2 gap-3 sm:min-w-[420px] sm:grid-cols-4">
-            <div className="rounded-xl border border-border/60 bg-background/40 p-3">
-              <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Verificados</div>
-              <div className="mt-1 font-display text-lg font-bold text-emerald-500">{stats.verified}</div>
-            </div>
-            <div className="rounded-xl border border-border/60 bg-background/40 p-3">
-              <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Pendentes</div>
-              <div className="mt-1 font-display text-lg font-bold text-amber-500">{stats.unverified}</div>
-            </div>
-            <div className="rounded-xl border border-border/60 bg-background/40 p-3">
-              <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Ativos 7d</div>
-              <div className="mt-1 font-display text-lg font-bold text-primary">{stats.active7}</div>
-            </div>
-            <div className="rounded-xl border border-border/60 bg-background/40 p-3">
-              <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Sem papel</div>
-              <div className="mt-1 font-display text-lg font-bold text-rose-500">{stats.noRole}</div>
-            </div>
+          <div className="mt-1 font-display text-2xl font-bold tracking-tight">
+            {stats.total} <span className="text-sm font-medium text-muted-foreground">contas</span>
           </div>
+        </div>
+        <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
+          <span><b className="text-emerald-500">{stats.verified}</b> verificadas</span>
+          <span><b className="text-amber-500">{stats.unverified}</b> pendentes</span>
+          <span><b className="text-primary">{stats.active7}</b> ativas 7d</span>
+          <span><b className="text-rose-500">{stats.noRole}</b> sem papel</span>
         </div>
       </div>
 
