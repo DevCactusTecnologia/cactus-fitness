@@ -2,7 +2,7 @@ import { Link } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
-  Dumbbell, FolderPlus, Plus,
+  Dumbbell, Plus,
   ChevronDown, Layers, FileText,
   ArrowLeft, Search, ChevronRight,
 } from "lucide-react";
@@ -11,12 +11,6 @@ import logoUrl from "@/assets/cactus-logo.png";
 
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { IconRail } from "@/components/IconRail";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import type { Scope } from "@/lib/scope";
 
 type ScopePaths = {
@@ -32,38 +26,6 @@ function pathsFor(scope: Scope): ScopePaths {
     novoTemplate: `${base}/novo-template`,
     modelo: `${base}/modelo/$modeloId`,
   };
-}
-
-function NovoModeloMenu({ trigger, paths }: { trigger: React.ReactNode; paths: ScopePaths }) {
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>{trigger}</DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-72 rounded-xl p-2">
-        <DropdownMenuItem asChild className="gap-3 rounded-lg p-3 focus:bg-muted">
-          <Link to={paths.novoPlano} className="flex items-start">
-            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-[oklch(0.55_0.22_300)]/15 text-[oklch(0.75_0.18_300)]">
-              <Layers className="h-5 w-5" />
-            </span>
-            <span className="flex flex-col">
-              <span className="text-sm font-semibold text-foreground">Modelo de Plano</span>
-              <span className="text-xs text-muted-foreground">Agrupa vários treinos em uma rotina semanal</span>
-            </span>
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild className="gap-3 rounded-lg p-3 focus:bg-muted">
-          <Link to={paths.novoTemplate} className="flex items-start">
-            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-[oklch(0.6_0.18_240)]/15 text-[oklch(0.75_0.15_240)]">
-              <Dumbbell className="h-5 w-5" />
-            </span>
-            <span className="flex flex-col">
-              <span className="text-sm font-semibold text-foreground">Template de Treino</span>
-              <span className="text-xs text-muted-foreground">Treino único reutilizável (ex: Peito/Tríceps)</span>
-            </span>
-          </Link>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
 }
 
 /* ---------- Page ---------- */
