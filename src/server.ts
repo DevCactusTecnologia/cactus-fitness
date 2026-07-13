@@ -8,6 +8,11 @@ type ServerEntry = {
 };
 
 type WorkerEnv = Record<string, string | number | boolean | undefined>;
+const REQUIRED_ENV_KEYS = [
+  "SUPABASE_URL",
+  "SUPABASE_PUBLISHABLE_KEY",
+  "SUPABASE_SERVICE_ROLE_KEY",
+] as const;
 
 let serverEntryPromise: Promise<ServerEntry> | undefined;
 
@@ -25,11 +30,16 @@ function syncWorkerEnvToProcessEnv(env: unknown) {
   if (typeof process === "undefined") return;
   process.env ??= {};
 
-  for (const [key, value] of Object.entries(env as WorkerEnv)) {
-    if (process.env[key] != null || value == null) continue;
-    if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
-      process.env[key] = String(value);
-    }
+  const workerEnv = env as WorkerEnv;
+  for (const key of new Set([...Object.keys(workerEnv), ...REQUIRED_ENV_KEYS])) {
+    syncProcessEnvValue(key, workerEnv[key]);
+  }
+}
+
+function syncProcessEnvValue(key: string, value: unknown) {
+  if (process.env[key] != null || value == null) return;
+  if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
+    process.env[key] = String(value);
   }
 }
 
