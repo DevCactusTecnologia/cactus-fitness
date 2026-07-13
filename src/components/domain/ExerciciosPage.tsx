@@ -78,6 +78,14 @@ function usePersonalId(): string | null {
 
 import { IconRail } from "@/components/IconRail";
 
+// Grupos-modalidade legados que hoje existem no banco mas conceitualmente são
+// modalidade (Categoria), não músculo. Ficam ocultos como opção de "Grupo
+// muscular", mas continuam funcionando para exercícios legados já cadastrados.
+const MODALITY_GROUP_SLUGS = new Set([
+  "aerobio", "funcional", "alongamento", "em-casa",
+  "mobilidade", "elasticos", "mat-pilates", "laboral",
+]);
+const isMuscleGroup = (g: Group) => !MODALITY_GROUP_SLUGS.has(g.slug);
 
 /* ---------- Page ---------- */
 const PAGE_SIZE = 20;
@@ -86,6 +94,8 @@ const TABS = [
   { id: "mine", label: "Meus" },
 ] as const;
 type TabId = (typeof TABS)[number]["id"];
+
+
 
 export function ExerciciosPage({ scope }: { scope: Scope }) {
   const [groups, setGroups] = useState<Group[]>([]);
@@ -264,7 +274,7 @@ export function ExerciciosPage({ scope }: { scope: Scope }) {
                 <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1.5">Grupo muscular</p>
                 <div className="flex flex-wrap gap-2">
                   <GroupChip label="Todos" active={activeGroup === "all"} onClick={() => setActiveGroup("all")} />
-                  {groups.map((g) => (
+                  {groups.filter(isMuscleGroup).map((g) => (
                     <GroupChip key={g.id} label={g.name} active={activeGroup === g.id} onClick={() => setActiveGroup(g.id)} />
                   ))}
                 </div>
@@ -404,7 +414,7 @@ function ExerciseRow({
           <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold text-muted-foreground bg-muted">
             {groupName}
           </span>
-          {ex.category && (
+          {ex.category && ex.category.trim().toLowerCase() !== groupName.trim().toLowerCase() && (
             <>
               <span className="text-[11px] text-muted-foreground/60">·</span>
               <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold text-muted-foreground bg-muted">
@@ -853,7 +863,7 @@ function NewExerciseWizard({
                   <SelectValue placeholder="Selecione um grupo muscular" />
                 </SelectTrigger>
                 <SelectContent>
-                  {groups.map((g) => (
+                  {groups.filter(isMuscleGroup).map((g) => (
                     <SelectItem key={g.id} value={String(g.id)}>{g.name}</SelectItem>
                   ))}
                 </SelectContent>
