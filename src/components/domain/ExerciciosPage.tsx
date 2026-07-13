@@ -101,6 +101,7 @@ export function ExerciciosPage({ scope }: { scope: Scope }) {
   const [showFilters, setShowFilters] = useState(false);
   const [showWizard, setShowWizard] = useState(false);
   const [editingEx, setEditingEx] = useState<Exercise | null>(null);
+  const [personalizingEx, setPersonalizingEx] = useState<Exercise | null>(null);
   const [detailEx, setDetailEx] = useState<Exercise | null>(null);
 
   const sentinelRef = useRef<HTMLDivElement | null>(null);
