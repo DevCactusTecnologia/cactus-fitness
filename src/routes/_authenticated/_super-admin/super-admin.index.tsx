@@ -1861,3 +1861,21 @@ function Spinner() {
     </div>
   );
 }
+
+function LoadError({ error, onRetry }: { error: unknown; onRetry: () => void }) {
+  const msg = error instanceof Error ? error.message : "Falha ao carregar os dados.";
+  return (
+    <div className="rounded-2xl border border-rose-500/30 bg-rose-500/5 px-4 py-6 text-sm text-rose-500">
+      <div className="flex items-center gap-2 font-semibold">
+        <AlertTriangle className="h-4 w-4" /> Não foi possível carregar
+      </div>
+      <div className="mt-1 text-xs text-rose-500/80">{msg}</div>
+      <button
+        onClick={onRetry}
+        className="mt-3 inline-flex items-center gap-1.5 rounded-md border border-rose-500/40 bg-background px-2.5 py-1 text-xs font-semibold text-rose-500 hover:bg-rose-500/10"
+      >
+        Tentar novamente
+      </button>
+    </div>
+  );
+}
