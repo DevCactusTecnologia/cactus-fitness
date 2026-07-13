@@ -2,6 +2,7 @@ import { redirect } from "@tanstack/react-router";
 import { getCurrentSessionRoles, getPrimaryClientRole, type AppRole } from "@/lib/client-roles";
 
 const ROLE_HOME: Record<AppRole, string> = {
+  super_admin: "/super-admin",
   aluno: "/meu-treino",
   owner: "/dashboard/academia",
   staff: "/dashboard/academia",
