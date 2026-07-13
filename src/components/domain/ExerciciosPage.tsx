@@ -927,14 +927,17 @@ function NewExerciseWizard({
               <div className="space-y-4">
                 <div>
                   <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1.5">Objetivo</p>
-                  <select
-                    value={data.objective}
-                    onChange={(e) => setData({ ...data, objective: e.target.value })}
-                    className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2 text-sm text-foreground focus:outline-none focus:border-primary transition [&>option]:bg-card [&>option]:text-foreground"
+                  <Select
+                    value={data.objective || undefined}
+                    onValueChange={(v) => setData({ ...data, objective: v })}
                   >
-                    <option value="">Selecione...</option>
-                    {OBJECTIVES.map((o) => <option key={o} value={o}>{o}</option>)}
-                  </select>
+                    <SelectTrigger className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2 text-sm h-auto focus:border-primary transition">
+                      <SelectValue placeholder="Selecione..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {OBJECTIVES.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div>
                   <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1.5">Equipamentos</p>
