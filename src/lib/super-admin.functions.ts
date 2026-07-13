@@ -25,7 +25,7 @@ export const superAdminMetrics = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const [orgs, members, alunos, users] = await Promise.all([
-      supabaseAdmin.from("organizations").select("id, name, plan, subscription_status, suspended_at, created_at, max_alunos"),
+      supabaseAdmin.from("organizations").select("id, name, plan, subscription_status, suspended_at, created_at, max_alunos, type"),
       supabaseAdmin.from("organization_members").select("id, role, organization_id"),
       supabaseAdmin.from("alunos").select("id, is_active, organization_id, created_at"),
       supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 1 }),
