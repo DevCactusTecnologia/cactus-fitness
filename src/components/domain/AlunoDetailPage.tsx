@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   Plus,
   LogIn, Mail, Phone, ShieldAlert, Calendar, User, ArrowLeft, ChevronLeft, Layers, Repeat, Search,
-  Clock, Trophy, Pencil, Trash2, Tag, Copy, FileText, Sparkles, Loader2, Lock, AlertTriangle, KeyRound, Eye, EyeOff, X, CheckCircle2, ChevronDown, Dumbbell,
+  Clock, Trophy, Pencil, Trash2, Copy, FileText, Sparkles, Loader2, Lock, AlertTriangle, KeyRound, Eye, EyeOff, X, CheckCircle2, ChevronDown, Dumbbell,
 } from "lucide-react";
 
 import { useServerFn } from "@tanstack/react-start";
