@@ -905,3 +905,14 @@ function AdvancedSection({
   );
 }
 
+
+function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <label className="block text-sm font-semibold mb-1.5">
+        {label} {hint && <span className="text-xs text-muted-foreground font-normal">{hint}</span>}
+      </label>
+      {children}
+    </div>
+  );
+}
