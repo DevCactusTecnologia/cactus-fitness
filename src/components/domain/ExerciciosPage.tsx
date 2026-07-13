@@ -324,7 +324,6 @@ export function ExerciciosPage({ scope }: { scope: Scope }) {
       {showWizard && personalId && (
         <NewExerciseWizard
           groups={groups}
-          equipments={equipments}
           personalId={personalId}
           mode="new"
           onClose={() => setShowWizard(false)}
@@ -335,7 +334,6 @@ export function ExerciciosPage({ scope }: { scope: Scope }) {
       {editingEx && personalId && (
         <NewExerciseWizard
           groups={groups}
-          equipments={equipments}
           personalId={personalId}
           initial={editingEx}
           mode="edit"
@@ -347,7 +345,6 @@ export function ExerciciosPage({ scope }: { scope: Scope }) {
       {personalizingEx && personalId && (
         <NewExerciseWizard
           groups={groups}
-          equipments={equipments}
           personalId={personalId}
           initial={personalizingEx}
           mode="personalize"
