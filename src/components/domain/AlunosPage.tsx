@@ -169,8 +169,9 @@ export function AlunosPage({ scope }: { scope: Scope }) {
     queryFn: async (): Promise<AlunoRow[]> => {
       const { data, error } = await supabase
         .from("alunos")
-        .select("id, full_name, email, is_active, updated_at")
-        .order("created_at", { ascending: false });
+        .select("id, full_name, email, is_active, updated_at, created_at")
+        .order("created_at", { ascending: false })
+        .order("id", { ascending: false });
       if (error) throw error;
       return (data ?? []) as AlunoRow[];
     },
