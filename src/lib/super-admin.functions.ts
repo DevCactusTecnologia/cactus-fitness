@@ -2,38 +2,39 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-async function assertSuperAdmin(supabase: any, userId: string) {
-  const { data, error } = await supabase.rpc("has_role", {
-    _user_id: userId,
-    _role: "super_admin",
-  });
-  if (error) throw new Error(error.message);
-  if (!data) throw new Error("Acesso negado.");
-}
-
-const PLAN_PRICING: Record<string, number> = {
-  free: 0,
-  starter: 49,
-  pro: 149,
-  enterprise: 399,
-};
-
 export const superAdminMetrics = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    await assertSuperAdmin(context.supabase, context.userId);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: isSuperAdmin, error: roleError } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "super_admin",
+    });
+    if (roleError) throw new Error(roleError.message);
+    if (!isSuperAdmin) throw new Error("Acesso negado.");
 
-    const [orgs, members, alunos, users] = await Promise.all([
-      supabaseAdmin.from("organizations").select("id, name, plan, subscription_status, suspended_at, created_at, max_alunos, type"),
-      supabaseAdmin.from("organization_members").select("id, role, organization_id"),
-      supabaseAdmin.from("alunos").select("id, is_active, organization_id, created_at"),
-      supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 1 }),
+    const planPricing: Record<string, number> = {
+      free: 0,
+      starter: 49,
+      pro: 149,
+      enterprise: 399,
+    };
+
+    const [orgs, members, alunos, profiles] = await Promise.all([
+      context.supabase.from("organizations").select("id, name, plan, subscription_status, suspended_at, created_at, max_alunos, type"),
+      context.supabase.from("organization_members").select("id, role, organization_id"),
+      context.supabase.from("alunos").select("id, is_active, organization_id, created_at"),
+      context.supabase.from("profiles").select("id"),
     ]);
+
+    if (orgs.error) throw new Error(orgs.error.message);
+    if (members.error) throw new Error(members.error.message);
+    if (alunos.error) throw new Error(alunos.error.message);
+    if (profiles.error) throw new Error(profiles.error.message);
 
     const orgList = orgs.data ?? [];
     const memberList = members.data ?? [];
     const alunoList = alunos.data ?? [];
+    const profileList = profiles.data ?? [];
 
     const now = new Date();
     const startMonth = new Date(now.getFullYear(), now.getMonth(), 1);
@@ -74,7 +75,7 @@ export const superAdminMetrics = createServerFn({ method: "GET" })
 
     const mrr = orgList
       .filter((o: any) => !o.suspended_at && (o.subscription_status === "active" || o.subscription_status === "trialing"))
-      .reduce((sum: number, o: any) => sum + (PLAN_PRICING[o.plan] ?? 0), 0);
+      .reduce((sum: number, o: any) => sum + (planPricing[o.plan] ?? 0), 0);
 
     const alunoCounts: Record<string, { total: number; ativos: number }> = {};
     alunoList.forEach((a: any) => {
@@ -120,23 +121,27 @@ export const superAdminMetrics = createServerFn({ method: "GET" })
       totalStaff: memberList.filter((m: any) => m.role === "staff").length,
       totalAlunos: alunoList.length,
       alunosAtivos: alunoList.filter((a: any) => a.is_active).length,
-      totalUsers: (users.data as any)?.total ?? 0,
+      totalUsers: profileList.length,
       byPlan,
       series,
       mrr,
       topOrgs,
       alerts: { pastDue, trialing, nearLimit, suspended: orgList.filter((o: any) => !!o.suspended_at).length },
-      planPricing: PLAN_PRICING,
+      planPricing,
     };
   });
 
 export const listAllOrganizations = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    await assertSuperAdmin(context.supabase, context.userId);
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: isSuperAdmin, error: roleError } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "super_admin",
+    });
+    if (roleError) throw new Error(roleError.message);
+    if (!isSuperAdmin) throw new Error("Acesso negado.");
 
-    const { data: orgs, error } = await supabaseAdmin
+    const { data: orgs, error } = await context.supabase
       .from("organizations")
       .select("id, name, slug, plan, subscription_status, max_alunos, suspended_at, created_at, created_by, type")
       .order("created_at", { ascending: false });
@@ -146,26 +151,16 @@ export const listAllOrganizations = createServerFn({ method: "GET" })
     const ownerIds = Array.from(new Set(list.map((o: any) => o.created_by).filter(Boolean)));
     const [profiles, allMembers, allAlunos] = await Promise.all([
       ownerIds.length
-        ? supabaseAdmin.from("profiles").select("id, full_name").in("id", ownerIds)
-        : Promise.resolve({ data: [] as any[] }),
-      supabaseAdmin.from("organization_members").select("organization_id, role"),
-      supabaseAdmin.from("alunos").select("organization_id, is_active"),
+        ? context.supabase.from("profiles").select("id, full_name").in("id", ownerIds)
+        : Promise.resolve({ data: [] as any[], error: null }),
+      context.supabase.from("organization_members").select("organization_id, role"),
+      context.supabase.from("alunos").select("organization_id, is_active"),
     ]);
+    if (profiles.error) throw new Error(profiles.error.message);
+    if (allMembers.error) throw new Error(allMembers.error.message);
+    if (allAlunos.error) throw new Error(allAlunos.error.message);
+
     const profileMap = new Map((profiles.data ?? []).map((p: any) => [p.id, p.full_name]));
-
-    // Fetch owner emails via Auth Admin API
-    const emailMap = new Map<string, string>();
-    await Promise.all(
-      ownerIds.map(async (uid) => {
-        try {
-          const { data } = await supabaseAdmin.auth.admin.getUserById(uid as string);
-          if (data?.user?.email) emailMap.set(uid as string, data.user.email);
-        } catch {
-          /* ignore */
-        }
-      }),
-    );
-
     const memberCounts: Record<string, number> = {};
     (allMembers.data ?? []).forEach((m: any) => {
       memberCounts[m.organization_id] = (memberCounts[m.organization_id] ?? 0) + 1;
@@ -181,12 +176,11 @@ export const listAllOrganizations = createServerFn({ method: "GET" })
     return list.map((o: any) => ({
       ...o,
       owner_name: profileMap.get(o.created_by) ?? null,
-      owner_email: emailMap.get(o.created_by) ?? null,
+      owner_email: null,
       member_count: memberCounts[o.id] ?? 0,
       aluno_count: alunoCounts[o.id]?.total ?? 0,
       aluno_ativos: alunoCounts[o.id]?.ativos ?? 0,
     }));
-
   });
 
 const updateOrgSchema = z.object({
