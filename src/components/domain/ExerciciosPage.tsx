@@ -1078,23 +1078,7 @@ function NewExerciseWizard({
 }
 
 
-function AdvancedSection({
-  title, open, onToggle, children,
-}: { title: string; open: boolean; onToggle: () => void; children: React.ReactNode }) {
-  return (
-    <div>
-      <button
-        type="button"
-        onClick={onToggle}
-        className="w-full flex items-center justify-between gap-3 px-4 py-3 text-sm font-semibold text-left hover:bg-muted/30 transition"
-      >
-        <span>{title}</span>
-        <ArrowRight className={`h-4 w-4 text-muted-foreground transition-transform ${open ? "rotate-90" : ""}`} />
-      </button>
-      {open && <div className="px-4 pb-4">{children}</div>}
-    </div>
-  );
-}
+
 
 
 function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
