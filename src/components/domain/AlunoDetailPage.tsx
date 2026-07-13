@@ -17,7 +17,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+
 import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { initialsFromName } from "@/lib/auth";
@@ -29,6 +29,7 @@ import { colorForId } from "@/lib/avatar-color";
 type Aluno = {
   id: string;
   full_name: string;
+  nickname: string | null;
   email: string | null;
   phone: string | null;
   birth_date: string | null;
@@ -172,7 +173,21 @@ export function AlunoDetailPage({ scope }: { scope: Scope }) {
               </div>
 
               <div className="min-w-0 flex-1">
-                <h2 className="truncate text-xl font-bold md:text-2xl font-display">{aluno.full_name}</h2>
+                <div className="flex items-center gap-2">
+                  <h2 className="truncate text-xl font-bold md:text-2xl font-display">{aluno.full_name}</h2>
+                  <button
+                    type="button"
+                    onClick={() => setEditOpen(true)}
+                    className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-muted-foreground transition hover:bg-accent hover:text-foreground"
+                    aria-label="Editar aluno"
+                    title="Editar aluno"
+                  >
+                    <Pencil className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+                {aluno.nickname && (
+                  <p className="truncate text-xs text-muted-foreground">"{aluno.nickname}"</p>
+                )}
                 <p className="truncate text-sm text-muted-foreground">{aluno.email ?? "Sem e-mail cadastrado"}</p>
                 <div className="mt-2 flex flex-wrap items-center gap-2">
                   <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${aluno.is_active ? "bg-primary/15 text-primary" : "bg-muted text-muted-foreground"}`}>
@@ -189,6 +204,7 @@ export function AlunoDetailPage({ scope }: { scope: Scope }) {
               </div>
             </div>
           </div>
+
 
 
           <button
@@ -616,12 +632,6 @@ function InformacoesTab({
       <div className="mt-6 space-y-4 border-t border-border pt-4">
         <div className="flex flex-wrap items-center gap-2">
           <button
-            onClick={onEdit}
-            className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3.5 py-2 text-sm font-semibold hover:bg-accent"
-          >
-            <Pencil className="h-4 w-4" /> Editar dados
-          </button>
-          <button
             onClick={onToggle}
             className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-semibold text-[oklch(0.72_0.18_45)] transition hover:bg-[oklch(0.72_0.18_45)]/10"
           >
@@ -649,12 +659,10 @@ function EditAlunoDialog({
   const queryClient = useQueryClient();
   const [form, setForm] = useState({
     full_name: aluno.full_name,
+    nickname: aluno.nickname ?? "",
+    birth_date: aluno.birth_date ?? "",
     email: aluno.email ?? "",
     phone: aluno.phone ?? "",
-    birth_date: aluno.birth_date ?? "",
-    gender: aluno.gender ?? "",
-    objective: aluno.objective ?? "",
-    notes: aluno.notes ?? "",
   });
   const [error, setError] = useState<string | null>(null);
 
@@ -662,12 +670,10 @@ function EditAlunoDialog({
     if (open) {
       setForm({
         full_name: aluno.full_name,
+        nickname: aluno.nickname ?? "",
+        birth_date: aluno.birth_date ?? "",
         email: aluno.email ?? "",
         phone: aluno.phone ?? "",
-        birth_date: aluno.birth_date ?? "",
-        gender: aluno.gender ?? "",
-        objective: aluno.objective ?? "",
-        notes: aluno.notes ?? "",
       });
       setError(null);
     }
@@ -677,13 +683,11 @@ function EditAlunoDialog({
     mutationFn: async () => {
       const { error } = await supabase.from("alunos").update({
         full_name: form.full_name.trim(),
+        nickname: form.nickname.trim() || null,
+        birth_date: form.birth_date || null,
         email: form.email.trim() || null,
         phone: form.phone.trim() || null,
-        birth_date: form.birth_date || null,
-        gender: form.gender.trim() || null,
-        objective: form.objective.trim() || null,
-        notes: form.notes.trim() || null,
-      }).eq("id", aluno.id);
+      } as any).eq("id", aluno.id);
       if (error) throw error;
     },
     onSuccess: () => {
@@ -703,54 +707,72 @@ function EditAlunoDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
-        <DialogHeader>
-          <DialogTitle>Editar dados</DialogTitle>
-          <DialogDescription>Atualize as informações de {aluno.full_name}.</DialogDescription>
-        </DialogHeader>
-        <form onSubmit={submit} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="e_full_name">Nome completo *</Label>
-            <Input id="e_full_name" value={form.full_name} onChange={(e) => setForm((f) => ({ ...f, full_name: e.target.value }))} autoFocus />
-          </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label htmlFor="e_email">E-mail</Label>
-              <Input id="e_email" type="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} />
+      <DialogContent className="max-w-md p-0 overflow-hidden">
+        <form onSubmit={submit}>
+          <div className="flex items-center gap-4 border-b border-border bg-gradient-to-br from-primary/10 via-primary/5 to-transparent px-6 py-5">
+            <div
+              className="grid h-14 w-14 shrink-0 place-items-center rounded-full text-lg font-bold font-display ring-2 ring-primary/40"
+              style={{ backgroundColor: colorForId(aluno.id).bg, color: colorForId(aluno.id).fg }}
+            >
+              {initialsFromName(form.full_name || aluno.full_name, form.email)}
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="e_phone">Telefone</Label>
-              <Input id="e_phone" inputMode="tel" value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: formatPhone(e.target.value) }))} maxLength={15} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="e_birth">Data de nascimento</Label>
-              <Input id="e_birth" type="date" value={form.birth_date} onChange={(e) => setForm((f) => ({ ...f, birth_date: e.target.value }))} />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="e_gender">Gênero</Label>
-              <Input id="e_gender" value={form.gender} onChange={(e) => setForm((f) => ({ ...f, gender: e.target.value }))} placeholder="masculino / feminino" />
+            <div className="min-w-0">
+              <DialogHeader className="space-y-0.5 text-left">
+                <DialogTitle className="text-lg">Editar aluno</DialogTitle>
+              </DialogHeader>
+              <p className="text-xs text-muted-foreground">Atualize os dados básicos.</p>
             </div>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="e_objective">Objetivo</Label>
-            <Input id="e_objective" value={form.objective} onChange={(e) => setForm((f) => ({ ...f, objective: e.target.value }))} />
+
+          <div className="space-y-4 px-6 py-5">
+            <div className="space-y-1.5">
+              <Label htmlFor="e_full_name" className="text-xs font-medium text-muted-foreground">Nome completo</Label>
+              <Input id="e_full_name" value={form.full_name} onChange={(e) => setForm((f) => ({ ...f, full_name: e.target.value }))} autoFocus required />
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div className="space-y-1.5">
+                <Label htmlFor="e_nickname" className="text-xs font-medium text-muted-foreground">
+                  Apelido <span className="text-muted-foreground/70">(opcional)</span>
+                </Label>
+                <Input id="e_nickname" value={form.nickname} onChange={(e) => setForm((f) => ({ ...f, nickname: e.target.value }))} maxLength={40} placeholder="Como você chama" />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="e_birth" className="text-xs font-medium text-muted-foreground">
+                  Nascimento <span className="text-muted-foreground/70">(opcional)</span>
+                </Label>
+                <Input id="e_birth" type="date" value={form.birth_date} onChange={(e) => setForm((f) => ({ ...f, birth_date: e.target.value }))} max={new Date().toISOString().slice(0, 10)} />
+              </div>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="e_phone" className="text-xs font-medium text-muted-foreground">
+                Telefone <span className="text-muted-foreground/70">(opcional)</span>
+              </Label>
+              <Input id="e_phone" inputMode="tel" value={form.phone} onChange={(e) => setForm((f) => ({ ...f, phone: formatPhone(e.target.value) }))} maxLength={15} placeholder="(11) 99999-9999" />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="e_email" className="text-xs font-medium text-muted-foreground">
+                E-mail <span className="text-muted-foreground/70">(opcional)</span>
+              </Label>
+              <Input id="e_email" type="email" value={form.email} onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))} placeholder="aluno@email.com" />
+            </div>
+
+            {error && <p className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">{error}</p>}
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="e_notes">Observações</Label>
-            <Textarea id="e_notes" value={form.notes} onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))} rows={3} />
-          </div>
-          {error && <p className="text-sm text-destructive">{error}</p>}
-          <DialogFooter>
-            <button type="button" onClick={() => onOpenChange(false)} className="rounded-md border border-border px-4 py-2 text-sm hover:bg-accent">
+
+          <DialogFooter className="border-t border-border bg-muted/30 px-6 py-3">
+            <button type="button" onClick={() => onOpenChange(false)} className="rounded-md px-4 py-2 text-sm text-muted-foreground hover:bg-accent hover:text-foreground">
               Cancelar
             </button>
             <button
               type="submit"
-              disabled={mutation.isPending}
-              className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:brightness-110 disabled:opacity-60"
+              disabled={mutation.isPending || !form.full_name.trim()}
+              className="inline-flex items-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.35)] hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50 disabled:shadow-none"
             >
               {mutation.isPending && <Loader2 className="h-4 w-4 animate-spin" />}
-              Salvar alterações
+              Salvar
             </button>
           </DialogFooter>
         </form>
