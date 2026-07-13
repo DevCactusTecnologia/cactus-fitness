@@ -191,13 +191,15 @@ const PLAN_COLORS: Record<string, string> = {
 
 function OverviewTab() {
   const navigate = useNavigate();
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["super-admin", "metrics"],
     queryFn: () => superAdminMetrics(),
+    retry: 1,
   });
 
   if (isLoading) return <Spinner />;
-  if (!data) return null;
+  if (isError) return <LoadError error={error} onRetry={() => refetch()} />;
+  if (!data) return <LoadError error={new Error("Sem dados.")} onRetry={() => refetch()} />;
 
   const alunoOccupancy = data.totalAlunos > 0 ? Math.round((data.alunosAtivos / data.totalAlunos) * 100) : 0;
   const orgSeries = data.series.map((s: any) => s.orgs);
@@ -557,9 +559,10 @@ function OrgsTab() {
   const [view, setView] = useState<OrgView>("grid");
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["super-admin", "orgs"],
     queryFn: () => listAllOrganizations(),
+    retry: 1,
   });
 
   const list = data ?? [];
@@ -803,6 +806,7 @@ function OrgsTab() {
       </div>
 
       {isLoading && <Spinner />}
+      {isError && <LoadError error={error} onRetry={() => refetch()} />}
 
       {!isLoading && filtered.length === 0 && (
         <div className="rounded-2xl border border-dashed border-border bg-card/40 py-16 text-center">
@@ -1139,9 +1143,10 @@ function UsersTab() {
   const [sort, setSort] = useState<UserSort>("recent");
   const [openMenuId, setOpenMenuId] = useState<string | null>(null);
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["super-admin", "users"],
     queryFn: () => listAllUsers(),
+    retry: 1,
   });
 
   const list = data ?? [];
@@ -1312,6 +1317,7 @@ function UsersTab() {
       </div>
 
       {isLoading && <Spinner />}
+      {isError && <LoadError error={error} onRetry={() => refetch()} />}
 
       {!isLoading && filtered.length === 0 && (
         <div className="rounded-2xl border border-dashed border-border bg-card/40 py-16 text-center">
@@ -1533,9 +1539,10 @@ function PlansTab() {
   const [selectedPlan, setSelectedPlan] = useState<string>("pro");
   const [q, setQ] = useState("");
 
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ["super-admin", "orgs"],
     queryFn: () => listAllOrganizations(),
+    retry: 1,
   });
 
   const updateMut = useMutation({
@@ -1583,6 +1590,7 @@ function PlansTab() {
   }, [selectedBucket, q]);
 
   if (isLoading) return <Spinner />;
+  if (isError) return <LoadError error={error} onRetry={() => refetch()} />;
 
   return (
     <div className="space-y-5">
@@ -1858,6 +1866,24 @@ function Spinner() {
   return (
     <div className="flex items-center gap-2 py-10 text-sm text-muted-foreground">
       <Loader2 className="h-4 w-4 animate-spin" /> Carregando…
+    </div>
+  );
+}
+
+function LoadError({ error, onRetry }: { error: unknown; onRetry: () => void }) {
+  const msg = error instanceof Error ? error.message : "Falha ao carregar os dados.";
+  return (
+    <div className="rounded-2xl border border-rose-500/30 bg-rose-500/5 px-4 py-6 text-sm text-rose-500">
+      <div className="flex items-center gap-2 font-semibold">
+        <AlertTriangle className="h-4 w-4" /> Não foi possível carregar
+      </div>
+      <div className="mt-1 text-xs text-rose-500/80">{msg}</div>
+      <button
+        onClick={onRetry}
+        className="mt-3 inline-flex items-center gap-1.5 rounded-md border border-rose-500/40 bg-background px-2.5 py-1 text-xs font-semibold text-rose-500 hover:bg-rose-500/10"
+      >
+        Tentar novamente
+      </button>
     </div>
   );
 }
