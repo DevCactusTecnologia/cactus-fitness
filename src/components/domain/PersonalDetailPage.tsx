@@ -254,8 +254,9 @@ export function PersonalDetailPage({ scope }: { scope: Scope }) {
                     {p.is_active ? "Ativo" : "Inativo"}
                   </span>
                   <span className="inline-flex items-center gap-1 rounded-full bg-muted px-2.5 py-1 text-xs font-medium text-muted-foreground">
-                    <UsersIcon className="h-3 w-3" /> {p.alunos.length} {p.alunos.length === 1 ? "aluno" : "alunos"}
+                    <UsersIcon className="h-3 w-3" /> {p.alunos_count} {p.alunos_count === 1 ? "aluno" : "alunos"}
                   </span>
+
                 </div>
               </div>
             </div>
