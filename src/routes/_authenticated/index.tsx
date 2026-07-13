@@ -29,6 +29,9 @@ export const Route = createFileRoute("/_authenticated/")({
       throw redirect({ to: "/login", search: { redirect: location.href } });
     }
     const role = getPrimaryClientRole(roles);
+    if (role === "super_admin") {
+      throw redirect({ to: "/super-admin" });
+    }
     if (role === "aluno") {
       throw redirect({ to: "/meu-treino" });
     }
