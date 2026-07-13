@@ -530,8 +530,9 @@ function useOwnerOverview() {
       if (!uid) return null;
       const { data: mine } = await supabase
         .from("organization_members")
-        .select("organization_id, role")
+        .select("organization_id, role, organizations!inner(type)")
         .eq("user_id", uid)
+        .eq("organizations.type", "academia")
         .order("created_at", { ascending: true })
         .limit(1)
         .maybeSingle();
