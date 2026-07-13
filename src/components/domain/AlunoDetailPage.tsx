@@ -632,12 +632,6 @@ function InformacoesTab({
       <div className="mt-6 space-y-4 border-t border-border pt-4">
         <div className="flex flex-wrap items-center gap-2">
           <button
-            onClick={onEdit}
-            className="inline-flex items-center gap-1.5 rounded-full border border-border bg-background px-3.5 py-2 text-sm font-semibold hover:bg-accent"
-          >
-            <Pencil className="h-4 w-4" /> Editar dados
-          </button>
-          <button
             onClick={onToggle}
             className="inline-flex items-center gap-1.5 rounded-full px-3.5 py-2 text-sm font-semibold text-[oklch(0.72_0.18_45)] transition hover:bg-[oklch(0.72_0.18_45)]/10"
           >
