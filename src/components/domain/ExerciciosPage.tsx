@@ -78,6 +78,14 @@ function usePersonalId(): string | null {
 
 import { IconRail } from "@/components/IconRail";
 
+// Grupos-modalidade legados que hoje existem no banco mas conceitualmente são
+// modalidade (Categoria), não músculo. Ficam ocultos como opção de "Grupo
+// muscular", mas continuam funcionando para exercícios legados já cadastrados.
+const MODALITY_GROUP_SLUGS = new Set([
+  "aerobio", "funcional", "alongamento", "em-casa",
+  "mobilidade", "elasticos", "mat-pilates", "laboral",
+]);
+const isMuscleGroup = (g: Group) => !MODALITY_GROUP_SLUGS.has(g.slug);
 
 /* ---------- Page ---------- */
 const PAGE_SIZE = 20;
@@ -86,6 +94,8 @@ const TABS = [
   { id: "mine", label: "Meus" },
 ] as const;
 type TabId = (typeof TABS)[number]["id"];
+
+
 
 export function ExerciciosPage({ scope }: { scope: Scope }) {
   const [groups, setGroups] = useState<Group[]>([]);
