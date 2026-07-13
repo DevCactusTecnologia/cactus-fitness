@@ -1342,12 +1342,6 @@ function UsersTab() {
       {!isLoading && filtered.length > 0 && (
         <div className="overflow-hidden rounded-2xl border border-border bg-card">
           <div className="flex items-center gap-3 border-b border-border bg-muted/30 px-4 py-2 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
-            <input
-              type="checkbox"
-              checked={filtered.length > 0 && filtered.every((u: any) => selected.has(u.id))}
-              onChange={toggleAllVisible}
-              className="h-3.5 w-3.5 rounded border-border"
-            />
             <span>Usuário</span>
             <span className="ml-auto hidden sm:inline">Papéis</span>
           </div>
@@ -1355,22 +1349,13 @@ function UsersTab() {
             {filtered.map((u: any) => {
               const menuOpen = openMenuId === u.id;
               const isSelf = false; // super admin cannot delete self anyway
-              const isSelected = selected.has(u.id);
               const hue = avatarHue(u.id);
               const roles: string[] = u.roles ?? [];
               return (
                 <li
                   key={u.id}
-                  className={`group flex flex-wrap items-center gap-3 border-b border-border/60 px-4 py-3 transition ${
-                    isSelected ? "bg-primary/5" : "hover:bg-accent/30"
-                  }`}
+                  className="group flex flex-wrap items-center gap-3 border-b border-border/60 px-4 py-3 transition hover:bg-accent/30"
                 >
-                  <input
-                    type="checkbox"
-                    checked={isSelected}
-                    onChange={() => toggleSelected(u.id)}
-                    className="h-3.5 w-3.5 shrink-0 rounded border-border"
-                  />
                   <div
                     className="grid h-10 w-10 shrink-0 place-items-center rounded-full font-display text-xs font-bold text-white"
                     style={{ background: `linear-gradient(135deg, hsl(${hue} 70% 55%), hsl(${(hue + 40) % 360} 70% 45%))` }}
