@@ -806,6 +806,7 @@ function OrgsTab() {
       </div>
 
       {isLoading && <Spinner />}
+      {isError && <LoadError error={error} onRetry={() => refetch()} />}
 
       {!isLoading && filtered.length === 0 && (
         <div className="rounded-2xl border border-dashed border-border bg-card/40 py-16 text-center">
