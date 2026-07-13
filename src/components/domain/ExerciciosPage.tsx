@@ -150,13 +150,15 @@ export function ExerciciosPage({ scope }: { scope: Scope }) {
     return exercises.filter((x) => {
       if (tab === "mine" && x.owner_id !== personalId) return false;
       if (activeGroup !== "all" && x.group_id !== activeGroup) return false;
+      if (activeCategory !== "all" && (x.category ?? "") !== activeCategory) return false;
       if (q && !normalize(x.name).includes(q)) return false;
       return true;
     });
-  }, [exercises, query, activeGroup, tab, personalId]);
+  }, [exercises, query, activeGroup, activeCategory, tab, personalId]);
 
 
-  useEffect(() => { setVisible(PAGE_SIZE); }, [query, activeGroup, tab]);
+  useEffect(() => { setVisible(PAGE_SIZE); }, [query, activeGroup, activeCategory, tab]);
+
 
   useEffect(() => {
     const el = sentinelRef.current;
