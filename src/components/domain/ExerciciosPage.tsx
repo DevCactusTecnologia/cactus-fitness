@@ -436,8 +436,8 @@ function ExerciseRow({
 /* ---------- Modal de Detalhes ---------- */
 
 function ExerciseDetailModal({
-  ex, groupName, canEdit, onClose, onEdit,
-}: { ex: Exercise; groupName: string; canEdit?: boolean; onClose: () => void; onEdit?: () => void }) {
+  ex, groupName, isOwner, onClose, onEdit, onPersonalize,
+}: { ex: Exercise; groupName: string; isOwner?: boolean; onClose: () => void; onEdit?: () => void; onPersonalize?: () => void }) {
   return (
     <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/60 backdrop-blur-sm p-0 md:p-4" onClick={onClose}>
       <div
@@ -450,7 +450,7 @@ function ExerciseDetailModal({
             <h2 className="text-lg font-bold font-display truncate">{ex.name}</h2>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            {canEdit && onEdit && (
+            {isOwner && onEdit && (
               <button
                 onClick={onEdit}
                 className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted/40 px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted/70 transition"
@@ -458,11 +458,21 @@ function ExerciseDetailModal({
                 Editar
               </button>
             )}
+            {!isOwner && onPersonalize && (
+              <button
+                onClick={onPersonalize}
+                title='Uma cópia será salva na aba "Meus Exercícios"'
+                className="inline-flex items-center gap-1.5 rounded-full border border-primary/50 bg-primary/15 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/25 transition"
+              >
+                Personalizar exercício
+              </button>
+            )}
             <button onClick={onClose} className="grid h-9 w-9 place-items-center rounded-full bg-muted hover:bg-muted/70 transition">
               <X className="h-4 w-4" />
             </button>
           </div>
         </div>
+
 
 
         <div className="overflow-y-auto px-5 py-4 space-y-5">
