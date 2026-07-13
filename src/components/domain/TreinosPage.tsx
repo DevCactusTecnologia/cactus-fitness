@@ -7,6 +7,12 @@ import {
   ArrowLeft, Search, ChevronRight,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import logoUrl from "@/assets/cactus-logo.png";
 
 import { MobileBottomNav } from "@/components/MobileBottomNav";
@@ -123,26 +129,66 @@ export function TreinosPage({ scope }: { scope: Scope }) {
                 Cactus<span className="italic font-normal">Fitness</span>
               </span>
             </div>
-            <Link
-              to={paths.novoTemplate}
-              className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.25)] hover:brightness-110"
-            >
-              <Plus className="h-4 w-4" />
-              Modelo
-            </Link>
+            <DropdownMenu>
+              <DropdownMenuTrigger className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.25)] hover:brightness-110">
+                <Plus className="h-4 w-4" />
+                Novo
+                <ChevronDown className="h-3.5 w-3.5" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuItem asChild>
+                  <Link to={paths.novoPlano} className="flex items-start gap-2">
+                    <Layers className="mt-0.5 h-4 w-4 text-[oklch(0.75_0.18_300)]" />
+                    <div>
+                      <p className="text-sm font-semibold">Novo Plano</p>
+                      <p className="text-xs text-muted-foreground">Rotina semanal (A/B/C)</p>
+                    </div>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to={paths.novoTemplate} className="flex items-start gap-2">
+                    <FileText className="mt-0.5 h-4 w-4 text-primary" />
+                    <div>
+                      <p className="text-sm font-semibold">Novo Treino Avulso</p>
+                      <p className="text-xs text-muted-foreground">Treino único</p>
+                    </div>
+                  </Link>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
 
           {/* Desktop header */}
           <div className="hidden w-full flex-wrap items-center justify-between gap-3 md:flex">
             <h1 className="font-display text-2xl font-bold tracking-tight md:text-3xl">Modelos Prontos</h1>
             <div className="flex items-center gap-4">
-              <Link
-                to={paths.novoTemplate}
-                className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.25)] hover:brightness-110"
-              >
-                <Plus className="h-4 w-4" />
-                Novo modelo
-              </Link>
+              <DropdownMenu>
+                <DropdownMenuTrigger className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.25)] hover:brightness-110">
+                  <Plus className="h-4 w-4" />
+                  Novo modelo
+                  <ChevronDown className="h-4 w-4" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-64">
+                  <DropdownMenuItem asChild>
+                    <Link to={paths.novoPlano} className="flex items-start gap-2">
+                      <Layers className="mt-0.5 h-4 w-4 text-[oklch(0.75_0.18_300)]" />
+                      <div>
+                        <p className="text-sm font-semibold">Novo Plano</p>
+                        <p className="text-xs text-muted-foreground">Agrupa vários treinos em uma rotina semanal</p>
+                      </div>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to={paths.novoTemplate} className="flex items-start gap-2">
+                      <FileText className="mt-0.5 h-4 w-4 text-primary" />
+                      <div>
+                        <p className="text-sm font-semibold">Novo Treino Avulso</p>
+                        <p className="text-xs text-muted-foreground">Um treino único e independente</p>
+                      </div>
+                    </Link>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
         </div>
@@ -152,15 +198,15 @@ export function TreinosPage({ scope }: { scope: Scope }) {
           {/* Info card */}
           <div className="mb-6 rounded-xl border border-border bg-card p-4">
             <p className="text-sm text-muted-foreground">
-              Modelos prontos são gabaritos reutilizáveis. Um <span className="font-semibold text-foreground">Modelo de Plano</span> agrupa vários treinos em uma rotina semanal (ex: A/B/C em seg/qua/sex). Um <span className="font-semibold text-foreground">Template de Treino</span> é um treino único e independente (ex: Peito/Tríceps).
+              Modelos prontos são gabaritos reutilizáveis. Um <span className="font-semibold text-foreground">Plano</span> agrupa vários treinos em uma rotina semanal (ex.: A/B/C seg/qua/sex). Um <span className="font-semibold text-foreground">Treino Avulso</span> é um treino único e independente (ex.: Peito/Tríceps).
             </p>
           </div>
 
           {/* Stats */}
           <div className="mb-6 grid grid-cols-3 gap-3 md:gap-4">
             <StatCard icon={FileText} value={total} label="Total de modelos" tone="green" />
-            <StatCard icon={Layers} value={totalPlans} label="Modelos de Plano" tone="purple" />
-            <StatCard icon={Dumbbell} value={totalTemplates} label="Templates de Treino" tone="blue" />
+            <StatCard icon={Layers} value={totalPlans} label="Planos" tone="purple" />
+            <StatCard icon={Dumbbell} value={totalTemplates} label="Treinos Avulsos" tone="blue" />
           </div>
 
           {/* Search + Filters */}
@@ -181,8 +227,8 @@ export function TreinosPage({ scope }: { scope: Scope }) {
                 onChange={setFilter}
                 options={[
                   { value: "todos", label: "Todos os tipos" },
-                  { value: "plan", label: "Modelos de Plano" },
-                  { value: "template", label: "Templates de Treino" },
+                  { value: "plan", label: "Planos" },
+                  { value: "template", label: "Treinos Avulsos" },
                 ]}
               />
               <button className="inline-flex items-center justify-between gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm hover:bg-muted">
@@ -311,7 +357,7 @@ function ModeloRow({ modelo, paths }: { modelo: Modelo; paths: ScopePaths }) {
                 : "border-primary/30 bg-primary/10 text-primary"
             }`}
           >
-            {isPlan ? "Plano de treino" : "Treino único"}
+            {isPlan ? "Plano" : "Treino Avulso"}
           </span>
         </div>
         <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-0.5 text-xs text-muted-foreground">
