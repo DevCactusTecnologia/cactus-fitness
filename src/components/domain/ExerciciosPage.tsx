@@ -611,8 +611,8 @@ function NewExerciseWizard({
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<FormData>(() => ({
     name: initial?.name ? (isPersonalize ? `${initial.name} (personalizado)` : initial.name) : "",
-    description: initial?.description ?? "",
-    instructions: initial?.instructions ?? "",
+    description: [initial?.description, initial?.instructions].filter(Boolean).join("\n\n"),
+    instructions: "",
     group_id: initial?.group_id ?? null,
     category: initial?.category ?? "",
     difficulty: initial?.difficulty ?? "",
