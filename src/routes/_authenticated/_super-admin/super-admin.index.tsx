@@ -733,7 +733,29 @@ function OrgsTab() {
           ))}
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <div className="relative min-w-[220px] flex-1">
+          {/* Segmentado por tipo */}
+          <div className="flex items-center rounded-lg border border-border bg-card p-0.5 text-xs font-semibold">
+            {([
+              { id: "all" as const, label: "Todos", count: list.length },
+              { id: "academia" as const, label: "Academias", count: typeCounts.academia },
+              { id: "personal_solo" as const, label: "Personais solo", count: typeCounts.personal_solo },
+            ]).map((t) => {
+              const on = typeFilter === t.id;
+              return (
+                <button
+                  key={t.id}
+                  onClick={() => setTypeFilter(t.id)}
+                  className={`inline-flex items-center gap-1 rounded-md px-2.5 py-1 transition ${
+                    on ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-accent"
+                  }`}
+                >
+                  {t.label}
+                  <span className={`rounded-full px-1.5 text-[10px] ${on ? "bg-white/25" : "bg-muted"}`}>{t.count}</span>
+                </button>
+              );
+            })}
+          </div>
+          <div className="relative min-w-[200px] flex-1">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <input
               value={q}
