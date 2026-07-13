@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { UserAvatarMenu } from "@/components/UserAvatarMenu";
 import logoUrl from "@/assets/cactus-logo.png";
+import { useIsPersonalInAcademia } from "@/hooks/useIsPersonalInAcademia";
 
 type Scope = "personal" | "academia" | "aluno";
 
@@ -112,7 +113,11 @@ function SidebarIconBtn({
 export function IconRail({ scope: scopeProp }: { scope?: Scope } = {}) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const scope = scopeProp ?? detectScope(pathname);
-  const items = NAV_BY_SCOPE[scope];
+  const { data: inAcademia } = useIsPersonalInAcademia();
+  const items = NAV_BY_SCOPE[scope].filter((n) => {
+    if (scope === "personal" && n.label === "Academia" && !inAcademia) return false;
+    return true;
+  });
   return (
     <aside className="fixed inset-y-0 left-0 z-50 hidden w-[72px] flex-col items-center gap-2 border-r border-border bg-sidebar py-4 md:flex">
       <div className="mb-2 grid h-10 w-10 place-items-center rounded-xl">

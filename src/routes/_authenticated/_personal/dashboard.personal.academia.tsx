@@ -7,6 +7,18 @@ import { IconRail } from "@/components/IconRail";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 
 export const Route = createFileRoute("/_authenticated/_personal/dashboard/personal/academia")({
+  beforeLoad: async () => {
+    const { redirect } = await import("@tanstack/react-router");
+    const { data: u } = await supabase.auth.getUser();
+    const uid = u.user?.id;
+    if (!uid) return;
+    const { data: mems } = await supabase
+      .from("organization_members")
+      .select("organization_id, organizations!inner(created_by)")
+      .eq("user_id", uid);
+    const inAcademia = (mems ?? []).some((m: any) => m.organizations?.created_by !== uid);
+    if (!inAcademia) throw redirect({ to: "/" });
+  },
   head: () => ({
     meta: [
       { title: "Minha Academia · cactusfitness" },
