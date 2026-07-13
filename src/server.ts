@@ -34,6 +34,12 @@ function syncWorkerEnvToProcessEnv(env: unknown) {
   for (const key of new Set([...Object.keys(workerEnv), ...REQUIRED_ENV_KEYS])) {
     syncProcessEnvValue(key, workerEnv[key]);
   }
+
+  syncProcessEnvValue("SUPABASE_URL", process.env.VITE_SUPABASE_URL ?? workerEnv.VITE_SUPABASE_URL);
+  syncProcessEnvValue(
+    "SUPABASE_PUBLISHABLE_KEY",
+    process.env.VITE_SUPABASE_PUBLISHABLE_KEY ?? workerEnv.VITE_SUPABASE_PUBLISHABLE_KEY,
+  );
 }
 
 function syncProcessEnvValue(key: string, value: unknown) {
