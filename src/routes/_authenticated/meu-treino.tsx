@@ -451,9 +451,9 @@ function MeuTreinoPage() {
             </p>
             {nextWorkout ? (
               <Link
-                to="/meu-treino/treino/$id"
-                params={{ id: nextWorkout.id }}
-                search={nextWorkout.sessionPosition != null ? { bloco: nextWorkout.sessionPosition } : {}}
+                to="/meu-treino/treino/$slug/$id"
+                params={{ slug: slugify(nextWorkout.name), id: nextWorkout.id }}
+                search={(() => { const d = blockIndexToLetter(nextWorkout.sessionPosition); return d ? { dia: d } : {}; })()}
                 className="relative flex h-11 w-full items-center justify-center gap-2 rounded-full bg-primary px-6 text-sm font-bold text-primary-foreground transition hover:brightness-110 active:scale-[0.97]"
               >
                 <Play className="h-4 w-4" fill="currentColor" /> Iniciar treino

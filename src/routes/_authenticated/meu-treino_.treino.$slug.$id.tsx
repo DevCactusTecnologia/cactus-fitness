@@ -230,7 +230,8 @@ function TreinoPage() {
         if (sid) {
           setSessionId(sid);
           const short = sid.replace(/-/g, "").slice(0, 10);
-          navigate({ to: "/meu-treino/treino/$id", params: { id }, search: { sessao: `sessao_${short}`, bloco }, replace: true });
+          const diaLetter = blockIndexToLetter(bloco);
+          navigate({ to: "/meu-treino/treino/$slug/$id", params: { slug, id }, search: { sessao: `sessao_${short}`, ...(diaLetter ? { dia: diaLetter } : {}) }, replace: true });
           const { data: logs } = await supabase
             .from("set_logs")
             .select("template_exercise_id, set_index, reps, load, rpe, is_extra")

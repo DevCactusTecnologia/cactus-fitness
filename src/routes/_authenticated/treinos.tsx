@@ -266,9 +266,9 @@ function TreinosPage() {
                   return (
                     <Link
                       key={it.id}
-                      to="/meu-treino/preview/$id"
-                      params={{ id: it.swId }}
-                      search={it.sessionPosition != null ? { bloco: it.sessionPosition } : {}}
+                      to="/meu-treino/preview/$slug/$id"
+                      params={{ slug: slugify(it.name), id: it.swId }}
+                      search={(() => { const d = blockIndexToLetter(it.sessionPosition); return d ? { dia: d } : {}; })()}
                       className={`block w-full rounded-xl p-4 text-left transition-colors active:bg-surface-2/30 ${cardClasses}`}
                     >
                       <div className="flex items-start gap-3">
@@ -352,9 +352,9 @@ function TreinosPage() {
           <div className="pointer-events-none fixed inset-x-0 bottom-16 z-30 px-4 md:bottom-6 md:left-[72px]">
             <div className="pointer-events-auto mx-auto max-w-2xl">
               <Link
-                to="/meu-treino/treino/$id"
-                params={{ id: items[nextIdx].swId }}
-                search={items[nextIdx].sessionPosition != null ? { bloco: items[nextIdx].sessionPosition as number } : {}}
+                to="/meu-treino/treino/$slug/$id"
+                params={{ slug: slugify(items[nextIdx].name), id: items[nextIdx].swId }}
+                search={(() => { const d = blockIndexToLetter(items[nextIdx].sessionPosition as number | null); return d ? { dia: d } : {}; })()}
                 className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-primary px-6 text-sm font-bold text-primary-foreground shadow-lg shadow-primary/30 transition hover:brightness-110 active:scale-[0.98]"
               >
                 <Play className="h-4 w-4" fill="currentColor" />
