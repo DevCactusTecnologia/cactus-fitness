@@ -327,14 +327,28 @@ export function ExerciciosPage({ scope }: { scope: Scope }) {
         />
       )}
 
+      {editingEx && personalId && (
+        <NewExerciseWizard
+          groups={groups}
+          equipments={equipments}
+          personalId={personalId}
+          initial={editingEx}
+          onClose={() => setEditingEx(null)}
+          onCreated={async () => { setEditingEx(null); await loadData(); }}
+        />
+      )}
+
       {detailEx && (
         <ExerciseDetailModal
           ex={detailEx}
           groupName={groupById.get(detailEx.group_id)?.name ?? ""}
+          canEdit={detailEx.owner_id === personalId}
           onClose={() => setDetailEx(null)}
+          onEdit={() => { setEditingEx(detailEx); setDetailEx(null); }}
         />
       )}
     </div>
+
   );
 }
 
