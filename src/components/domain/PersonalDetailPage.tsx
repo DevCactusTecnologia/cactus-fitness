@@ -130,8 +130,57 @@ export function PersonalDetailPage({ scope }: { scope: Scope }) {
   const [passOpen, setPassOpen] = useState(false);
   const [toggleOpen, setToggleOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [alunoQuery, setAlunoQuery] = useState("");
 
   const alunosBase = scope === "academia" ? "/dashboard/academia/alunos" : "/dashboard/personal/alunos";
+
+  const orgId = p?.organization_id;
+  const {
+    data: alunosData,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading: alunosLoading,
+  } = useInfiniteQuery({
+    queryKey: ["personal-alunos", personalId, orgId, alunoQuery.trim().toLowerCase()],
+    enabled: !!orgId,
+    initialPageParam: 0,
+    queryFn: async ({ pageParam }): Promise<AlunoLite[]> => {
+      const from = (pageParam as number) * ALUNOS_PAGE_SIZE;
+      const to = from + ALUNOS_PAGE_SIZE - 1;
+      let query = supabase
+        .from("alunos")
+        .select("id, full_name, is_active, created_at")
+        .eq("organization_id", orgId!)
+        .eq("personal_id", personalId);
+      const term = alunoQuery.trim();
+      if (term) query = query.ilike("full_name", `%${term}%`);
+      const { data, error } = await query
+        .order("created_at", { ascending: false })
+        .order("id", { ascending: false })
+        .range(from, to);
+      if (error) throw error;
+      return (data ?? []) as AlunoLite[];
+    },
+    getNextPageParam: (last, all) => (last.length < ALUNOS_PAGE_SIZE ? undefined : all.length),
+  });
+
+  const alunos = useMemo<AlunoLite[]>(() => (alunosData?.pages ?? []).flat(), [alunosData]);
+
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting && hasNextPage && !isFetchingNextPage) fetchNextPage();
+      },
+      { rootMargin: "300px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
 
   if (isLoading || !p) {
     return (
