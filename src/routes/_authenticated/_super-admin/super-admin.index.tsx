@@ -1451,8 +1451,77 @@ function UsersTab() {
 
 /* ------------------------ PLANOS ------------------------ */
 
+const PLAN_PRICING_LOCAL: Record<string, number> = { free: 0, starter: 49, pro: 149, enterprise: 399 };
+
+const PLAN_META: Record<string, {
+  tagline: string;
+  gradient: string;
+  border: string;
+  text: string;
+  chip: string;
+  icon: React.ReactNode;
+  features: string[];
+  defaultLimit: number | null;
+}> = {
+  free: {
+    tagline: "Onboarding e testes",
+    gradient: "from-muted-foreground/15 to-transparent",
+    border: "border-border",
+    text: "text-muted-foreground",
+    chip: "bg-muted text-muted-foreground",
+    icon: <Sparkles className="h-4 w-4" />,
+    features: ["Até 10 alunos", "1 profissional", "Suporte por email"],
+    defaultLimit: 10,
+  },
+  starter: {
+    tagline: "Personais e microacademias",
+    gradient: "from-sky-500/20 to-transparent",
+    border: "border-sky-500/30",
+    text: "text-sky-500",
+    chip: "bg-sky-500/15 text-sky-500",
+    icon: <Zap className="h-4 w-4" />,
+    features: ["Até 50 alunos", "3 profissionais", "Financeiro básico"],
+    defaultLimit: 50,
+  },
+  pro: {
+    tagline: "Academias em crescimento",
+    gradient: "from-primary/25 to-transparent",
+    border: "border-primary/40",
+    text: "text-primary",
+    chip: "bg-primary/15 text-primary",
+    icon: <Crown className="h-4 w-4" />,
+    features: ["Até 250 alunos", "Equipe ilimitada", "Avaliações + IA"],
+    defaultLimit: 250,
+  },
+  enterprise: {
+    tagline: "Redes e franquias",
+    gradient: "from-amber-500/25 to-transparent",
+    border: "border-amber-500/40",
+    text: "text-amber-500",
+    chip: "bg-amber-500/15 text-amber-500",
+    icon: <Shield className="h-4 w-4" />,
+    features: ["Alunos ilimitados", "SLA dedicado", "Onboarding assistido"],
+    defaultLimit: null,
+  },
+};
+
+type PlanBuckets = Record<string, {
+  orgs: any[];
+  active: number;
+  trialing: number;
+  pastDue: number;
+  suspended: number;
+  totalAlunos: number;
+  alunosAtivos: number;
+  nearLimit: number;
+  revenue: number;
+}>;
+
 function PlansTab() {
   const qc = useQueryClient();
+  const [selectedPlan, setSelectedPlan] = useState<string>("pro");
+  const [q, setQ] = useState("");
+
   const { data, isLoading } = useQuery({
     queryKey: ["super-admin", "orgs"],
     queryFn: () => listAllOrganizations(),
@@ -1461,65 +1530,315 @@ function PlansTab() {
   const updateMut = useMutation({
     mutationFn: (v: any) => updateOrganization({ data: v }),
     onSuccess: () => {
-      toast.success("Limite atualizado.");
+      toast.success("Academia atualizada.");
       qc.invalidateQueries({ queryKey: ["super-admin"] });
     },
     onError: (e: any) => toast.error(e.message),
   });
 
-  if (isLoading) return <Spinner />;
   const list = data ?? [];
 
-  const grouped: Record<string, any[]> = {};
-  list.forEach((o: any) => {
-    (grouped[o.plan] ??= []).push(o);
-  });
+  const buckets: PlanBuckets = useMemo(() => {
+    const b: PlanBuckets = {};
+    Object.keys(PLAN_LABEL).forEach((p) => {
+      b[p] = { orgs: [], active: 0, trialing: 0, pastDue: 0, suspended: 0, totalAlunos: 0, alunosAtivos: 0, nearLimit: 0, revenue: 0 };
+    });
+    list.forEach((o: any) => {
+      const bucket = b[o.plan] ?? b.free;
+      bucket.orgs.push(o);
+      bucket.totalAlunos += o.aluno_count ?? 0;
+      bucket.alunosAtivos += o.aluno_ativos ?? 0;
+      if (o.suspended_at) bucket.suspended++;
+      else if (o.subscription_status === "active") { bucket.active++; bucket.revenue += PLAN_PRICING_LOCAL[o.plan] ?? 0; }
+      else if (o.subscription_status === "trialing") { bucket.trialing++; bucket.revenue += PLAN_PRICING_LOCAL[o.plan] ?? 0; }
+      else if (o.subscription_status === "past_due") bucket.pastDue++;
+      if (!o.suspended_at && o.max_alunos && (o.aluno_ativos / o.max_alunos) >= 0.85) bucket.nearLimit++;
+    });
+    return b;
+  }, [list]);
+
+  const totalMRR = useMemo(() => Object.values(buckets).reduce((s, b) => s + b.revenue, 0), [buckets]);
+  const totalPaying = useMemo(() => Object.values(buckets).reduce((s, b) => s + b.active + b.trialing, 0), [buckets]);
+  const totalOrgs = list.length;
+
+  const selectedBucket = buckets[selectedPlan] ?? { orgs: [] as any[], revenue: 0, active: 0, trialing: 0, pastDue: 0, suspended: 0, totalAlunos: 0, alunosAtivos: 0, nearLimit: 0 };
+  const selectedMeta = PLAN_META[selectedPlan];
+  const selectedRows = useMemo(() => {
+    if (!q.trim()) return selectedBucket.orgs;
+    const s = q.trim().toLowerCase();
+    return selectedBucket.orgs.filter((o: any) =>
+      o.name?.toLowerCase().includes(s) || o.slug?.toLowerCase().includes(s) || o.owner_name?.toLowerCase().includes(s),
+    );
+  }, [selectedBucket, q]);
+
+  if (isLoading) return <Spinner />;
 
   return (
-    <div className="space-y-6">
-      {Object.entries(PLAN_LABEL).map(([planId, label]) => {
-        const rows = grouped[planId] ?? [];
-        return (
-          <section key={planId} className="rounded-2xl border border-border bg-card p-5">
-            <div className="flex items-center justify-between">
+    <div className="space-y-5">
+      {/* Hero de receita */}
+      <div className="grid gap-4 lg:grid-cols-3">
+        <div className="relative overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-primary/15 via-card to-card p-6 lg:col-span-2">
+          <div className="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-primary/20 blur-3xl" />
+          <div className="relative">
+            <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-primary/80">
+              <CreditCard className="h-3.5 w-3.5" /> Assinaturas & receita
+            </div>
+            <div className="mt-2 flex flex-wrap items-end gap-6">
               <div>
-                <h2 className="font-display text-base font-bold">Plano {label}</h2>
-                <div className="text-xs text-muted-foreground">{rows.length} academia(s)</div>
+                <div className="font-display text-5xl font-bold tracking-tight">{formatBRL(totalMRR)}</div>
+                <div className="text-xs text-muted-foreground">MRR estimado · {formatBRL(totalMRR * 12)} ARR</div>
+              </div>
+              <div>
+                <div className="font-display text-2xl font-bold">{totalPaying}<span className="text-muted-foreground">/{totalOrgs}</span></div>
+                <div className="text-xs text-muted-foreground">academias pagantes</div>
               </div>
             </div>
-            {rows.length > 0 && (
-              <ul className="mt-3 divide-y divide-border/60">
-                {rows.map((o) => (
-                  <li key={o.id} className="flex flex-wrap items-center gap-3 py-2">
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-semibold">{o.name}</div>
-                      <div className="truncate text-[11px] text-muted-foreground">
-                        {o.aluno_ativos}/{o.aluno_count} alunos ativos · {STATUS_LABEL[o.subscription_status] ?? o.subscription_status}
-                      </div>
-                    </div>
-                    <label className="flex items-center gap-2 text-xs text-muted-foreground">
-                      Limite alunos:
-                      <input
-                        type="number"
-                        min={0}
-                        defaultValue={o.max_alunos ?? ""}
-                        placeholder="∞"
-                        onBlur={(e) => {
-                          const raw = e.currentTarget.value.trim();
-                          const val = raw === "" ? null : Math.max(0, parseInt(raw, 10) || 0);
-                          if (val === o.max_alunos) return;
-                          updateMut.mutate({ orgId: o.id, max_alunos: val });
-                        }}
-                        className="w-20 rounded-md border border-border bg-background px-2 py-1 text-sm"
-                      />
-                    </label>
-                  </li>
+
+            {/* Barra de distribuição por plano */}
+            <div className="mt-6">
+              <div className="flex h-3 overflow-hidden rounded-full bg-muted">
+                {(["enterprise", "pro", "starter", "free"] as const).map((id) => {
+                  const c = buckets[id]?.orgs.length ?? 0;
+                  if (!c || totalOrgs === 0) return null;
+                  return <div key={id} className={PLAN_COLORS[id]} style={{ width: `${(c / totalOrgs) * 100}%` }} title={`${PLAN_LABEL[id]}: ${c}`} />;
+                })}
+              </div>
+              <div className="mt-2 flex flex-wrap gap-3 text-[11px]">
+                {(["enterprise", "pro", "starter", "free"] as const).map((id) => (
+                  <span key={id} className="inline-flex items-center gap-1.5 text-muted-foreground">
+                    <span className={`h-2 w-2 rounded-full ${PLAN_COLORS[id]}`} /> {PLAN_LABEL[id]} · {buckets[id]?.orgs.length ?? 0}
+                  </span>
                 ))}
-              </ul>
-            )}
-          </section>
-        );
-      })}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="rounded-3xl border border-border bg-card p-5">
+          <div className="flex items-center gap-2">
+            <span className="grid h-8 w-8 place-items-center rounded-lg bg-primary/15 text-primary">
+              <Target className="h-4 w-4" />
+            </span>
+            <div>
+              <div className="font-display text-sm font-bold">Oportunidades de upsell</div>
+              <div className="text-[11px] text-muted-foreground">Academias no limite ou em plano free</div>
+            </div>
+          </div>
+          <ul className="mt-4 space-y-2">
+            {(["free", "starter", "pro"] as const).map((p) => {
+              const nl = buckets[p]?.nearLimit ?? 0;
+              const meta = PLAN_META[p];
+              return (
+                <li key={p} className="flex items-center justify-between rounded-xl border border-border/60 bg-background/40 px-3 py-2">
+                  <div className="flex items-center gap-2">
+                    <span className={`grid h-6 w-6 place-items-center rounded-md ${meta.chip}`}>{meta.icon}</span>
+                    <div>
+                      <div className="text-xs font-semibold">{PLAN_LABEL[p]}</div>
+                      <div className="text-[10px] text-muted-foreground">no limite (≥85%)</div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className={`font-display text-lg font-bold ${nl > 0 ? "text-amber-500" : "text-muted-foreground"}`}>{nl}</div>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      </div>
+
+      {/* Cards de plano (comparativo) */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        {(Object.keys(PLAN_LABEL) as (keyof typeof PLAN_LABEL)[]).map((planId) => {
+          const meta = PLAN_META[planId];
+          const b = buckets[planId];
+          const price = PLAN_PRICING_LOCAL[planId] ?? 0;
+          const share = totalOrgs > 0 ? Math.round((b.orgs.length / totalOrgs) * 100) : 0;
+          const isSelected = selectedPlan === planId;
+          return (
+            <button
+              key={planId}
+              onClick={() => setSelectedPlan(planId)}
+              className={`group relative overflow-hidden rounded-2xl border bg-card p-5 text-left transition hover:shadow-lg ${
+                isSelected ? `${meta.border} shadow-lg ring-1 ring-current ${meta.text}` : "border-border hover:border-foreground/30"
+              }`}
+            >
+              <div className={`absolute inset-x-0 top-0 h-24 bg-gradient-to-b ${meta.gradient} opacity-80`} />
+              <div className="relative">
+                <div className="flex items-center justify-between">
+                  <span className={`inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-widest ${meta.chip}`}>
+                    {meta.icon} {PLAN_LABEL[planId]}
+                  </span>
+                  {isSelected && <span className={`text-[10px] font-bold ${meta.text}`}>SELECIONADO</span>}
+                </div>
+                <div className="mt-2 text-[11px] text-muted-foreground">{meta.tagline}</div>
+                <div className="mt-3 flex items-baseline gap-1">
+                  <span className="font-display text-3xl font-bold tracking-tight">
+                    {price === 0 ? "Grátis" : formatBRL(price)}
+                  </span>
+                  {price > 0 && <span className="text-[11px] text-muted-foreground">/mês</span>}
+                </div>
+
+                <div className="mt-4 grid grid-cols-2 gap-2 text-center">
+                  <div className="rounded-lg bg-background/60 py-2">
+                    <div className="font-display text-lg font-bold">{b.orgs.length}</div>
+                    <div className="text-[9px] font-semibold uppercase tracking-widest text-muted-foreground">Academias</div>
+                  </div>
+                  <div className="rounded-lg bg-background/60 py-2">
+                    <div className={`font-display text-lg font-bold ${meta.text}`}>{formatBRL(b.revenue)}</div>
+                    <div className="text-[9px] font-semibold uppercase tracking-widest text-muted-foreground">MRR</div>
+                  </div>
+                </div>
+
+                <div className="mt-3">
+                  <div className="flex items-center justify-between text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                    <span>Fatia</span><span>{share}%</span>
+                  </div>
+                  <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted">
+                    <div className={`h-full ${PLAN_COLORS[planId]}`} style={{ width: `${share}%` }} />
+                  </div>
+                </div>
+
+                <ul className="mt-4 space-y-1.5">
+                  {meta.features.map((f) => (
+                    <li key={f} className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                      <CheckCircle2 className={`h-3 w-3 shrink-0 ${meta.text}`} /> {f}
+                    </li>
+                  ))}
+                </ul>
+
+                <div className="mt-3 flex items-center gap-2 text-[10px]">
+                  {b.active > 0 && <span className="rounded-full bg-emerald-500/10 px-1.5 py-0.5 font-bold text-emerald-500">{b.active} ativas</span>}
+                  {b.trialing > 0 && <span className="rounded-full bg-sky-500/10 px-1.5 py-0.5 font-bold text-sky-500">{b.trialing} trial</span>}
+                  {b.pastDue > 0 && <span className="rounded-full bg-rose-500/10 px-1.5 py-0.5 font-bold text-rose-500">{b.pastDue} vencidas</span>}
+                </div>
+              </div>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Detalhe do plano selecionado */}
+      <div className="overflow-hidden rounded-2xl border border-border bg-card">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border bg-muted/30 px-5 py-4">
+          <div className="flex items-center gap-3">
+            <span className={`grid h-10 w-10 place-items-center rounded-xl ${selectedMeta.chip}`}>
+              {selectedMeta.icon}
+            </span>
+            <div>
+              <h2 className="font-display text-base font-bold">
+                Academias no plano {PLAN_LABEL[selectedPlan]}
+              </h2>
+              <div className="text-[11px] text-muted-foreground">
+                {selectedBucket.orgs.length} academia(s) · {selectedBucket.alunosAtivos}/{selectedBucket.totalAlunos} alunos ativos · {formatBRL(selectedBucket.revenue)} MRR
+              </div>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="relative min-w-[220px]">
+              <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+              <input
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder="Buscar academia…"
+                className="w-full rounded-lg border border-border bg-background py-2 pl-9 pr-3 text-sm"
+              />
+            </div>
+          </div>
+        </div>
+
+        {selectedRows.length === 0 ? (
+          <div className="py-14 text-center">
+            <Building2 className="mx-auto h-8 w-8 text-muted-foreground/50" />
+            <div className="mt-2 text-sm font-semibold">Nenhuma academia neste plano</div>
+            <div className="text-xs text-muted-foreground">Assim que uma academia migrar para {PLAN_LABEL[selectedPlan]}, ela aparecerá aqui.</div>
+          </div>
+        ) : (
+          <ul>
+            {selectedRows.map((o: any) => {
+              const suspended = !!o.suspended_at;
+              const status = suspended ? "canceled" : (o.subscription_status ?? "active");
+              const badge = STATUS_BADGE[status] ?? STATUS_BADGE.canceled;
+              const occ = o.max_alunos ? Math.min(100, Math.round((o.aluno_ativos / o.max_alunos) * 100)) : null;
+              const occColor = occ == null ? "bg-muted-foreground/40" : occ >= 90 ? "bg-rose-500" : occ >= 75 ? "bg-amber-500" : "bg-emerald-500";
+              return (
+                <li key={o.id} className="flex flex-wrap items-center gap-4 border-b border-border/60 px-5 py-3 hover:bg-accent/30">
+                  <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-primary/25 to-primary/5 font-display text-xs font-bold text-primary">
+                    {orgInitials(o.name)}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="truncate text-sm font-semibold">{o.name}</span>
+                      <span className={`inline-flex items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-bold ${badge.className}`}>
+                        {badge.icon} {badge.label}
+                      </span>
+                    </div>
+                    <div className="text-[11px] text-muted-foreground">
+                      {o.owner_name ?? "—"} · desde {new Date(o.created_at).toLocaleDateString("pt-BR")}
+                    </div>
+                  </div>
+
+                  <div className="min-w-[180px]">
+                    <div className="flex items-center justify-between text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                      <span>Ocupação</span>
+                      <span className={occ == null ? "" : occ >= 90 ? "text-rose-500" : occ >= 75 ? "text-amber-500" : "text-muted-foreground"}>
+                        {o.aluno_ativos}/{o.max_alunos ?? "∞"} {occ != null && `· ${occ}%`}
+                      </span>
+                    </div>
+                    <div className="mt-1 h-1.5 overflow-hidden rounded-full bg-muted">
+                      <div className={`h-full ${occColor}`} style={{ width: `${occ ?? 0}%` }} />
+                    </div>
+                  </div>
+
+                  <label className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                    <span className="uppercase tracking-widest">Limite</span>
+                    <input
+                      type="number"
+                      min={0}
+                      defaultValue={o.max_alunos ?? ""}
+                      placeholder="∞"
+                      onBlur={(e) => {
+                        const raw = e.currentTarget.value.trim();
+                        const val = raw === "" ? null : Math.max(0, parseInt(raw, 10) || 0);
+                        if (val === o.max_alunos) return;
+                        updateMut.mutate({ orgId: o.id, max_alunos: val });
+                      }}
+                      className="w-20 rounded-md border border-border bg-background px-2 py-1 text-sm"
+                    />
+                  </label>
+
+                  <select
+                    value={o.plan}
+                    onChange={(e) => updateMut.mutate({ orgId: o.id, plan: e.target.value as any })}
+                    className="rounded-md border border-border bg-background px-2 py-1 text-xs font-semibold"
+                    title="Mudar plano"
+                  >
+                    {Object.entries(PLAN_LABEL).map(([id, l]) => (
+                      <option key={id} value={id}>Mover → {l}</option>
+                    ))}
+                  </select>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+
+        {selectedMeta.defaultLimit !== null && selectedBucket.orgs.some((o: any) => o.max_alunos == null) && (
+          <div className="flex items-center justify-between gap-3 border-t border-border bg-muted/20 px-5 py-3 text-[11px] text-muted-foreground">
+            <span>Algumas academias estão sem limite definido. Aplicar padrão do plano ({selectedMeta.defaultLimit} alunos)?</span>
+            <button
+              onClick={() => {
+                selectedBucket.orgs.forEach((o: any) => {
+                  if (o.max_alunos == null) updateMut.mutate({ orgId: o.id, max_alunos: selectedMeta.defaultLimit });
+                });
+              }}
+              className="rounded-md border border-border bg-background px-2.5 py-1 font-semibold hover:bg-accent"
+            >
+              Aplicar padrão
+            </button>
+          </div>
+        )}
+      </div>
     </div>
   );
 }
