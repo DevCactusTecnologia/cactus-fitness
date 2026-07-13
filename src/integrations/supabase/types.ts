@@ -45,6 +45,7 @@ export type Database = {
           gender: string | null
           id: string
           is_active: boolean
+          nickname: string | null
           notes: string | null
           objective: string | null
           organization_id: string
@@ -61,6 +62,7 @@ export type Database = {
           gender?: string | null
           id?: string
           is_active?: boolean
+          nickname?: string | null
           notes?: string | null
           objective?: string | null
           organization_id?: string
@@ -77,6 +79,7 @@ export type Database = {
           gender?: string | null
           id?: string
           is_active?: boolean
+          nickname?: string | null
           notes?: string | null
           objective?: string | null
           organization_id?: string
