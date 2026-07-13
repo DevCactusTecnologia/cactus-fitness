@@ -729,8 +729,9 @@ function NewExerciseWizard({
           {/* Grupo muscular */}
           <Field label="Grupo muscular *">
             <select
-              value={data.group_id}
-              onChange={(e) => setData({ ...data, group_id: e.target.value })}
+              value={data.group_id ?? ""}
+              onChange={(e) => setData({ ...data, group_id: e.target.value ? Number(e.target.value) : null })}
+
               className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2.5 text-sm focus:outline-none focus:border-primary transition"
             >
               <option value="">Selecione um grupo muscular</option>
