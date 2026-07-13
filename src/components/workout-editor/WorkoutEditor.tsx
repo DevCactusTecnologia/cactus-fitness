@@ -358,6 +358,7 @@ export function WorkoutEditor({
   }), [initialKind]);
 
   const [state, rawDispatch] = useReducer(reducer, initial);
+  const [kind, setKind] = useState<EditorKind>(initialKind);
   const [activeTarget, setActiveTarget] = useState<{ sessionId: string; blockId: string } | null>(null);
   const [saving, setSaving] = useState(false);
   const [mobilePanelOpen, setMobilePanelOpen] = useState(false);
@@ -371,6 +372,8 @@ export function WorkoutEditor({
 
   const dispatch = useMemo<React.Dispatch<Action>>(() => (action) => {
     if (!suppressDirtyRef.current) setTouched(true);
+    // Auto-promote template → plan when the user adds a second session.
+    if (action.type === "ADD_SESSION") setKind("plan");
     rawDispatch(action);
   }, []);
 
