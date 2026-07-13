@@ -198,8 +198,13 @@ function reducer(state: State, action: Action): State {
     case "REPLACE_SESSIONS":
       return { ...state, sessions: action.sessions };
 
-    case "ADD_SESSION":
-      return { ...state, sessions: [...state.sessions, emptySession(state.sessions.length)] };
+    case "ADD_SESSION": {
+      // Promote from template to plan: rename the placeholder single session so it renders correctly.
+      const sessions = state.sessions.map((s, i) =>
+        i === 0 && s.label === "__single__" ? { ...s, label: "Treino A" } : s,
+      );
+      return { ...state, sessions: [...sessions, emptySession(sessions.length)] };
+    }
     case "REMOVE_SESSION":
       return { ...state, sessions: state.sessions.filter(s => s.id !== action.sessionId) };
     case "MOVE_SESSION": {
