@@ -408,6 +408,47 @@ export function AlunosPage({ scope }: { scope: Scope }) {
                 </div>
               </div>
 
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-1.5">
+                  <Label htmlFor="nickname" className="text-xs font-medium text-muted-foreground">
+                    Apelido <span className="text-muted-foreground/70">(opcional)</span>
+                  </Label>
+                  <div className="relative">
+                    <Sparkles className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      id="nickname"
+                      value={form.nickname}
+                      onChange={(e) =>
+                        setForm((f) => ({ ...f, nickname: e.target.value }))
+                      }
+                      placeholder="Como você chama"
+                      className="pl-9"
+                      maxLength={40}
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <Label htmlFor="birth_date" className="text-xs font-medium text-muted-foreground">
+                    Nascimento <span className="text-muted-foreground/70">(opcional)</span>
+                  </Label>
+                  <div className="relative">
+                    <Cake className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                    <Input
+                      id="birth_date"
+                      type="date"
+                      value={form.birth_date}
+                      onChange={(e) =>
+                        setForm((f) => ({ ...f, birth_date: e.target.value }))
+                      }
+                      max={new Date().toISOString().slice(0, 10)}
+                      className="pl-9"
+                    />
+                  </div>
+                </div>
+              </div>
+
+
               <div className="space-y-1.5">
                 <Label htmlFor="phone" className="text-xs font-medium text-muted-foreground">
                   Telefone <span className="text-muted-foreground/70">(opcional)</span>
