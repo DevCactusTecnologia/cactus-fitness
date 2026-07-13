@@ -3,6 +3,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { ArrowLeft, X, Play, Clock, Dumbbell } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { slugify, blockIndexToLetter, letterToBlockIndex } from "@/lib/slug";
 
 export const Route = createFileRoute("/_authenticated/meu-treino_/preview/$slug/$id")({
   beforeLoad: ({ location }) => requireAlunoRole(location),
@@ -13,11 +14,9 @@ export const Route = createFileRoute("/_authenticated/meu-treino_/preview/$slug/
     ],
   }),
   validateSearch: (search: Record<string, unknown>) => ({
-    bloco: typeof search.bloco === "number"
-      ? search.bloco
-      : typeof search.bloco === "string" && search.bloco !== "" && !isNaN(Number(search.bloco))
-        ? Number(search.bloco)
-        : undefined,
+    dia: typeof search.dia === "string" && /^[a-z]$/i.test(search.dia)
+      ? search.dia.toLowerCase()
+      : undefined,
   }),
   component: PreviewPage,
 });
