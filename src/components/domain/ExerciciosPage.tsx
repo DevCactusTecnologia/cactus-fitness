@@ -565,40 +565,21 @@ function Section({ icon: Icon, title, children }: { icon: React.ElementType; tit
   );
 }
 
-/* ---------- Novo Exercício — tela única ---------- */
+/* ---------- Novo Exercício — enxuto ---------- */
 
 type FormData = {
   name: string;
   description: string;
-  instructions: string;
   group_id: number | null;
-  category: string;
-  difficulty: string;
-  objective: string;
-  equipment: string[];
-  muscles_primary: string[];
-  muscles_secondary: string[];
   video_url: string;
   image_path: string;
   video_path: string;
 };
 
-const DIFFICULTIES = ["Iniciante", "Intermediário", "Avançado"];
-const CATEGORIES = [
-  "Musculação", "Aeróbico", "Funcional", "Alongamento",
-  "Em casa", "Mobilidade", "Elástico", "MAT Pilates", "Laboral",
-];
-const MUSCLE_OPTIONS = [
-  "Peitoral maior", "Peitoral menor", "Deltoide anterior", "Deltoide medial", "Deltoide posterior",
-  "Bíceps", "Tríceps", "Antebraço", "Trapézio", "Grande dorsal", "Romboides", "Lombar",
-  "Abdominal", "Oblíquos", "Glúteo máximo", "Glúteo médio", "Quadríceps", "Isquiotibiais",
-  "Adutores", "Abdutores", "Panturrilha", "Tibial anterior",
-];
-
 function NewExerciseWizard({
-  groups, equipments, personalId, initial, mode = "new", onClose, onCreated,
+  groups, personalId, initial, mode = "new", onClose, onCreated,
 }: {
-  groups: Group[]; equipments: Equipment[]; personalId: string;
+  groups: Group[]; personalId: string;
   initial?: Exercise | null;
   mode?: "new" | "edit" | "personalize";
   onClose: () => void; onCreated: () => void;
@@ -610,14 +591,7 @@ function NewExerciseWizard({
   const [data, setData] = useState<FormData>(() => ({
     name: initial?.name ? (isPersonalize ? `${initial.name} (personalizado)` : initial.name) : "",
     description: [initial?.description, initial?.instructions].filter(Boolean).join("\n\n"),
-    instructions: "",
     group_id: initial?.group_id ?? null,
-    category: initial?.category ?? "",
-    difficulty: initial?.difficulty ?? "",
-    objective: initial?.objective ?? "",
-    equipment: initial?.equipment ? initial.equipment.split(",").map((s) => s.trim()).filter(Boolean) : [],
-    muscles_primary: initial?.muscles_primary ?? [],
-    muscles_secondary: initial?.muscles_secondary ?? [],
     video_url: initial?.video_url ?? "",
     image_path: isPersonalize ? "" : (initial?.image_path ?? ""),
     video_path: isPersonalize ? "" : (initial?.video_path ?? ""),
@@ -631,7 +605,7 @@ function NewExerciseWizard({
   const [uploading, setUploading] = useState<null | "photo" | "video">(null);
   const [imagePreview, setImagePreview] = useState<string>("");
   const [videoPreview, setVideoPreview] = useState<string>("");
-  const [step, setStep] = useState<1 | 2 | 3>(1);
+  const [step, setStep] = useState<1 | 2>(1);
 
   // Load existing media previews on edit
   useEffect(() => {
@@ -649,7 +623,6 @@ function NewExerciseWizard({
     })();
     return () => { cancelled = true; };
   }, [initial?.image_path, initial?.video_path, isPersonalize]);
-
 
   const uploadFile = async (file: File, kind: "photo" | "video") => {
     setUploading(kind); setError(null);
@@ -685,14 +658,14 @@ function NewExerciseWizard({
     const payload: any = {
       name,
       description: data.description.trim() || null,
-      instructions: data.instructions.trim() || null,
+      instructions: null,
       group_id: data.group_id,
-      category: data.category || null,
-      difficulty: data.difficulty || null,
-      objective: data.objective || null,
-      equipment: data.equipment.length ? data.equipment.join(", ") : null,
-      muscles_primary: data.muscles_primary,
-      muscles_secondary: data.muscles_secondary,
+      category: null,
+      difficulty: null,
+      objective: null,
+      equipment: null,
+      muscles_primary: [],
+      muscles_secondary: [],
       video_url: data.video_url.trim() || null,
       image_path: data.image_path || null,
       video_path: data.video_path || null,
@@ -713,13 +686,9 @@ function NewExerciseWizard({
     onCreated();
   };
 
-  const toggle = (arr: string[], m: string) =>
-    arr.includes(m) ? arr.filter((x) => x !== m) : [...arr, m];
-
   const STEPS = [
     { n: 1, label: "Básico" },
     { n: 2, label: "Mídia" },
-    { n: 3, label: "Detalhes" },
   ] as const;
 
   return (
@@ -732,7 +701,7 @@ function NewExerciseWizard({
         <div className="px-5 md:px-6 py-4 border-b border-border flex items-start justify-between gap-3">
           <div className="min-w-0">
             <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
-              {isEdit ? "Editar exercício" : isPersonalize ? "Personalizar exercício" : "Novo exercício"} · Etapa {step} de 3
+              {isEdit ? "Editar exercício" : isPersonalize ? "Personalizar exercício" : "Novo exercício"} · Etapa {step} de 2
             </p>
             <h2 className="text-xl md:text-2xl font-bold font-display leading-tight">
               {STEPS[step - 1].label}
@@ -753,7 +722,7 @@ function NewExerciseWizard({
                 <div key={s.n} className="flex items-center gap-2 flex-1">
                   <button
                     type="button"
-                    onClick={() => { if (s.n < step || (s.n === 2 && step1Valid) || (s.n === 3 && step1Valid)) setStep(s.n); }}
+                    onClick={() => { if (s.n < step || (s.n === 2 && step1Valid)) setStep(s.n); }}
                     className={`h-1.5 flex-1 rounded-full transition ${
                       active ? "bg-primary" : done ? "bg-primary/60" : "bg-muted"
                     }`}
@@ -799,57 +768,30 @@ function NewExerciseWizard({
                 />
               </Field>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Field label="Grupo muscular *">
-                  <Select
-                    value={data.group_id != null ? String(data.group_id) : ""}
-                    onValueChange={(v) => setData({ ...data, group_id: v ? Number(v) : null })}
-                  >
-                    <SelectTrigger className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2.5 text-sm h-auto focus:border-primary transition">
-                      <SelectValue placeholder="Selecione" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {groups.filter(isMuscleGroup).map((g) => (
-                        <SelectItem key={g.id} value={String(g.id)}>{g.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </Field>
+              <Field label="Grupo muscular *">
+                <Select
+                  value={data.group_id != null ? String(data.group_id) : ""}
+                  onValueChange={(v) => setData({ ...data, group_id: v ? Number(v) : null })}
+                >
+                  <SelectTrigger className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2.5 text-sm h-auto focus:border-primary transition">
+                    <SelectValue placeholder="Selecione" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {groups.filter(isMuscleGroup).map((g) => (
+                      <SelectItem key={g.id} value={String(g.id)}>{g.name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </Field>
 
-                <Field label="Categoria" hint="(modalidade)">
-                  <Select
-                    value={data.category || undefined}
-                    onValueChange={(v) => setData({ ...data, category: v })}
-                  >
-                    <SelectTrigger className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2.5 text-sm h-auto focus:border-primary transition">
-                      <SelectValue placeholder="Selecione" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {CATEGORIES.map((c) => (
-                        <SelectItem key={c} value={c}>{c}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </Field>
-              </div>
-
-              <Field label="Dificuldade">
-                <div className="flex flex-wrap gap-2">
-                  {DIFFICULTIES.map((d) => (
-                    <button
-                      key={d}
-                      type="button"
-                      onClick={() => setData({ ...data, difficulty: data.difficulty === d ? "" : d })}
-                      className={`rounded-full border px-3 py-1.5 text-xs font-medium transition ${
-                        data.difficulty === d
-                          ? "border-primary bg-primary/15 text-primary"
-                          : "border-border bg-muted/30 text-muted-foreground hover:text-foreground"
-                      }`}
-                    >
-                      {d}
-                    </button>
-                  ))}
-                </div>
+              <Field label="Descrição e execução" hint="Opcional. Explique o exercício e como executá-lo.">
+                <textarea
+                  value={data.description}
+                  onChange={(e) => setData({ ...data, description: e.target.value })}
+                  placeholder={"Ex.: Exercício para peitoral.\n1. Deite no banco...\n2. Desça a barra..."}
+                  rows={6}
+                  className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2 text-sm focus:outline-none focus:border-primary transition resize-none"
+                />
               </Field>
             </>
           )}
@@ -928,94 +870,6 @@ function NewExerciseWizard({
             </div>
           )}
 
-          {/* Etapa 3 — Detalhes (tudo opcional) */}
-          {step === 3 && (
-            <>
-              <p className="text-xs text-muted-foreground">Tudo opcional. Salve a qualquer momento.</p>
-
-              <Field label="Descrição e execução" hint="Explique o exercício e como executá-lo passo a passo.">
-                <textarea
-                  value={data.description}
-                  onChange={(e) => setData({ ...data, description: e.target.value, instructions: "" })}
-                  placeholder={"Ex.: Exercício para peitoral.\n1. Deite no banco...\n2. Desça a barra..."}
-                  rows={6}
-                  className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2 text-sm focus:outline-none focus:border-primary transition resize-none"
-                />
-              </Field>
-
-              <Field label="Objetivo">
-                <Select
-                  value={data.objective || undefined}
-                  onValueChange={(v) => setData({ ...data, objective: v })}
-                >
-                  <SelectTrigger className="w-full rounded-lg bg-muted/40 border border-border px-3 py-2.5 text-sm h-auto focus:border-primary transition">
-                    <SelectValue placeholder="Selecione" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {OBJECTIVES.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}
-                  </SelectContent>
-                </Select>
-              </Field>
-
-              <Field label="Músculos primários">
-                <div className="flex flex-wrap gap-1.5">
-                  {MUSCLE_OPTIONS.map((m) => (
-                    <button
-                      key={`p-${m}`} type="button"
-                      onClick={() => setData({ ...data, muscles_primary: toggle(data.muscles_primary, m) })}
-                      className={`rounded-full border px-2.5 py-1 text-[11px] font-medium transition ${
-                        data.muscles_primary.includes(m)
-                          ? "border-primary bg-primary/15 text-primary"
-                          : "border-border bg-muted/30 text-muted-foreground hover:text-foreground"
-                      }`}
-                    >{m}</button>
-                  ))}
-                </div>
-              </Field>
-
-              <Field label="Músculos secundários">
-                <div className="flex flex-wrap gap-1.5">
-                  {MUSCLE_OPTIONS.map((m) => (
-                    <button
-                      key={`s-${m}`} type="button"
-                      onClick={() => setData({ ...data, muscles_secondary: toggle(data.muscles_secondary, m) })}
-                      className={`rounded-full border px-2.5 py-1 text-[11px] font-medium transition ${
-                        data.muscles_secondary.includes(m)
-                          ? "border-primary bg-primary/15 text-primary"
-                          : "border-border bg-muted/30 text-muted-foreground hover:text-foreground"
-                      }`}
-                    >{m}</button>
-                  ))}
-                </div>
-              </Field>
-
-              <Field label="Equipamentos">
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-[220px] overflow-y-auto pr-1">
-                  {equipments.map((eq) => {
-                    const active = data.equipment.includes(eq.name);
-                    return (
-                      <button
-                        key={eq.id} type="button"
-                        onClick={() => setData({ ...data, equipment: toggle(data.equipment, eq.name) })}
-                        className={`flex items-center justify-between gap-2 px-3 py-2 rounded-lg border text-xs text-left transition-colors ${
-                          active
-                            ? "border-primary bg-primary/15 text-primary"
-                            : "border-border bg-muted/30 text-muted-foreground hover:bg-muted/50 hover:text-foreground"
-                        }`}
-                      >
-                        <span className="truncate">{eq.name}</span>
-                        {active && <Check className="h-3.5 w-3.5 shrink-0" />}
-                      </button>
-                    );
-                  })}
-                  {equipments.length === 0 && (
-                    <p className="col-span-full text-xs text-muted-foreground">Nenhum equipamento cadastrado.</p>
-                  )}
-                </div>
-              </Field>
-            </>
-          )}
-
           {error && (
             <div className="rounded-lg bg-destructive/10 border border-destructive/30 text-destructive px-3 py-2 text-xs">{error}</div>
           )}
@@ -1024,32 +878,21 @@ function NewExerciseWizard({
         {/* Footer */}
         <div className="px-5 md:px-6 py-4 border-t border-border flex items-center gap-3">
           <button
-            onClick={step === 1 ? onClose : () => setStep((s) => (s - 1) as 1 | 2 | 3)}
+            onClick={step === 1 ? onClose : () => setStep(1)}
             disabled={saving}
             className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted/40 px-4 py-2.5 text-sm font-semibold text-muted-foreground hover:text-foreground disabled:opacity-40 transition"
           >
             {step === 1 ? "Cancelar" : (<><ArrowLeft className="h-4 w-4" /> Voltar</>)}
           </button>
 
-          {step < 3 ? (
-            <>
-              {step === 2 && (
-                <button
-                  onClick={submit}
-                  disabled={!canSave}
-                  className="inline-flex items-center justify-center gap-1.5 rounded-full border border-border bg-muted/40 px-4 py-2.5 text-sm font-semibold text-foreground hover:bg-muted/70 disabled:opacity-40 transition"
-                >
-                  Salvar agora
-                </button>
-              )}
-              <button
-                onClick={() => setStep((s) => (s + 1) as 1 | 2 | 3)}
-                disabled={step === 1 && !step1Valid}
-                className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-full bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.35)] hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed transition"
-              >
-                Continuar <ArrowRight className="h-4 w-4" />
-              </button>
-            </>
+          {step === 1 ? (
+            <button
+              onClick={() => setStep(2)}
+              disabled={!step1Valid}
+              className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-full bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.35)] hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed transition"
+            >
+              Continuar <ArrowRight className="h-4 w-4" />
+            </button>
           ) : (
             <button
               onClick={submit}
@@ -1064,6 +907,7 @@ function NewExerciseWizard({
     </div>
   );
 }
+
 
 
 
