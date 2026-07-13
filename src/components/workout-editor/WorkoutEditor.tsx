@@ -1392,7 +1392,7 @@ export function WorkoutEditor({
               </button>
             </div>
           ) : (
-            <div className="mt-5 max-w-md">
+            <div className="mt-5 max-w-md space-y-3">
               <TemplateBlocksCard
                 sessionId={state.sessions[0].id}
                 blocks={state.sessions[0].blocks}
@@ -1403,6 +1403,13 @@ export function WorkoutEditor({
                 }}
                 activeBlockId={activeTarget?.blockId ?? null}
               />
+              <button
+                type="button"
+                onClick={() => dispatch({ type: "ADD_SESSION" })}
+                className="inline-flex h-11 w-full items-center justify-center gap-2 rounded-full border border-dashed border-border/70 px-4 text-sm font-medium text-muted-foreground hover:bg-muted"
+              >
+                <Plus className="h-4 w-4" /> Adicionar outra sessão (virar plano)
+              </button>
             </div>
           )}
             </div>
