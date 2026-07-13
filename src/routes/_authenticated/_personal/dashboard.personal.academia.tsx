@@ -1,10 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Building2, Trash2, Loader2, Check, Shield, Crown, Users, Dumbbell, ArrowRight } from "lucide-react";
+import { Building2, Trash2, Loader2, Check, Shield, Crown, Users, Dumbbell, ArrowRight, Sparkles, Power, PowerOff, Pencil } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
 import { IconRail } from "@/components/IconRail";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
+import { getMySoloStatus, activateSoloStudio, deactivateSoloStudio, renameSoloStudio } from "@/lib/personal-solo.functions";
+
 
 export const Route = createFileRoute("/_authenticated/_personal/dashboard/personal/academia")({
   beforeLoad: async () => {
