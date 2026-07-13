@@ -122,34 +122,26 @@ export function TreinosPage({ scope }: { scope: Scope }) {
                 Cactus<span className="italic font-normal">Fitness</span>
               </span>
             </div>
-            <NovoModeloMenu
-              paths={paths}
-              trigger={
-                <button className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.25)] hover:brightness-110">
-                  <Plus className="h-4 w-4" />
-                  Modelo
-                </button>
-              }
-            />
+            <Link
+              to={paths.novoTemplate}
+              className="inline-flex items-center gap-1.5 rounded-full bg-primary px-3 py-2 text-xs font-semibold text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.25)] hover:brightness-110"
+            >
+              <Plus className="h-4 w-4" />
+              Modelo
+            </Link>
           </div>
 
           {/* Desktop header */}
           <div className="hidden w-full flex-wrap items-center justify-between gap-3 md:flex">
             <h1 className="font-display text-2xl font-bold tracking-tight md:text-3xl">Modelos Prontos</h1>
             <div className="flex items-center gap-4">
-              <button className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground">
-                <FolderPlus className="h-4 w-4" />
-                Nova pasta
-              </button>
-              <NovoModeloMenu
-                paths={paths}
-                trigger={
-                  <button className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.25)] hover:brightness-110">
-                    <Plus className="h-4 w-4" />
-                    Modelo de Treino
-                  </button>
-                }
-              />
+              <Link
+                to={paths.novoTemplate}
+                className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.25)] hover:brightness-110"
+              >
+                <Plus className="h-4 w-4" />
+                Novo modelo
+              </Link>
             </div>
           </div>
         </div>
