@@ -138,7 +138,7 @@ export const listAllOrganizations = createServerFn({ method: "GET" })
 
     const { data: orgs, error } = await supabaseAdmin
       .from("organizations")
-      .select("id, name, slug, plan, subscription_status, max_alunos, suspended_at, created_at, created_by")
+      .select("id, name, slug, plan, subscription_status, max_alunos, suspended_at, created_at, created_by, type")
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
 
