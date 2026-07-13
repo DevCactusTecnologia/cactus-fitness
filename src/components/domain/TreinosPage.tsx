@@ -11,6 +11,7 @@ import logoUrl from "@/assets/cactus-logo.png";
 
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { IconRail } from "@/components/IconRail";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import type { Scope } from "@/lib/scope";
 
 type ScopePaths = {
@@ -267,20 +268,16 @@ function FilterSelect<T extends string>({
   options: { value: T; label: string }[];
 }) {
   return (
-    <div className="relative">
-      <select
-        value={value}
-        onChange={(e) => onChange(e.target.value as T)}
-        className="w-full appearance-none rounded-full border border-border bg-card px-4 py-2 pr-8 text-sm hover:bg-muted focus:outline-none focus:ring-2 focus:ring-primary"
-      >
+    <Select value={value} onValueChange={(v) => onChange(v as T)}>
+      <SelectTrigger className="w-full rounded-full border border-border bg-card px-4 py-2 text-sm hover:bg-muted focus:ring-2 focus:ring-primary h-auto">
+        <SelectValue />
+      </SelectTrigger>
+      <SelectContent>
         {options.map((o) => (
-          <option key={o.value} value={o.value} className="bg-card text-foreground">
-            {o.label}
-          </option>
+          <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
         ))}
-      </select>
-      <ChevronDown className="pointer-events-none absolute right-2 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-    </div>
+      </SelectContent>
+    </Select>
   );
 }
 
