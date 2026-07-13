@@ -506,13 +506,11 @@ function ExerciseDetailModal({
             <InfoTile label="Status" value={ex.is_active ? "Ativo" : "Inativo"} />
           </div>
 
-          {ex.description && (
-            <Section icon={Info} title="Descrição"><p className="text-sm text-muted-foreground whitespace-pre-wrap">{ex.description}</p></Section>
-          )}
-
-          {ex.instructions && (
-            <Section icon={ListChecks} title="Instruções de execução">
-              <p className="text-sm text-muted-foreground whitespace-pre-wrap">{ex.instructions}</p>
+          {(ex.description || ex.instructions) && (
+            <Section icon={Info} title="Descrição e execução">
+              <p className="text-sm text-muted-foreground whitespace-pre-wrap">
+                {[ex.description, ex.instructions].filter(Boolean).join("\n\n")}
+              </p>
             </Section>
           )}
 
