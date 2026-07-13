@@ -495,7 +495,7 @@ export function WorkoutEditor({
         const sKeys = [...sessionMap.keys()].sort((a, b) => a - b);
         if (sKeys.length === 0) {
           sessions.push(
-            kind === "plan"
+            tpl.kind === "plan"
               ? emptySession(0)
               : { id: uid(), label: "__single__", blocks: [emptyBlock(0)] },
           );
