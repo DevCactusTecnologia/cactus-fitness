@@ -11,6 +11,13 @@ async function assertSuperAdmin(supabase: any, userId: string) {
   if (!data) throw new Error("Acesso negado.");
 }
 
+const PLAN_PRICING: Record<string, number> = {
+  free: 0,
+  starter: 49,
+  pro: 149,
+  enterprise: 399,
+};
+
 export const superAdminMetrics = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
@@ -18,9 +25,9 @@ export const superAdminMetrics = createServerFn({ method: "GET" })
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const [orgs, members, alunos, users] = await Promise.all([
-      supabaseAdmin.from("organizations").select("id, plan, subscription_status, suspended_at, created_at"),
-      supabaseAdmin.from("organization_members").select("id, role"),
-      supabaseAdmin.from("alunos").select("id, is_active"),
+      supabaseAdmin.from("organizations").select("id, name, plan, subscription_status, suspended_at, created_at, max_alunos"),
+      supabaseAdmin.from("organization_members").select("id, role, organization_id"),
+      supabaseAdmin.from("alunos").select("id, is_active, organization_id, created_at"),
       supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 1 }),
     ]);
 
@@ -30,7 +37,17 @@ export const superAdminMetrics = createServerFn({ method: "GET" })
 
     const now = new Date();
     const startMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const startPrevMonth = new Date(now.getFullYear(), now.getMonth() - 1, 1);
     const newOrgsThisMonth = orgList.filter((o: any) => new Date(o.created_at) >= startMonth).length;
+    const newOrgsPrevMonth = orgList.filter((o: any) => {
+      const d = new Date(o.created_at);
+      return d >= startPrevMonth && d < startMonth;
+    }).length;
+    const newAlunosThisMonth = alunoList.filter((a: any) => new Date(a.created_at) >= startMonth).length;
+    const newAlunosPrevMonth = alunoList.filter((a: any) => {
+      const d = new Date(a.created_at);
+      return d >= startPrevMonth && d < startMonth;
+    }).length;
 
     const byPlan: Record<string, number> = {};
     orgList.forEach((o: any) => {
@@ -38,17 +55,73 @@ export const superAdminMetrics = createServerFn({ method: "GET" })
       byPlan[p] = (byPlan[p] ?? 0) + 1;
     });
 
+    const series: { month: string; orgs: number; alunos: number }[] = [];
+    for (let i = 5; i >= 0; i--) {
+      const from = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const to = new Date(now.getFullYear(), now.getMonth() - i + 1, 1);
+      series.push({
+        month: from.toLocaleDateString("pt-BR", { month: "short" }),
+        orgs: orgList.filter((o: any) => {
+          const d = new Date(o.created_at);
+          return d >= from && d < to;
+        }).length,
+        alunos: alunoList.filter((a: any) => {
+          const d = new Date(a.created_at);
+          return d >= from && d < to;
+        }).length,
+      });
+    }
+
+    const mrr = orgList
+      .filter((o: any) => !o.suspended_at && (o.subscription_status === "active" || o.subscription_status === "trialing"))
+      .reduce((sum: number, o: any) => sum + (PLAN_PRICING[o.plan] ?? 0), 0);
+
+    const alunoCounts: Record<string, { total: number; ativos: number }> = {};
+    alunoList.forEach((a: any) => {
+      const b = alunoCounts[a.organization_id] ?? { total: 0, ativos: 0 };
+      b.total += 1;
+      if (a.is_active) b.ativos += 1;
+      alunoCounts[a.organization_id] = b;
+    });
+
+    const topOrgs = orgList
+      .map((o: any) => ({
+        id: o.id,
+        name: o.name,
+        plan: o.plan,
+        alunos: alunoCounts[o.id]?.total ?? 0,
+        ativos: alunoCounts[o.id]?.ativos ?? 0,
+      }))
+      .sort((a: any, b: any) => b.ativos - a.ativos)
+      .slice(0, 5);
+
+    const pastDue = orgList.filter((o: any) => o.subscription_status === "past_due" && !o.suspended_at).length;
+    const trialing = orgList.filter((o: any) => o.subscription_status === "trialing" && !o.suspended_at).length;
+    const nearLimit = orgList.filter((o: any) => {
+      if (!o.max_alunos) return false;
+      const c = alunoCounts[o.id]?.ativos ?? 0;
+      return c / o.max_alunos >= 0.85;
+    }).length;
+
     return {
       totalOrgs: orgList.length,
       activeOrgs: orgList.filter((o: any) => !o.suspended_at && o.subscription_status === "active").length,
       suspendedOrgs: orgList.filter((o: any) => !!o.suspended_at).length,
       newOrgsThisMonth,
+      newOrgsPrevMonth,
+      newAlunosThisMonth,
+      newAlunosPrevMonth,
       totalPersonais: memberList.filter((m: any) => m.role === "owner" || m.role === "personal").length,
       totalStaff: memberList.filter((m: any) => m.role === "staff").length,
       totalAlunos: alunoList.length,
       alunosAtivos: alunoList.filter((a: any) => a.is_active).length,
       totalUsers: (users.data as any)?.total ?? 0,
       byPlan,
+      series,
+      mrr,
+      topOrgs,
+      alerts: { pastDue, trialing, nearLimit, suspended: orgList.filter((o: any) => !!o.suspended_at).length },
+      planPricing: PLAN_PRICING,
     };
   });
 

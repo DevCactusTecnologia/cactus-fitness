@@ -2,9 +2,10 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient, useMutation } from "@tanstack/react-query";
 import {
-  Shield, Building2, Users, TrendingUp, CreditCard,
+  Shield, Building2, Users, TrendingUp, TrendingDown, CreditCard,
   Loader2, Trash2, Ban, Play, Search, KeyRound, LogOut,
-  Crown, UserMinus, UserPlus,
+  Crown, UserMinus, UserPlus, AlertTriangle, Sparkles, ArrowUpRight,
+  Activity, Zap, Target,
 } from "lucide-react";
 import { toast } from "@/components/ui/sonner";
 import { confirmDialog } from "@/components/ui/confirm-dialog";
@@ -99,22 +100,96 @@ function SuperAdminPage() {
 
 /* ------------------------ OVERVIEW ------------------------ */
 
-function StatCard({ label, value, hint, icon }: { label: string; value: string | number; hint?: string; icon: React.ReactNode }) {
+function formatBRL(n: number) {
+  return n.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
+}
+
+function deltaPct(current: number, previous: number) {
+  if (previous === 0) return current === 0 ? 0 : 100;
+  return Math.round(((current - previous) / previous) * 100);
+}
+
+function Delta({ current, previous, suffix = "vs mês anterior" }: { current: number; previous: number; suffix?: string }) {
+  const pct = deltaPct(current, previous);
+  const up = pct >= 0;
+  const Icon = up ? TrendingUp : TrendingDown;
   return (
-    <div className="rounded-2xl border border-border bg-card p-4">
-      <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
-        <span className="grid h-6 w-6 place-items-center rounded-md bg-primary/10 text-primary">{icon}</span>
-        {label}
+    <span
+      className={`inline-flex items-center gap-1 rounded-full px-1.5 py-0.5 text-[10px] font-bold ${
+        up ? "bg-emerald-500/10 text-emerald-500" : "bg-rose-500/10 text-rose-500"
+      }`}
+    >
+      <Icon className="h-3 w-3" />
+      {up ? "+" : ""}
+      {pct}% <span className="font-normal opacity-70">{suffix}</span>
+    </span>
+  );
+}
+
+function Sparkline({ values, color = "hsl(var(--primary))" }: { values: number[]; color?: string }) {
+  const w = 120;
+  const h = 36;
+  const max = Math.max(1, ...values);
+  const step = values.length > 1 ? w / (values.length - 1) : w;
+  const pts = values.map((v, i) => `${i * step},${h - (v / max) * (h - 4) - 2}`).join(" ");
+  const area = `0,${h} ${pts} ${w},${h}`;
+  return (
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} className="overflow-visible">
+      <polygon points={area} fill={color} opacity={0.12} />
+      <polyline points={pts} fill="none" stroke={color} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+      {values.map((v, i) => (
+        <circle key={i} cx={i * step} cy={h - (v / max) * (h - 4) - 2} r={i === values.length - 1 ? 3 : 0} fill={color} />
+      ))}
+    </svg>
+  );
+}
+
+function KpiCard({
+  label,
+  value,
+  icon,
+  trend,
+  sub,
+  accent = "primary",
+}: {
+  label: string;
+  value: string | number;
+  icon: React.ReactNode;
+  trend?: React.ReactNode;
+  sub?: React.ReactNode;
+  accent?: "primary" | "emerald" | "amber" | "sky";
+}) {
+  const accents = {
+    primary: "from-primary/20 to-primary/5 text-primary",
+    emerald: "from-emerald-500/20 to-emerald-500/5 text-emerald-500",
+    amber: "from-amber-500/20 to-amber-500/5 text-amber-500",
+    sky: "from-sky-500/20 to-sky-500/5 text-sky-500",
+  } as const;
+  return (
+    <div className="group relative overflow-hidden rounded-2xl border border-border bg-card p-4 transition hover:border-primary/40">
+      <div className={`absolute -right-6 -top-6 h-24 w-24 rounded-full bg-gradient-to-br ${accents[accent]} blur-xl opacity-60`} />
+      <div className="relative flex items-start justify-between">
+        <div className={`grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br ${accents[accent]}`}>{icon}</div>
+        {trend}
       </div>
-      <div className="mt-2 flex items-baseline gap-2">
-        <div className="font-display text-2xl font-bold tracking-tight">{value}</div>
-        {hint && <div className="text-[11px] text-muted-foreground">{hint}</div>}
+      <div className="relative mt-3">
+        <div className="text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">{label}</div>
+        <div className="mt-1 font-display text-3xl font-bold tracking-tight">{value}</div>
+        {sub && <div className="mt-1 text-[11px] text-muted-foreground">{sub}</div>}
       </div>
     </div>
   );
 }
 
+const PLAN_COLORS: Record<string, string> = {
+  free: "bg-muted-foreground/60",
+  starter: "bg-sky-500",
+  pro: "bg-primary",
+  enterprise: "bg-amber-500",
+};
+
 function OverviewTab() {
+  const navigate = useNavigate();
   const { data, isLoading } = useQuery({
     queryKey: ["super-admin", "metrics"],
     queryFn: () => superAdminMetrics(),
@@ -123,32 +198,308 @@ function OverviewTab() {
   if (isLoading) return <Spinner />;
   if (!data) return null;
 
+  const alunoOccupancy = data.totalAlunos > 0 ? Math.round((data.alunosAtivos / data.totalAlunos) * 100) : 0;
+  const orgSeries = data.series.map((s: any) => s.orgs);
+  const alunoSeries = data.series.map((s: any) => s.alunos);
+  const arr = data.mrr * 12;
+  const arpo = data.activeOrgs > 0 ? Math.round(data.mrr / data.activeOrgs) : 0;
+
+  const alertsTotal =
+    (data.alerts?.pastDue ?? 0) +
+    (data.alerts?.nearLimit ?? 0) +
+    (data.alerts?.suspended ?? 0);
+
   return (
-    <div className="space-y-4">
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard icon={<Building2 className="h-4 w-4" />} label="Academias" value={data.totalOrgs} hint={`${data.activeOrgs} ativas`} />
-        <StatCard icon={<TrendingUp className="h-4 w-4" />} label="Novas no mês" value={data.newOrgsThisMonth} />
-        <StatCard icon={<Users className="h-4 w-4" />} label="Usuários" value={data.totalUsers} />
-        <StatCard icon={<Users className="h-4 w-4" />} label="Alunos" value={data.totalAlunos} hint={`${data.alunosAtivos} ativos`} />
-        <StatCard icon={<Crown className="h-4 w-4" />} label="Personais" value={data.totalPersonais} />
-        <StatCard icon={<Shield className="h-4 w-4" />} label="Equipe" value={data.totalStaff} />
-        <StatCard icon={<Ban className="h-4 w-4" />} label="Suspensas" value={data.suspendedOrgs} />
+    <div className="space-y-5">
+      {/* Hero: MRR e insights */}
+      <div className="grid gap-4 lg:grid-cols-3">
+        <div className="relative overflow-hidden rounded-3xl border border-border bg-gradient-to-br from-primary/15 via-card to-card p-6 lg:col-span-2">
+          <div className="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-primary/20 blur-3xl" />
+          <div className="relative">
+            <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-primary/80">
+              <Sparkles className="h-3.5 w-3.5" /> Receita recorrente
+            </div>
+            <div className="mt-2 flex flex-wrap items-end gap-4">
+              <div>
+                <div className="font-display text-5xl font-bold tracking-tight">{formatBRL(data.mrr)}</div>
+                <div className="text-xs text-muted-foreground">MRR estimado · ARR {formatBRL(arr)}</div>
+              </div>
+              <Delta current={data.newOrgsThisMonth} previous={data.newOrgsPrevMonth} suffix="novas academias" />
+            </div>
+            <div className="mt-6 grid gap-4 sm:grid-cols-3">
+              <div className="rounded-xl border border-border/60 bg-background/40 p-3">
+                <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                  <Target className="h-3 w-3" /> ARPO
+                </div>
+                <div className="mt-1 font-display text-xl font-bold">{formatBRL(arpo)}</div>
+                <div className="text-[10px] text-muted-foreground">Receita média por academia</div>
+              </div>
+              <div className="rounded-xl border border-border/60 bg-background/40 p-3">
+                <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                  <Activity className="h-3 w-3" /> Conversão
+                </div>
+                <div className="mt-1 font-display text-xl font-bold">
+                  {data.totalOrgs > 0 ? Math.round((data.activeOrgs / data.totalOrgs) * 100) : 0}%
+                </div>
+                <div className="text-[10px] text-muted-foreground">{data.activeOrgs} de {data.totalOrgs} academias ativas</div>
+              </div>
+              <div className="rounded-xl border border-border/60 bg-background/40 p-3">
+                <div className="flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                  <Zap className="h-3 w-3" /> Engajamento
+                </div>
+                <div className="mt-1 font-display text-xl font-bold">{alunoOccupancy}%</div>
+                <div className="text-[10px] text-muted-foreground">{data.alunosAtivos} alunos ativos de {data.totalAlunos}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Alertas acionáveis */}
+        <div className="rounded-3xl border border-border bg-card p-5">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className={`grid h-8 w-8 place-items-center rounded-lg ${alertsTotal > 0 ? "bg-amber-500/15 text-amber-500" : "bg-emerald-500/15 text-emerald-500"}`}>
+                <AlertTriangle className="h-4 w-4" />
+              </span>
+              <div>
+                <div className="font-display text-sm font-bold">Requer atenção</div>
+                <div className="text-[11px] text-muted-foreground">{alertsTotal} item(ns) para agir</div>
+              </div>
+            </div>
+          </div>
+          <ul className="mt-4 space-y-2">
+            <button
+              onClick={() => navigate({ to: "/super-admin", search: { tab: "orgs" } })}
+              className="flex w-full items-center justify-between rounded-xl border border-border/60 bg-background/40 px-3 py-2 text-left transition hover:border-rose-500/50 hover:bg-rose-500/5"
+            >
+              <div>
+                <div className="text-xs font-semibold">Pagamentos vencidos</div>
+                <div className="text-[10px] text-muted-foreground">Cobranças em atraso</div>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className={`font-display text-lg font-bold ${data.alerts.pastDue > 0 ? "text-rose-500" : "text-muted-foreground"}`}>
+                  {data.alerts.pastDue}
+                </span>
+                <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground" />
+              </div>
+            </button>
+            <button
+              onClick={() => navigate({ to: "/super-admin", search: { tab: "plans" } })}
+              className="flex w-full items-center justify-between rounded-xl border border-border/60 bg-background/40 px-3 py-2 text-left transition hover:border-amber-500/50 hover:bg-amber-500/5"
+            >
+              <div>
+                <div className="text-xs font-semibold">Perto do limite de alunos</div>
+                <div className="text-[10px] text-muted-foreground">≥ 85% da capacidade · upsell</div>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className={`font-display text-lg font-bold ${data.alerts.nearLimit > 0 ? "text-amber-500" : "text-muted-foreground"}`}>
+                  {data.alerts.nearLimit}
+                </span>
+                <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground" />
+              </div>
+            </button>
+            <button
+              onClick={() => navigate({ to: "/super-admin", search: { tab: "orgs" } })}
+              className="flex w-full items-center justify-between rounded-xl border border-border/60 bg-background/40 px-3 py-2 text-left transition hover:border-sky-500/50 hover:bg-sky-500/5"
+            >
+              <div>
+                <div className="text-xs font-semibold">Em trial</div>
+                <div className="text-[10px] text-muted-foreground">Oportunidades de conversão</div>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className={`font-display text-lg font-bold ${data.alerts.trialing > 0 ? "text-sky-500" : "text-muted-foreground"}`}>
+                  {data.alerts.trialing}
+                </span>
+                <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground" />
+              </div>
+            </button>
+            <button
+              onClick={() => navigate({ to: "/super-admin", search: { tab: "orgs" } })}
+              className="flex w-full items-center justify-between rounded-xl border border-border/60 bg-background/40 px-3 py-2 text-left transition hover:border-border"
+            >
+              <div>
+                <div className="text-xs font-semibold">Suspensas</div>
+                <div className="text-[10px] text-muted-foreground">Acesso bloqueado</div>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="font-display text-lg font-bold text-muted-foreground">{data.alerts.suspended}</span>
+                <ArrowUpRight className="h-3.5 w-3.5 text-muted-foreground" />
+              </div>
+            </button>
+          </ul>
+        </div>
       </div>
 
-      <div className="rounded-2xl border border-border bg-card p-5">
-        <h2 className="font-display text-base font-bold">Distribuição por plano</h2>
-        <div className="mt-3 grid gap-2 sm:grid-cols-4">
-          {Object.entries(PLAN_LABEL).map(([id, label]) => (
-            <div key={id} className="rounded-xl border border-border/60 bg-background/40 p-3">
-              <div className="text-xs text-muted-foreground">{label}</div>
-              <div className="font-display text-xl font-bold">{data.byPlan[id] ?? 0}</div>
+      {/* KPIs com sparklines */}
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <KpiCard
+          label="Academias"
+          value={data.totalOrgs}
+          icon={<Building2 className="h-4 w-4" />}
+          trend={<Delta current={data.newOrgsThisMonth} previous={data.newOrgsPrevMonth} suffix="" />}
+          sub={<div className="mt-2"><Sparkline values={orgSeries} /></div>}
+          accent="primary"
+        />
+        <KpiCard
+          label="Alunos na plataforma"
+          value={data.totalAlunos}
+          icon={<Users className="h-4 w-4" />}
+          trend={<Delta current={data.newAlunosThisMonth} previous={data.newAlunosPrevMonth} suffix="" />}
+          sub={<div className="mt-2"><Sparkline values={alunoSeries} color="rgb(16 185 129)" /></div>}
+          accent="emerald"
+        />
+        <KpiCard
+          label="Profissionais"
+          value={data.totalPersonais + data.totalStaff}
+          icon={<Crown className="h-4 w-4" />}
+          sub={`${data.totalPersonais} personais · ${data.totalStaff} equipe`}
+          accent="sky"
+        />
+        <KpiCard
+          label="Contas totais"
+          value={data.totalUsers}
+          icon={<Shield className="h-4 w-4" />}
+          sub={`${data.suspendedOrgs} academia(s) suspensa(s)`}
+          accent="amber"
+        />
+      </div>
+
+      {/* Distribuição por plano + Top academias */}
+      <div className="grid gap-4 lg:grid-cols-5">
+        <div className="rounded-2xl border border-border bg-card p-5 lg:col-span-2">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="font-display text-base font-bold">Mix de planos</h2>
+              <div className="text-[11px] text-muted-foreground">Distribuição e receita mensal por plano</div>
             </div>
-          ))}
+            <CreditCard className="h-4 w-4 text-muted-foreground" />
+          </div>
+          {(() => {
+            const total = Object.values(data.byPlan).reduce((a: number, b: any) => a + (b as number), 0) as number;
+            const order = ["enterprise", "pro", "starter", "free"];
+            return (
+              <>
+                <div className="mt-4 flex h-2.5 overflow-hidden rounded-full bg-muted">
+                  {order.map((id) => {
+                    const c = (data.byPlan[id] ?? 0) as number;
+                    if (!c) return null;
+                    const pct = total > 0 ? (c / total) * 100 : 0;
+                    return <div key={id} className={PLAN_COLORS[id]} style={{ width: `${pct}%` }} />;
+                  })}
+                </div>
+                <ul className="mt-4 space-y-2.5">
+                  {order.map((id) => {
+                    const c = (data.byPlan[id] ?? 0) as number;
+                    const price = data.planPricing[id] ?? 0;
+                    const revenue = c * price;
+                    const pct = total > 0 ? Math.round((c / total) * 100) : 0;
+                    return (
+                      <li key={id} className="flex items-center gap-3">
+                        <span className={`h-2.5 w-2.5 rounded-full ${PLAN_COLORS[id]}`} />
+                        <span className="flex-1 text-sm font-semibold capitalize">{PLAN_LABEL[id]}</span>
+                        <span className="text-[11px] text-muted-foreground">{pct}%</span>
+                        <span className="w-10 text-right font-display text-sm font-bold">{c}</span>
+                        <span className="w-20 text-right text-[11px] text-muted-foreground">
+                          {price > 0 ? formatBRL(revenue) : "—"}
+                        </span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </>
+            );
+          })()}
+        </div>
+
+        <div className="rounded-2xl border border-border bg-card p-5 lg:col-span-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="font-display text-base font-bold">Top academias por engajamento</h2>
+              <div className="text-[11px] text-muted-foreground">Ranking por alunos ativos</div>
+            </div>
+            <button
+              onClick={() => navigate({ to: "/super-admin", search: { tab: "orgs" } })}
+              className="inline-flex items-center gap-1 text-[11px] font-semibold text-primary hover:underline"
+            >
+              Ver todas <ArrowUpRight className="h-3 w-3" />
+            </button>
+          </div>
+          {data.topOrgs.length === 0 ? (
+            <div className="mt-6 text-center text-sm text-muted-foreground">Nenhuma academia com alunos ainda.</div>
+          ) : (
+            <ol className="mt-4 space-y-2">
+              {data.topOrgs.map((o: any, i: number) => {
+                const maxAtivos = data.topOrgs[0]?.ativos || 1;
+                const pct = (o.ativos / maxAtivos) * 100;
+                return (
+                  <li key={o.id} className="group rounded-xl border border-border/60 bg-background/40 p-3">
+                    <div className="flex items-center gap-3">
+                      <span className="grid h-7 w-7 place-items-center rounded-lg bg-primary/10 font-display text-xs font-bold text-primary">
+                        {i + 1}
+                      </span>
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-sm font-semibold">{o.name}</div>
+                        <div className="text-[10px] uppercase tracking-widest text-muted-foreground">Plano {PLAN_LABEL[o.plan] ?? o.plan}</div>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-display text-sm font-bold">{o.ativos}</div>
+                        <div className="text-[10px] text-muted-foreground">de {o.alunos}</div>
+                      </div>
+                    </div>
+                    <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-muted">
+                      <div className="h-full bg-gradient-to-r from-primary to-primary/60" style={{ width: `${pct}%` }} />
+                    </div>
+                  </li>
+                );
+              })}
+            </ol>
+          )}
+        </div>
+      </div>
+
+      {/* Tendência 6 meses */}
+      <div className="rounded-2xl border border-border bg-card p-5">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="font-display text-base font-bold">Crescimento nos últimos 6 meses</h2>
+            <div className="text-[11px] text-muted-foreground">Aquisição mensal de academias e alunos</div>
+          </div>
+          <div className="flex items-center gap-3 text-[11px]">
+            <span className="inline-flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-primary" /> Academias</span>
+            <span className="inline-flex items-center gap-1.5"><span className="h-2 w-2 rounded-full bg-emerald-500" /> Alunos</span>
+          </div>
+        </div>
+        <div className="mt-5 grid grid-cols-6 gap-3">
+          {data.series.map((s: any, i: number) => {
+            const maxOrgs = Math.max(1, ...data.series.map((x: any) => x.orgs));
+            const maxAl = Math.max(1, ...data.series.map((x: any) => x.alunos));
+            return (
+              <div key={i} className="flex flex-col items-center gap-2">
+                <div className="flex h-32 w-full items-end justify-center gap-1">
+                  <div
+                    className="w-3 rounded-t bg-primary/80 transition-all"
+                    style={{ height: `${(s.orgs / maxOrgs) * 100}%`, minHeight: s.orgs ? "4px" : "2px" }}
+                    title={`${s.orgs} academias`}
+                  />
+                  <div
+                    className="w-3 rounded-t bg-emerald-500/80 transition-all"
+                    style={{ height: `${(s.alunos / maxAl) * 100}%`, minHeight: s.alunos ? "4px" : "2px" }}
+                    title={`${s.alunos} alunos`}
+                  />
+                </div>
+                <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">{s.month}</div>
+                <div className="text-[10px] text-muted-foreground">
+                  <span className="text-primary">{s.orgs}</span> · <span className="text-emerald-500">{s.alunos}</span>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
   );
 }
+
 
 /* ------------------------ ORGANIZAÇÕES ------------------------ */
 
