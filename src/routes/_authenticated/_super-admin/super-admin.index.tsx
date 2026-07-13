@@ -1013,22 +1013,103 @@ const ROLE_LABEL: Record<string, string> = {
   aluno: "Aluno",
 };
 
+const ROLE_STYLE: Record<string, { chip: string; dot: string; icon: React.ReactNode }> = {
+  super_admin: { chip: "bg-primary text-primary-foreground", dot: "bg-primary", icon: <Shield className="h-3 w-3" /> },
+  owner:       { chip: "bg-amber-500/15 text-amber-500 border border-amber-500/30", dot: "bg-amber-500", icon: <Crown className="h-3 w-3" /> },
+  staff:       { chip: "bg-sky-500/15 text-sky-500 border border-sky-500/30", dot: "bg-sky-500", icon: <Users className="h-3 w-3" /> },
+  personal:    { chip: "bg-violet-500/15 text-violet-500 border border-violet-500/30", dot: "bg-violet-500", icon: <Activity className="h-3 w-3" /> },
+  aluno:       { chip: "bg-emerald-500/15 text-emerald-500 border border-emerald-500/30", dot: "bg-emerald-500", icon: <UserPlus className="h-3 w-3" /> },
+};
+
+const ROLE_ORDER = ["super_admin", "owner", "personal", "staff", "aluno"] as const;
+
+type UserFilter = "all" | "super_admin" | "owner" | "personal" | "staff" | "aluno" | "no_role" | "unverified" | "inactive";
+type UserSort = "recent" | "oldest" | "last_sign" | "name";
+
+function userInitials(name: string | null, email: string | null) {
+  const base = (name && name.trim()) || (email ? email.split("@")[0] : "");
+  if (!base) return "?";
+  return base
+    .split(/[\s._-]+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((s) => s[0]?.toUpperCase() ?? "")
+    .join("") || base[0].toUpperCase();
+}
+
+function avatarHue(seed: string) {
+  let h = 0;
+  for (let i = 0; i < seed.length; i++) h = (h * 31 + seed.charCodeAt(i)) >>> 0;
+  return h % 360;
+}
+
+function timeAgo(iso: string | null) {
+  if (!iso) return "nunca";
+  const d = new Date(iso).getTime();
+  const diff = Date.now() - d;
+  const day = 86400000;
+  if (diff < 60_000) return "agora";
+  if (diff < 3600_000) return `${Math.floor(diff / 60_000)}min`;
+  if (diff < day) return `${Math.floor(diff / 3600_000)}h`;
+  if (diff < 7 * day) return `${Math.floor(diff / day)}d`;
+  if (diff < 30 * day) return `${Math.floor(diff / (7 * day))}sem`;
+  if (diff < 365 * day) return `${Math.floor(diff / (30 * day))}mês`;
+  return `${Math.floor(diff / (365 * day))}a`;
+}
+
 function UsersTab() {
   const qc = useQueryClient();
   const [q, setQ] = useState("");
+  const [filter, setFilter] = useState<UserFilter>("all");
+  const [sort, setSort] = useState<UserSort>("recent");
+  const [openMenuId, setOpenMenuId] = useState<string | null>(null);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+
   const { data, isLoading } = useQuery({
     queryKey: ["super-admin", "users"],
     queryFn: () => listAllUsers(),
   });
 
+  const list = data ?? [];
+
+  const stats = useMemo(() => {
+    const now = Date.now();
+    const day = 86400000;
+    let verified = 0, unverified = 0, active7 = 0, never = 0, noRole = 0;
+    const roleCounts: Record<string, number> = {};
+    list.forEach((u: any) => {
+      if (u.email_confirmed_at) verified++; else unverified++;
+      if (u.last_sign_in_at && now - new Date(u.last_sign_in_at).getTime() <= 7 * day) active7++;
+      if (!u.last_sign_in_at) never++;
+      if (!u.roles?.length) noRole++;
+      (u.roles ?? []).forEach((r: string) => { roleCounts[r] = (roleCounts[r] ?? 0) + 1; });
+    });
+    return { total: list.length, verified, unverified, active7, never, noRole, roleCounts };
+  }, [list]);
+
   const filtered = useMemo(() => {
-    const list = data ?? [];
-    if (!q.trim()) return list;
-    const s = q.trim().toLowerCase();
-    return list.filter(
-      (u: any) => u.email?.toLowerCase().includes(s) || u.full_name?.toLowerCase().includes(s),
-    );
-  }, [data, q]);
+    let arr = list;
+    if (filter !== "all") {
+      arr = arr.filter((u: any) => {
+        if (filter === "no_role") return !u.roles?.length;
+        if (filter === "unverified") return !u.email_confirmed_at;
+        if (filter === "inactive") return !u.last_sign_in_at;
+        return u.roles?.includes(filter);
+      });
+    }
+    if (q.trim()) {
+      const s = q.trim().toLowerCase();
+      arr = arr.filter((u: any) => u.email?.toLowerCase().includes(s) || u.full_name?.toLowerCase().includes(s));
+    }
+    const sorted = [...arr];
+    sorted.sort((a: any, b: any) => {
+      if (sort === "name") return (a.full_name ?? a.email ?? "").localeCompare(b.full_name ?? b.email ?? "");
+      if (sort === "last_sign") return (b.last_sign_in_at ?? "") > (a.last_sign_in_at ?? "") ? 1 : -1;
+      if (sort === "oldest") return a.created_at > b.created_at ? 1 : -1;
+      return a.created_at < b.created_at ? 1 : -1; // recent
+    });
+    return sorted;
+  }, [list, filter, q, sort]);
 
   const roleMut = useMutation({
     mutationFn: (v: any) => toggleUserRole({ data: v }),
@@ -1061,89 +1142,306 @@ function UsersTab() {
   async function onResetPassword(userId: string, email: string | null) {
     const pw = window.prompt(`Nova senha para ${email ?? userId} (mín. 8 caracteres):`, "");
     if (!pw) return;
-    if (pw.length < 8) {
-      toast.error("A senha deve ter pelo menos 8 caracteres.");
-      return;
-    }
+    if (pw.length < 8) { toast.error("A senha deve ter pelo menos 8 caracteres."); return; }
     try {
       await resetUserPassword({ data: { userId, newPassword: pw } });
       toast.success("Senha redefinida.");
-    } catch (e: any) {
-      toast.error(e.message);
-    }
+    } catch (e: any) { toast.error(e.message); }
   }
 
+  async function copyEmail(email: string | null) {
+    if (!email) return;
+    try {
+      await navigator.clipboard.writeText(email);
+      toast.success("Email copiado.");
+    } catch { toast.error("Não foi possível copiar."); }
+  }
+
+  function toggleSelected(id: string) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }
+
+  function toggleAllVisible() {
+    setSelected((prev) => {
+      const allIn = filtered.every((u: any) => prev.has(u.id));
+      const next = new Set(prev);
+      if (allIn) filtered.forEach((u: any) => next.delete(u.id));
+      else filtered.forEach((u: any) => next.add(u.id));
+      return next;
+    });
+  }
+
+  const filterChips: { id: UserFilter; label: string; count: number }[] = [
+    { id: "all", label: "Todos", count: stats.total },
+    { id: "super_admin", label: "Super Admin", count: stats.roleCounts.super_admin ?? 0 },
+    { id: "owner", label: "Donos", count: stats.roleCounts.owner ?? 0 },
+    { id: "personal", label: "Personais", count: stats.roleCounts.personal ?? 0 },
+    { id: "staff", label: "Equipe", count: stats.roleCounts.staff ?? 0 },
+    { id: "aluno", label: "Alunos", count: stats.roleCounts.aluno ?? 0 },
+    { id: "no_role", label: "Sem papel", count: stats.noRole },
+    { id: "unverified", label: "Não verificados", count: stats.unverified },
+    { id: "inactive", label: "Nunca acessou", count: stats.never },
+  ];
+
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-2">
-        <div className="relative flex-1">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-          <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="Buscar por email ou nome…"
-            className="w-full rounded-lg border border-border bg-background py-2 pl-9 pr-3 text-sm"
-          />
+    <div className="space-y-5">
+      {/* Header + KPIs */}
+      <div className="rounded-3xl border border-border bg-gradient-to-br from-primary/10 via-card to-card p-5">
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-widest text-primary/80">
+              <Users className="h-3.5 w-3.5" /> Usuários globais
+            </div>
+            <div className="mt-1 font-display text-3xl font-bold tracking-tight">
+              {stats.total} <span className="text-base font-medium text-muted-foreground">contas</span>
+            </div>
+            <div className="mt-1 text-xs text-muted-foreground">
+              {stats.active7} ativas nos últimos 7 dias · {stats.verified} verificadas
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-3 sm:min-w-[420px] sm:grid-cols-4">
+            <div className="rounded-xl border border-border/60 bg-background/40 p-3">
+              <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Verificados</div>
+              <div className="mt-1 font-display text-lg font-bold text-emerald-500">{stats.verified}</div>
+            </div>
+            <div className="rounded-xl border border-border/60 bg-background/40 p-3">
+              <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Pendentes</div>
+              <div className="mt-1 font-display text-lg font-bold text-amber-500">{stats.unverified}</div>
+            </div>
+            <div className="rounded-xl border border-border/60 bg-background/40 p-3">
+              <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Ativos 7d</div>
+              <div className="mt-1 font-display text-lg font-bold text-primary">{stats.active7}</div>
+            </div>
+            <div className="rounded-xl border border-border/60 bg-background/40 p-3">
+              <div className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Sem papel</div>
+              <div className="mt-1 font-display text-lg font-bold text-rose-500">{stats.noRole}</div>
+            </div>
+          </div>
         </div>
-        <div className="text-xs text-muted-foreground">{filtered.length} usuário(s)</div>
+      </div>
+
+      {/* Toolbar */}
+      <div className="flex flex-col gap-3">
+        <div className="flex flex-wrap items-center gap-2">
+          {filterChips.map((chip) => {
+            const on = filter === chip.id;
+            return (
+              <button
+                key={chip.id}
+                onClick={() => setFilter(chip.id)}
+                className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
+                  on ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card text-muted-foreground hover:border-foreground/30"
+                }`}
+              >
+                {chip.label}
+                <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-bold ${on ? "bg-white/25" : "bg-muted"}`}>{chip.count}</span>
+              </button>
+            );
+          })}
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="relative min-w-[220px] flex-1">
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Buscar por email ou nome…"
+              className="w-full rounded-lg border border-border bg-background py-2 pl-9 pr-3 text-sm"
+            />
+          </div>
+          <div className="relative">
+            <Filter className="pointer-events-none absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+            <select
+              value={sort}
+              onChange={(e) => setSort(e.target.value as UserSort)}
+              className="appearance-none rounded-lg border border-border bg-background py-2 pl-8 pr-8 text-xs font-semibold"
+            >
+              <option value="recent">Mais recentes</option>
+              <option value="oldest">Mais antigos</option>
+              <option value="last_sign">Último acesso</option>
+              <option value="name">Nome (A–Z)</option>
+            </select>
+            <ChevronDown className="pointer-events-none absolute right-2 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+          </div>
+          <div className="ml-auto text-xs text-muted-foreground">{filtered.length} resultado(s)</div>
+        </div>
+
+        {selected.size > 0 && (
+          <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-primary/40 bg-primary/5 px-3 py-2 text-xs">
+            <div className="font-semibold text-primary">{selected.size} selecionado(s)</div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setSelected(new Set())}
+                className="rounded-md border border-border bg-background px-2.5 py-1 font-semibold hover:bg-accent"
+              >
+                Limpar seleção
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {isLoading && <Spinner />}
 
-      {!isLoading && (
+      {!isLoading && filtered.length === 0 && (
+        <div className="rounded-2xl border border-dashed border-border bg-card/40 py-16 text-center">
+          <Users className="mx-auto h-8 w-8 text-muted-foreground/60" />
+          <div className="mt-3 text-sm font-semibold">Nenhum usuário encontrado</div>
+          <div className="text-xs text-muted-foreground">Ajuste os filtros ou a busca.</div>
+        </div>
+      )}
+
+      {/* Lista */}
+      {!isLoading && filtered.length > 0 && (
         <div className="overflow-hidden rounded-2xl border border-border bg-card">
+          <div className="flex items-center gap-3 border-b border-border bg-muted/30 px-4 py-2 text-[11px] font-semibold uppercase tracking-widest text-muted-foreground">
+            <input
+              type="checkbox"
+              checked={filtered.length > 0 && filtered.every((u: any) => selected.has(u.id))}
+              onChange={toggleAllVisible}
+              className="h-3.5 w-3.5 rounded border-border"
+            />
+            <span>Usuário</span>
+            <span className="ml-auto hidden sm:inline">Papéis</span>
+          </div>
           <ul>
-            {filtered.map((u: any) => (
-              <li key={u.id} className="flex flex-wrap items-center gap-3 border-b border-border/60 px-4 py-3">
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-sm font-semibold">{u.full_name ?? "—"}</div>
-                  <div className="truncate text-[11px] text-muted-foreground">
-                    {u.email ?? "—"} · último acesso: {u.last_sign_in_at ? new Date(u.last_sign_in_at).toLocaleDateString("pt-BR") : "nunca"}
-                    {!u.email_confirmed_at && <span className="ml-2 text-amber-500">(email não verificado)</span>}
+            {filtered.map((u: any) => {
+              const menuOpen = openMenuId === u.id;
+              const isSelf = false; // super admin cannot delete self anyway
+              const isSelected = selected.has(u.id);
+              const hue = avatarHue(u.id);
+              const roles: string[] = u.roles ?? [];
+              return (
+                <li
+                  key={u.id}
+                  className={`group flex flex-wrap items-center gap-3 border-b border-border/60 px-4 py-3 transition ${
+                    isSelected ? "bg-primary/5" : "hover:bg-accent/30"
+                  }`}
+                >
+                  <input
+                    type="checkbox"
+                    checked={isSelected}
+                    onChange={() => toggleSelected(u.id)}
+                    className="h-3.5 w-3.5 shrink-0 rounded border-border"
+                  />
+                  <div
+                    className="grid h-10 w-10 shrink-0 place-items-center rounded-full font-display text-xs font-bold text-white"
+                    style={{ background: `linear-gradient(135deg, hsl(${hue} 70% 55%), hsl(${(hue + 40) % 360} 70% 45%))` }}
+                  >
+                    {userInitials(u.full_name, u.email)}
                   </div>
-                </div>
-                <div className="flex flex-wrap gap-1">
-                  {(["super_admin", "owner", "personal", "staff", "aluno"] as const).map((r) => {
-                    const has = u.roles.includes(r);
-                    return (
+
+                  <div className="min-w-0 flex-1">
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      <span className="truncate text-sm font-semibold">{u.full_name ?? u.email?.split("@")[0] ?? "—"}</span>
+                      {!u.email_confirmed_at && (
+                        <span className="inline-flex items-center gap-1 rounded-full border border-amber-500/30 bg-amber-500/10 px-1.5 py-0.5 text-[9px] font-bold text-amber-500">
+                          <AlertTriangle className="h-2.5 w-2.5" /> Não verificado
+                        </span>
+                      )}
+                      {!roles.length && (
+                        <span className="inline-flex items-center gap-1 rounded-full border border-rose-500/30 bg-rose-500/10 px-1.5 py-0.5 text-[9px] font-bold text-rose-500">
+                          Sem papel
+                        </span>
+                      )}
+                    </div>
+                    <div className="mt-0.5 flex flex-wrap items-center gap-2 text-[11px] text-muted-foreground">
                       <button
-                        key={r}
-                        onClick={() => roleMut.mutate({ userId: u.id, role: r, grant: !has })}
-                        className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] font-semibold transition ${
-                          has
-                            ? r === "super_admin"
-                              ? "bg-primary text-primary-foreground"
-                              : "bg-primary/15 text-primary"
-                            : "border border-border text-muted-foreground hover:bg-accent"
-                        }`}
+                        onClick={() => copyEmail(u.email)}
+                        className="inline-flex items-center gap-1 truncate hover:text-foreground"
+                        title="Copiar email"
                       >
-                        {has ? <UserMinus className="h-3 w-3" /> : <UserPlus className="h-3 w-3" />}
-                        {ROLE_LABEL[r]}
+                        {u.email ?? "—"} <Copy className="h-2.5 w-2.5" />
                       </button>
-                    );
-                  })}
-                </div>
-                <div className="flex items-center gap-1">
-                  <button
-                    onClick={() => onResetPassword(u.id, u.email)}
-                    title="Redefinir senha"
-                    className="grid h-8 w-8 place-items-center rounded-md text-muted-foreground hover:bg-accent"
-                  >
-                    <KeyRound className="h-4 w-4" />
-                  </button>
-                  <button
-                    onClick={() => onDelete(u.id, u.email)}
-                    title="Excluir usuário"
-                    className="grid h-8 w-8 place-items-center rounded-md text-destructive hover:bg-destructive/10"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
-              </li>
-            ))}
-            {filtered.length === 0 && (
-              <li className="px-4 py-6 text-center text-sm text-muted-foreground">Nenhum usuário encontrado.</li>
-            )}
+                      <span className="hidden sm:inline">·</span>
+                      <span className="inline-flex items-center gap-1" title={u.last_sign_in_at ? new Date(u.last_sign_in_at).toLocaleString("pt-BR") : "nunca"}>
+                        <Clock className="h-2.5 w-2.5" /> {timeAgo(u.last_sign_in_at)}
+                      </span>
+                      <span className="hidden sm:inline">·</span>
+                      <span className="hidden sm:inline">criado {timeAgo(u.created_at)} atrás</span>
+                    </div>
+                  </div>
+
+                  {/* Role badges resumidos */}
+                  <div className="hidden flex-wrap items-center gap-1 md:flex">
+                    {roles.length === 0 ? (
+                      <span className="text-[11px] text-muted-foreground">—</span>
+                    ) : (
+                      roles.map((r) => {
+                        const st = ROLE_STYLE[r] ?? ROLE_STYLE.aluno;
+                        return (
+                          <span key={r} className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-bold ${st.chip}`}>
+                            {st.icon} {ROLE_LABEL[r]}
+                          </span>
+                        );
+                      })
+                    )}
+                  </div>
+
+                  <div className="relative">
+                    <button
+                      onClick={() => setOpenMenuId(menuOpen ? null : u.id)}
+                      className="grid h-8 w-8 place-items-center rounded-md text-muted-foreground hover:bg-accent"
+                    >
+                      <MoreHorizontal className="h-4 w-4" />
+                    </button>
+                    {menuOpen && (
+                      <>
+                        <div className="fixed inset-0 z-10" onClick={() => setOpenMenuId(null)} />
+                        <div className="absolute right-0 top-9 z-20 w-64 overflow-hidden rounded-xl border border-border bg-card shadow-2xl">
+                          <div className="border-b border-border bg-muted/30 px-3 py-2 text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
+                            Alternar papéis
+                          </div>
+                          <div className="flex flex-wrap gap-1 p-2">
+                            {ROLE_ORDER.map((r) => {
+                              const has = roles.includes(r);
+                              const st = ROLE_STYLE[r];
+                              return (
+                                <button
+                                  key={r}
+                                  onClick={() => roleMut.mutate({ userId: u.id, role: r, grant: !has })}
+                                  className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-semibold transition ${
+                                    has ? st.chip : "border border-border text-muted-foreground hover:bg-accent"
+                                  }`}
+                                >
+                                  {has ? <UserMinus className="h-2.5 w-2.5" /> : <UserPlus className="h-2.5 w-2.5" />}
+                                  {ROLE_LABEL[r]}
+                                </button>
+                              );
+                            })}
+                          </div>
+                          <div className="border-t border-border" />
+                          <button
+                            onClick={() => { setOpenMenuId(null); copyEmail(u.email); }}
+                            className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs font-semibold hover:bg-accent"
+                          >
+                            <Copy className="h-3.5 w-3.5 text-muted-foreground" /> Copiar email
+                          </button>
+                          <button
+                            onClick={() => { setOpenMenuId(null); onResetPassword(u.id, u.email); }}
+                            className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs font-semibold hover:bg-accent"
+                          >
+                            <KeyRound className="h-3.5 w-3.5 text-muted-foreground" /> Redefinir senha
+                          </button>
+                          <div className="border-t border-border" />
+                          <button
+                            disabled={isSelf}
+                            onClick={() => { setOpenMenuId(null); onDelete(u.id, u.email); }}
+                            className="flex w-full items-center gap-2 px-3 py-2 text-left text-xs font-semibold text-destructive hover:bg-destructive/10 disabled:opacity-50"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" /> Excluir usuário
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         </div>
       )}
