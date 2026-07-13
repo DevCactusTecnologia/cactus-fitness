@@ -4,7 +4,7 @@ import {
   Plus,
   Search, ChevronLeft, Play,
   SlidersHorizontal as FilterIcon, Loader2, AlertTriangle, X, Check,
-  ArrowLeft, ArrowRight, Video, Info, Target, ListChecks,
+  ArrowLeft, ArrowRight, Video, Info, ListChecks,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
@@ -437,119 +437,106 @@ function ExerciseRow({
 function ExerciseDetailModal({
   ex, groupName, isOwner, onClose, onEdit, onPersonalize,
 }: { ex: Exercise; groupName: string; isOwner?: boolean; onClose: () => void; onEdit?: () => void; onPersonalize?: () => void }) {
+  const description = [ex.description, ex.instructions].filter(Boolean).join("\n\n").trim();
+
   return (
-    <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/60 backdrop-blur-sm p-0 md:p-4" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/70 backdrop-blur-sm"
+      onClick={onClose}
+    >
       <div
-        className="w-full md:max-w-2xl bg-card border border-border rounded-t-2xl md:rounded-2xl overflow-hidden shadow-2xl max-h-[92vh] flex flex-col"
+        className="w-full md:max-w-xl bg-card border border-border rounded-t-2xl md:rounded-2xl overflow-hidden shadow-2xl max-h-[92vh] flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-border">
-          <div className="min-w-0">
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Detalhes do exercício</p>
-            <h2 className="text-lg font-bold font-display truncate">{ex.name}</h2>
-          </div>
-          <div className="flex items-center gap-2 shrink-0">
-            {isOwner && onEdit && (
-              <button
-                onClick={onEdit}
-                className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted/40 px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted/70 transition"
-              >
-                Editar
-              </button>
-            )}
-            {!isOwner && onPersonalize && (
-              <button
-                onClick={onPersonalize}
-                title='Uma cópia será salva na aba "Meus Exercícios"'
-                className="inline-flex items-center gap-1.5 rounded-full border border-primary/50 bg-primary/15 px-3 py-1.5 text-xs font-semibold text-primary hover:bg-primary/25 transition"
-              >
-                Personalizar exercício
-              </button>
-            )}
-            <button onClick={onClose} className="grid h-9 w-9 place-items-center rounded-full bg-muted hover:bg-muted/70 transition">
-              <X className="h-4 w-4" />
-            </button>
-          </div>
-        </div>
-
-
-
-        <div className="overflow-y-auto px-5 py-4 space-y-5">
+        {/* Media / hero */}
+        <div className="relative">
           {ex.video_url ? (
-            <div className="aspect-video w-full rounded-xl overflow-hidden bg-black">
-              <iframe src={toEmbedUrl(ex.video_url)} className="w-full h-full" allowFullScreen title={ex.name} />
+            <div className="aspect-video w-full bg-black">
+              <iframe
+                src={toEmbedUrl(ex.video_url)}
+                className="w-full h-full"
+                allowFullScreen
+                title={ex.name}
+              />
             </div>
           ) : (
-            <div className="aspect-video w-full rounded-xl bg-gradient-to-br from-primary/20 to-primary/5 flex items-center justify-center border border-border">
+            <div className="aspect-video w-full bg-gradient-to-br from-primary/20 via-primary/5 to-transparent flex items-center justify-center">
               <div className="text-center text-muted-foreground">
-                <Video className="h-8 w-8 mx-auto mb-2 opacity-60" />
+                <Video className="h-8 w-8 mx-auto mb-2 opacity-50" />
                 <p className="text-xs">Sem vídeo cadastrado</p>
               </div>
             </div>
           )}
+          <button
+            onClick={onClose}
+            aria-label="Fechar"
+            className="absolute top-3 right-3 grid h-9 w-9 place-items-center rounded-full bg-black/60 text-white backdrop-blur hover:bg-black/80 transition"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <InfoTile label="Grupo muscular" value={groupName} />
-            <InfoTile label="Dificuldade" value={ex.difficulty || "—"} />
-            <InfoTile label="Equipamento" value={ex.equipment || "—"} />
-            <InfoTile label="Status" value={ex.is_active ? "Ativo" : "Inativo"} />
+        {/* Header */}
+        <div className="px-5 pt-4 pb-3 border-b border-border/60">
+          <div className="flex items-center gap-2 mb-1.5">
+            <span className="inline-flex items-center rounded-full bg-primary/15 text-primary px-2.5 py-0.5 text-[11px] font-semibold">
+              {groupName || "Exercício"}
+            </span>
+            {isOwner && (
+              <span className="inline-flex items-center rounded-full bg-muted text-muted-foreground px-2 py-0.5 text-[10px] font-semibold">
+                Meu
+              </span>
+            )}
           </div>
+          <h2 className="text-xl font-bold font-display leading-tight">{ex.name}</h2>
+        </div>
 
-          {(ex.description || ex.instructions) && (
-            <Section icon={Info} title="Descrição e execução">
-              <p className="text-sm text-muted-foreground whitespace-pre-wrap">
-                {[ex.description, ex.instructions].filter(Boolean).join("\n\n")}
+        {/* Body */}
+        <div className="overflow-y-auto px-5 py-4 flex-1">
+          {description ? (
+            <div>
+              <div className="flex items-center gap-2 mb-2">
+                <ListChecks className="h-4 w-4 text-primary" />
+                <h3 className="text-sm font-semibold">Como executar</h3>
+              </div>
+              <p className="text-sm text-muted-foreground whitespace-pre-wrap leading-relaxed">
+                {description}
               </p>
-            </Section>
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground italic">
+              Nenhuma descrição cadastrada.
+            </p>
           )}
+        </div>
 
-          {(ex.muscles_primary?.length || ex.muscles_secondary?.length) ? (
-            <Section icon={Target} title="Músculos trabalhados">
-              {ex.muscles_primary?.length ? (
-                <div className="mb-2">
-                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1.5">Primários</p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {ex.muscles_primary.map((m) => (
-                      <span key={m} className="rounded-full bg-primary/15 text-primary px-2.5 py-0.5 text-xs font-medium">{m}</span>
-                    ))}
-                  </div>
-                </div>
-              ) : null}
-              {ex.muscles_secondary?.length ? (
-                <div>
-                  <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-1.5">Secundários</p>
-                  <div className="flex flex-wrap gap-1.5">
-                    {ex.muscles_secondary.map((m) => (
-                      <span key={m} className="rounded-full bg-muted text-muted-foreground px-2.5 py-0.5 text-xs font-medium">{m}</span>
-                    ))}
-                  </div>
-                </div>
-              ) : null}
-            </Section>
-          ) : null}
+        {/* Footer actions */}
+        <div className="px-5 py-3 border-t border-border/60 bg-muted/20 flex items-center justify-end gap-2">
+          <button
+            onClick={onClose}
+            className="inline-flex items-center rounded-full border border-border bg-transparent px-4 py-2 text-xs font-semibold text-muted-foreground hover:text-foreground hover:bg-muted/40 transition"
+          >
+            Fechar
+          </button>
+          {isOwner && onEdit && (
+            <button
+              onClick={onEdit}
+              className="inline-flex items-center rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground hover:brightness-110 transition"
+            >
+              Editar
+            </button>
+          )}
+          {!isOwner && onPersonalize && (
+            <button
+              onClick={onPersonalize}
+              title='Uma cópia será salva na aba "Meus"'
+              className="inline-flex items-center rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground hover:brightness-110 transition"
+            >
+              Personalizar
+            </button>
+          )}
         </div>
       </div>
-    </div>
-  );
-}
-
-function InfoTile({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-xl bg-muted/40 border border-border/60 px-3 py-2">
-      <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">{label}</p>
-      <p className="text-sm font-medium truncate">{value}</p>
-    </div>
-  );
-}
-
-function Section({ icon: Icon, title, children }: { icon: React.ElementType; title: string; children: React.ReactNode }) {
-  return (
-    <div>
-      <div className="flex items-center gap-2 mb-2">
-        <Icon className="h-4 w-4 text-primary" />
-        <h3 className="text-sm font-semibold">{title}</h3>
-      </div>
-      {children}
     </div>
   );
 }
