@@ -324,6 +324,7 @@ export function ExerciciosPage({ scope }: { scope: Scope }) {
           groups={groups}
           equipments={equipments}
           personalId={personalId}
+          mode="new"
           onClose={() => setShowWizard(false)}
           onCreated={async () => { setShowWizard(false); setTab("mine"); await loadData(); }}
         />
@@ -335,8 +336,21 @@ export function ExerciciosPage({ scope }: { scope: Scope }) {
           equipments={equipments}
           personalId={personalId}
           initial={editingEx}
+          mode="edit"
           onClose={() => setEditingEx(null)}
           onCreated={async () => { setEditingEx(null); await loadData(); }}
+        />
+      )}
+
+      {personalizingEx && personalId && (
+        <NewExerciseWizard
+          groups={groups}
+          equipments={equipments}
+          personalId={personalId}
+          initial={personalizingEx}
+          mode="personalize"
+          onClose={() => setPersonalizingEx(null)}
+          onCreated={async () => { setPersonalizingEx(null); setTab("mine"); await loadData(); }}
         />
       )}
 
@@ -344,9 +358,10 @@ export function ExerciciosPage({ scope }: { scope: Scope }) {
         <ExerciseDetailModal
           ex={detailEx}
           groupName={groupById.get(detailEx.group_id)?.name ?? ""}
-          canEdit={detailEx.owner_id === personalId}
+          isOwner={detailEx.owner_id === personalId}
           onClose={() => setDetailEx(null)}
           onEdit={() => { setEditingEx(detailEx); setDetailEx(null); }}
+          onPersonalize={() => { setPersonalizingEx(detailEx); setDetailEx(null); }}
         />
       )}
     </div>
