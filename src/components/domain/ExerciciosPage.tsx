@@ -552,24 +552,57 @@ const MUSCLE_OPTIONS = [
 ];
 
 function NewExerciseWizard({
-  groups, equipments, personalId, onClose, onCreated,
+  groups, equipments, personalId, initial, onClose, onCreated,
 }: {
-  groups: Group[]; equipments: Equipment[]; personalId: string; onClose: () => void; onCreated: () => void;
+  groups: Group[]; equipments: Equipment[]; personalId: string;
+  initial?: Exercise | null;
+  onClose: () => void; onCreated: () => void;
 }) {
+  const isEdit = !!initial;
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [data, setData] = useState<FormData>({
-    name: "", description: "", instructions: "",
-    group_id: null,
-    category: "", difficulty: "", objective: "", equipment: [],
-    muscles_primary: [], muscles_secondary: [],
-    video_url: "", image_path: "", video_path: "",
+  const [data, setData] = useState<FormData>(() => ({
+    name: initial?.name ?? "",
+    description: initial?.description ?? "",
+    instructions: initial?.instructions ?? "",
+    group_id: initial?.group_id ?? null,
+    category: initial?.category ?? "",
+    difficulty: initial?.difficulty ?? "",
+    objective: initial?.objective ?? "",
+    equipment: initial?.equipment ? initial.equipment.split(",").map((s) => s.trim()).filter(Boolean) : [],
+    muscles_primary: initial?.muscles_primary ?? [],
+    muscles_secondary: initial?.muscles_secondary ?? [],
+    video_url: initial?.video_url ?? "",
+    image_path: initial?.image_path ?? "",
+    video_path: initial?.video_path ?? "",
+  }));
+  const [mediaTab, setMediaTab] = useState<"none" | "url" | "photo" | "video">(() => {
+    if (initial?.video_url) return "url";
+    if (initial?.video_path) return "video";
+    if (initial?.image_path) return "photo";
+    return "none";
   });
-  const [mediaTab, setMediaTab] = useState<"none" | "url" | "photo" | "video">("none");
   const [uploading, setUploading] = useState<null | "photo" | "video">(null);
   const [imagePreview, setImagePreview] = useState<string>("");
   const [videoPreview, setVideoPreview] = useState<string>("");
   const [openAdvanced, setOpenAdvanced] = useState<Set<string>>(new Set());
+
+  // Load existing media previews on edit
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      if (initial?.image_path) {
+        const { data: s } = await supabase.storage.from("exercise-media").createSignedUrl(initial.image_path, 60 * 60);
+        if (!cancelled) setImagePreview(s?.signedUrl ?? "");
+      }
+      if (initial?.video_path) {
+        const { data: s } = await supabase.storage.from("exercise-media").createSignedUrl(initial.video_path, 60 * 60);
+        if (!cancelled) setVideoPreview(s?.signedUrl ?? "");
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [initial?.image_path, initial?.video_path]);
+
 
   const toggleSection = (k: string) =>
     setOpenAdvanced((s) => {
