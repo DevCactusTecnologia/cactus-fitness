@@ -25,8 +25,12 @@ type Exercise = {
   equipment?: string | null;
   difficulty?: string | null;
   objective?: string | null;
+  category?: string | null;
   video_url?: string | null;
+  image_path?: string | null;
+  video_path?: string | null;
 };
+
 
 const OBJECTIVES = [
   "Capacidade Aeróbia",
@@ -90,11 +94,14 @@ export function ExerciciosPage({ scope }: { scope: Scope }) {
 
   const [query, setQuery] = useState("");
   const [activeGroup, setActiveGroup] = useState<number | "all">("all");
+  const [activeCategory, setActiveCategory] = useState<string | "all">("all");
   const [tab, setTab] = useState<TabId>("all");
   const [visible, setVisible] = useState(PAGE_SIZE);
   const [showFilters, setShowFilters] = useState(false);
   const [showWizard, setShowWizard] = useState(false);
+  const [editingEx, setEditingEx] = useState<Exercise | null>(null);
   const [detailEx, setDetailEx] = useState<Exercise | null>(null);
+
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const personalId = usePersonalId();
 
@@ -143,13 +150,15 @@ export function ExerciciosPage({ scope }: { scope: Scope }) {
     return exercises.filter((x) => {
       if (tab === "mine" && x.owner_id !== personalId) return false;
       if (activeGroup !== "all" && x.group_id !== activeGroup) return false;
+      if (activeCategory !== "all" && (x.category ?? "") !== activeCategory) return false;
       if (q && !normalize(x.name).includes(q)) return false;
       return true;
     });
-  }, [exercises, query, activeGroup, tab, personalId]);
+  }, [exercises, query, activeGroup, activeCategory, tab, personalId]);
 
 
-  useEffect(() => { setVisible(PAGE_SIZE); }, [query, activeGroup, tab]);
+  useEffect(() => { setVisible(PAGE_SIZE); }, [query, activeGroup, activeCategory, tab]);
+
 
   useEffect(() => {
     const el = sentinelRef.current;
@@ -232,27 +241,44 @@ export function ExerciciosPage({ scope }: { scope: Scope }) {
             <button
               onClick={() => setShowFilters((v) => !v)}
               className={`inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition ${
-                showFilters || activeGroup !== "all"
+                showFilters || activeGroup !== "all" || activeCategory !== "all"
                   ? "border-primary/50 bg-primary/15 text-primary"
                   : "border-border bg-card text-muted-foreground hover:text-foreground"
               }`}
             >
               <FilterIcon className="h-3.5 w-3.5" />
               Filtros
-              {activeGroup !== "all" && (
-                <span className="ml-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-primary/25 px-1 text-[10px]">1</span>
+              {(activeGroup !== "all" ? 1 : 0) + (activeCategory !== "all" ? 1 : 0) > 0 && (
+                <span className="ml-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-primary/25 px-1 text-[10px]">
+                  {(activeGroup !== "all" ? 1 : 0) + (activeCategory !== "all" ? 1 : 0)}
+                </span>
               )}
             </button>
           </div>
 
           {showFilters && (
-            <div className="mb-4 flex flex-wrap gap-2">
-              <GroupChip label="Todos" active={activeGroup === "all"} onClick={() => setActiveGroup("all")} />
-              {groups.map((g) => (
-                <GroupChip key={g.id} label={g.name} active={activeGroup === g.id} onClick={() => setActiveGroup(g.id)} />
-              ))}
+            <div className="mb-4 space-y-3">
+              <div>
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1.5">Grupo muscular</p>
+                <div className="flex flex-wrap gap-2">
+                  <GroupChip label="Todos" active={activeGroup === "all"} onClick={() => setActiveGroup("all")} />
+                  {groups.map((g) => (
+                    <GroupChip key={g.id} label={g.name} active={activeGroup === g.id} onClick={() => setActiveGroup(g.id)} />
+                  ))}
+                </div>
+              </div>
+              <div>
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1.5">Categoria</p>
+                <div className="flex flex-wrap gap-2">
+                  <GroupChip label="Todas" active={activeCategory === "all"} onClick={() => setActiveCategory("all")} />
+                  {CATEGORIES.map((c) => (
+                    <GroupChip key={c} label={c} active={activeCategory === c} onClick={() => setActiveCategory(c)} />
+                  ))}
+                </div>
+              </div>
             </div>
           )}
+
 
           {loading ? (
             <div className="mt-10 flex items-center justify-center gap-2 text-sm text-muted-foreground">
@@ -301,14 +327,28 @@ export function ExerciciosPage({ scope }: { scope: Scope }) {
         />
       )}
 
+      {editingEx && personalId && (
+        <NewExerciseWizard
+          groups={groups}
+          equipments={equipments}
+          personalId={personalId}
+          initial={editingEx}
+          onClose={() => setEditingEx(null)}
+          onCreated={async () => { setEditingEx(null); await loadData(); }}
+        />
+      )}
+
       {detailEx && (
         <ExerciseDetailModal
           ex={detailEx}
           groupName={groupById.get(detailEx.group_id)?.name ?? ""}
+          canEdit={detailEx.owner_id === personalId}
           onClose={() => setDetailEx(null)}
+          onEdit={() => { setEditingEx(detailEx); setDetailEx(null); }}
         />
       )}
     </div>
+
   );
 }
 
@@ -347,6 +387,14 @@ function ExerciseRow({
           <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold text-muted-foreground bg-muted">
             {groupName}
           </span>
+          {ex.category && (
+            <>
+              <span className="text-[11px] text-muted-foreground/60">·</span>
+              <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold text-muted-foreground bg-muted">
+                {ex.category}
+              </span>
+            </>
+          )}
           {ex.difficulty && (
             <>
               <span className="text-[11px] text-muted-foreground/60">·</span>
@@ -362,6 +410,7 @@ function ExerciseRow({
           )}
         </div>
 
+
       </div>
     </button>
   );
@@ -370,8 +419,8 @@ function ExerciseRow({
 /* ---------- Modal de Detalhes ---------- */
 
 function ExerciseDetailModal({
-  ex, groupName, onClose,
-}: { ex: Exercise; groupName: string; onClose: () => void }) {
+  ex, groupName, canEdit, onClose, onEdit,
+}: { ex: Exercise; groupName: string; canEdit?: boolean; onClose: () => void; onEdit?: () => void }) {
   return (
     <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/60 backdrop-blur-sm p-0 md:p-4" onClick={onClose}>
       <div
@@ -383,10 +432,21 @@ function ExerciseDetailModal({
             <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Detalhes do exercício</p>
             <h2 className="text-lg font-bold font-display truncate">{ex.name}</h2>
           </div>
-          <button onClick={onClose} className="grid h-9 w-9 place-items-center rounded-full bg-muted hover:bg-muted/70 transition">
-            <X className="h-4 w-4" />
-          </button>
+          <div className="flex items-center gap-2 shrink-0">
+            {canEdit && onEdit && (
+              <button
+                onClick={onEdit}
+                className="inline-flex items-center gap-1.5 rounded-full border border-border bg-muted/40 px-3 py-1.5 text-xs font-semibold text-foreground hover:bg-muted/70 transition"
+              >
+                Editar
+              </button>
+            )}
+            <button onClick={onClose} className="grid h-9 w-9 place-items-center rounded-full bg-muted hover:bg-muted/70 transition">
+              <X className="h-4 w-4" />
+            </button>
+          </div>
         </div>
+
 
         <div className="overflow-y-auto px-5 py-4 space-y-5">
           {ex.video_url ? (
@@ -501,24 +561,57 @@ const MUSCLE_OPTIONS = [
 ];
 
 function NewExerciseWizard({
-  groups, equipments, personalId, onClose, onCreated,
+  groups, equipments, personalId, initial, onClose, onCreated,
 }: {
-  groups: Group[]; equipments: Equipment[]; personalId: string; onClose: () => void; onCreated: () => void;
+  groups: Group[]; equipments: Equipment[]; personalId: string;
+  initial?: Exercise | null;
+  onClose: () => void; onCreated: () => void;
 }) {
+  const isEdit = !!initial;
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [data, setData] = useState<FormData>({
-    name: "", description: "", instructions: "",
-    group_id: null,
-    category: "", difficulty: "", objective: "", equipment: [],
-    muscles_primary: [], muscles_secondary: [],
-    video_url: "", image_path: "", video_path: "",
+  const [data, setData] = useState<FormData>(() => ({
+    name: initial?.name ?? "",
+    description: initial?.description ?? "",
+    instructions: initial?.instructions ?? "",
+    group_id: initial?.group_id ?? null,
+    category: initial?.category ?? "",
+    difficulty: initial?.difficulty ?? "",
+    objective: initial?.objective ?? "",
+    equipment: initial?.equipment ? initial.equipment.split(",").map((s) => s.trim()).filter(Boolean) : [],
+    muscles_primary: initial?.muscles_primary ?? [],
+    muscles_secondary: initial?.muscles_secondary ?? [],
+    video_url: initial?.video_url ?? "",
+    image_path: initial?.image_path ?? "",
+    video_path: initial?.video_path ?? "",
+  }));
+  const [mediaTab, setMediaTab] = useState<"none" | "url" | "photo" | "video">(() => {
+    if (initial?.video_url) return "url";
+    if (initial?.video_path) return "video";
+    if (initial?.image_path) return "photo";
+    return "none";
   });
-  const [mediaTab, setMediaTab] = useState<"none" | "url" | "photo" | "video">("none");
   const [uploading, setUploading] = useState<null | "photo" | "video">(null);
   const [imagePreview, setImagePreview] = useState<string>("");
   const [videoPreview, setVideoPreview] = useState<string>("");
   const [openAdvanced, setOpenAdvanced] = useState<Set<string>>(new Set());
+
+  // Load existing media previews on edit
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      if (initial?.image_path) {
+        const { data: s } = await supabase.storage.from("exercise-media").createSignedUrl(initial.image_path, 60 * 60);
+        if (!cancelled) setImagePreview(s?.signedUrl ?? "");
+      }
+      if (initial?.video_path) {
+        const { data: s } = await supabase.storage.from("exercise-media").createSignedUrl(initial.video_path, 60 * 60);
+        if (!cancelled) setVideoPreview(s?.signedUrl ?? "");
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [initial?.image_path, initial?.video_path]);
+
 
   const toggleSection = (k: string) =>
     setOpenAdvanced((s) => {
@@ -557,7 +650,7 @@ function NewExerciseWizard({
     if (!name) { setSaving(false); setError("Informe o nome do exercício."); return; }
     if (data.group_id == null) { setSaving(false); setError("Selecione o grupo muscular."); return; }
 
-    const payload = {
+    const payload: any = {
       name,
       description: data.description.trim() || null,
       instructions: data.instructions.trim() || null,
@@ -571,15 +664,26 @@ function NewExerciseWizard({
       video_url: data.video_url.trim() || null,
       image_path: data.image_path || null,
       video_path: data.video_path || null,
-      owner_id: personalId,
-      is_active: true,
     };
 
-    const { error: err } = await (supabase.from("exercises") as any).insert(payload);
+    let err: any = null;
+    if (isEdit && initial) {
+      // RLS já garante que só o dono edita (owner_id = auth.uid()).
+      const res = await (supabase.from("exercises") as any)
+        .update(payload)
+        .eq("id", initial.id);
+      err = res.error;
+    } else {
+      payload.owner_id = personalId;
+      payload.is_active = true;
+      const res = await (supabase.from("exercises") as any).insert(payload);
+      err = res.error;
+    }
     setSaving(false);
     if (err) { setError(`Erro ao salvar: ${err.message}`); return; }
     onCreated();
   };
+
 
   const toggle = (arr: string[], m: string) =>
     arr.includes(m) ? arr.filter((x) => x !== m) : [...arr, m];
@@ -593,14 +697,21 @@ function NewExerciseWizard({
         {/* Header */}
         <div className="px-5 md:px-6 py-4 border-b border-border flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">Novo exercício</p>
-            <h2 className="text-xl md:text-2xl font-bold font-display leading-tight">Criar exercício</h2>
-            <p className="text-xs text-muted-foreground mt-0.5">Será salvo em <span className="font-semibold text-foreground">Meus Exercícios</span>.</p>
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-semibold">
+              {isEdit ? "Editar exercício" : "Novo exercício"}
+            </p>
+            <h2 className="text-xl md:text-2xl font-bold font-display leading-tight">
+              {isEdit ? data.name || "Editar" : "Criar exercício"}
+            </h2>
+            {!isEdit && (
+              <p className="text-xs text-muted-foreground mt-0.5">Será salvo em <span className="font-semibold text-foreground">Meus Exercícios</span>.</p>
+            )}
           </div>
           <button onClick={onClose} className="grid h-9 w-9 place-items-center rounded-full bg-muted hover:bg-muted/70 transition shrink-0">
             <X className="h-4 w-4" />
           </button>
         </div>
+
 
         {/* Body */}
         <div className="overflow-y-auto px-5 md:px-6 py-5 flex-1 space-y-5">
@@ -879,7 +990,7 @@ function NewExerciseWizard({
             disabled={!canSave}
             className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-full bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.35)] hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed transition"
           >
-            {saving ? <><Loader2 className="h-4 w-4 animate-spin" /> Salvando...</> : <><Check className="h-4 w-4" /> Salvar exercício</>}
+            {saving ? <><Loader2 className="h-4 w-4 animate-spin" /> Salvando...</> : <><Check className="h-4 w-4" /> {isEdit ? "Salvar alterações" : "Salvar exercício"}</>}
           </button>
         </div>
       </div>
