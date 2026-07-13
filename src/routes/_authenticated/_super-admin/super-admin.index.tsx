@@ -188,7 +188,7 @@ function OrgsTab() {
   }, [data, q]);
 
   const updateMut = useMutation({
-    mutationFn: (v: Parameters<typeof updateOrganization>[0]["data"]) => updateOrganization({ data: v }),
+    mutationFn: (v: any) => updateOrganization({ data: v }),
     onSuccess: () => {
       toast.success("Academia atualizada.");
       qc.invalidateQueries({ queryKey: ["super-admin"] });
@@ -206,11 +206,11 @@ function OrgsTab() {
   });
 
   async function onDelete(orgId: string, name: string) {
-    const ok = await confirm({
+    const ok = await confirmDialog({
       title: "Excluir academia?",
       description: `A academia "${name}" e todos os vínculos serão removidos. Esta ação não pode ser desfeita.`,
-      confirmText: "Excluir",
-      variant: "destructive",
+      confirmLabel: "Excluir",
+      destructive: true,
     });
     if (ok) deleteMut.mutate(orgId);
   }
@@ -338,7 +338,7 @@ function UsersTab() {
   }, [data, q]);
 
   const roleMut = useMutation({
-    mutationFn: (v: Parameters<typeof toggleUserRole>[0]["data"]) => toggleUserRole({ data: v }),
+    mutationFn: (v: any) => toggleUserRole({ data: v }),
     onSuccess: () => {
       toast.success("Papel atualizado.");
       qc.invalidateQueries({ queryKey: ["super-admin", "users"] });
@@ -356,11 +356,11 @@ function UsersTab() {
   });
 
   async function onDelete(userId: string, email: string | null) {
-    const ok = await confirm({
+    const ok = await confirmDialog({
       title: "Excluir usuário?",
       description: `A conta ${email ?? userId} e todos os dados vinculados serão removidos.`,
-      confirmText: "Excluir",
-      variant: "destructive",
+      confirmLabel: "Excluir",
+      destructive: true,
     });
     if (ok) deleteMut.mutate(userId);
   }
@@ -468,7 +468,7 @@ function PlansTab() {
   });
 
   const updateMut = useMutation({
-    mutationFn: (v: Parameters<typeof updateOrganization>[0]["data"]) => updateOrganization({ data: v }),
+    mutationFn: (v: any) => updateOrganization({ data: v }),
     onSuccess: () => {
       toast.success("Limite atualizado.");
       qc.invalidateQueries({ queryKey: ["super-admin"] });
