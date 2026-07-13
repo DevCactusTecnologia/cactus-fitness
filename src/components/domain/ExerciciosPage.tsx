@@ -588,13 +588,15 @@ const MUSCLE_OPTIONS = [
 ];
 
 function NewExerciseWizard({
-  groups, equipments, personalId, initial, onClose, onCreated,
+  groups, equipments, personalId, initial, mode = "new", onClose, onCreated,
 }: {
   groups: Group[]; equipments: Equipment[]; personalId: string;
   initial?: Exercise | null;
+  mode?: "new" | "edit" | "personalize";
   onClose: () => void; onCreated: () => void;
 }) {
-  const isEdit = !!initial;
+  const isEdit = mode === "edit";
+  const isPersonalize = mode === "personalize";
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<FormData>(() => ({
