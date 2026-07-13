@@ -1032,7 +1032,7 @@ function NewExerciseWizard({
             disabled={!canSave}
             className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-full bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.35)] hover:brightness-110 disabled:opacity-40 disabled:cursor-not-allowed transition"
           >
-            {saving ? <><Loader2 className="h-4 w-4 animate-spin" /> Salvando...</> : <><Check className="h-4 w-4" /> {isEdit ? "Salvar alterações" : "Salvar exercício"}</>}
+            {saving ? <><Loader2 className="h-4 w-4 animate-spin" /> Salvando...</> : <><Check className="h-4 w-4" /> {isEdit ? "Salvar alterações" : isPersonalize ? "Salvar em Meus Exercícios" : "Salvar exercício"}</>}
           </button>
         </div>
       </div>
