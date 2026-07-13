@@ -1111,6 +1111,7 @@ export type Database = {
         Args: { _org_id: string; _user_id: string }
         Returns: boolean
       }
+      plan_default_max_alunos: { Args: { _plan: string }; Returns: number }
       shares_org_with: {
         Args: { _other_user: string; _user_id: string }
         Returns: boolean
