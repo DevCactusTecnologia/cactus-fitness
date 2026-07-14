@@ -246,7 +246,7 @@ export function RotinasTreinoPage({ scope }: { scope: Scope }) {
                           <div className="flex items-center gap-3">
                             <div
                               className="grid h-9 w-9 place-items-center rounded-full text-xs font-semibold text-white"
-                              style={{ backgroundColor: color }}
+                              style={{ backgroundColor: color.bg, color: color.fg }}
                             >
                               {initials}
                             </div>
@@ -279,7 +279,7 @@ export function RotinasTreinoPage({ scope }: { scope: Scope }) {
               <div className="flex items-center gap-3">
                 <div
                   className="grid h-11 w-11 place-items-center rounded-full text-sm font-semibold text-white"
-                  style={{ backgroundColor: colorForId(selectedAluno.aluno_id) }}
+                  style={{ backgroundColor: color.bg, color: color.fgForId(selectedAluno.aluno_id) }}
                 >
                   {initialsFromName(selectedAluno.aluno_name)}
                 </div>
