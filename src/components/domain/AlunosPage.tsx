@@ -45,7 +45,7 @@ type AlunoRow = {
   updated_at: string;
 };
 
-type TabKey = "todos" | "ativos" | "desativados";
+type TabKey = "todos" | "ativos" | "convidados" | "desativados";
 
 function InfoCard({
   title,
