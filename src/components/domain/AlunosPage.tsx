@@ -657,43 +657,46 @@ export function AlunosPage({ scope }: { scope: Scope }) {
 }
 
 function AlunoRowInner({ a }: { a: AlunoRow }) {
+  const statusPill = a.is_active ? (
+    <span className="whitespace-nowrap rounded-full bg-green-900/20 px-2 py-1 text-xs text-green-500">
+      Ativo
+    </span>
+  ) : (
+    <span className="whitespace-nowrap rounded-full bg-muted px-2 py-1 text-xs text-fg-muted">
+      Desativado
+    </span>
+  );
   return (
     <>
-      <div className="flex min-w-0 items-center gap-3">
+      <div className="relative mr-3 shrink-0">
         <div
-          className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-sm font-bold font-display ring-2 ring-primary"
+          className="relative flex flex-shrink-0 items-center justify-center overflow-hidden rounded-full font-display font-bold text-white"
           style={{
+            width: 40,
+            height: 40,
             backgroundColor: colorForId(a.id).bg,
             color: colorForId(a.id).fg,
+            fontSize: 16,
           }}
         >
-          {initialsFromName(a.full_name, a.email)}
+          <span>{initialsFromName(a.full_name, a.email)}</span>
         </div>
-        <div className="min-w-0">
-          <div className="truncate font-medium">{a.full_name}</div>
-          <div className="truncate text-xs text-muted-foreground">
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-1.5">
+          <h3 className="truncate font-medium">{a.full_name}</h3>
+        </div>
+        <div className="flex flex-col gap-1 md:flex-row md:items-center md:gap-2">
+          <p className="truncate text-xs text-fg-muted">
             {a.email ?? "sem e-mail"}
-          </div>
+          </p>
         </div>
       </div>
-      <div className="hidden sm:block">
-        {a.is_active ? (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/15 px-2.5 py-0.5 text-xs font-medium text-primary">
-            <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-            Ativo
-          </span>
-        ) : (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
-            Desativado
-          </span>
-        )}
-      </div>
-      <div className="hidden text-sm text-muted-foreground sm:block">
+      <div className="hidden w-24 text-center md:block">{statusPill}</div>
+      <div className="hidden w-32 text-center text-fg-muted md:block">
         {new Date(a.updated_at).toLocaleDateString("pt-BR")}
       </div>
-      <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-muted-foreground">
-        <ChevronRight className="h-4 w-4" />
-      </span>
+      <div className="flex items-center md:hidden">{statusPill}</div>
     </>
   );
 }
