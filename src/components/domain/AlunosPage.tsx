@@ -769,14 +769,7 @@ function AlunoRowInner({ a }: { a: AlunoRow }) {
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-1.5">
           <h3 className="truncate font-medium">{a.full_name}</h3>
-          <span
-            className="inline-flex shrink-0 items-center gap-1 text-xs font-semibold"
-            style={{ color: rank.color }}
-            title={`Rank: ${rank.name}`}
-          >
-            <Shield className="h-3.5 w-3.5" fill={rank.color} stroke={rank.color} />
-            {rank.name}
-          </span>
+          <RankBadge tier={rank} />
         </div>
         <div className="flex flex-col gap-1 md:flex-row md:items-center md:gap-2">
           <p className="truncate text-xs text-fg-muted">
