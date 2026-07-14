@@ -679,7 +679,33 @@ export function AlunosPage({ scope }: { scope: Scope }) {
   );
 }
 
+const RANK_TIERS = [
+  { name: "Bronze", color: "#f59e0b" },
+  { name: "Prata", color: "#cbd5e1" },
+  { name: "Ouro", color: "#facc15" },
+  { name: "Platina", color: "#67e8f9" },
+  { name: "Diamante", color: "#a78bfa" },
+] as const;
+
+function rankForId(id: string) {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
+  return RANK_TIERS[h % RANK_TIERS.length];
+}
+
+function formatLastAccess(iso: string) {
+  const then = new Date(iso);
+  const now = new Date();
+  const startOfDay = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+  const days = Math.round((startOfDay(now) - startOfDay(then)) / 86400000);
+  if (days <= 0) return "Hoje";
+  if (days === 1) return "Ontem";
+  if (days < 7) return `há ${days} dias`;
+  return then.toLocaleDateString("pt-BR");
+}
+
 function AlunoRowInner({ a }: { a: AlunoRow }) {
+  const rank = rankForId(a.id);
   const statusPill = a.is_active ? (
     <span className="whitespace-nowrap rounded-full bg-green-900/20 px-2 py-1 text-xs text-green-500">
       Ativo
@@ -708,6 +734,14 @@ function AlunoRowInner({ a }: { a: AlunoRow }) {
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-1.5">
           <h3 className="truncate font-medium">{a.full_name}</h3>
+          <span
+            className="inline-flex shrink-0 items-center gap-1 text-xs font-semibold"
+            style={{ color: rank.color }}
+            title={`Rank: ${rank.name}`}
+          >
+            <Shield className="h-3.5 w-3.5" fill={rank.color} stroke={rank.color} />
+            {rank.name}
+          </span>
         </div>
         <div className="flex flex-col gap-1 md:flex-row md:items-center md:gap-2">
           <p className="truncate text-xs text-fg-muted">
@@ -717,7 +751,7 @@ function AlunoRowInner({ a }: { a: AlunoRow }) {
       </div>
       <div className="hidden w-24 text-center md:block">{statusPill}</div>
       <div className="hidden w-32 text-center text-fg-muted md:block">
-        {new Date(a.updated_at).toLocaleDateString("pt-BR")}
+        {formatLastAccess(a.updated_at)}
       </div>
       <div className="flex items-center md:hidden">{statusPill}</div>
     </>
