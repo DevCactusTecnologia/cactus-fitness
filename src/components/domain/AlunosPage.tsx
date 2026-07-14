@@ -7,7 +7,6 @@ import {
   Search,
   ChevronRight,
   ChevronDown,
-  ChevronLeft,
   Activity,
   CalendarDays,
   ArrowUpDown,
@@ -17,6 +16,9 @@ import {
   Phone,
   Sparkles,
   Cake,
+  Link2,
+  LayoutGrid,
+  Filter,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
