@@ -20,6 +20,7 @@ import {
   LayoutGrid,
   Filter,
   Trophy,
+  Shield,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
