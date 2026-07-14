@@ -343,26 +343,8 @@ export function AlunosPage({ scope }: { scope: Scope }) {
               </div>
             </Link>
 
-            {/* Ranking */}
-            <button
-              type="button"
-              className="group mb-3 block w-full rounded-xl border border-border bg-surface-1 p-3 text-left transition-all hover:border-primary/40 active:scale-[0.99]"
-            >
-              <div className="flex items-center gap-3">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/15">
-                  <Trophy className="h-5 w-5 text-primary" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="font-display text-sm font-bold text-foreground">
-                    Ranking
-                  </p>
-                  <p className="text-xs text-fg-muted">
-                    Veja a classificação dos alunos por pontos e engajamento.
-                  </p>
-                </div>
-                <ChevronRight className="h-4 w-4 shrink-0 text-fg-muted transition-transform group-hover:translate-x-0.5" />
-              </div>
-            </button>
+
+
 
             {/* Vencimentos */}
             <button
