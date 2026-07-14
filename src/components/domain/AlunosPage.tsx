@@ -49,13 +49,19 @@ function InfoCard({
   title,
   desc,
   icon: Icon,
+  onClick,
 }: {
   title: string;
   desc: string;
   icon: React.ElementType;
+  onClick?: () => void;
 }) {
   return (
-    <button className="group flex items-center justify-between gap-4 rounded-xl border border-border bg-card p-4 text-left transition hover:border-border-strong">
+    <button
+      type="button"
+      onClick={onClick}
+      className="group flex items-center justify-between gap-4 rounded-xl border border-border bg-card p-4 text-left transition hover:border-border-strong"
+    >
       <div className="flex items-start gap-3">
         <div className="grid h-10 w-10 place-items-center rounded-lg bg-primary/15 text-primary">
           <Icon className="h-5 w-5" strokeWidth={1.75} />
@@ -69,6 +75,7 @@ function InfoCard({
     </button>
   );
 }
+
 
 function TabBtn({
   label,
