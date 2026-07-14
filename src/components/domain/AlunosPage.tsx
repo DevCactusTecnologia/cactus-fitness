@@ -7,7 +7,6 @@ import {
   Search,
   ChevronRight,
   ChevronDown,
-  ChevronLeft,
   Activity,
   CalendarDays,
   ArrowUpDown,
@@ -17,6 +16,9 @@ import {
   Phone,
   Sparkles,
   Cake,
+  Link2,
+  LayoutGrid,
+  Filter,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
@@ -43,7 +45,7 @@ type AlunoRow = {
   updated_at: string;
 };
 
-type TabKey = "todos" | "ativos" | "desativados";
+type TabKey = "todos" | "ativos" | "convidados" | "desativados";
 
 function InfoCard({
   title,
@@ -222,6 +224,7 @@ export function AlunosPage({ scope }: { scope: Scope }) {
     () => ({
       todos: alunos.length,
       ativos: alunos.filter((a) => a.is_active).length,
+      convidados: 0,
       desativados: alunos.filter((a) => !a.is_active).length,
     }),
     [alunos],
@@ -232,6 +235,7 @@ export function AlunosPage({ scope }: { scope: Scope }) {
     return alunos.filter((a) => {
       if (tab === "ativos" && !a.is_active) return false;
       if (tab === "desativados" && a.is_active) return false;
+      if (tab === "convidados") return false;
       if (!term) return true;
       return (
         a.full_name.toLowerCase().includes(term) ||
@@ -240,180 +244,242 @@ export function AlunosPage({ scope }: { scope: Scope }) {
     });
   }, [alunos, q, tab]);
 
+  const rotinasHref =
+    scope === "academia"
+      ? "/dashboard/academia/alunos/rotinas"
+      : "/dashboard/personal/alunos/rotinas";
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <IconRail scope={scope} />
 
-      <main className="pb-24 md:ml-[72px] md:pb-0">
-        <div className="sticky top-0 z-30 border-b border-border/60 bg-background/70 backdrop-blur-xl">
-          <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-4 sm:px-6 md:px-8">
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => window.history.back()}
-                className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                aria-label="Voltar"
-              >
-                <ChevronLeft className="h-5 w-5" />
-                <span>Voltar</span>
-              </button>
-              <h1 className="text-xl font-bold tracking-tight font-display sm:text-2xl">
-                Alunos
-              </h1>
-            </div>
-            <div className="flex flex-wrap items-center gap-2">
-              <button
-                type="button"
-                onClick={() => setOpenNew(true)}
-                className="inline-flex items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground shadow-[0_0_20px_rgba(76,175,80,0.35)] hover:brightness-110"
-              >
-                <Plus className="h-4 w-4" /> Novo Aluno
-              </button>
-            </div>
-
-
+      <div className="pb-24 md:ml-[72px] md:pb-0">
+        {/* Sticky top bar */}
+        <header className="sticky top-0 z-50 flex items-center justify-between border-b border-border bg-background/95 p-4 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:p-6">
+          <div className="flex items-center gap-3">
+            <h1 className="hidden font-display text-2xl font-bold md:block">
+              Alunos
+            </h1>
           </div>
-        </div>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              className="relative inline-flex h-8 items-center justify-center gap-2 whitespace-nowrap rounded-full border border-border bg-transparent px-4 py-2 text-xs font-semibold text-foreground transition-all hover:border-primary hover:text-primary hover:shadow-glow active:scale-95"
+            >
+              <Link2 className="mr-1 h-4 w-4" />
+              <span className="hidden sm:inline">Link de cadastro</span>
+              <span className="sm:hidden">Link</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setOpenNew(true)}
+              className="relative inline-flex h-8 items-center justify-center gap-2 whitespace-nowrap rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground shadow-glow transition-all hover:-translate-y-0.5 hover:bg-primary/90 hover:shadow-glow-lg active:translate-y-0 active:scale-[0.97]"
+            >
+              <Plus className="mr-1 h-4 w-4" />
+              <span className="hidden sm:inline">Novo Aluno</span>
+              <span className="sm:hidden">Novo</span>
+            </button>
+          </div>
+        </header>
 
-        <div className="px-4 py-6 sm:px-6 md:px-8">
-          <div className="mx-auto max-w-6xl">
-            <div className="mt-4 flex flex-wrap items-center gap-2">
-              <div className="flex min-w-0 flex-1 basis-full items-center gap-2 rounded-full border border-border bg-card px-4 py-2 text-sm sm:basis-auto sm:min-w-[240px]">
-                <Search className="h-4 w-4 text-muted-foreground" />
+        {/* Main content */}
+        <main className="p-4 md:p-6">
+          <div className="mx-auto max-w-4xl">
+            {/* Search + Categorias */}
+            <div className="mb-6 flex flex-col gap-4 md:flex-row">
+              <div className="relative flex-1">
+                <Search className="pointer-events-none absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-fg-muted" />
                 <input
                   value={q}
                   onChange={(e) => setQ(e.target.value)}
+                  type="text"
                   placeholder="buscar alunos..."
-                  className="w-full bg-transparent placeholder:text-muted-foreground focus:outline-none"
+                  className="h-12 w-full rounded-xl border border-border bg-surface-2 pl-10 pr-10 text-sm text-foreground transition-colors placeholder:text-muted-foreground focus:border-primary focus:outline-none"
                 />
               </div>
-            </div>
-
-            <div className="mt-4 flex flex-col gap-3">
-              <InfoCard
-                icon={Activity}
-                title="Rotinas de treino"
-                desc="Veja quem treinou e quantas vezes em qualquer período."
-                onClick={() =>
-                  navigate({
-                    to:
-                      scope === "academia"
-                        ? "/dashboard/academia/alunos/rotinas"
-                        : "/dashboard/personal/alunos/rotinas",
-                  })
-                }
-              />
-              <InfoCard
-                icon={CalendarDays}
-                title="Vencimento dos treinos"
-                desc="Veja quando o treino de cada aluno termina e quem precisa renovar."
-              />
-
-            </div>
-
-            <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
-              <div className="flex flex-wrap items-center gap-1 rounded-full border border-border bg-card p-1">
-                <TabBtn
-                  label="Todos"
-                  count={counts.todos}
-                  active={tab === "todos"}
-                  onClick={() => setTab("todos")}
-                />
-                <TabBtn
-                  label="Ativos"
-                  count={counts.ativos}
-                  active={tab === "ativos"}
-                  onClick={() => setTab("ativos")}
-                />
-                <TabBtn
-                  label="Desativados"
-                  count={counts.desativados}
-                  active={tab === "desativados"}
-                  onClick={() => setTab("desativados")}
-                />
-              </div>
-              <button className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-sm hover:bg-accent">
-                <ArrowUpDown className="h-4 w-4" /> Mais recentes
-                <ChevronDown className="h-4 w-4" />
+              <button
+                type="button"
+                className="relative flex h-12 items-center justify-center gap-2 whitespace-nowrap rounded-full border border-border bg-transparent px-6 py-2.5 text-sm font-semibold text-foreground transition-all hover:border-primary hover:text-primary hover:shadow-glow active:scale-[0.97] md:w-auto"
+              >
+                <LayoutGrid className="h-4 w-4" />
+                <span className="hidden md:inline">Gerenciar Categorias</span>
+                <span className="md:hidden">Categorias</span>
               </button>
             </div>
 
-            <p className="mt-3 text-sm text-muted-foreground">
-              {isLoading
-                ? "Carregando..."
-                : `${filtered.length} ${
-                    filtered.length === 1
-                      ? "aluno encontrado"
-                      : "alunos encontrados"
-                  }`}
-            </p>
+            {/* Filter by category */}
+            <div className="mb-3">
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  className="relative inline-flex h-10 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-full border border-border bg-transparent px-3 py-2.5 text-sm font-medium text-foreground transition-all hover:border-primary hover:text-primary hover:shadow-glow active:scale-[0.97] sm:flex-none"
+                >
+                  <Filter className="h-4 w-4" />
+                  Filtrar por categoria
+                </button>
+              </div>
+            </div>
 
-            <div className="mt-2 overflow-hidden rounded-xl border border-border bg-card">
-              <div className="hidden sm:grid grid-cols-[1.6fr_1fr_1fr_auto] items-center gap-4 border-b border-border px-5 py-3 text-xs uppercase tracking-wider text-muted-foreground">
-                <div>Nome</div>
-                <div>Status</div>
-                <div>Atualizado</div>
-                <div className="w-8" />
+            {/* Rotinas de treino */}
+            <Link
+              to={rotinasHref}
+              className="group mb-3 block rounded-xl border border-border bg-surface-1 p-3 transition-all hover:border-primary/40 active:scale-[0.99]"
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/15">
+                  <Activity className="h-5 w-5 text-primary" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="font-display text-sm font-bold text-foreground">
+                    Rotinas de treino
+                  </p>
+                  <p className="text-xs text-fg-muted">
+                    Veja quem treinou e quantas vezes em qualquer período.
+                  </p>
+                </div>
+                <ChevronRight className="h-4 w-4 shrink-0 text-fg-muted transition-transform group-hover:translate-x-0.5" />
+              </div>
+            </Link>
+
+            {/* Vencimentos */}
+            <button
+              type="button"
+              className="group mb-6 block w-full rounded-xl border border-border bg-surface-1 p-3 text-left transition-all hover:border-primary/40 active:scale-[0.99]"
+            >
+              <div className="flex items-center gap-3">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/15">
+                  <CalendarDays className="h-5 w-5 text-primary" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="font-display text-sm font-bold text-foreground">
+                    Vencimento dos treinos
+                  </p>
+                  <p className="text-xs text-fg-muted">
+                    Veja quando o treino de cada aluno termina e quem precisa renovar.
+                  </p>
+                </div>
+                <ChevronRight className="h-4 w-4 shrink-0 text-fg-muted transition-transform group-hover:translate-x-0.5" />
+              </div>
+            </button>
+
+            {/* Status tabs + Sort */}
+            <div className="mb-3 flex items-center justify-between gap-2">
+              <div className="no-scrollbar flex min-w-0 items-center gap-0 overflow-x-auto rounded-full bg-surface-2 p-1">
+                {(
+                  [
+                    ["todos", `Todos (${counts.todos})`],
+                    ["ativos", `Ativos (${counts.ativos})`],
+                    ["convidados", "Convidados"],
+                    ["desativados", "Desativados"],
+                  ] as [TabKey, string][]
+                ).map(([key, label]) => {
+                  const active = tab === key;
+                  return (
+                    <button
+                      key={key}
+                      type="button"
+                      onClick={() => setTab(key)}
+                      className={`shrink-0 whitespace-nowrap rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+                        active
+                          ? "bg-primary text-primary-foreground"
+                          : "text-fg-muted hover:text-foreground"
+                      }`}
+                    >
+                      {label}
+                    </button>
+                  );
+                })}
+              </div>
+              <button
+                type="button"
+                className="flex h-9 w-auto items-center justify-between gap-1.5 rounded-full border border-border bg-surface-2 px-3 py-2 text-xs text-foreground"
+              >
+                <ArrowUpDown className="h-3.5 w-3.5 shrink-0 text-fg-muted" />
+                <span>Mais recentes</span>
+                <ChevronDown className="h-4 w-4 opacity-50" />
+              </button>
+            </div>
+
+            {/* Count */}
+            <div className="mb-3 flex items-center justify-between">
+              <p className="text-sm text-fg-muted">
+                <span className="font-medium text-foreground">
+                  {filtered.length}
+                </span>{" "}
+                {filtered.length === 1 ? "aluno encontrado" : "alunos encontrados"}
+              </p>
+            </div>
+
+            {/* List */}
+            <div className="overflow-hidden rounded-xl border border-border bg-surface-1">
+              <div className="hidden border-b border-border p-4 md:flex">
+                <div className="w-12" />
+                <div className="flex-1 font-medium">Nome</div>
+                <div className="w-24 text-center font-medium">Status</div>
+                <div className="w-32 text-center font-medium">Último Acesso</div>
               </div>
 
-              {isLoading ? (
-                <div className="grid place-items-center py-12">
-                  <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
-                </div>
-              ) : filtered.length === 0 ? (
-                <div className="flex flex-col items-center justify-center gap-3 px-6 py-14 text-center">
-                  <div className="grid h-12 w-12 place-items-center rounded-full bg-primary/10 text-primary">
-                    <Users className="h-5 w-5" />
+              <div className="divide-y divide-border">
+                {isLoading ? (
+                  <div className="grid place-items-center py-12">
+                    <Loader2 className="h-5 w-5 animate-spin text-fg-muted" />
                   </div>
-                  <div>
-                    <p className="text-sm font-medium">
-                      Nenhum aluno cadastrado ainda
-                    </p>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      Clique em "Novo Aluno" para começar.
-                    </p>
+                ) : filtered.length === 0 ? (
+                  <div className="flex flex-col items-center justify-center gap-3 px-6 py-14 text-center">
+                    <div className="grid h-12 w-12 place-items-center rounded-full bg-primary/10 text-primary">
+                      <Users className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">
+                        Nenhum aluno cadastrado ainda
+                      </p>
+                      <p className="mt-1 text-xs text-fg-muted">
+                        Clique em "Novo Aluno" para começar.
+                      </p>
+                    </div>
                   </div>
-                </div>
-              ) : (
-                filtered.map((a) =>
-                  scope === "academia" ? (
-                    <Link
-                      key={a.id}
-                      to="/dashboard/academia/alunos/$alunoId"
-                      params={{ alunoId: a.id }}
-                      className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-4 py-3 transition hover:bg-accent/50 sm:grid-cols-[1.6fr_1fr_1fr_auto] sm:px-5 sm:py-4"
-                    >
-                      <AlunoRowInner a={a} />
-                    </Link>
-                  ) : (
-                    <Link
-                      key={a.id}
-                      to="/dashboard/personal/alunos/$alunoId"
-                      params={{ alunoId: a.id }}
-                      className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 px-4 py-3 transition hover:bg-accent/50 sm:grid-cols-[1.6fr_1fr_1fr_auto] sm:px-5 sm:py-4"
-                    >
-                      <AlunoRowInner a={a} />
-                    </Link>
-                  ),
-                )
-              )}
-              {hasNextPage && (
-                <div
-                  ref={sentinelRef}
-                  className="flex items-center justify-center py-6 text-xs text-muted-foreground"
-                >
-                  {isFetchingNextPage ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    "Carregando mais..."
-                  )}
-                </div>
-              )}
+                ) : (
+                  filtered.map((a) =>
+                    scope === "academia" ? (
+                      <Link
+                        key={a.id}
+                        to="/dashboard/academia/alunos/$alunoId"
+                        params={{ alunoId: a.id }}
+                        className="flex items-center justify-between p-4 transition-colors hover:bg-surface-2"
+                      >
+                        <AlunoRowInner a={a} />
+                      </Link>
+                    ) : (
+                      <Link
+                        key={a.id}
+                        to="/dashboard/personal/alunos/$alunoId"
+                        params={{ alunoId: a.id }}
+                        className="flex items-center justify-between p-4 transition-colors hover:bg-surface-2"
+                      >
+                        <AlunoRowInner a={a} />
+                      </Link>
+                    ),
+                  )
+                )}
+                {hasNextPage && (
+                  <div
+                    ref={sentinelRef}
+                    className="flex items-center justify-center py-6 text-xs text-fg-muted"
+                  >
+                    {isFetchingNextPage ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      "Carregando mais..."
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
       <MobileBottomNav scope={scope} />
+
 
       <Dialog
         open={openNew}
@@ -591,43 +657,46 @@ export function AlunosPage({ scope }: { scope: Scope }) {
 }
 
 function AlunoRowInner({ a }: { a: AlunoRow }) {
+  const statusPill = a.is_active ? (
+    <span className="whitespace-nowrap rounded-full bg-green-900/20 px-2 py-1 text-xs text-green-500">
+      Ativo
+    </span>
+  ) : (
+    <span className="whitespace-nowrap rounded-full bg-muted px-2 py-1 text-xs text-fg-muted">
+      Desativado
+    </span>
+  );
   return (
     <>
-      <div className="flex min-w-0 items-center gap-3">
+      <div className="relative mr-3 shrink-0">
         <div
-          className="grid h-10 w-10 shrink-0 place-items-center rounded-full text-sm font-bold font-display ring-2 ring-primary"
+          className="relative flex flex-shrink-0 items-center justify-center overflow-hidden rounded-full font-display font-bold text-white"
           style={{
+            width: 40,
+            height: 40,
             backgroundColor: colorForId(a.id).bg,
             color: colorForId(a.id).fg,
+            fontSize: 16,
           }}
         >
-          {initialsFromName(a.full_name, a.email)}
+          <span>{initialsFromName(a.full_name, a.email)}</span>
         </div>
-        <div className="min-w-0">
-          <div className="truncate font-medium">{a.full_name}</div>
-          <div className="truncate text-xs text-muted-foreground">
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="flex items-center gap-1.5">
+          <h3 className="truncate font-medium">{a.full_name}</h3>
+        </div>
+        <div className="flex flex-col gap-1 md:flex-row md:items-center md:gap-2">
+          <p className="truncate text-xs text-fg-muted">
             {a.email ?? "sem e-mail"}
-          </div>
+          </p>
         </div>
       </div>
-      <div className="hidden sm:block">
-        {a.is_active ? (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-primary/15 px-2.5 py-0.5 text-xs font-medium text-primary">
-            <span className="h-1.5 w-1.5 rounded-full bg-primary" />
-            Ativo
-          </span>
-        ) : (
-          <span className="inline-flex items-center gap-1.5 rounded-full bg-muted px-2.5 py-0.5 text-xs font-medium text-muted-foreground">
-            Desativado
-          </span>
-        )}
-      </div>
-      <div className="hidden text-sm text-muted-foreground sm:block">
+      <div className="hidden w-24 text-center md:block">{statusPill}</div>
+      <div className="hidden w-32 text-center text-fg-muted md:block">
         {new Date(a.updated_at).toLocaleDateString("pt-BR")}
       </div>
-      <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg text-muted-foreground">
-        <ChevronRight className="h-4 w-4" />
-      </span>
+      <div className="flex items-center md:hidden">{statusPill}</div>
     </>
   );
 }
