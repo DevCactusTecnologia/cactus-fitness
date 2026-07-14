@@ -19,7 +19,7 @@ import {
   Link2,
   LayoutGrid,
   Filter,
-  Shield,
+  
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
@@ -660,18 +660,72 @@ export function AlunosPage({ scope }: { scope: Scope }) {
   );
 }
 
-const RANK_TIERS = [
-  { name: "Bronze", color: "#f59e0b" },
-  { name: "Prata", color: "#cbd5e1" },
-  { name: "Ouro", color: "#facc15" },
-  { name: "Platina", color: "#67e8f9" },
-  { name: "Diamante", color: "#a78bfa" },
-] as const;
+type RankTier = {
+  name: string;
+  rgb: string; // "r, g, b"
+  textLight: string;
+  textDark: string;
+};
+
+const RANK_TIERS: RankTier[] = [
+  { name: "Bronze", rgb: "205, 127, 50", textLight: "#9A5B12", textDark: "#CD7F32" },
+  { name: "Prata", rgb: "148, 163, 184", textLight: "#475569", textDark: "#CBD5E1" },
+  { name: "Ouro", rgb: "234, 179, 8", textLight: "#854D0E", textDark: "#FDE047" },
+  { name: "Platina", rgb: "20, 184, 166", textLight: "#0F766E", textDark: "#5EEAD4" },
+  { name: "Diamante", rgb: "139, 92, 246", textLight: "#6D28D9", textDark: "#C4B5FD" },
+];
 
 function rankForId(id: string) {
   let h = 0;
   for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
   return RANK_TIERS[h % RANK_TIERS.length];
+}
+
+function RankBadge({ tier }: { tier: RankTier }) {
+  const boxStyle = {
+    backgroundColor: `rgba(${tier.rgb}, 0.15)`,
+    border: `1.5px solid rgba(${tier.rgb}, 0.4)`,
+  };
+  const textStyle = { color: tier.textLight };
+  const shield = (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="16"
+      height="16"
+      fill="currentColor"
+      viewBox="0 0 256 256"
+      style={textStyle}
+    >
+      <path d="M224,56v56c0,52.72-25.52,84.67-46.93,102.19-23.06,18.86-46,25.27-47,25.53a8,8,0,0,1-4.2,0c-1-.26-23.91-6.67-47-25.53C57.52,196.67,32,164.72,32,112V56A16,16,0,0,1,48,40H208A16,16,0,0,1,224,56Z" />
+    </svg>
+  );
+  return (
+    <span
+      data-onboarding="ranking-aluno-badge"
+      className="shrink-0"
+      title={`Divisão ${tier.name.toLowerCase()}`}
+    >
+      <div className="flex items-center gap-2.5 sm:hidden">
+        <div
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-2xl"
+          style={boxStyle}
+        >
+          {shield}
+        </div>
+      </div>
+      <div className="hidden items-center gap-2.5 sm:flex">
+        <div
+          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-2xl"
+          style={boxStyle}
+        >
+          {shield}
+        </div>
+        <span className="font-display text-xs font-extrabold" style={textStyle}>
+          {tier.name}
+        </span>
+      </div>
+    </span>
+  );
 }
 
 function formatLastAccess(iso: string) {
@@ -715,14 +769,7 @@ function AlunoRowInner({ a }: { a: AlunoRow }) {
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-1.5">
           <h3 className="truncate font-medium">{a.full_name}</h3>
-          <span
-            className="inline-flex shrink-0 items-center gap-1 text-xs font-semibold"
-            style={{ color: rank.color }}
-            title={`Rank: ${rank.name}`}
-          >
-            <Shield className="h-3.5 w-3.5" fill={rank.color} stroke={rank.color} />
-            {rank.name}
-          </span>
+          <RankBadge tier={rank} />
         </div>
         <div className="flex flex-col gap-1 md:flex-row md:items-center md:gap-2">
           <p className="truncate text-xs text-fg-muted">
