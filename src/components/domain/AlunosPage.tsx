@@ -720,7 +720,7 @@ function RankBadge({ tier }: { tier: RankTier }) {
         >
           {shield}
         </div>
-        <span className={`font-display text-xs font-extrabold ${textClass}`}>
+        <span className="font-display text-xs font-extrabold" style={textStyle}>
           {tier.name}
         </span>
       </div>
