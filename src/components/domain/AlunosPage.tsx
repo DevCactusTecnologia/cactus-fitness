@@ -49,13 +49,19 @@ function InfoCard({
   title,
   desc,
   icon: Icon,
+  onClick,
 }: {
   title: string;
   desc: string;
   icon: React.ElementType;
+  onClick?: () => void;
 }) {
   return (
-    <button className="group flex items-center justify-between gap-4 rounded-xl border border-border bg-card p-4 text-left transition hover:border-border-strong">
+    <button
+      type="button"
+      onClick={onClick}
+      className="group flex items-center justify-between gap-4 rounded-xl border border-border bg-card p-4 text-left transition hover:border-border-strong"
+    >
       <div className="flex items-start gap-3">
         <div className="grid h-10 w-10 place-items-center rounded-lg bg-primary/15 text-primary">
           <Icon className="h-5 w-5" strokeWidth={1.75} />
@@ -69,6 +75,7 @@ function InfoCard({
     </button>
   );
 }
+
 
 function TabBtn({
   label,
@@ -287,12 +294,21 @@ export function AlunosPage({ scope }: { scope: Scope }) {
                 icon={Activity}
                 title="Rotinas de treino"
                 desc="Veja quem treinou e quantas vezes em qualquer período."
+                onClick={() =>
+                  navigate({
+                    to:
+                      scope === "academia"
+                        ? "/dashboard/academia/alunos/rotinas"
+                        : "/dashboard/personal/alunos/rotinas",
+                  })
+                }
               />
               <InfoCard
                 icon={CalendarDays}
                 title="Vencimento dos treinos"
                 desc="Veja quando o treino de cada aluno termina e quem precisa renovar."
               />
+
             </div>
 
             <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
