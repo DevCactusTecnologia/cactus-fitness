@@ -19,7 +19,6 @@ import {
   Link2,
   LayoutGrid,
   Filter,
-  Trophy,
   Shield,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
