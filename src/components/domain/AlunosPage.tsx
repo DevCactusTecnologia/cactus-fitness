@@ -294,12 +294,21 @@ export function AlunosPage({ scope }: { scope: Scope }) {
                 icon={Activity}
                 title="Rotinas de treino"
                 desc="Veja quem treinou e quantas vezes em qualquer período."
+                onClick={() =>
+                  navigate({
+                    to:
+                      scope === "academia"
+                        ? "/dashboard/academia/alunos/rotinas"
+                        : "/dashboard/personal/alunos/rotinas",
+                  })
+                }
               />
               <InfoCard
                 icon={CalendarDays}
                 title="Vencimento dos treinos"
                 desc="Veja quando o treino de cada aluno termina e quem precisa renovar."
               />
+
             </div>
 
             <div className="mt-5 flex flex-wrap items-center justify-between gap-3">
